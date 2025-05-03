@@ -215,6 +215,29 @@
             padding: 20px;
         }
 
+        .marquee-container {
+            background: linear-gradient(135deg, var(--yellow), #eab308);
+            color: var(--dark);
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            overflow: hidden;
+            font-size: 0.95rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
+        }
+
+        @keyframes marquee {
+            from { transform: translateX(100%); }
+            to { transform: translateX(-100%); }
+        }
+
         .balance-info {
             display: flex;
             justify-content: space-between;
@@ -543,6 +566,11 @@
                 padding: 16px;
             }
 
+            .marquee-container {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+
             .balance-info {
                 flex-direction: column;
                 gap: 12px;
@@ -656,6 +684,9 @@
         </div>
 
         <div class="game-section" id="gameSection">
+            <div class="marquee-container" id="marqueeContainer" style="display: none;">
+                <div class="marquee" id="marqueeText"></div>
+            </div>
             <div class="balance-info">
                 <div>
                     <div>Your Balance</div>
@@ -804,6 +835,44 @@
                 selectedAmount = parseInt(btn.dataset.amount);
             });
         });
+
+        // Marquee message handling
+        function setupMarqueeListener() {
+            if (!currentUserMobile) return;
+
+            // Listen for personal messages
+            database.ref(`users/${currentUserMobile}/personalMessage`).on('value', snapshot => {
+                const personalMessage = snapshot.val();
+                updateMarquee(personalMessage, true);
+            });
+
+            // Listen for broadcast messages
+            database.ref('gameSettings/broadcastMessage').on('value', snapshot => {
+                const broadcastMessage = snapshot.val();
+                updateMarquee(broadcastMessage, false);
+            });
+        }
+
+        function updateMarquee(messageData, isPersonal) {
+            const marqueeContainer = document.getElementById('marqueeContainer');
+            const marqueeText = document.getElementById('marqueeText');
+
+            if (messageData && messageData.text) {
+                marqueeText.textContent = isPersonal 
+                    ? `Personal: ${messageData.text}` 
+                    : `Announcement: ${messageData.text}`;
+                marqueeContainer.style.display = 'block';
+            } else {
+                marqueeContainer.style.display = 'none';
+                marqueeText.textContent = '';
+            }
+        }
+
+        // Call this when user logs in
+        function initializeGame() {
+            setupMarqueeListener();
+            updateUI();
+        }
 
         // Functions
         function startTimer() {
@@ -958,7 +1027,6 @@
             isBetting = true;
             placeBetBtn.disabled = true;
 
-            // Check if betting is enabled
             try {
                 const snapshot = await database.ref('gameSettings/bettingEnabled').once('value');
                 const bettingEnabled = snapshot.val() !== false;
@@ -1061,7 +1129,6 @@
             let currentBet = null;
             let winProbability = 20;
 
-            // Check for current bet and win probability
             try {
                 if (currentUserMobile) {
                     const snapshot = await database.ref('users/' + currentUserMobile).once('value');
@@ -1073,7 +1140,6 @@
                 console.error('Error checking user data:', error);
             }
 
-            // Determine result
             try {
                 if (currentUserMobile && currentBet && currentBet.outcome) {
                     result = currentBet.outcome;
@@ -1086,7 +1152,6 @@
                 result = generateRandomResult(null, 20);
             }
 
-            // Process bet if it exists
             if (currentUserMobile && currentBet) {
                 const { color: betColor, amount: betAmount } = currentBet;
                 const multiplier = getMultiplier(betColor);
@@ -1126,7 +1191,6 @@
             updateUI();
             updateFirebase();
 
-            // Clear the current bet
             if (currentUserMobile) {
                 database.ref('users/' + currentUserMobile + '/currentBet').remove().catch(error => {
                     console.error('Error clearing current bet:', error);
@@ -1203,6 +1267,7 @@
         function showGameSection() {
             authSection.style.display = 'none';
             gameSection.style.display = 'block';
+            initializeGame();
         }
 
         function hideGameSection() {
