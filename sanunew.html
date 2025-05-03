@@ -100,7 +100,7 @@
             border: none;
             padding: 10px 20px;
             border-radius: 8px;
-            font-size: 0.9 POLITICSrem;
+            font-size: 0.9rem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
@@ -605,7 +605,7 @@
         let timer = 20;
         let timerInterval;
         let canBet = true;
-        let isBetting = false; // Prevent multiple clicks
+        let isBetting = false;
 
         // DOM elements
         const mobileInput = document.getElementById('mobileInput');
@@ -663,12 +663,9 @@
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
                 if (!canBet) return;
-
                 colorOptions.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
                 selectedColor = option.dataset.color;
-                
-                // Clear any previous bet amount selection when changing color
                 betAmountBtns.forEach(b => b.classList.remove('selected'));
                 selectedAmount = null;
             });
@@ -680,7 +677,6 @@
                     showMessage(betMessage, 'Please select a color first', 'error');
                     return;
                 }
-
                 betAmountBtns.forEach(b => b.classList.remove('selected'));
                 btn.classList.add('selected');
                 selectedAmount = parseInt(btn.dataset.amount);
@@ -692,11 +688,9 @@
             clearInterval(timerInterval);
             timer = 20;
             updateTimerDisplay();
-
             timerInterval = setInterval(() => {
                 timer--;
                 updateTimerDisplay();
-
                 if (timer <= 0) {
                     clearInterval(timerInterval);
                     processResult();
@@ -710,7 +704,6 @@
 
         function updateTimerDisplay() {
             timerDisplay.textContent = timer;
-
             if (timer <= 5) {
                 timerDisplay.style.color = '#d63031';
                 if (canBet) {
@@ -740,19 +733,15 @@
         function handleLogin() {
             const mobile = mobileInput.value.trim();
             const password = passwordInput.value.trim();
-
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 showMessage(authMessage, 'Please enter a valid 10-digit mobile number', 'error');
                 return;
             }
-
             if (!password || password.length < 6) {
                 showMessage(authMessage, 'Please enter your password (min 6 characters)', 'error');
                 return;
             }
-
             showLoading(true);
-
             database.ref('users/' + mobile).once('value')
                 .then(snapshot => {
                     if (snapshot.exists()) {
@@ -785,24 +774,19 @@
             const mobile = regMobileInput.value.trim();
             const password = regPasswordInput.value.trim();
             const confirmPassword = regConfirmPasswordInput.value.trim();
-
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 showMessage(regMessage, 'Please enter a valid 10-digit mobile number', 'error');
                 return;
             }
-
             if (!password || password.length < 6) {
                 showMessage(regMessage, 'Password must be at least 6 characters', 'error');
                 return;
             }
-
             if (password !== confirmPassword) {
                 showMessage(regMessage, 'Passwords do not match', 'error');
                 return;
             }
-
             showLoading(true);
-
             database.ref('users/' + mobile).once('value')
                 .then(snapshot => {
                     if (snapshot.exists()) {
@@ -812,7 +796,8 @@
                         database.ref('users/' + mobile).set({
                             password: password,
                             balance: 100,
-                            history: []
+                            history: [],
+                            winProbability: 20
                         }).then(() => {
                             currentUserMobile = mobile;
                             currentBalance = 100;
@@ -846,10 +831,28 @@
             hideMessage(authMessage);
         }
 
-        function placeBet() {
-            if (isBetting) return; // Prevent multiple clicks
+        async function placeBet() {
+            if (isBetting) return;
             isBetting = true;
             placeBetBtn.disabled = true;
+
+            // Check if betting is enabled
+            try {
+                const snapshot = await database.ref('gameSettings/bettingEnabled').once('value');
+                const bettingEnabled = snapshot.val() !== false;
+                if (!bettingEnabled) {
+                    showMessage(betMessage, 'Betting is currently disabled by the admin.', 'error');
+                    isBetting = false;
+                    placeBetBtn.disabled = false;
+                    return;
+                }
+            } catch (error) {
+                console.error('Error checking betting status:', error);
+                showMessage(betMessage, 'Error checking game status. Please try again.', 'error');
+                isBetting = false;
+                placeBetBtn.disabled = false;
+                return;
+            }
 
             if (currentBalance < 10) {
                 showMessage(betMessage, 'Minimum balance reached (₹10). Please deposit more cash.', 'error');
@@ -896,7 +899,7 @@
             if (timer <= 5) {
                 showMessage(betMessage, 'Too late to place bet! Wait for next round', 'error');
                 isBetting = false;
-                placeBetBtn.disabled = true; // Keep disabled until next round
+                placeBetBtn.disabled = true;
                 return;
             }
 
@@ -904,7 +907,6 @@
             currentBalance -= selectedAmount;
             updateUI();
 
-            // Store the current bet in Firebase
             if (currentUserMobile) {
                 const betData = {
                     color: selectedColor,
@@ -914,7 +916,6 @@
                 database.ref('users/' + currentUserMobile + '/currentBet').set(betData)
                     .then(() => {
                         showMessage(betMessage, `Bet placed: ₹${selectedAmount} on ${selectedColor}`, 'success');
-                        // Clear selections after successful bet
                         selectedColor = null;
                         selectedAmount = null;
                         colorOptions.forEach(opt => opt.classList.remove('selected'));
@@ -923,7 +924,6 @@
                     .catch(error => {
                         console.error('Error saving bet:', error);
                         showMessage(betMessage, 'Error placing bet. Please try again.', 'error');
-                        // Revert balance if Firebase fails
                         currentBalance += selectedAmount;
                         updateUI();
                         isBetting = false;
@@ -937,15 +937,18 @@
             let result;
             let isAdminControlled = false;
             let currentBet = null;
+            let winProbability = 20;
 
-            // Check for current bet in Firebase
+            // Check for current bet and win probability
             try {
                 if (currentUserMobile) {
-                    const snapshot = await database.ref('users/' + currentUserMobile + '/currentBet').once('value');
-                    currentBet = snapshot.val();
+                    const snapshot = await database.ref('users/' + currentUserMobile).once('value');
+                    const userData = snapshot.val();
+                    currentBet = userData.currentBet;
+                    winProbability = userData.winProbability || 20;
                 }
             } catch (error) {
-                console.error('Error checking current bet:', error);
+                console.error('Error checking user data:', error);
             }
 
             // Determine result
@@ -954,14 +957,14 @@
                     result = currentBet.outcome;
                     isAdminControlled = true;
                 } else {
-                    result = generateRandomResult();
+                    result = generateRandomResult(currentBet ? currentBet.color : null, winProbability);
                 }
             } catch (error) {
-                console.error('Error checking admin outcome:', error);
-                result = generateRandomResult();
+                console.error('Error determining result:', error);
+                result = generateRandomResult(null, 20);
             }
 
-            // Process bet if it exists in Firebase
+            // Process bet if it exists
             if (currentUserMobile && currentBet) {
                 const { color: betColor, amount: betAmount } = currentBet;
                 const multiplier = getMultiplier(betColor);
@@ -985,7 +988,6 @@
                     playerInvolved: true
                 });
             } else {
-                // Add to history even if player didn't bet
                 gameHistory.unshift({
                     color: result,
                     timestamp: Date.now(),
@@ -1002,7 +1004,7 @@
             updateUI();
             updateFirebase();
 
-            // Clear the current bet after processing
+            // Clear the current bet
             if (currentUserMobile) {
                 database.ref('users/' + currentUserMobile + '/currentBet').remove().catch(error => {
                     console.error('Error clearing current bet:', error);
@@ -1010,11 +1012,22 @@
             }
         }
 
-        function generateRandomResult() {
-            const random = Math.random();
-            if (random < 0.1) return 'violet'; // 10% chance
-            if (random < 0.55) return 'red'; // 45% chance
-            return 'green'; // 45% chance
+        function generateRandomResult(betColor, winProbability) {
+            if (!betColor) {
+                const random = Math.random();
+                if (random < 0.1) return 'violet';
+                if (random < 0.55) return 'red';
+                return 'green';
+            }
+
+            const winChance = winProbability / 100;
+            if (Math.random() < winChance) {
+                return betColor;
+            }
+
+            const colors = ['red', 'green', 'violet'];
+            const oppositeColors = colors.filter(color => color !== betColor);
+            return oppositeColors[Math.floor(Math.random() * oppositeColors.length)];
         }
 
         function getMultiplier(color) {
@@ -1028,25 +1041,21 @@
 
         function updateUI() {
             balanceAmount.textContent = `₹${currentBalance.toFixed(2)}`;
-            
             if (currentBalance < 10) {
                 balanceAmount.classList.add('low-balance');
                 showMessage(betMessage, 'Low balance! Please deposit more cash to continue playing.', 'error');
             } else {
                 balanceAmount.classList.remove('low-balance');
             }
-            
             updateHistoryDisplay();
         }
 
         function updateFirebase() {
             if (!currentUserMobile) return;
-
             const userData = {
                 balance: currentBalance,
                 history: gameHistory
             };
-
             database.ref('users/' + currentUserMobile).update(userData)
                 .catch(error => {
                     console.error('Error updating Firebase:', error);
@@ -1087,7 +1096,6 @@
             element.textContent = message;
             element.className = `message ${type}`;
             element.style.display = 'block';
-
             setTimeout(() => {
                 element.style.display = 'none';
             }, 3000);
