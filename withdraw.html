@@ -423,10 +423,16 @@
                         timestamp: timestamp
                     };
 
-                    database.ref('withdrawals/' + mobile + '/' + timestamp).set(withdrawData)
+                    // Prepare multi-path update for withdrawal and balance
+                    const updates = {};
+                    updates['withdrawals/' + mobile + '/' + timestamp] = withdrawData;
+                    updates['users/' + mobile + '/balance'] = currentBalance - totalDeduction;
+
+                    // Perform atomic update
+                    database.ref().update(updates)
                         .then(() => {
                             showLoading(false);
-                            showMessage(withdrawMessage, 'Your amount will be credited soon.', 'success');
+                            showMessage(withdrawMessage, 'Withdrawal request submitted. Amount deducted from your balance.', 'success');
                             mobileInput.value = '';
                             amountInput.value = '';
                             upiInput.value = '';
