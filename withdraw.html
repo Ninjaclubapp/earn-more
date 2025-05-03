@@ -6,6 +6,7 @@
     <title>Withdraw - Color Prediction Game</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <style>
         :root {
             --primary: #6c5ce7;
@@ -83,6 +84,11 @@
         input:focus {
             border-color: var(--primary);
             outline: none;
+        }
+
+        input:disabled {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
         }
 
         button {
@@ -299,12 +305,12 @@
 
         <div class="withdraw-section">
             <label for="mobileInput" class="sr-only">Mobile Number</label>
-            <input type="tel" id="mobileInput" placeholder="Enter your mobile number" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
+            <input type="tel" id="mobileInput" placeholder="Loading mobile number..." maxlength="10" pattern="[0-9]{10}" disabled>
             <label for="amountInput" class="sr-only">Amount</label>
             <input type="number" id="amountInput" placeholder="Enter amount (min ₹500)" min="500">
             <label for="upiInput" class="sr-only">UPI ID</label>
             <input type="text" id="upiInput" placeholder="Enter UPI ID">
-            <button id="submitWithdrawBtn">Submit</button>
+            <button id="submitWithdrawBtn" disabled>Submit</button>
             <div class="fee-message">3% platform fee, 1% TDS charge</div>
             <div id="withdrawMessage" class="message"></div>
         </div>
@@ -346,8 +352,9 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const auth = firebase.auth();
 
-        // IMPORTANT: Ensure Firebase security rules are set to restrict access to authenticated users only.
+        // IMPORTANT: Firebase security rules must restrict access to authenticated users only.
         // Example rules:
         // {
         //   "rules": {
@@ -377,21 +384,47 @@
 
         // Event listeners
         submitWithdrawBtn.addEventListener('click', handleWithdraw);
-        mobileInput.addEventListener('input', loadWithdrawalHistory);
-        [mobileInput, amountInput, upiInput].forEach(input => {
+        [amountInput, upiInput].forEach(input => {
             input.addEventListener('input', () => {
                 withdrawMessage.style.display = 'none';
             });
         });
 
+        // Check authentication state
+        showLoading(true);
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is authenticated, extract mobile number
+                const mobile = user.phoneNumber ? user.phoneNumber.replace('+91', '') : user.uid;
+                if (mobile && mobile.length === 10 && !isNaN(mobile)) {
+                    mobileInput.value = mobile;
+                    mobileInput.disabled = true;
+                    submitWithdrawBtn.disabled = false;
+                    loadWithdrawalHistory(mobile);
+                    showLoading(false);
+                } else {
+                    showLoading(false);
+                    showMessage(withdrawMessage, 'Invalid mobile number in account', 'error');
+                    submitWithdrawBtn.disabled = true;
+                }
+            } else {
+                // User is not authenticated, redirect to login
+                showLoading(false);
+                showMessage(withdrawMessage, 'Please log in to continue', 'error');
+                setTimeout(() => {
+                    window.location.href = '/login.html'; // Adjust to your login page
+                }, 2000);
+            }
+        });
+
         // Functions
         function handleWithdraw() {
-            const mobile = mobileInput.value.trim();
+            const mobile = mobileInput.value.trim(); // From authenticated user
             const amount = parseFloat(amountInput.value.trim());
             const upiId = upiInput.value.trim();
 
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
-                showMessage(withdrawMessage, 'Please enter a valid 10-digit mobile number', 'error');
+                showMessage(withdrawMessage, 'Invalid mobile number', 'error');
                 return;
             }
 
@@ -452,10 +485,9 @@
                         .then(() => {
                             showLoading(false);
                             showMessage(withdrawMessage, 'Withdrawal request submitted. Amount deducted, pending approval.', 'success');
-                            mobileInput.value = '';
                             amountInput.value = '';
                             upiInput.value = '';
-                            loadWithdrawalHistory();
+                            loadWithdrawalHistory(mobile);
                             submitWithdrawBtn.disabled = false;
                         })
                         .catch(error => {
@@ -473,8 +505,7 @@
                 });
         }
 
-        function loadWithdrawalHistory() {
-            const mobile = mobileInput.value.trim();
+        function loadWithdrawalHistory(mobile) {
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 historyTableBody.innerHTML = '';
                 return;
