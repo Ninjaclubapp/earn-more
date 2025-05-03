@@ -32,8 +32,7 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 16px;
+            padding: 12px;
             font-size: 16px;
             background-image: radial-gradient(circle at 10% 20%, rgba(127, 86, 217, 0.1) 0%, transparent 20%),
                              radial-gradient(circle at 90% 80%, rgba(127, 86, 217, 0.1) 0%, transparent 20%);
@@ -46,8 +45,7 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            margin: 16px 0;
-            transitions: border-box;
+            margin: 12px 0;
             transition: transform 0.3s ease;
         }
 
@@ -71,35 +69,71 @@
         }
 
         .auth-section {
-            padding: 20px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
             align-items: center;
-            background: white;
+            background: linear-gradient(145deg, #ffffff, #f8f9ff);
+            position: relative;
+            animation: fadeIn 0.5s ease-in-out;
+            overflow: hidden;
+        }
+
+        .auth-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(127, 86, 217, 0.05) 0%, transparent 70%);
+            animation: rotateBackground 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes rotateBackground {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .auth-form {
             width: 100%;
+            max-width: 320px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            max-width: 300px;
+            gap: 16px;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         input {
-            padding: 12px 16px;
+            padding: 12px 16px 12px 40px;
             border: 2px solid #e5e7eb;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 0.95rem;
-            background: #f8fafc;
+            background: #f8fafc url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%234b5563" viewBox="0 0 16 16"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm2-3a2 2 0 11-4 0 2 2 0 014 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>') no-repeat 12px center;
+            background-size: 16px;
             transition: all 0.3s ease;
+        }
+
+        input[type="password"] {
+            background: #f8fafc url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%234b5563" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>') no-repeat 12px center;
+            background-size: 16px;
         }
 
         input:focus {
             border-color: var(--primary);
-            background: white;
+            background-color: white;
             box-shadow: 0 0 0 4px rgba(127, 86, 217, 0.1);
             outline: none;
         }
@@ -108,19 +142,39 @@
             background: linear-gradient(135deg, var(--primary), var(--violet));
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-size: 0.95rem;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(127, 86, 217, 0.3);
+            box-shadow: 0 4px 15px rgba(127, 86, 217, 0.3), 0 0 10px rgba(127, 86, 217, 0.2);
             touch-action: manipulation;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
+        }
+
+        button:hover::after {
+            width: 200px;
+            height: 200px;
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(127, 86, 217, 0.4);
+            box-shadow: 0 6px 20px rgba(127, 86, 217, 0.4), 0 0 15px rgba(127, 86, 217, 0.3);
         }
 
         button:disabled {
@@ -130,9 +184,13 @@
             transform: none;
         }
 
+        button:disabled::after {
+            display: none;
+        }
+
         .auth-toggle {
-            margin-top: 12px;
-            font-size: 0.9rem;
+            margin-top: 16px;
+            font-size: 0.95rem;
             text-align: center;
             color: #4b5563;
         }
@@ -143,10 +201,13 @@
             cursor: pointer;
             text-decoration: none;
             transition: color 0.2s;
+            padding-bottom: 2px;
+            border-bottom: 2px solid transparent;
         }
 
         .auth-toggle span:hover {
             color: var(--violet);
+            border-bottom-color: var(--violet);
         }
 
         .game-section {
@@ -435,13 +496,14 @@
 
         @media (max-width: 480px) {
             body {
-                padding: 12px;
+                padding: 8px;
                 font-size: 14px;
             }
 
             .container {
                 max-width: 100%;
                 border-radius: 16px;
+                margin: 8px 0;
             }
 
             header {
@@ -457,17 +519,23 @@
             }
 
             .auth-section {
+                padding: 20px;
+                gap: 12px;
+            }
+
+            .auth-form {
                 padding: 16px;
-                gap: 10px;
+                gap: 12px;
             }
 
             input {
-                padding: 10px 14px;
+                padding: 10px 14px 10px 36px;
                 font-size: 0.9rem;
+                background-size: 14px;
             }
 
             button {
-                padding: 10px 20px;
+                padding: 12px 20px;
                 font-size: 0.9rem;
             }
 
