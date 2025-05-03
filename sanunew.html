@@ -333,6 +333,11 @@
             color: #d63031;
         }
 
+        .info {
+            background-color: rgba(108, 92, 231, 0.2);
+            color: var(--primary);
+        }
+
         .loading {
             display: none;
             text-align: center;
@@ -685,9 +690,7 @@
 
                 if (timer <= 0) {
                     clearInterval(timerInterval);
-                    if (selectedColor && selectedAmount) {
-                        processResult();
-                    }
+                    processResult(); // Always process result when timer ends
                     setTimeout(() => {
                         resetRound();
                         startTimer();
@@ -863,27 +866,34 @@
             updateUI();
 
             // Store the current bet in Firebase
-            database.ref('users/' + currentUserMobile + '/currentBet').set({
-                color: selectedColor,
-                amount: selectedAmount,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            }).catch(error => {
-                console.error('Error saving bet:', error);
-                showMessage(betMessage, 'Error placing bet. Please try again.', 'error');
-            });
+            if (currentUserMobile) {
+                database.ref('users/' + currentUserMobile + '/currentBet').set({
+                    color: selectedColor,
+                    amount: selectedAmount,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).catch(error => {
+                    console.error('Error saving bet:', error);
+                    showMessage(betMessage, 'Error placing bet. Please try again.', 'error');
+                });
+            }
         }
 
         async function processResult() {
             let result;
             let isAdminControlled = false;
+            let hasBet = selectedColor && selectedAmount;
 
             // Check for admin-set outcome
             try {
-                const snapshot = await database.ref('users/' + currentUserMobile + '/currentBet').once('value');
-                const currentBet = snapshot.val();
-                if (currentBet && currentBet.outcome) {
-                    result = currentBet.outcome;
-                    isAdminControlled = true;
+                if (currentUserMobile) {
+                    const snapshot = await database.ref('users/' + currentUserMobile + '/currentBet').once('value');
+                    const currentBet = snapshot.val();
+                    if (currentBet && currentBet.outcome) {
+                        result = currentBet.outcome;
+                        isAdminControlled = true;
+                    } else {
+                        result = generateRandomResult();
+                    }
                 } else {
                     result = generateRandomResult();
                 }
@@ -892,25 +902,40 @@
                 result = generateRandomResult();
             }
 
-            const multiplier = getMultiplier(selectedColor);
-            let winAmount = 0;
+            // Only process winnings if player has bet
+            if (hasBet) {
+                const multiplier = getMultiplier(selectedColor);
+                let winAmount = 0;
 
-            if (result === selectedColor) {
-                winAmount = selectedAmount * multiplier;
-                currentBalance += winAmount;
-                showResult(`You won ₹${winAmount}!`, 'win');
+                if (result === selectedColor) {
+                    winAmount = selectedAmount * multiplier;
+                    currentBalance += winAmount;
+                    showResult(`You won ₹${winAmount}!`, 'win');
+                } else {
+                    showResult(`You lost ₹${selectedAmount}.`, 'lose');
+                }
+
+                gameHistory.unshift({
+                    color: result,
+                    amount: selectedAmount,
+                    win: result === selectedColor,
+                    winAmount: winAmount,
+                    timestamp: Date.now(),
+                    adminControlled: isAdminControlled,
+                    playerInvolved: true
+                });
             } else {
-                showResult(`You lost ₹${selectedAmount}.`, 'lose');
+                // Add to history even if player didn't bet
+                gameHistory.unshift({
+                    color: result,
+                    timestamp: Date.now(),
+                    adminControlled: isAdminControlled,
+                    playerInvolved: false
+                });
+                
+                // Show the result color to all players
+                showResult(`Result: ${result.charAt(0).toUpperCase() + result.slice(1)}`, 'info');
             }
-
-            gameHistory.unshift({
-                color: result,
-                amount: selectedAmount,
-                win: result === selectedColor,
-                winAmount: winAmount,
-                timestamp: Date.now(),
-                adminControlled: isAdminControlled
-            });
 
             if (gameHistory.length > 10) {
                 gameHistory = gameHistory.slice(0, 10);
@@ -920,9 +945,11 @@
             updateFirebase();
 
             // Clear the current bet after processing
-            database.ref('users/' + currentUserMobile + '/currentBet').remove().catch(error => {
-                console.error('Error clearing current bet:', error);
-            });
+            if (currentUserMobile) {
+                database.ref('users/' + currentUserMobile + '/currentBet').remove().catch(error => {
+                    console.error('Error clearing current bet:', error);
+                });
+            }
         }
 
         function generateRandomResult() {
