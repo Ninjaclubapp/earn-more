@@ -100,7 +100,7 @@
             border: none;
             padding: 10px 20px;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 0.9 POLITICSrem;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
@@ -256,7 +256,7 @@
 
         .bet-amounts {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 8px;
             margin-bottom: 12px;
         }
@@ -564,6 +564,7 @@
                     <button class="bet-amount-btn" data-amount="50">₹50</button>
                     <button class="bet-amount-btn" data-amount="100">₹100</button>
                     <button class="bet-amount-btn" data-amount="200">₹200</button>
+                    <button class="bet-amount-btn" data-amount="500">₹500</button>
                 </div>
                 <button class="place-bet" id="placeBetBtn">Place Bet</button>
                 <div id="betMessage" class="message"></div>
@@ -604,6 +605,7 @@
         let timer = 20;
         let timerInterval;
         let canBet = true;
+        let isBetting = false; // Prevent multiple clicks
 
         // DOM elements
         const mobileInput = document.getElementById('mobileInput');
@@ -665,12 +667,19 @@
                 colorOptions.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
                 selectedColor = option.dataset.color;
+                
+                // Clear any previous bet amount selection when changing color
+                betAmountBtns.forEach(b => b.classList.remove('selected'));
+                selectedAmount = null;
             });
         });
 
         betAmountBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                if (!canBet) return;
+                if (!canBet || !selectedColor) {
+                    showMessage(betMessage, 'Please select a color first', 'error');
+                    return;
+                }
 
                 betAmountBtns.forEach(b => b.classList.remove('selected'));
                 btn.classList.add('selected');
@@ -690,7 +699,7 @@
 
                 if (timer <= 0) {
                     clearInterval(timerInterval);
-                    processResult(); // Always process result when timer ends
+                    processResult();
                     setTimeout(() => {
                         resetRound();
                         startTimer();
@@ -704,6 +713,13 @@
 
             if (timer <= 5) {
                 timerDisplay.style.color = '#d63031';
+                if (canBet) {
+                    showMessage(betMessage, 'Betting closed! Press Place Bet to confirm your bet.', 'error');
+                    canBet = false;
+                    placeBetBtn.disabled = true;
+                    colorOptions.forEach(opt => opt.classList.add('disabled'));
+                    betAmountBtns.forEach(btn => btn.classList.add('disabled'));
+                }
             } else {
                 timerDisplay.style.color = 'var(--primary)';
             }
@@ -712,11 +728,13 @@
         function resetRound() {
             selectedColor = null;
             selectedAmount = null;
-            colorOptions.forEach(opt => opt.classList.remove('selected'));
-            betAmountBtns.forEach(btn => btn.classList.remove('selected'));
+            colorOptions.forEach(opt => opt.classList.remove('selected', 'disabled'));
+            betAmountBtns.forEach(btn => btn.classList.remove('selected', 'disabled'));
             resultSection.style.display = 'none';
             canBet = true;
             placeBetBtn.disabled = false;
+            isBetting = false;
+            hideMessage(betMessage);
         }
 
         function handleLogin() {
@@ -829,71 +847,112 @@
         }
 
         function placeBet() {
+            if (isBetting) return; // Prevent multiple clicks
+            isBetting = true;
+            placeBetBtn.disabled = true;
+
             if (currentBalance < 10) {
                 showMessage(betMessage, 'Minimum balance reached (₹10). Please deposit more cash.', 'error');
+                isBetting = false;
+                placeBetBtn.disabled = false;
                 return;
             }
 
             if (!selectedColor) {
                 showMessage(betMessage, 'Please select a color first', 'error');
+                isBetting = false;
+                placeBetBtn.disabled = false;
                 return;
             }
 
             if (!selectedAmount) {
                 showMessage(betMessage, 'Please select a bet amount', 'error');
+                isBetting = false;
+                placeBetBtn.disabled = false;
+                return;
+            }
+
+            if (selectedAmount > currentBalance) {
+                showMessage(betMessage, `You don't have enough balance for this bet`, 'error');
+                isBetting = false;
+                placeBetBtn.disabled = false;
                 return;
             }
 
             if (currentBalance - selectedAmount < 10) {
                 showMessage(betMessage, `You must keep at least ₹10 in your balance`, 'error');
+                isBetting = false;
+                placeBetBtn.disabled = false;
                 return;
             }
 
             if (selectedAmount < 10) {
                 showMessage(betMessage, 'Minimum bet amount is ₹10', 'error');
+                isBetting = false;
+                placeBetBtn.disabled = false;
                 return;
             }
 
             if (timer <= 5) {
                 showMessage(betMessage, 'Too late to place bet! Wait for next round', 'error');
+                isBetting = false;
+                placeBetBtn.disabled = true; // Keep disabled until next round
                 return;
             }
 
             canBet = false;
-            placeBetBtn.disabled = true;
-
             currentBalance -= selectedAmount;
             updateUI();
 
             // Store the current bet in Firebase
             if (currentUserMobile) {
-                database.ref('users/' + currentUserMobile + '/currentBet').set({
+                const betData = {
                     color: selectedColor,
                     amount: selectedAmount,
                     timestamp: firebase.database.ServerValue.TIMESTAMP
-                }).catch(error => {
-                    console.error('Error saving bet:', error);
-                    showMessage(betMessage, 'Error placing bet. Please try again.', 'error');
-                });
+                };
+                database.ref('users/' + currentUserMobile + '/currentBet').set(betData)
+                    .then(() => {
+                        showMessage(betMessage, `Bet placed: ₹${selectedAmount} on ${selectedColor}`, 'success');
+                        // Clear selections after successful bet
+                        selectedColor = null;
+                        selectedAmount = null;
+                        colorOptions.forEach(opt => opt.classList.remove('selected'));
+                        betAmountBtns.forEach(btn => btn.classList.remove('selected'));
+                    })
+                    .catch(error => {
+                        console.error('Error saving bet:', error);
+                        showMessage(betMessage, 'Error placing bet. Please try again.', 'error');
+                        // Revert balance if Firebase fails
+                        currentBalance += selectedAmount;
+                        updateUI();
+                        isBetting = false;
+                        placeBetBtn.disabled = false;
+                        canBet = true;
+                    });
             }
         }
 
         async function processResult() {
             let result;
             let isAdminControlled = false;
-            let hasBet = selectedColor && selectedAmount;
+            let currentBet = null;
 
-            // Check for admin-set outcome
+            // Check for current bet in Firebase
             try {
                 if (currentUserMobile) {
                     const snapshot = await database.ref('users/' + currentUserMobile + '/currentBet').once('value');
-                    const currentBet = snapshot.val();
-                    if (currentBet && currentBet.outcome) {
-                        result = currentBet.outcome;
-                        isAdminControlled = true;
-                    } else {
-                        result = generateRandomResult();
-                    }
+                    currentBet = snapshot.val();
+                }
+            } catch (error) {
+                console.error('Error checking current bet:', error);
+            }
+
+            // Determine result
+            try {
+                if (currentUserMobile && currentBet && currentBet.outcome) {
+                    result = currentBet.outcome;
+                    isAdminControlled = true;
                 } else {
                     result = generateRandomResult();
                 }
@@ -902,23 +961,24 @@
                 result = generateRandomResult();
             }
 
-            // Only process winnings if player has bet
-            if (hasBet) {
-                const multiplier = getMultiplier(selectedColor);
+            // Process bet if it exists in Firebase
+            if (currentUserMobile && currentBet) {
+                const { color: betColor, amount: betAmount } = currentBet;
+                const multiplier = getMultiplier(betColor);
                 let winAmount = 0;
 
-                if (result === selectedColor) {
-                    winAmount = selectedAmount * multiplier;
+                if (result === betColor) {
+                    winAmount = betAmount * multiplier;
                     currentBalance += winAmount;
                     showResult(`You won ₹${winAmount}!`, 'win');
                 } else {
-                    showResult(`You lost ₹${selectedAmount}.`, 'lose');
+                    showResult(`You lost ₹${betAmount}.`, 'lose');
                 }
 
                 gameHistory.unshift({
                     color: result,
-                    amount: selectedAmount,
-                    win: result === selectedColor,
+                    amount: betAmount,
+                    win: result === betColor,
                     winAmount: winAmount,
                     timestamp: Date.now(),
                     adminControlled: isAdminControlled,
@@ -932,8 +992,6 @@
                     adminControlled: isAdminControlled,
                     playerInvolved: false
                 });
-                
-                // Show the result color to all players
                 showResult(`Result: ${result.charAt(0).toUpperCase() + result.slice(1)}`, 'info');
             }
 
@@ -969,14 +1027,13 @@
         }
 
         function updateUI() {
-            balanceAmount.textContent = `₹${currentBalance}`;
+            balanceAmount.textContent = `₹${currentBalance.toFixed(2)}`;
             
             if (currentBalance < 10) {
                 balanceAmount.classList.add('low-balance');
                 showMessage(betMessage, 'Low balance! Please deposit more cash to continue playing.', 'error');
             } else {
                 balanceAmount.classList.remove('low-balance');
-                hideMessage(betMessage);
             }
             
             updateHistoryDisplay();
@@ -1013,10 +1070,12 @@
         }
 
         function showGameSection() {
+            authSection.style.display = 'none';
             gameSection.style.display = 'block';
         }
 
         function hideGameSection() {
+            authSection.style.display = 'block';
             gameSection.style.display = 'none';
         }
 
