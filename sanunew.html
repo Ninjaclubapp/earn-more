@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Color Prediction Game</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --red: #ff7675;
+            --green: #55efc4;
+            --violet: #a55eea;
+            --yellow: #fdcb6e;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--violet));
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+        }
+
+        .auth-section {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            background-color: white;
+            border-bottom: 1px solid #eee;
+        }
+
+        .auth-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input {
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            width: 100%;
+            max-width: 250px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--violet));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 8px rgba(108, 92, 231, 0.3);
+            touch-action: manipulation;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
+        }
+
+        button:disabled {
+            background: #ddd;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .auth-toggle {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .auth-toggle span {
+            color: var(--primary);
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .game-section {
+            display: none;
+            padding: 15px;
+        }
+
+        .balance-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .balance-amount {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .low-balance {
+            color: #d63031 !important;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .balance-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .balance-actions button {
+            padding: 8px 15px;
+            font-size: 0.85rem;
+        }
+
+        .timer-container {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .timer {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            background-color: rgba(108, 92, 231, 0.1);
+            padding: 8px 15px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .timer-label {
+            font-size: 0.8rem;
+            color: var(--dark);
+            margin-top: 5px;
+        }
+
+        .color-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .color-option {
+            height: 80px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            font-size: 0.85rem;
+            touch-action: manipulation;
+        }
+
+        .color-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .color-option.selected {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .color-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .red {
+            background: linear-gradient(135deg, var(--red), #d63031);
+        }
+
+        .green {
+            background: linear-gradient(135deg, var(--green), #00b894);
+        }
+
+        .violet {
+            background: linear-gradient(135deg, var(--violet), #8c7ae6);
+        }
+
+        .bet-section {
+            margin-top: 15px;
+        }
+
+        .bet-amounts {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .bet-amount-btn {
+            padding: 10px 5px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            font-size: 0.8rem;
+        }
+
+        .bet-amount-btn.selected {
+            background: linear-gradient(135deg, var(--yellow), #e17055);
+            transform: translateY(-2px);
+        }
+
+        .bet-amount-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .place-bet {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+        }
+
+        .history {
+            margin-top: 20px;
+        }
+
+        .history-title {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: bold;
+        }
+
+        .history-items {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .history-item {
+            min-width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .result-section {
+            display: none;
+            text-align: center;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .win {
+            background-color: rgba(85, 239, 196, 0.2);
+            color: #00b894;
+        }
+
+        .lose {
+            background-color: rgba(255, 118, 117, 0.2);
+            color: #d63031;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--primary);
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            text-align: center;
+            display: none;
+            font-size: 0.85rem;
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .container {
+                max-width: 100%;
+                border-radius: 10px;
+            }
+
+            header {
+                padding: 12px;
+            }
+
+            h1 {
+                font-size: 1.3rem;
+            }
+
+            header p {
+                font-size: 0.8rem;
+            }
+
+            .auth-section {
+                padding: 12px;
+                gap: 8px;
+            }
+
+            input {
+                padding: 8px 10px;
+                font-size: 0.85rem;
+                max-width: 100%;
+            }
+
+            button {
+                padding: 8px 15px;
+                font-size: 0.85rem;
+            }
+
+            .game-section {
+                padding: 12px;
+            }
+
+            .balance-info {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+
+            .balance-amount {
+                font-size: 1.1rem;
+            }
+
+            .balance-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .timer {
+                font-size: 1.5rem;
+                padding: 6px 12px;
+            }
+
+            .timer-label {
+                font-size: 0.75rem;
+            }
+
+            .color-options {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 8px;
+            }
+
+            .color-option {
+                height: 60px;
+                font-size: 0.8rem;
+            }
+
+            .bet-amounts {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+
+            .bet-amount-btn {
+                padding: 8px 3px;
+                font-size: 0.75rem;
+            }
+
+            .place-bet {
+                padding: 10px;
+            }
+
+            .history-item {
+                min-width: 35px;
+                height: 35px;
+                font-size: 0.75rem;
+            }
+
+            .result-section {
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+
+            .message {
+                font-size: 0.8rem;
+                padding: 6px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .color-options {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .color-option:last-child {
+                grid-column: span 2;
+            }
+
+            .bet-amounts {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Color Prediction Game</h1>
+            <p>Predict the next color and win big!</p>
+        </header>
+
+        <div class="auth-section" id="authSection">
+            <div class="auth-form" id="loginForm">
+                <input type="text" id="mobileInput" placeholder="Enter your mobile number" maxlength="10">
+                <input type="password" id="passwordInput" placeholder="Enter your password">
+                <button id="loginBtn">Login</button>
+                <div class="auth-toggle">Don't have an account? <span id="showRegister">Register</span></div>
+                <div id="authMessage" class="message"></div>
+            </div>
+
+            <div class="auth-form" id="registerForm" style="display: none;">
+                <input type="text" id="regMobileInput" placeholder="Enter your mobile number" maxlength="10">
+                <input type="password" id="regPasswordInput" placeholder="Create a password (min 6 chars)">
+                <input type="password" id="regConfirmPasswordInput" placeholder="Confirm password">
+                <button id="registerBtn">Register</button>
+                <div class="auth-toggle">Already have an account? <span id="showLogin">Login</span></div>
+                <div id="regMessage" class="message"></div>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <div class="game-section" id="gameSection">
+            <div class="balance-info">
+                <div>
+                    <div>Your Balance</div>
+                    <div class="balance-amount" id="balanceAmount">₹100</div>
+                </div>
+                <div class="balance-actions">
+                    <button id="addCashBtn">Add Cash</button>
+                    <button id="withdrawBtn">Withdraw</button>
+                    <button id="logoutBtn">Logout</button>
+                </div>
+            </div>
+
+            <div class="timer-container">
+                <div class="timer" id="timer">20</div>
+                <div class="timer-label">Next round starts in</div>
+            </div>
+
+            <div class="color-options">
+                <div class="color-option red" data-color="red">RED (2x)</div>
+                <div class="color-option green" data-color="green">GREEN (2x)</div>
+                <div class="color-option violet" data-color="violet">VIOLET (3x)</div>
+            </div>
+
+            <div class="bet-section">
+                <div class="bet-amounts">
+                    <button class="bet-amount-btn" data-amount="10">₹10</button>
+                    <button class="bet-amount-btn" data-amount="20">₹20</button>
+                    <button class="bet-amount-btn" data-amount="50">₹50</button>
+                    <button class="bet-amount-btn" data-amount="100">₹100</button>
+                    <button class="bet-amount-btn" data-amount="200">₹200</button>
+                </div>
+                <button class="place-bet" id="placeBetBtn">Place Bet</button>
+                <div id="betMessage" class="message"></div>
+            </div>
+
+            <div class="result-section" id="resultSection"></div>
+
+            <div class="history">
+                <div class="history-title">Recent Results</div>
+                <div class="history-items" id="historyItems"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8NZdS7LukcSsYyVRRmjL3UTHCgSEbVKY",
+            authDomain: "bigwin-1e632.firebaseapp.com",
+            databaseURL: "https://bigwin-1e632-default-rtdb.firebaseio.com",
+            projectId: "bigwin-1e632",
+            storageBucket: "bigwin-1e632.appspot.com",
+            messagingSenderId: "295874651333",
+            appId: "1:295874651333:web:e1f3c824aac69bd1c3fcac",
+            measurementId: "G-7K4GHF8DF4"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Game variables
+        let currentBalance = 100;
+        let selectedColor = null;
+        let selectedAmount = null;
+        let currentUserMobile = null;
+        let gameHistory = [];
+        let timer = 20;
+        let timerInterval;
+        let canBet = true;
+
+        // DOM elements
+        const mobileInput = document.getElementById('mobileInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const regMobileInput = document.getElementById('regMobileInput');
+        const regPasswordInput = document.getElementById('regPasswordInput');
+        const regConfirmPasswordInput = document.getElementById('regConfirmPasswordInput');
+        const registerBtn = document.getElementById('registerBtn');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const authMessage = document.getElementById('authMessage');
+        const regMessage = document.getElementById('regMessage');
+        const loading = document.getElementById('loading');
+        const gameSection = document.getElementById('gameSection');
+        const balanceAmount = document.getElementById('balanceAmount');
+        const addCashBtn = document.getElementById('addCashBtn');
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const timerDisplay = document.getElementById('timer');
+        const colorOptions = document.querySelectorAll('.color-option');
+        const betAmountBtns = document.querySelectorAll('.bet-amount-btn');
+        const placeBetBtn = document.getElementById('placeBetBtn');
+        const betMessage = document.getElementById('betMessage');
+        const resultSection = document.getElementById('resultSection');
+        const historyItems = document.getElementById('historyItems');
+
+        // Initialize timer
+        startTimer();
+
+        // Event listeners
+        loginBtn.addEventListener('click', handleLogin);
+        registerBtn.addEventListener('click', handleRegister);
+        showRegister.addEventListener('click', () => {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'flex';
+            hideMessage(authMessage);
+        });
+        showLogin.addEventListener('click', () => {
+            registerForm.style.display = 'none';
+            loginForm.style.display = 'flex';
+            hideMessage(regMessage);
+        });
+        addCashBtn.addEventListener('click', () => {
+            window.location.href = 'deposit.html';
+        });
+        withdrawBtn.addEventListener('click', () => {
+            window.location.href = 'withdraw.html';
+        });
+        logoutBtn.addEventListener('click', handleLogout);
+        placeBetBtn.addEventListener('click', placeBet);
+
+        colorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                if (!canBet) return;
+
+                colorOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedColor = option.dataset.color;
+            });
+        });
+
+        betAmountBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!canBet) return;
+
+                betAmountBtns.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedAmount = parseInt(btn.dataset.amount);
+            });
+        });
+
+        // Functions
+        function startTimer() {
+            clearInterval(timerInterval);
+            timer = 20;
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timer--;
+                updateTimerDisplay();
+
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    if (selectedColor && selectedAmount) {
+                        processResult();
+                    }
+                    setTimeout(() => {
+                        resetRound();
+                        startTimer();
+                    }, 3000);
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            timerDisplay.textContent = timer;
+
+            if (timer <= 5) {
+                timerDisplay.style.color = '#d63031';
+            } else {
+                timerDisplay.style.color = 'var(--primary)';
+            }
+        }
+
+        function resetRound() {
+            selectedColor = null;
+            selectedAmount = null;
+            colorOptions.forEach(opt => opt.classList.remove('selected'));
+            betAmountBtns.forEach(btn => btn.classList.remove('selected'));
+            resultSection.style.display = 'none';
+            canBet = true;
+            placeBetBtn.disabled = false;
+        }
+
+        function handleLogin() {
+            const mobile = mobileInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
+                showMessage(authMessage, 'Please enter a valid 10-digit mobile number', 'error');
+                return;
+            }
+
+            if (!password || password.length < 6) {
+                showMessage(authMessage, 'Please enter your password (min 6 characters)', 'error');
+                return;
+            }
+
+            showLoading(true);
+
+            database.ref('users/' + mobile).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        if (userData.password === password) {
+                            currentUserMobile = mobile;
+                            currentBalance = userData.balance || 100;
+                            gameHistory = userData.history || [];
+                            updateUI();
+                            showLoading(false);
+                            showGameSection();
+                            showMessage(authMessage, 'Login successful!', 'success');
+                        } else {
+                            showLoading(false);
+                            showMessage(authMessage, 'Incorrect password', 'error');
+                        }
+                    } else {
+                        showLoading(false);
+                        showMessage(authMessage, 'Account not found. Please register.', 'error');
+                    }
+                })
+                .catch(error => {
+                    showLoading(false);
+                    showMessage(authMessage, 'Error accessing your account. Please try again.', 'error');
+                    console.error('Firebase error:', error);
+                });
+        }
+
+        function handleRegister() {
+            const mobile = regMobileInput.value.trim();
+            const password = regPasswordInput.value.trim();
+            const confirmPassword = regConfirmPasswordInput.value.trim();
+
+            if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
+                showMessage(regMessage, 'Please enter a valid 10-digit mobile number', 'error');
+                return;
+            }
+
+            if (!password || password.length < 6) {
+                showMessage(regMessage, 'Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage(regMessage, 'Passwords do not match', 'error');
+                return;
+            }
+
+            showLoading(true);
+
+            database.ref('users/' + mobile).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        showLoading(false);
+                        showMessage(regMessage, 'Mobile number already registered. Please login.', 'error');
+                    } else {
+                        database.ref('users/' + mobile).set({
+                            password: password,
+                            balance: 100,
+                            history: []
+                        }).then(() => {
+                            currentUserMobile = mobile;
+                            currentBalance = 100;
+                            gameHistory = [];
+                            updateUI();
+                            showLoading(false);
+                            showGameSection();
+                            registerForm.style.display = 'none';
+                            loginForm.style.display = 'flex';
+                            mobileInput.value = mobile;
+                            passwordInput.value = '';
+                            hideMessage(regMessage);
+                            showMessage(authMessage, 'Registration successful! You have been logged in.', 'success');
+                        });
+                    }
+                })
+                .catch(error => {
+                    showLoading(false);
+                    showMessage(regMessage, 'Error creating account. Please try again.', 'error');
+                    console.error('Firebase error:', error);
+                });
+        }
+
+        function handleLogout() {
+            currentUserMobile = null;
+            selectedColor = null;
+            selectedAmount = null;
+            mobileInput.value = '';
+            passwordInput.value = '';
+            hideGameSection();
+            hideMessage(authMessage);
+        }
+
+        function placeBet() {
+            if (currentBalance < 10) {
+                showMessage(betMessage, 'Minimum balance reached (₹10). Please deposit more cash.', 'error');
+                return;
+            }
+
+            if (!selectedColor) {
+                showMessage(betMessage, 'Please select a color first', 'error');
+                return;
+            }
+
+            if (!selectedAmount) {
+                showMessage(betMessage, 'Please select a bet amount', 'error');
+                return;
+            }
+
+            if (currentBalance - selectedAmount < 10) {
+                showMessage(betMessage, `You must keep at least ₹10 in your balance`, 'error');
+                return;
+            }
+
+            if (selectedAmount < 10) {
+                showMessage(betMessage, 'Minimum bet amount is ₹10', 'error');
+                return;
+            }
+
+            if (timer <= 5) {
+                showMessage(betMessage, 'Too late to place bet! Wait for next round', 'error');
+                return;
+            }
+
+            canBet = false;
+            placeBetBtn.disabled = true;
+
+            currentBalance -= selectedAmount;
+            updateUI();
+
+            // Store the current bet in Firebase
+            database.ref('users/' + currentUserMobile + '/currentBet').set({
+                color: selectedColor,
+                amount: selectedAmount,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).catch(error => {
+                console.error('Error saving bet:', error);
+                showMessage(betMessage, 'Error placing bet. Please try again.', 'error');
+            });
+        }
+
+        async function processResult() {
+            let result;
+            let isAdminControlled = false;
+
+            // Check for admin-set outcome
+            try {
+                const snapshot = await database.ref('users/' + currentUserMobile + '/currentBet').once('value');
+                const currentBet = snapshot.val();
+                if (currentBet && currentBet.outcome) {
+                    result = currentBet.outcome;
+                    isAdminControlled = true;
+                } else {
+                    result = generateRandomResult();
+                }
+            } catch (error) {
+                console.error('Error checking admin outcome:', error);
+                result = generateRandomResult();
+            }
+
+            const multiplier = getMultiplier(selectedColor);
+            let winAmount = 0;
+
+            if (result === selectedColor) {
+                winAmount = selectedAmount * multiplier;
+                currentBalance += winAmount;
+                showResult(`You won ₹${winAmount}!`, 'win');
+            } else {
+                showResult(`You lost ₹${selectedAmount}.`, 'lose');
+            }
+
+            gameHistory.unshift({
+                color: result,
+                amount: selectedAmount,
+                win: result === selectedColor,
+                winAmount: winAmount,
+                timestamp: Date.now(),
+                adminControlled: isAdminControlled
+            });
+
+            if (gameHistory.length > 10) {
+                gameHistory = gameHistory.slice(0, 10);
+            }
+
+            updateUI();
+            updateFirebase();
+
+            // Clear the current bet after processing
+            database.ref('users/' + currentUserMobile + '/currentBet').remove().catch(error => {
+                console.error('Error clearing current bet:', error);
+            });
+        }
+
+        function generateRandomResult() {
+            const random = Math.random();
+            if (random < 0.1) return 'violet'; // 10% chance
+            if (random < 0.55) return 'red'; // 45% chance
+            return 'green'; // 45% chance
+        }
+
+        function getMultiplier(color) {
+            switch(color) {
+                case 'red': return 2;
+                case 'green': return 2;
+                case 'violet': return 3;
+                default: return 1;
+            }
+        }
+
+        function updateUI() {
+            balanceAmount.textContent = `₹${currentBalance}`;
+            
+            if (currentBalance < 10) {
+                balanceAmount.classList.add('low-balance');
+                showMessage(betMessage, 'Low balance! Please deposit more cash to continue playing.', 'error');
+            } else {
+                balanceAmount.classList.remove('low-balance');
+                hideMessage(betMessage);
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        function updateFirebase() {
+            if (!currentUserMobile) return;
+
+            const userData = {
+                balance: currentBalance,
+                history: gameHistory
+            };
+
+            database.ref('users/' + currentUserMobile).update(userData)
+                .catch(error => {
+                    console.error('Error updating Firebase:', error);
+                });
+        }
+
+        function updateHistoryDisplay() {
+            historyItems.innerHTML = '';
+            gameHistory.slice(0, 10).forEach(item => {
+                const div = document.createElement('div');
+                div.className = `history-item ${item.color}`;
+                div.textContent = item.color.charAt(0).toUpperCase();
+                historyItems.appendChild(div);
+            });
+        }
+
+        function showResult(message, type) {
+            resultSection.textContent = message;
+            resultSection.className = `result-section ${type}`;
+            resultSection.style.display = 'block';
+        }
+
+        function showGameSection() {
+            gameSection.style.display = 'block';
+        }
+
+        function hideGameSection() {
+            gameSection.style.display = 'none';
+        }
+
+        function showLoading(show) {
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+
+        function hideMessage(element) {
+            element.style.display = 'none';
+        }
+
+        // Initialize UI
+        hideGameSection();
+    </script>
+</body>
+</html>
