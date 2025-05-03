@@ -840,13 +840,11 @@
         function setupMarqueeListener() {
             if (!currentUserMobile) return;
 
-            // Listen for personal messages
             database.ref(`users/${currentUserMobile}/personalMessage`).on('value', snapshot => {
                 const personalMessage = snapshot.val();
                 updateMarquee(personalMessage, true);
             });
 
-            // Listen for broadcast messages
             database.ref('gameSettings/broadcastMessage').on('value', snapshot => {
                 const broadcastMessage = snapshot.val();
                 updateMarquee(broadcastMessage, false);
@@ -868,13 +866,12 @@
             }
         }
 
-        // Call this when user logs in
         function initializeGame() {
             setupMarqueeListener();
             updateUI();
         }
 
-        // Functions
+        // Game logic
         function startTimer() {
             clearInterval(timerInterval);
             timer = 20;
@@ -988,7 +985,8 @@
                             password: password,
                             balance: 100,
                             history: [],
-                            winProbability: 20
+                            winProbability: 20,
+                            forceOpposite: false
                         }).then(() => {
                             currentUserMobile = mobile;
                             currentBalance = 100;
@@ -1128,6 +1126,7 @@
             let isAdminControlled = false;
             let currentBet = null;
             let winProbability = 20;
+            let forceOpposite = false;
 
             try {
                 if (currentUserMobile) {
@@ -1135,6 +1134,7 @@
                     const userData = snapshot.val();
                     currentBet = userData.currentBet;
                     winProbability = userData.winProbability || 20;
+                    forceOpposite = userData.forceOpposite || false;
                 }
             } catch (error) {
                 console.error('Error checking user data:', error);
@@ -1143,6 +1143,10 @@
             try {
                 if (currentUserMobile && currentBet && currentBet.outcome) {
                     result = currentBet.outcome;
+                    isAdminControlled = true;
+                } else if (forceOpposite && currentBet) {
+                    const colors = ['red', 'green', 'violet'].filter(color => color !== currentBet.color);
+                    result = colors[Math.floor(Math.random() * colors.length)];
                     isAdminControlled = true;
                 } else {
                     result = generateRandomResult(currentBet ? currentBet.color : null, winProbability);
