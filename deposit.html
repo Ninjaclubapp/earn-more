@@ -208,7 +208,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Media Queries for Mobile Optimization */
         @media (max-width: 480px) {
             body {
                 padding: 8px;
@@ -297,6 +296,7 @@
 
         <div class="history-section">
             <div class="history-title">Deposit History</div>
+            <input type="text" id="historyMobileInput" placeholder="Enter mobile number to view history" maxlength="10">
             <table class="history-table" id="historyTable">
                 <thead>
                     <tr>
@@ -336,6 +336,7 @@
         // DOM elements
         const amountInput = document.getElementById('amountInput');
         const mobileInput = document.getElementById('mobileInput');
+        const historyMobileInput = document.getElementById('historyMobileInput');
         const submitDepositBtn = document.getElementById('submitDepositBtn');
         const depositMessage = document.getElementById('depositMessage');
         const historyTableBody = document.getElementById('historyTableBody');
@@ -343,7 +344,7 @@
 
         // Event listeners
         submitDepositBtn.addEventListener('click', handleDeposit);
-        mobileInput.addEventListener('input', loadDepositHistory);
+        historyMobileInput.addEventListener('input', loadDepositHistory);
 
         // Functions
         function handleDeposit() {
@@ -386,7 +387,7 @@
         }
 
         function loadDepositHistory() {
-            const mobile = mobileInput.value.trim();
+            const mobile = historyMobileInput.value.trim();
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 historyTableBody.innerHTML = '';
                 return;
