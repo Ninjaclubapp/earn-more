@@ -324,7 +324,7 @@
 
             .message {
                 font-size: 0.8rem;
-                padding: 6px;
+                Padilla: 6px;
             }
         }
 
@@ -355,12 +355,12 @@
         </div>
 
         <div class="history-section">
-            <div class="history-title">Withdrawal History</div>
+            <div class="history-title">Withdrawal History (Net Amount Received)</div>
             <div class="history-input-container">
                 <label for="historyMobileInput">Mobile Number</label>
                 <input type="tel" id="historyMobileInput" placeholder="Enter mobile number for history" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
             </div>
-            <p class="history-hint">Enter a mobile number to view withdrawal history.</p>
+            <p class="history-hint">Enter a mobile number to view withdrawal history. Amounts shown are after 3% platform fee and 1% TDS.</p>
             <div class="loading" id="historyLoading" aria-live="polite">
                 <div class="spinner" role="status"></div>
                 <p>Loading history...</p>
@@ -464,14 +464,11 @@
 
                     const userData = snapshot.val();
                     const currentBalance = userData.balance || 0;
-                    const platformFee = amount * 0.03;
-                    const tds = amount * 0.01;
-                    const totalDeduction = amount + platformFee + tds;
 
-                    if (totalDeduction > currentBalance) {
+                    if (amount > currentBalance) {
                         showLoading(false, 'loading');
                         submitWithdrawBtn.disabled = false;
-                        showMessage(withdrawMessage, 'Insufficient balance (including 3% fee + 1% TDS)', 'error');
+                        showMessage(withdrawMessage, 'Insufficient balance', 'error');
                         return;
                     }
 
@@ -486,7 +483,7 @@
 
                     const updates = {};
                     updates['withdrawals/' + mobile + '/' + timestamp] = withdrawData;
-                    updates['users/' + mobile + '/balance'] = currentBalance - totalDeduction;
+                    updates['users/' + mobile + '/balance'] = currentBalance - amount; // Deduct the requested amount
 
                     database.ref().update(updates)
                         .then(() => {
@@ -556,8 +553,11 @@
             const row = document.createElement('tr');
             const formattedDate = formatTimestamp(withdrawal.timestamp);
             const statusClass = `status-${withdrawal.status.toLowerCase()}`;
+            const platformFee = withdrawal.amount * 0.03;
+            const tds = withdrawal.amount * 0.01;
+            const netAmount = withdrawal.amount - platformFee - tds; // Calculate net amount
             row.innerHTML = `
-                <td>₹${withdrawal.amount}</td>
+                <td>₹${netAmount.toFixed(2)}</td> <!-- Show net amount -->
                 <td>${withdrawal.upiId}</td>
                 <td class="${statusClass}">${withdrawal.status}</td>
                 <td>${formattedDate}</td>
