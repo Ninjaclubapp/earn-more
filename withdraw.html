@@ -70,6 +70,19 @@
             align-items: center;
         }
 
+        .history-section {
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .history-input-container {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
         input {
             padding: 10px 12px;
             border: 2px solid #ddd;
@@ -83,6 +96,12 @@
         input:focus {
             border-color: var(--primary);
             outline: none;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: var(--dark);
+            font-weight: 500;
         }
 
         button {
@@ -122,16 +141,19 @@
             margin-bottom: 10px;
         }
 
-        .history-section {
-            padding: 15px;
-            margin-top: 10px;
-        }
-
         .history-title {
             font-size: 1rem;
             font-weight: bold;
             margin-bottom: 10px;
             color: var(--dark);
+            text-align: center;
+        }
+
+        .history-hint {
+            font-size: 0.8rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+            text-align: center;
         }
 
         .history-table {
@@ -175,6 +197,17 @@
             text-align: center;
             display: none;
             font-size: 0.85rem;
+        }
+
+        .message button {
+            background: none;
+            color: var(--primary);
+            border: none;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 0;
+            margin-left: 5px;
         }
 
         .error {
@@ -247,10 +280,18 @@
                 gap: 8px;
             }
 
+            .history-input-container {
+                margin-bottom: 10px;
+            }
+
             input {
                 padding: 8px 10px;
                 font-size: 0.85rem;
                 max-width: 100%;
+            }
+
+            label {
+                font-size: 0.85rem;
             }
 
             button {
@@ -277,6 +318,10 @@
                 font-size: 0.9rem;
             }
 
+            .history-hint {
+                font-size: 0.75rem;
+            }
+
             .message {
                 font-size: 0.8rem;
                 padding: 6px;
@@ -298,7 +343,7 @@
         </header>
 
         <div class="withdraw-section">
-            <label for="mobileInput" class="sr-only">Mobile Number</label>
+            <label for="mobileInput" class="sr-only">Mobile Number for Withdrawal</label>
             <input type="tel" id="mobileInput" placeholder="Enter your mobile number" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
             <label for="amountInput" class="sr-only">Amount</label>
             <input type="number" id="amountInput" placeholder="Enter amount (min ₹500)" min="500">
@@ -311,6 +356,15 @@
 
         <div class="history-section">
             <div class="history-title">Withdrawal History</div>
+            <div class="history-input-container">
+                <label for="historyMobileInput">Mobile Number</label>
+                <input type="tel" id="historyMobileInput" placeholder="Enter mobile number for history" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
+            </div>
+            <p class="history-hint">Enter a mobile number to view withdrawal history.</p>
+            <div class="loading" id="historyLoading" aria-live="polite">
+                <div class="spinner" role="status"></div>
+                <p>Loading history...</p>
+            </div>
             <table class="history-table" id="historyTable">
                 <thead>
                     <tr>
@@ -351,21 +405,30 @@
         const mobileInput = document.getElementById('mobileInput');
         const amountInput = document.getElementById('amountInput');
         const upiInput = document.getElementById('upiInput');
+        const historyMobileInput = document.getElementById('historyMobileInput');
         const submitWithdrawBtn = document.getElementById('submitWithdrawBtn');
         const withdrawMessage = document.getElementById('withdrawMessage');
         const historyTableBody = document.getElementById('historyTableBody');
-        const loading = document.getElementById('loading');
 
         // Event listeners
         submitWithdrawBtn.addEventListener('click', handleWithdraw);
-        mobileInput.addEventListener('input', loadWithdrawalHistory);
-        [mobileInput, amountInput, upiInput].forEach(input => {
+        historyMobileInput.addEventListener('input', debounce(loadWithdrawalHistory, 500));
+        [mobileInput, amountInput, upiInput, historyMobileInput].forEach(input => {
             input.addEventListener('input', () => {
                 withdrawMessage.style.display = 'none';
             });
         });
 
-        // Functions
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // Withdraw handling
         function handleWithdraw() {
             const mobile = mobileInput.value.trim();
             const amount = parseFloat(amountInput.value.trim());
@@ -381,21 +444,19 @@
                 return;
             }
 
-            // Basic UPI ID validation (e.g., username@bank)
             const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+$/;
             if (!upiId || !upiRegex.test(upiId)) {
                 showMessage(withdrawMessage, 'Please enter a valid UPI ID (e.g., username@bank)', 'error');
                 return;
             }
 
-            showLoading(true);
+            showLoading(true, 'loading');
             submitWithdrawBtn.disabled = true;
 
-            // Check user balance with fees
             database.ref('users/' + mobile).once('value')
                 .then(snapshot => {
                     if (!snapshot.exists()) {
-                        showLoading(false);
+                        showLoading(false, 'loading');
                         submitWithdrawBtn.disabled = false;
                         showMessage(withdrawMessage, 'User not found', 'error');
                         return;
@@ -403,12 +464,12 @@
 
                     const userData = snapshot.val();
                     const currentBalance = userData.balance || 0;
-                    const platformFee = amount * 0.03; // 3% fee
-                    const tds = amount * 0.01; // 1% TDS
+                    const platformFee = amount * 0.03;
+                    const tds = amount * 0.01;
                     const totalDeduction = amount + platformFee + tds;
 
                     if (totalDeduction > currentBalance) {
-                        showLoading(false);
+                        showLoading(false, 'loading');
                         submitWithdrawBtn.disabled = false;
                         showMessage(withdrawMessage, 'Insufficient balance (including 3% fee + 1% TDS)', 'error');
                         return;
@@ -423,55 +484,58 @@
                         timestamp: timestamp
                     };
 
-                    // Prepare multi-path update for withdrawal and balance
                     const updates = {};
                     updates['withdrawals/' + mobile + '/' + timestamp] = withdrawData;
                     updates['users/' + mobile + '/balance'] = currentBalance - totalDeduction;
 
-                    // Perform atomic update
                     database.ref().update(updates)
                         .then(() => {
-                            showLoading(false);
+                            showLoading(false, 'loading');
                             showMessage(withdrawMessage, 'Withdrawal request submitted. Amount deducted from your balance.', 'success');
                             mobileInput.value = '';
                             amountInput.value = '';
                             upiInput.value = '';
-                            loadWithdrawalHistory();
                             submitWithdrawBtn.disabled = false;
                         })
                         .catch(error => {
-                            showLoading(false);
+                            showLoading(false, 'loading');
                             showMessage(withdrawMessage, 'Error processing withdrawal request', 'error');
                             submitWithdrawBtn.disabled = false;
                             console.error('Firebase error:', error);
                         });
                 })
                 .catch(error => {
-                    showLoading(false);
+                    showLoading(false, 'loading');
                     showMessage(withdrawMessage, 'Error accessing user data', 'error');
                     submitWithdrawBtn.disabled = false;
                     console.error('Firebase error:', error);
                 });
         }
 
+        // Load withdrawal history
         function loadWithdrawalHistory() {
-            const mobile = mobileInput.value.trim();
-            if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
+            const mobile = historyMobileInput.value.trim();
+            if (!mobile) {
                 historyTableBody.innerHTML = '';
+                showMessage(withdrawMessage, 'Enter a mobile number to view withdrawal history', 'error');
+                return;
+            }
+            if (mobile.length !== 10 || isNaN(mobile)) {
+                historyTableBody.innerHTML = '';
+                showMessage(withdrawMessage, 'Please enter a valid 10-digit mobile number', 'error');
                 return;
             }
 
-            showLoading(true);
+            showLoading(true, 'historyLoading');
             database.ref('withdrawals/' + mobile).once('value')
                 .then(snapshot => {
-                    showLoading(false);
+                    showLoading(false, 'historyLoading');
                     historyTableBody.innerHTML = '';
                     if (snapshot.exists()) {
                         const withdrawals = [];
                         snapshot.forEach(childSnapshot => {
                             withdrawals.push(childSnapshot.val());
                         });
-                        // Sort by timestamp (newest first) and take last 10
                         withdrawals.sort((a, b) => b.timestamp - a.timestamp);
                         withdrawals.slice(0, 10).forEach(withdrawal => {
                             addWithdrawalToTable(withdrawal);
@@ -481,12 +545,13 @@
                     }
                 })
                 .catch(error => {
-                    showLoading(false);
-                    showMessage(withdrawMessage, 'Error loading withdrawal history', 'error');
+                    showLoading(false, 'historyLoading');
+                    showMessage(withdrawMessage, 'Error loading withdrawal history. <button onclick="loadWithdrawalHistory()">Retry</button>', 'error');
                     console.error('Firebase error:', error);
                 });
         }
 
+        // Add withdrawal to table
         function addWithdrawalToTable(withdrawal) {
             const row = document.createElement('tr');
             const formattedDate = formatTimestamp(withdrawal.timestamp);
@@ -500,6 +565,7 @@
             historyTableBody.appendChild(row);
         }
 
+        // Format timestamp
         function formatTimestamp(timestamp) {
             const date = new Date(timestamp);
             const day = String(date.getDate()).padStart(2, '0');
@@ -510,8 +576,9 @@
             return `${day}-${month}-${year} ${hours}:${minutes}`;
         }
 
+        // Show message
         function showMessage(element, message, type) {
-            element.textContent = message;
+            element.innerHTML = message;
             element.className = `message ${type}`;
             element.style.display = 'block';
             setTimeout(() => {
@@ -519,8 +586,9 @@
             }, 5000);
         }
 
-        function showLoading(show) {
-            loading.style.display = show ? 'block' : 'none';
+        // Show loading
+        function showLoading(show, target) {
+            document.getElementById(target).style.display = show ? 'block' : 'none';
         }
     </script>
 </body>
