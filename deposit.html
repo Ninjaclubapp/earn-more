@@ -290,7 +290,7 @@
             <input type="number" id="amountInput" placeholder="Enter amount (min ₹100)" min="100">
             <input type="text" id="mobileInput" placeholder="Enter your mobile number" maxlength="10">
             <button id="submitDepositBtn">Submit</button>
-            <div class="payment-message">Pay the amount to 8486105725 or UPI ID - officialsanu2018-6@okaxis, first submit request then pay</div>
+            <div class="payment-message">Pay the amount to  UPI ID - officialsanu2018-6@okaxis, first submit request then pay</div>
             <div id="depositMessage" class="message"></div>
         </div>
 
@@ -374,7 +374,7 @@
             database.ref('deposits/' + mobile + '/' + timestamp).set(depositData)
                 .then(() => {
                     showLoading(false);
-                    showMessage(depositMessage, 'Pay this number 8486105725, amount will show in your wallet within 5 to 10 mins.', 'success');
+                    showMessage(depositMessage, 'Your amount will show in your wallet within 5 to 10 mins.', 'success');
                     amountInput.value = '';
                     mobileInput.value = '';
                     loadDepositHistory(); // Refresh history after submission
