@@ -548,7 +548,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            zlläser: 1000;
+            z-index: 1000;
             justify-content: center;
             align-items: center;
         }
@@ -586,6 +586,12 @@
             flex-direction: column;
             gap: 12px;
             margin-bottom: 20px;
+        }
+
+        .support-form input {
+            padding: 12px 16px;
+            background: #f8fafc;
+            background-size: 16px;
         }
 
         .support-form textarea {
@@ -905,6 +911,7 @@
                 <span class="support-close" id="supportClose">×</span>
                 <div class="support-title">Support Chat</div>
                 <div class="support-form">
+                    <input type="text" id="supportMobileInput" placeholder="Enter your mobile number" maxlength="10">
                     <textarea id="supportMessageInput" placeholder="Type your message..."></textarea>
                     <button id="sendSupportMessage">Send Message</button>
                 </div>
@@ -972,6 +979,7 @@
         const historyItems = document.getElementById('historyItems');
         const supportModal = document.getElementById('supportModal');
         const supportClose = document.getElementById('supportClose');
+        const supportMobileInput = document.getElementById('supportMobileInput');
         const supportMessageInput = document.getElementById('supportMessageInput');
         const sendSupportMessage = document.getElementById('sendSupportMessage');
         const messageList = document.getElementById('messageList');
@@ -1030,23 +1038,29 @@
 
         // Support functions
         function showSupportModal() {
-            if (!currentUserMobile) {
-                showMessage(authMessage, 'Please login to access support', 'error');
-                return;
-            }
             supportModal.style.display = 'flex';
+            supportMobileInput.value = currentUserMobile || '';
             loadMessages();
         }
 
         function hideSupportModal() {
             supportModal.style.display = 'none';
+            supportMobileInput.value = '';
             supportMessageInput.value = '';
+            database.ref(`supportMessages/${supportMobileInput.value}`).off();
+            messageList.innerHTML = '';
         }
 
         function sendMessage() {
+            const mobile = supportMobileInput.value.trim();
             const messageText = supportMessageInput.value.trim();
+
+            if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
+                showMessage(authMessage, 'Please enter a valid 10-digit mobile number', 'error');
+                return;
+            }
             if (!messageText) {
-                showMessage(betMessage, 'Please enter a message', 'error');
+                showMessage(authMessage, 'Please enter a message', 'error');
                 return;
             }
 
@@ -1056,21 +1070,26 @@
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             };
 
-            database.ref(`users/${currentUserMobile}/supportMessages`).push(message)
+            database.ref(`supportMessages/${mobile}`).push(message)
                 .then(() => {
                     supportMessageInput.value = '';
-                    showMessage(betMessage, 'Message sent successfully', 'success');
+                    showMessage(authMessage, 'Message sent successfully', 'success');
+                    loadMessages();
                 })
                 .catch(error => {
                     console.error('Error sending message:', error);
-                    showMessage(betMessage, 'Error sending message', 'error');
+                    showMessage(authMessage, 'Error sending message', 'error');
                 });
         }
 
         function loadMessages() {
-            if (!currentUserMobile) return;
+            const mobile = supportMobileInput.value.trim();
+            if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
+                messageList.innerHTML = '';
+                return;
+            }
 
-            database.ref(`users/${currentUserMobile}/supportMessages`).on('value', snapshot => {
+            database.ref(`supportMessages/${mobile}`).on('value', snapshot => {
                 messageList.innerHTML = '';
                 const messages = snapshot.val();
                 if (messages) {
