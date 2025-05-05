@@ -85,6 +85,14 @@
             outline: none;
         }
 
+        input.valid {
+            border-color: var(--green);
+        }
+
+        input.invalid {
+            border-color: var(--red);
+        }
+
         button {
             background: linear-gradient(135deg, var(--primary), var(--violet));
             color: white;
@@ -143,6 +151,13 @@
             margin-bottom: 10px;
         }
 
+        .referral-note {
+            font-size: 0.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
         .referral-link-section {
             margin-top: 15px;
             padding: 10px;
@@ -165,7 +180,11 @@
             border-radius: 5px;
             margin-bottom: 10px;
             word-break: break-all;
-            display: none;
+        }
+
+        .toggle-link-btn {
+            background: linear-gradient(135deg, var(--yellow), #f1c40f);
+            margin-bottom: 10px;
         }
 
         .copy-btn {
@@ -178,37 +197,39 @@
             margin-top: 8px;
         }
 
-        .history-section {
+        .history-section, .referral-history-section {
             padding: 15px;
             margin-top: 10px;
         }
 
-        .history-title {
+        .history-title, .referral-history-title {
             font-size: 1rem;
             font-weight: bold;
             margin-bottom: 10px;
             color: var(--dark);
         }
 
-        .history-table {
+        .history-table, .referral-history-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
         }
 
-        .history-table th, .history-table td {
+        .history-table th, .history-table td,
+        .referral-history-table th, .referral-history-table td {
             padding: 8px;
             border: 1px solid #ddd;
             text-align: left;
         }
 
-        .history-table th {
+        .history-table th, .referral-history-table th {
             background: linear-gradient(135deg, var(--secondary), var(--primary));
             color: white;
             font-weight: bold;
         }
 
-        .history-table tr:nth-child(even) {
+        .history-table tr:nth-child(even),
+        .referral-history-table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
 
@@ -287,7 +308,7 @@
                 font-size: 0.8rem;
             }
 
-            .deposit-section, .history-section, .referral-section {
+            .deposit-section, .history-section, .referral-section, .referral-history-section {
                 padding: 12px;
                 gap: 8px;
             }
@@ -308,17 +329,18 @@
                 padding: 6px;
             }
 
-            .history-table {
+            .history-table, .referral-history-table {
                 font-size: 0.8rem;
                 display: block;
                 overflow-x: auto;
             }
 
-            .history-table th, .history-table td {
+            .history-table th, .history-table td,
+            .referral-history-table th, .referral-history-table td {
                 padding: 6px;
             }
 
-            .history-title, .referral-title {
+            .history-title, .referral-title, .referral-history-title {
                 font-size: 0.9rem;
             }
 
@@ -329,7 +351,7 @@
         }
 
         @media (max-width: 360px) {
-            .history-table {
+            .history-table, .referral-history-table {
                 min-width: 320px;
             }
         }
@@ -353,12 +375,14 @@
         <div class="referral-section">
             <div class="referral-title">Refer & Earn ₹100</div>
             <div class="referral-message">Enter your friend's mobile number who registered with your referral</div>
+            <div class="referral-note">Note: Enter your mobile number in the deposit section above to claim the bonus. Bonus subject to admin approval.</div>
             <input type="text" id="referralInput" placeholder="Enter referred mobile number" maxlength="10">
             <button id="submitReferralBtn">Claim Bonus</button>
             <div id="referralMessage" class="message"></div>
             
             <div class="referral-link-section">
                 <div class="referral-link-title">Share Your Referral Link</div>
+                <button class="toggle-link-btn" id="toggleLinkBtn">Show Referral Link</button>
                 <div class="referral-link-text" id="referralLinkText">
                     Win Real Cash Daily – Start with ₹100 FREE!
                     Looking for an easy way to earn online? Try this Color Prediction Game – simple, fun, and 100% real!
@@ -381,16 +405,32 @@
             </div>
         </div>
 
+        <div class="referral-history-section">
+            <div class="referral-history-title">Referral History</div>
+            <input type="text" id="referralHistoryMobileInput" placeholder="Enter mobile number to view referral history" maxlength="10">
+            <table class="referral-history-table" id="referralHistoryTable">
+                <thead>
+                    <tr>
+                        <th>Referred Mobile</th>
+                        <th>Bonus (₹)</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="referralHistoryTableBody"></tbody>
+            </table>
+        </div>
+
         <div class="history-section">
             <div class="history-title">Deposit History</div>
-            <input type="text" id="historyMobileInput" placeholder="Enter mobile number to view history" maxlength="10">
+            <input type="text" id="historyMobileInput" placeholder="Enter mobile number to view deposit history" maxlength="10">
             <table class="history-table" id="historyTable">
                 <thead>
                     <tr>
                         <th>Amount (₹)</th>
                         <th>Mobile</th>
                         <th>Status</th>
-                        <th>Date</th>
+                        <th.Date</th>
                     </tr>
                 </thead>
                 <tbody id="historyTableBody"></tbody>
@@ -425,15 +465,18 @@
         const mobileInput = document.getElementById('mobileInput');
         const referralInput = document.getElementById('referralInput');
         const historyMobileInput = document.getElementById('historyMobileInput');
+        const referralHistoryMobileInput = document.getElementById('referralHistoryMobileInput');
         const submitDepositBtn = document.getElementById('submitDepositBtn');
         const submitReferralBtn = document.getElementById('submitReferralBtn');
         const copyReferralBtn = document.getElementById('copyReferralBtn');
         const whatsappShareBtn = document.getElementById('whatsappShareBtn');
+        const toggleLinkBtn = document.getElementById('toggleLinkBtn');
         const referralLinkText = document.getElementById('referralLinkText');
         const depositMessage = document.getElementById('depositMessage');
         const referralMessage = document.getElementById('referralMessage');
         const copyMessage = document.getElementById('copyMessage');
         const historyTableBody = document.getElementById('historyTableBody');
+        const referralHistoryTableBody = document.getElementById('referralHistoryTableBody');
         const loading = document.getElementById('loading');
 
         // Referral link text
@@ -457,12 +500,47 @@ Your ₹100 welcome bonus is waiting!`;
         submitReferralBtn.addEventListener('click', handleReferral);
         copyReferralBtn.addEventListener('click', copyReferralLink);
         whatsappShareBtn.addEventListener('click', shareViaWhatsApp);
+        toggleLinkBtn.addEventListener('click', toggleReferralLink);
         historyMobileInput.addEventListener('input', loadDepositHistory);
+        referralHistoryMobileInput.addEventListener('input', loadReferralHistory);
+        referralInput.addEventListener('input', validateReferralInput);
+        referralHistoryMobileInput.addEventListener('input', validateReferralHistoryInput);
 
         // Initialize with referral text hidden
         referralLinkText.style.display = 'none';
+        let isReferralLinkVisible = false;
 
-        // Functions
+        // Validation functions
+        function validateReferralInput() {
+            const referredMobile = referralInput.value.trim();
+            if (referredMobile.length === 10 && !isNaN(referredMobile)) {
+                referralInput.classList.add('valid');
+                referralInput.classList.remove('invalid');
+            } else {
+                referralInput.classList.add('invalid');
+                referralInput.classList.remove('valid');
+            }
+        }
+
+        function validateReferralHistoryInput() {
+            const mobile = referralHistoryMobileInput.value.trim();
+            if (mobile.length === 10 && !isNaN(mobile)) {
+                referralHistoryMobileInput.classList.add('valid');
+                referralHistoryMobileInput.classList.remove('invalid');
+            } else {
+                referralHistoryMobileInput.classList.add('invalid');
+                referralHistoryMobileInput.classList.remove('valid');
+            }
+        }
+
+        // Toggle referral link visibility
+        function toggleReferralLink() {
+            isReferralLinkVisible = !isReferralLinkVisible;
+            referralLinkText.style.display = isReferralLinkVisible ? 'block' : 'none';
+            toggleLinkBtn.textContent = isReferralLinkVisible ? 'Hide Referral Link' : 'Show Referral Link';
+        }
+
+        // Handle deposit submission
         function handleDeposit() {
             const amount = parseFloat(amountInput.value.trim());
             const mobile = mobileInput.value.trim();
@@ -502,6 +580,7 @@ Your ₹100 welcome bonus is waiting!`;
                 });
         }
 
+        // Handle referral submission (pending admin approval)
         function handleReferral() {
             const referredMobile = referralInput.value.trim();
             const userMobile = mobileInput.value.trim();
@@ -523,7 +602,7 @@ Your ₹100 welcome bonus is waiting!`;
 
             showLoading(true);
             
-            // First check if the referred user exists
+            // Check if the referred user exists
             database.ref('users/' + referredMobile).once('value')
                 .then(snapshot => {
                     if (!snapshot.exists()) {
@@ -535,37 +614,32 @@ Your ₹100 welcome bonus is waiting!`;
                 })
                 .then(refSnapshot => {
                     if (refSnapshot.exists()) {
-                        throw new Error('Referral bonus already claimed for this user');
+                        throw new Error('Referral already submitted for this user');
                     }
                     
-                    // Create the referral record
+                    // Create the referral record with pending status
                     const timestamp = Date.now();
                     const referralData = {
                         referredMobile: referredMobile,
                         bonusAmount: 100,
-                        timestamp: timestamp,
-                        status: 'approved'
+                        status: 'pending',
+                        timestamp: timestamp
                     };
                     
                     return database.ref('referrals/' + userMobile + '/' + referredMobile).set(referralData);
                 })
                 .then(() => {
-                    // Update the user's wallet balance
-                    return database.ref('wallets/' + userMobile).transaction(currentBalance => {
-                        return (currentBalance || 0) + 100;
-                    });
-                })
-                .then(() => {
                     showLoading(false);
-                    showMessage(referralMessage, '₹100 referral bonus added to your wallet!', 'success');
+                    showMessage(referralMessage, 'Referral submitted! Awaiting admin approval.', 'success');
                     referralInput.value = '';
+                    loadReferralHistory();
                 })
                 .catch(error => {
                     showLoading(false);
                     if (error.message === 'Referred user not found') {
                         showMessage(referralMessage, 'This mobile number is not registered with us', 'error');
-                    } else if (error.message === 'Referral bonus already claimed for this user') {
-                        showMessage(referralMessage, 'You have already claimed bonus for this referral', 'error');
+                    } else if (error.message === 'Referral already submitted for this user') {
+                        showMessage(referralMessage, 'Referral already submitted for this user', 'error');
                     } else {
                         showMessage(referralMessage, 'Error processing referral request', 'error');
                         console.error('Firebase error:', error);
@@ -573,6 +647,7 @@ Your ₹100 welcome bonus is waiting!`;
                 });
         }
 
+        // Copy referral link
         function copyReferralLink() {
             navigator.clipboard.writeText(referralText)
                 .then(() => {
@@ -584,11 +659,13 @@ Your ₹100 welcome bonus is waiting!`;
                 });
         }
 
+        // Share via WhatsApp
         function shareViaWhatsApp() {
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(referralText)}`;
             window.open(whatsappUrl, '_blank');
         }
 
+        // Load deposit history
         function loadDepositHistory() {
             const mobile = historyMobileInput.value.trim();
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
@@ -606,7 +683,6 @@ Your ₹100 welcome bonus is waiting!`;
                         snapshot.forEach(childSnapshot => {
                             deposits.push(childSnapshot.val());
                         });
-                        // Sort by timestamp (newest first) and take last 10
                         deposits.sort((a, b) => b.timestamp - a.timestamp);
                         deposits.slice(0, 10).forEach(deposit => {
                             addDepositToTable(deposit);
@@ -622,6 +698,40 @@ Your ₹100 welcome bonus is waiting!`;
                 });
         }
 
+        // Load referral history
+        function loadReferralHistory() {
+            const mobile = referralHistoryMobileInput.value.trim();
+            if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
+                referralHistoryTableBody.innerHTML = '';
+                return;
+            }
+
+            showLoading(true);
+            database.ref('referrals/' + mobile).once('value')
+                .then(snapshot => {
+                    showLoading(false);
+                    referralHistoryTableBody.innerHTML = '';
+                    if (snapshot.exists()) {
+                        const referrals = [];
+                        snapshot.forEach(childSnapshot => {
+                            referrals.push(childSnapshot.val());
+                        });
+                        referrals.sort((a, b) => b.timestamp - a.timestamp);
+                        referrals.slice(0, 10).forEach(referral => {
+                            addReferralToTable(referral);
+                        });
+                    } else {
+                        showMessage(referralMessage, 'No referral history found', 'error');
+                    }
+                })
+                .catch(error => {
+                    showLoading(false);
+                    showMessage(referralMessage, 'Error loading referral history', 'error');
+                    console.error('Firebase error:', error);
+                });
+        }
+
+        // Add deposit to table
         function addDepositToTable(deposit) {
             const row = document.createElement('tr');
             const formattedDate = formatTimestamp(deposit.timestamp);
@@ -635,6 +745,21 @@ Your ₹100 welcome bonus is waiting!`;
             historyTableBody.appendChild(row);
         }
 
+        // Add referral to table
+        function addReferralToTable(referral) {
+            const row = document.createElement('tr');
+            const formattedDate = formatTimestamp(referral.timestamp);
+            const statusClass = `status-${referral.status.toLowerCase()}`;
+            row.innerHTML = `
+                <td>${referral.referredMobile}</td>
+                <td>₹${referral.bonusAmount}</td>
+                <td class="${statusClass}">${referral.status}</td>
+                <td>${formattedDate}</td>
+            `;
+            referralHistoryTableBody.appendChild(row);
+        }
+
+        // Format timestamp
         function formatTimestamp(timestamp) {
             const date = new Date(timestamp);
             const day = String(date.getDate()).padStart(2, '0');
@@ -645,6 +770,7 @@ Your ₹100 welcome bonus is waiting!`;
             return `${day}-${month}-${year} ${hours}:${minutes}`;
         }
 
+        // Show message
         function showMessage(element, message, type) {
             element.textContent = message;
             element.className = `message ${type}`;
@@ -654,6 +780,7 @@ Your ₹100 welcome bonus is waiting!`;
             }, 5000);
         }
 
+        // Show/hide loading spinner
         function showLoading(show) {
             loading.style.display = show ? 'block' : 'none';
         }
