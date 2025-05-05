@@ -165,6 +165,7 @@
             border-radius: 5px;
             margin-bottom: 10px;
             word-break: break-all;
+            display: none; /* Added to hide by default */
         }
 
         .copy-btn {
@@ -458,6 +459,15 @@ Your ₹100 welcome bonus is waiting!`;
         whatsappShareBtn.addEventListener('click', shareViaWhatsApp);
         historyMobileInput.addEventListener('input', loadDepositHistory);
 
+        // Show referral text when copy or share buttons are clicked
+        copyReferralBtn.addEventListener('click', function() {
+            referralLinkText.style.display = 'block';
+        });
+
+        whatsappShareBtn.addEventListener('click', function() {
+            referralLinkText.style.display = 'block';
+        });
+
         // Functions
         function handleDeposit() {
             const amount = parseFloat(amountInput.value.trim());
@@ -571,6 +581,7 @@ Your ₹100 welcome bonus is waiting!`;
         }
 
         function copyReferralLink() {
+            referralLinkText.style.display = 'block'; // Show text before copying
             navigator.clipboard.writeText(referralText)
                 .then(() => {
                     showMessage(copyMessage, 'Referral link copied to clipboard!', 'success');
@@ -582,6 +593,7 @@ Your ₹100 welcome bonus is waiting!`;
         }
 
         function shareViaWhatsApp() {
+            referralLinkText.style.display = 'block'; // Show text before sharing
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(referralText)}`;
             window.open(whatsappUrl, '_blank');
         }
