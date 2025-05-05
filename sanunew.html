@@ -116,6 +116,14 @@
             z-index: 1;
         }
 
+        .auth-actions {
+            width: 100%;
+            max-width: 320px;
+            margin-top: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
         input {
             padding: 12px 16px 12px 40px;
             border: 2px solid #e5e7eb;
@@ -270,14 +278,28 @@
         }
 
         .balance-actions {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
+            width: 100%;
+            max-width: 300px;
         }
 
-        .balance-actions button {
-            padding: 10px 16px;
+        .balance-actions button:not(#logoutBtn) {
+            padding: 10px;
             font-size: 0.9rem;
             border-radius: 8px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #logoutBtn {
+            grid-column: 1 / -1;
+            padding: 10px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            margin-top: 8px;
         }
 
         .timer-container {
@@ -517,6 +539,101 @@
             color: #16a34a;
         }
 
+        /* Support Modal Styles */
+        .support-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            zlläser: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .support-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .support-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #4b5563;
+        }
+
+        .support-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--dark);
+        }
+
+        .support-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .support-form textarea {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .support-form textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(127, 86, 217, 0.1);
+            outline: none;
+        }
+
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message-item {
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .message-item.user {
+            background: linear-gradient(135deg, rgba(127, 86, 217, 0.1), rgba(168, 85, 247, 0.1));
+            color: var(--primary);
+            margin-left: 20px;
+        }
+
+        .message-item.admin {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.1));
+            color: #16a34a;
+            margin-right: 20px;
+        }
+
+        .message-meta {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 8px;
@@ -583,8 +700,20 @@
             }
 
             .balance-actions {
-                width: 100%;
-                justify-content: space-between;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 6px;
+                max-width: 100%;
+            }
+
+            .balance-actions button:not(#logoutBtn) {
+                padding: 8px;
+                font-size: 0.85rem;
+            }
+
+            #logoutBtn {
+                padding: 8px;
+                font-size: 0.85rem;
+                margin-top: 6px;
             }
 
             .timer {
@@ -635,6 +764,27 @@
                 font-size: 0.85rem;
                 padding: 10px;
             }
+
+            .support-content {
+                width: 95%;
+                padding: 16px;
+            }
+
+            .support-title {
+                font-size: 1.1rem;
+            }
+
+            .support-form textarea {
+                font-size: 0.9rem;
+            }
+
+            .message-item {
+                font-size: 0.85rem;
+            }
+
+            .message-meta {
+                font-size: 0.75rem;
+            }
         }
 
         @media (max-width: 360px) {
@@ -648,6 +798,19 @@
 
             .bet-amounts {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .balance-actions {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .balance-actions button:not(#logoutBtn) {
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+
+            .balance-actions #supportBtn {
+                grid-column: 1 / -1;
             }
         }
     </style>
@@ -676,6 +839,10 @@
                 <div class="auth-toggle">Already have an account? <span id="showLogin">Login</span></div>
                 <div id="regMessage" class="message"></div>
             </div>
+
+            <div class="auth-actions">
+                <button id="authSupportBtn">Support</button>
+            </div>
         </div>
 
         <div class="loading" id="loading">
@@ -695,6 +862,7 @@
                 <div class="balance-actions">
                     <button id="addCashBtn">Add Cash</button>
                     <button id="withdrawBtn">Withdraw</button>
+                    <button id="supportBtn">Support</button>
                     <button id="logoutBtn">Logout</button>
                 </div>
             </div>
@@ -728,6 +896,19 @@
             <div class="history">
                 <div class="history-title">Recent Results</div>
                 <div class="history-items" id="historyItems"></div>
+            </div>
+        </div>
+
+        <!-- Support Modal -->
+        <div class="support-modal" id="supportModal">
+            <div class="support-content">
+                <span class="support-close" id="supportClose">×</span>
+                <div class="support-title">Support Chat</div>
+                <div class="support-form">
+                    <textarea id="supportMessageInput" placeholder="Type your message..."></textarea>
+                    <button id="sendSupportMessage">Send Message</button>
+                </div>
+                <div class="message-list" id="messageList"></div>
             </div>
         </div>
     </div>
@@ -779,6 +960,8 @@
         const balanceAmount = document.getElementById('balanceAmount');
         const addCashBtn = document.getElementById('addCashBtn');
         const withdrawBtn = document.getElementById('withdrawBtn');
+        const supportBtn = document.getElementById('supportBtn');
+        const authSupportBtn = document.getElementById('authSupportBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const timerDisplay = document.getElementById('timer');
         const colorOptions = document.querySelectorAll('.color-option');
@@ -787,6 +970,11 @@
         const betMessage = document.getElementById('betMessage');
         const resultSection = document.getElementById('resultSection');
         const historyItems = document.getElementById('historyItems');
+        const supportModal = document.getElementById('supportModal');
+        const supportClose = document.getElementById('supportClose');
+        const supportMessageInput = document.getElementById('supportMessageInput');
+        const sendSupportMessage = document.getElementById('sendSupportMessage');
+        const messageList = document.getElementById('messageList');
 
         // Initialize timer
         startTimer();
@@ -810,8 +998,12 @@
         withdrawBtn.addEventListener('click', () => {
             window.location.href = 'withdraw.html';
         });
+        supportBtn.addEventListener('click', showSupportModal);
+        authSupportBtn.addEventListener('click', showSupportModal);
         logoutBtn.addEventListener('click', handleLogout);
         placeBetBtn.addEventListener('click', placeBet);
+        supportClose.addEventListener('click', hideSupportModal);
+        sendSupportMessage.addEventListener('click', sendMessage);
 
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
@@ -835,6 +1027,68 @@
                 selectedAmount = parseInt(btn.dataset.amount);
             });
         });
+
+        // Support functions
+        function showSupportModal() {
+            if (!currentUserMobile) {
+                showMessage(authMessage, 'Please login to access support', 'error');
+                return;
+            }
+            supportModal.style.display = 'flex';
+            loadMessages();
+        }
+
+        function hideSupportModal() {
+            supportModal.style.display = 'none';
+            supportMessageInput.value = '';
+        }
+
+        function sendMessage() {
+            const messageText = supportMessageInput.value.trim();
+            if (!messageText) {
+                showMessage(betMessage, 'Please enter a message', 'error');
+                return;
+            }
+
+            const message = {
+                text: messageText,
+                sender: 'user',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            database.ref(`users/${currentUserMobile}/supportMessages`).push(message)
+                .then(() => {
+                    supportMessageInput.value = '';
+                    showMessage(betMessage, 'Message sent successfully', 'success');
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+                    showMessage(betMessage, 'Error sending message', 'error');
+                });
+        }
+
+        function loadMessages() {
+            if (!currentUserMobile) return;
+
+            database.ref(`users/${currentUserMobile}/supportMessages`).on('value', snapshot => {
+                messageList.innerHTML = '';
+                const messages = snapshot.val();
+                if (messages) {
+                    Object.entries(messages).forEach(([key, msg]) => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = `message-item ${msg.sender}`;
+                        messageDiv.innerHTML = `
+                            <div>${msg.text}</div>
+                            <div class="message-meta">
+                                ${new Date(msg.timestamp).toLocaleString()}
+                            </div>
+                        `;
+                        messageList.appendChild(messageDiv);
+                    });
+                    messageList.scrollTop = messageList.scrollHeight;
+                }
+            });
+        }
 
         // Marquee message handling
         function setupMarqueeListener() {
@@ -985,7 +1239,7 @@
                             password: password,
                             balance: 100,
                             history: [],
-                        
+                            supportMessages: {},
                             forceOpposite: false
                         }).then(() => {
                             currentUserMobile = mobile;
@@ -1018,6 +1272,7 @@
             passwordInput.value = '';
             hideGameSection();
             hideMessage(authMessage);
+            database.ref(`users/${currentUserMobile}/supportMessages`).off();
         }
 
         async function placeBet() {
@@ -1210,7 +1465,7 @@
                 return 'green';
             }
 
-           
+            const winChance = winProbability / 100;
             if (Math.random() < winChance) {
                 return betColor;
             }
