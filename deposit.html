@@ -122,6 +122,27 @@
             margin-bottom: 10px;
         }
 
+        .referral-section {
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 10px;
+            margin: 10px 15px;
+            text-align: center;
+        }
+
+        .referral-title {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .referral-message {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
         .history-section {
             padding: 15px;
             margin-top: 10px;
@@ -231,7 +252,7 @@
                 font-size: 0.8rem;
             }
 
-            .deposit-section, .history-section {
+            .deposit-section, .history-section, .referral-section {
                 padding: 12px;
                 gap: 8px;
             }
@@ -262,7 +283,7 @@
                 padding: 6px;
             }
 
-            .history-title {
+            .history-title, .referral-title {
                 font-size: 0.9rem;
             }
 
@@ -290,8 +311,16 @@
             <input type="number" id="amountInput" placeholder="Enter amount (min ₹100)" min="100">
             <input type="text" id="mobileInput" placeholder="Enter your mobile number" maxlength="10">
             <button id="submitDepositBtn">Submit</button>
-            <div class="payment-message">Pay the amount to  UPI ID - officialsanu2018-6@okaxis, first submit request then pay</div>
+            <div class="payment-message">Pay the amount to UPI ID - officialsanu2018-6@okaxis, first submit request then pay</div>
             <div id="depositMessage" class="message"></div>
+        </div>
+
+        <div class="referral-section">
+            <div class="referral-title">Refer & Earn ₹100</div>
+            <div class="referral-message">Enter your friend's mobile number who registered with your referral</div>
+            <input type="text" id="referralInput" placeholder="Enter referred mobile number" maxlength="10">
+            <button id="submitReferralBtn">Claim Bonus</button>
+            <div id="referralMessage" class="message"></div>
         </div>
 
         <div class="history-section">
@@ -336,14 +365,18 @@
         // DOM elements
         const amountInput = document.getElementById('amountInput');
         const mobileInput = document.getElementById('mobileInput');
+        const referralInput = document.getElementById('referralInput');
         const historyMobileInput = document.getElementById('historyMobileInput');
         const submitDepositBtn = document.getElementById('submitDepositBtn');
+        const submitReferralBtn = document.getElementById('submitReferralBtn');
         const depositMessage = document.getElementById('depositMessage');
+        const referralMessage = document.getElementById('referralMessage');
         const historyTableBody = document.getElementById('historyTableBody');
         const loading = document.getElementById('loading');
 
         // Event listeners
         submitDepositBtn.addEventListener('click', handleDeposit);
+        submitReferralBtn.addEventListener('click', handleReferral);
         historyMobileInput.addEventListener('input', loadDepositHistory);
 
         // Functions
@@ -383,6 +416,78 @@
                     showLoading(false);
                     showMessage(depositMessage, 'Error processing deposit request', 'error');
                     console.error('Firebase error:', error);
+                });
+        }
+
+        function handleReferral() {
+            const referredMobile = referralInput.value.trim();
+            const userMobile = mobileInput.value.trim(); // Assuming user enters their mobile in deposit form
+            
+            if (!referredMobile || referredMobile.length !== 10 || isNaN(referredMobile)) {
+                showMessage(referralMessage, 'Please enter a valid 10-digit mobile number', 'error');
+                return;
+            }
+            
+            if (!userMobile || userMobile.length !== 10 || isNaN(userMobile)) {
+                showMessage(referralMessage, 'Please enter your mobile number in the deposit section first', 'error');
+                return;
+            }
+            
+            if (referredMobile === userMobile) {
+                showMessage(referralMessage, 'You cannot refer yourself', 'error');
+                return;
+            }
+
+            showLoading(true);
+            
+            // Check if the referred mobile is a registered user
+            database.ref('users/' + referredMobile).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        // Check if this referral has already been claimed
+                        return database.ref('referrals/' + userMobile + '/' + referredMobile).once('value')
+                            .then(refSnapshot => {
+                                if (refSnapshot.exists()) {
+                                    throw new Error('Referral bonus already claimed for this user');
+                                } else {
+                                    // Add referral bonus
+                                    const timestamp = Date.now();
+                                    const referralData = {
+                                        referredMobile: referredMobile,
+                                        bonusAmount: 100,
+                                        timestamp: timestamp,
+                                        status: 'approved'
+                                    };
+                                    
+                                    // Record the referral
+                                    return database.ref('referrals/' + userMobile + '/' + referredMobile).set(referralData)
+                                        .then(() => {
+                                            // Add bonus to user's wallet
+                                            return database.ref('wallets/' + userMobile).transaction(currentBalance => {
+                                                return (currentBalance || 0) + 100;
+                                            });
+                                        });
+                                }
+                            });
+                    } else {
+                        throw new Error('Referred user not found');
+                    }
+                })
+                .then(() => {
+                    showLoading(false);
+                    showMessage(referralMessage, '₹100 referral bonus added to your wallet!', 'success');
+                    referralInput.value = '';
+                })
+                .catch(error => {
+                    showLoading(false);
+                    if (error.message === 'Referred user not found') {
+                        showMessage(referralMessage, 'This mobile number is not registered with us', 'error');
+                    } else if (error.message === 'Referral bonus already claimed for this user') {
+                        showMessage(referralMessage, 'You have already claimed bonus for this referral', 'error');
+                    } else {
+                        showMessage(referralMessage, 'Error processing referral request', 'error');
+                        console.error('Firebase error:', error);
+                    }
                 });
         }
 
