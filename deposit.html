@@ -143,6 +143,40 @@
             margin-bottom: 10px;
         }
 
+        .referral-link-section {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e6f7ff;
+            border-radius: 8px;
+        }
+
+        .referral-link-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .referral-link-text {
+            font-size: 0.75rem;
+            color: #333;
+            background: white;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, var(--green), #00b894);
+            margin-top: 5px;
+        }
+
+        .whatsapp-btn {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            margin-top: 8px;
+        }
+
         .history-section {
             padding: 15px;
             margin-top: 10px;
@@ -321,6 +355,29 @@
             <input type="text" id="referralInput" placeholder="Enter referred mobile number" maxlength="10">
             <button id="submitReferralBtn">Claim Bonus</button>
             <div id="referralMessage" class="message"></div>
+            
+            <div class="referral-link-section">
+                <div class="referral-link-title">Share Your Referral Link</div>
+                <div class="referral-link-text" id="referralLinkText">
+                    Win Real Cash Daily – Start with ₹100 FREE!
+                    Looking for an easy way to earn online? Try this Color Prediction Game – simple, fun, and 100% real!
+
+                    Get ₹100 instantly when you register – no investment needed to start!
+
+                    Why Join?
+                    ✨ Trusted platform
+                    ✨ Instant withdrawal
+                    ✨ Daily earning opportunities
+
+                    Join Now & Start Earning:
+                    ➡ https://sanu8486.github.io/earn-more/sanunew.html
+
+                    Your ₹100 welcome bonus is waiting!
+                </div>
+                <button class="copy-btn" id="copyReferralBtn">Copy Referral Link</button>
+                <button class="whatsapp-btn" id="whatsappShareBtn">Share via WhatsApp</button>
+                <div id="copyMessage" class="message"></div>
+            </div>
         </div>
 
         <div class="history-section">
@@ -369,14 +426,36 @@
         const historyMobileInput = document.getElementById('historyMobileInput');
         const submitDepositBtn = document.getElementById('submitDepositBtn');
         const submitReferralBtn = document.getElementById('submitReferralBtn');
+        const copyReferralBtn = document.getElementById('copyReferralBtn');
+        const whatsappShareBtn = document.getElementById('whatsappShareBtn');
+        const referralLinkText = document.getElementById('referralLinkText');
         const depositMessage = document.getElementById('depositMessage');
         const referralMessage = document.getElementById('referralMessage');
+        const copyMessage = document.getElementById('copyMessage');
         const historyTableBody = document.getElementById('historyTableBody');
         const loading = document.getElementById('loading');
+
+        // Referral link text
+        const referralText = `Win Real Cash Daily – Start with ₹100 FREE!
+Looking for an easy way to earn online? Try this Color Prediction Game – simple, fun, and 100% real!
+
+Get ₹100 instantly when you register – no investment needed to start!
+
+Why Join?
+✨ Trusted platform
+✨ Instant withdrawal
+✨ Daily earning opportunities
+
+Join Now & Start Earning:
+➡ https://sanu8486.github.io/earn-more/sanunew.html
+
+Your ₹100 welcome bonus is waiting!`;
 
         // Event listeners
         submitDepositBtn.addEventListener('click', handleDeposit);
         submitReferralBtn.addEventListener('click', handleReferral);
+        copyReferralBtn.addEventListener('click', copyReferralLink);
+        whatsappShareBtn.addEventListener('click', shareViaWhatsApp);
         historyMobileInput.addEventListener('input', loadDepositHistory);
 
         // Functions
@@ -489,6 +568,22 @@
                         console.error('Firebase error:', error);
                     }
                 });
+        }
+
+        function copyReferralLink() {
+            navigator.clipboard.writeText(referralText)
+                .then(() => {
+                    showMessage(copyMessage, 'Referral link copied to clipboard!', 'success');
+                })
+                .catch(err => {
+                    showMessage(copyMessage, 'Failed to copy text', 'error');
+                    console.error('Failed to copy: ', err);
+                });
+        }
+
+        function shareViaWhatsApp() {
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(referralText)}`;
+            window.open(whatsappUrl, '_blank');
         }
 
         function loadDepositHistory() {
