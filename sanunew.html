@@ -1006,8 +1006,13 @@
         withdrawBtn.addEventListener('click', () => {
             window.location.href = 'withdraw.html';
         });
-        supportBtn.addEventListener('click', showSupportModal);
-        authSupportBtn.addEventListener('click', showSupportModal);
+        supportBtn.addEventListener('click', () => {
+            // Ensure support button in game section behaves same as auth section
+            showSupportModal(true);
+        });
+        authSupportBtn.addEventListener('click', () => {
+            showSupportModal(false);
+        });
         logoutBtn.addEventListener('click', handleLogout);
         placeBetBtn.addEventListener('click', placeBet);
         supportClose.addEventListener('click', hideSupportModal);
@@ -1037,15 +1042,18 @@
         });
 
         // Support functions
-        function showSupportModal() {
+        function showSupportModal(fromGameSection = false) {
             supportModal.style.display = 'flex';
+            // Pre-fill mobile number for logged-in users and make it read-only in game section
             supportMobileInput.value = currentUserMobile || '';
+            supportMobileInput.readOnly = fromGameSection && currentUserMobile;
             loadMessages();
         }
 
         function hideSupportModal() {
             supportModal.style.display = 'none';
             supportMobileInput.value = '';
+            supportMobileInput.readOnly = false;
             supportMessageInput.value = '';
             database.ref(`supportMessages/${supportMobileInput.value}`).off();
             messageList.innerHTML = '';
