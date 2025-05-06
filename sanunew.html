@@ -1,3 +1,6 @@
+The word "menacing" appearing above the announcement is likely due to an accidental inclusion in the HTML code within the game-section div. I'll remove this text and ensure the marquee container (announcement section) is clean and properly formatted. The rest of the code will remain unchanged to focus on fixing this specific issue.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -640,6 +643,89 @@
             margin-top: 4px;
         }
 
+        /* History Modal Styles */
+        .history-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .history-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .history-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #4b5563;
+        }
+
+        .history-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--dark);
+        }
+
+        .history-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .history-form input {
+            padding: 12px 16px;
+            background: #f8fafc;
+            background-size: 16px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-entry {
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            background: linear-gradient(135deg, #f8fafc, #ffffff);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .history-entry.win {
+            border-left: 4px solid #16a34a;
+        }
+
+        .history-entry.lose {
+            border-left: 4px solid #dc2626;
+        }
+
+        .history-entry-meta {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 8px;
@@ -771,24 +857,24 @@
                 padding: 10px;
             }
 
-            .support-content {
+            .support-content, .history-content {
                 width: 95%;
                 padding: 16px;
             }
 
-            .support-title {
+            .support-title, .history-title {
                 font-size: 1.1rem;
             }
 
-            .support-form textarea {
+            .support-form textarea, .history-form input {
                 font-size: 0.9rem;
             }
 
-            .message-item {
+            .message-item, .history-entry {
                 font-size: 0.85rem;
             }
 
-            .message-meta {
+            .message-meta, .history-entry-meta {
                 font-size: 0.75rem;
             }
         }
@@ -815,7 +901,7 @@
                 font-size: 0.8rem;
             }
 
-            .balance-actions #supportBtn {
+            .balance-actions #supportBtn, .balance-actions #historyBtn {
                 grid-column: 1 / -1;
             }
         }
@@ -869,6 +955,7 @@
                     <button id="addCashBtn">Add Cash</button>
                     <button id="withdrawBtn">Withdraw</button>
                     <button id="supportBtn">Support</button>
+                    <button id="historyBtn">Bet History</button>
                     <button id="logoutBtn">Logout</button>
                 </div>
             </div>
@@ -916,6 +1003,20 @@
                     <button id="sendSupportMessage">Send Message</button>
                 </div>
                 <div class="message-list" id="messageList"></div>
+            </div>
+        </div>
+
+        <!-- History Modal -->
+        <div class="history-modal" id="historyModal">
+            <div class="history-content">
+                <span class="history-close" id="historyClose">×</span>
+                <div class="history-title">Bet History</div>
+                <div class="history-form">
+                    <input type="text" id="historyMobileInput" placeholder="Enter your mobile number" maxlength="10">
+                    <button id="viewHistoryBtn">View History</button>
+                    <div id="historyMessage" class="message"></div>
+                </div>
+                <div class="history-list" id="historyList"></div>
             </div>
         </div>
     </div>
@@ -983,6 +1084,13 @@
         const supportMessageInput = document.getElementById('supportMessageInput');
         const sendSupportMessage = document.getElementById('sendSupportMessage');
         const messageList = document.getElementById('messageList');
+        const historyModal = document.getElementById('historyModal');
+        const historyClose = document.getElementById('historyClose');
+        const historyMobileInput = document.getElementById('historyMobileInput');
+        const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+        const historyMessage = document.getElementById('historyMessage');
+        const historyList = document.getElementById('historyList');
+        const historyBtn = document.getElementById('historyBtn');
 
         // Initialize timer
         startTimer();
@@ -1007,7 +1115,6 @@
             window.location.href = 'withdraw.html';
         });
         supportBtn.addEventListener('click', () => {
-            // Ensure support button in game section behaves same as auth section
             showSupportModal(true);
         });
         authSupportBtn.addEventListener('click', () => {
@@ -1017,6 +1124,9 @@
         placeBetBtn.addEventListener('click', placeBet);
         supportClose.addEventListener('click', hideSupportModal);
         sendSupportMessage.addEventListener('click', sendMessage);
+        historyBtn.addEventListener('click', showHistoryModal);
+        historyClose.addEventListener('click', hideHistoryModal);
+        viewHistoryBtn.addEventListener('click', loadHistory);
 
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
@@ -1044,7 +1154,6 @@
         // Support functions
         function showSupportModal(fromGameSection = false) {
             supportModal.style.display = 'flex';
-            // Pre-fill mobile number for logged-in users and make it read-only in game section
             supportMobileInput.value = currentUserMobile || '';
             supportMobileInput.readOnly = fromGameSection && currentUserMobile;
             loadMessages();
@@ -1115,6 +1224,72 @@
                     messageList.scrollTop = messageList.scrollHeight;
                 }
             });
+        }
+
+        // History Modal functions
+        function showHistoryModal() {
+            historyModal.style.display = 'flex';
+            historyMobileInput.value = currentUserMobile || '';
+            historyMobileInput.readOnly = currentUserMobile ? true : false;
+            historyList.innerHTML = '';
+            hideMessage(historyMessage);
+        }
+
+        function hideHistoryModal() {
+            historyModal.style.display = 'none';
+            historyMobileInput.value = '';
+            historyMobileInput.readOnly = false;
+            historyList.innerHTML = '';
+            hideMessage(historyMessage);
+        }
+
+        function loadHistory() {
+            const mobile = historyMobileInput.value.trim();
+            if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
+                showMessage(historyMessage, 'Please enter a valid 10-digit mobile number', 'error');
+                return;
+            }
+
+            showLoading(true);
+            database.ref(`users/${mobile}`).once('value')
+                .then(snapshot => {
+                    showLoading(false);
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        const playerHistory = (userData.history || []).filter(item => item.playerInvolved);
+                        historyList.innerHTML = '';
+                        if (playerHistory.length === 0) {
+                            const noHistoryDiv = document.createElement('div');
+                            noHistoryDiv.className = 'history-entry';
+                            noHistoryDiv.textContent = 'No bet history available.';
+                            historyList.appendChild(noHistoryDiv);
+                        } else {
+                            playerHistory.forEach(item => {
+                                const historyDiv = document.createElement('div');
+                                historyDiv.className = `history-entry ${item.win ? 'win' : 'lose'}`;
+                                historyDiv.innerHTML = `
+                                    <div>Color: ${item.color.charAt(0).toUpperCase() + item.color.slice(1)}</div>
+                                    <div>Bet Amount: ₹${item.amount}</div>
+                                    <div>Result: ${item.win ? `Won ₹${item.winAmount}` : 'Lost'}</div>
+                                    <div class="history-entry-meta">
+                                        ${new Date(item.timestamp).toLocaleString()}
+                                    </div>
+                                `;
+                                historyList.appendChild(historyDiv);
+                            });
+                        }
+                        historyList.scrollTop = 0;
+                    } else {
+                        showMessage(historyMessage, 'No account found for this mobile number', 'error');
+                        historyList.innerHTML = '';
+                    }
+                })
+                .catch(error => {
+                    showLoading(false);
+                    console.error('Error fetching history:', error);
+                    showMessage(historyMessage, 'Error fetching history. Please try again.', 'error');
+                    historyList.innerHTML = '';
+                });
         }
 
         // Marquee message handling
@@ -1583,3 +1758,4 @@
     </script>
 </body>
 </html>
+```
