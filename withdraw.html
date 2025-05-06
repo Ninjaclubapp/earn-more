@@ -386,6 +386,8 @@
             <input type="number" id="amountInput" placeholder="Enter amount (min ₹500)" min="500">
             <label for="upiInput" class="sr-only">UPI ID</label>
             <input type="text" id="upiInput" placeholder="Enter UPI ID">
+            <label for="passwordInput" class="sr-only">Password</label>
+            <input type="password" id="passwordInput" placeholder="Enter your password">
             <button id="submitWithdrawBtn">Submit</button>
             <div class="fee-message">3% platform fee, 1% TDS charge</div>
             <div id="withdrawMessage" class="message"></div>
@@ -442,6 +444,7 @@
         const mobileInput = document.getElementById('mobileInput');
         const amountInput = document.getElementById('amountInput');
         const upiInput = document.getElementById('upiInput');
+        const passwordInput = document.getElementById('passwordInput');
         const historyMobileInput = document.getElementById('historyMobileInput');
         const submitWithdrawBtn = document.getElementById('submitWithdrawBtn');
         const withdrawMessage = document.getElementById('withdrawMessage');
@@ -453,7 +456,7 @@
         submitWithdrawBtn.addEventListener('click', handleWithdraw);
         historyMobileInput.addEventListener('input', debounce(loadWithdrawalHistory, 500));
         mobileInput.addEventListener('input', debounce(loadAnnouncements, 500));
-        [mobileInput, amountInput, upiInput, historyMobileInput].forEach(input => {
+        [mobileInput, amountInput, upiInput, passwordInput, historyMobileInput].forEach(input => {
             input.addEventListener('input', () => {
                 withdrawMessage.style.display = 'none';
             });
@@ -526,7 +529,9 @@
             const mobile = mobileInput.value.trim();
             const amount = parseFloat(amountInput.value.trim());
             const upiId = upiInput.value.trim();
+            const password = passwordInput.value.trim();
 
+            // Validate inputs
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 showMessage(withdrawMessage, 'Please enter a valid 10-digit mobile number', 'error');
                 return;
@@ -543,66 +548,84 @@
                 return;
             }
 
+            if (!password) {
+                showMessage(withdrawMessage, 'Please enter your password', 'error');
+                return;
+            }
+
             showLoading(true, 'loading');
             submitWithdrawBtn.disabled = true;
 
-            // UseBent a transaction to safely update the balance
-            database.ref('users/' + mobile).transaction(userData => {
-                if (!userData) {
-                    return null; // User doesn't exist, abort transaction
-                }
+            // Verify password
+            database.ref('users/' + mobile).once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        throw new Error('User not found');
+                    }
+                    const userData = snapshot.val();
+                    if (!userData.password || userData.password !== password) {
+                        throw new Error('Invalid password');
+                    }
 
-                const currentBalance = userData.balance || 0;
-                if (amount > currentBalance) {
-                    return null; // Insufficient balance, abort transaction
-                }
+                    // Proceed with balance check and withdrawal
+                    return database.ref('users/' + mobile).transaction(userData => {
+                        if (!userData) {
+                            return null; // User doesn't exist, abort transaction
+                        }
 
-                // Update only the balance field
-                userData.balance = currentBalance - amount;
-                return userData; // Return the updated user data
-            }, (error, committed, snapshot) => {
-                if (error) {
-                    showLoading(false, 'loading');
-                    submitWithdrawBtn.disabled = false;
-                    showMessage(withdrawMessage, 'Error processing withdrawal request', 'error');
-                    console.error('Transaction error:', error);
-                    return;
-                }
+                        const currentBalance = userData.balance || 0;
+                        if (amount > currentBalance) {
+                            return null; // Insufficient balance, abort transaction
+                        }
 
-                if (!committed) {
-                    showLoading(false, 'loading');
-                    submitWithdrawBtn.disabled = false;
-                    showMessage(withdrawMessage, snapshot.exists() ? 'Insufficient balance' : 'User not found', 'error');
-                    return;
-                }
-
-                // Proceed with recording the withdrawal
-                const timestamp = Date.now();
-                const withdrawData = {
-                    amount: amount,
-                    mobile: mobile,
-                    upiId: upiId,
-                    status: 'pending',
-                    timestamp: timestamp
-                };
-
-                // Record the withdrawal
-                database.ref('withdrawals/' + mobile + '/' + timestamp).set(withdrawData)
-                    .then(() => {
-                        showLoading(false, 'loading');
-                        showMessage(withdrawMessage, 'Withdrawal request submitted. Amount deducted from your balance.', 'success');
-                        mobileInput.value = '';
-                        amountInput.value = '';
-                        upiInput.value = '';
-                        submitWithdrawBtn.disabled = false;
-                    })
-                    .catch(error => {
-                        showLoading(false, 'loading');
-                        showMessage(withdrawMessage, 'Error recording withdrawal request', 'error');
-                        submitWithdrawBtn.disabled = false;
-                        console.error('Firebase error:', error);
+                        // Update only the balance field
+                        userData.balance = currentBalance - amount;
+                        return userData; // Return the updated user data
                     });
-            });
+                })
+                .then(result => {
+                    const { committed, snapshot } = result;
+                    if (!committed) {
+                        showLoading(false, 'loading');
+                        submitWithdrawBtn.disabled = false;
+                        showMessage(withdrawMessage, snapshot.exists() ? 'Insufficient balance' : 'User not found', 'error');
+                        return;
+                    }
+
+                    // Proceed with recording the withdrawal
+                    const timestamp = Date.now();
+                    const withdrawData = {
+                        amount: amount,
+                        mobile: mobile,
+                        upiId: upiId,
+                        status: 'pending',
+                        timestamp: timestamp
+                    };
+
+                    // Record the withdrawal
+                    return database.ref('withdrawals/' + mobile + '/' + timestamp).set(withdrawData);
+                })
+                .then(() => {
+                    showLoading(false, 'loading');
+                    showMessage(withdrawMessage, 'Withdrawal request submitted. Amount deducted from your balance.', 'success');
+                    mobileInput.value = '';
+                    amountInput.value = '';
+                    upiInput.value = '';
+                    passwordInput.value = '';
+                    submitWithdrawBtn.disabled = false;
+                })
+                .catch(error => {
+                    showLoading(false, 'loading');
+                    submitWithdrawBtn.disabled = false;
+                    if (error.message === 'User not found') {
+                        showMessage(withdrawMessage, 'User not found', 'error');
+                    } else if (error.message === 'Invalid password') {
+                        showMessage(withdrawMessage, 'Incorrect password', 'error');
+                    } else {
+                        showMessage(withdrawMessage, 'Error processing withdrawal request', 'error');
+                        console.error('Firebase error:', error);
+                    }
+                });
         }
 
         // Load withdrawal history
