@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -150,13 +151,6 @@
             font-size: 0.8rem;
             color: #666;
             margin-bottom: 10px;
-        }
-
-        .referral-note {
-            font-size: 0.8rem;
-            color: var(--primary);
-            margin-bottom: 10px;
-            font-weight: bold;
         }
 
         .referral-link-section {
@@ -373,9 +367,9 @@
         </div>
 
         <div class="referral-section">
-            <div class="referral-title">Refer & Earn ₹100</div>
-            <div class="referral-message">Enter your friend's mobile number who registered with your referral</div>
-            <div class="referral-note">Note: Enter your mobile number in the deposit section above to claim the bonus. Bonus subject to admin approval.</div>
+            <div class="referral-title">Refer & Earn ₹50</div>
+            <div class="referral-message">Enter your mobile number and your friend's mobile number who registered with your referral</div>
+            <input type="text" id="userMobileInput" placeholder="Enter your mobile number" maxlength="10">
             <input type="text" id="referralInput" placeholder="Enter referred mobile number" maxlength="10">
             <button id="submitReferralBtn">Claim Bonus</button>
             <div id="referralMessage" class="message"></div>
@@ -463,6 +457,7 @@
         // DOM elements
         const amountInput = document.getElementById('amountInput');
         const mobileInput = document.getElementById('mobileInput');
+        const userMobileInput = document.getElementById('userMobileInput');
         const referralInput = document.getElementById('referralInput');
         const historyMobileInput = document.getElementById('historyMobileInput');
         const referralHistoryMobileInput = document.getElementById('referralHistoryMobileInput');
@@ -504,6 +499,7 @@ Your ₹100 welcome bonus is waiting!`;
         historyMobileInput.addEventListener('input', loadDepositHistory);
         referralHistoryMobileInput.addEventListener('input', loadReferralHistory);
         referralInput.addEventListener('input', validateReferralInput);
+        userMobileInput.addEventListener('input', validateUserMobileInput);
         referralHistoryMobileInput.addEventListener('input', validateReferralHistoryInput);
 
         // Initialize with referral text hidden
@@ -519,6 +515,17 @@ Your ₹100 welcome bonus is waiting!`;
             } else {
                 referralInput.classList.add('invalid');
                 referralInput.classList.remove('valid');
+            }
+        }
+
+        function validateUserMobileInput() {
+            const mobile = userMobileInput.value.trim();
+            if (mobile.length === 10 && !isNaN(mobile)) {
+                userMobileInput.classList.add('valid');
+                userMobileInput.classList.remove('invalid');
+            } else {
+                userMobileInput.classList.add('invalid');
+                userMobileInput.classList.remove('valid');
             }
         }
 
@@ -608,15 +615,15 @@ Your ₹100 welcome bonus is waiting!`;
         // Handle referral submission (pending admin approval)
         function handleReferral() {
             const referredMobile = referralInput.value.trim();
-            const userMobile = mobileInput.value.trim();
+            const userMobile = userMobileInput.value.trim();
             
             if (!referredMobile || referredMobile.length !== 10 || isNaN(referredMobile)) {
-                showMessage(referralMessage, 'Please enter a valid 10-digit mobile number', 'error');
+                showMessage(referralMessage, 'Please enter a valid 10-digit referred mobile number', 'error');
                 return;
             }
             
             if (!userMobile || userMobile.length !== 10 || isNaN(userMobile)) {
-                showMessage(referralMessage, 'Please enter your mobile number in the deposit section first', 'error');
+                showMessage(referralMessage, 'Please enter a valid 10-digit mobile number', 'error');
                 return;
             }
             
@@ -646,7 +653,7 @@ Your ₹100 welcome bonus is waiting!`;
                     const timestamp = Date.now();
                     const referralData = {
                         referredMobile: referredMobile,
-                        bonusAmount: 100,
+                        bonusAmount: 50,
                         status: 'pending',
                         timestamp: timestamp
                     };
@@ -657,6 +664,7 @@ Your ₹100 welcome bonus is waiting!`;
                     showLoading(false);
                     showMessage(referralMessage, 'Referral submitted! Awaiting admin approval.', 'success');
                     referralInput.value = '';
+                    userMobileInput.value = '';
                     loadReferralHistory();
                 })
                 .catch(error => {
@@ -812,3 +820,4 @@ Your ₹100 welcome bonus is waiting!`;
     </script>
 </body>
 </html>
+```
