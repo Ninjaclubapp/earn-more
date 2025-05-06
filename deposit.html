@@ -120,6 +120,7 @@
         }
 
         .payment-message {
+            display: none;
             padding: 8px;
             background-color: rgba(108, 92, 231, 0.1);
             color: var(--primary);
@@ -367,8 +368,7 @@
         <div class="deposit-section">
             <input type="number" id="amountInput" placeholder="Enter amount (min ₹100)" min="100">
             <input type="text" id="mobileInput" placeholder="Enter your mobile number" maxlength="10">
-            <button id="submitDepositBtn">Submit</button>
-            <div class="payment-message">Pay the amount to UPI ID - ronisaikia2004@oksbi, first submit request then pay</div>
+            <button id="submitDepositBtn">Pay</button>
             <div id="depositMessage" class="message"></div>
         </div>
 
