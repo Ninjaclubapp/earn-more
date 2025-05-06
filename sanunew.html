@@ -8,15 +8,17 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root {
-            --primary: #7f56d9;
-            --secondary: #b8a9ff;
-            --red: #ff6b6b;
-            --green: #4ade80;
-            --violet: #a855f7;
+            --primary: #6d28d9;
+            --secondary: #a78bfa;
+            --red: #f87171;
+            --green: #34d399;
+            --violet: #c084fc;
             --yellow: #facc15;
-            --dark: #1f2937;
+            --dark: #1e1b4b;
             --light: #f8fafc;
-            --background: #f1f5f9;
+            --background: #e2e8f0;
+            --accent: #f97316;
+            --glow: rgba(167, 139, 250, 0.3);
         }
 
         * {
@@ -27,55 +29,75 @@
         }
 
         body {
-            background: linear-gradient(135deg, var(--background), var(--light));
+            background: linear-gradient(135deg, var(--background), #cbd5e1);
             color: var(--dark);
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            padding: 12px;
+            padding: 16px;
             font-size: 16px;
-            background-image: radial-gradient(circle at 10% 20%, rgba(127, 86, 217, 0.1) 0%, transparent 20%),
-                             radial-gradient(circle at 90% 80%, rgba(127, 86, 217, 0.1) 0%, transparent 20%);
+            background-image: radial-gradient(circle at 10% 20%, rgba(109, 40, 217, 0.15) 0%, transparent 25%),
+                             radial-gradient(circle at 90% 80%, rgba(167, 139, 250, 0.15) 0%, transparent 25%);
         }
 
         .container {
             width: 100%;
-            max-width: 420px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            max-width: 440px;
+            background: linear-gradient(145deg, #ffffff, #f1f5f9);
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 0 0 20px var(--glow);
             overflow: hidden;
-            margin: 12px 0;
-            transition: transform 0.3s ease;
+            margin: 16px 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.12), 0 0 30px var(--glow);
         }
 
         header {
             background: linear-gradient(135deg, var(--primary), var(--violet));
             color: white;
-            padding: 20px;
+            padding: 24px;
             text-align: center;
-            border-bottom: 4px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 6px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotateBackground 15s linear infinite;
         }
 
         h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         header p {
-            font-size: 0.95rem;
-            opacity: 0.9;
+            font-size: 1rem;
+            opacity: 0.85;
+            letter-spacing: 0.5px;
         }
 
         .auth-section {
-            padding: 24px;
+            padding: 28px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: linear-gradient(145deg, #ffffff, #f8f9ff);
+            background: linear-gradient(145deg, #ffffff, #f0f6ff);
             position: relative;
-            animation: fadeIn 0.5s ease-in-out;
+            animation: fadeIn 0.6s ease-in-out;
             overflow: hidden;
         }
 
@@ -86,8 +108,8 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(127, 86, 217, 0.05) 0%, transparent 70%);
-            animation: rotateBackground 20s linear infinite;
+            background: radial-gradient(circle, rgba(109, 40, 217, 0.08) 0%, transparent 60%);
+            animation: rotateBackground 25s linear infinite;
             z-index: -1;
         }
 
@@ -103,46 +125,51 @@
 
         .auth-form {
             width: 100%;
-            max-width: 320px;
+            max-width: 340px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
             background: white;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06), 0 0 15px var(--glow);
             margin: 0 auto;
             position: relative;
             z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .auth-form:hover {
+            transform: translateY(-2px);
         }
 
         .auth-actions {
             width: 100%;
-            max-width: 320px;
-            margin-top: 16px;
+            max-width: 340px;
+            margin-top: 18px;
             display: flex;
             justify-content: center;
         }
 
         input {
-            padding: 12px 16px 12px 40px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
+            padding: 14px 16px 14px 44px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
             font-size: 0.95rem;
-            background: #f8fafc url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%234b5563" viewBox="0 0 16 16"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm2-3a2 2 0 11-4 0 2 2 0 014 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>') no-repeat 12px center;
+            background: #f1f5f9 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%234b5563" viewBox="0 0 16 16"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm2-3a2 2 0 11-4 0 2 2 0 014 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>') no-repeat 14px center;
             background-size: 16px;
             transition: all 0.3s ease;
         }
 
         input[type="password"] {
-            background: #f8fafc url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%234b5563" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>') no-repeat 12px center;
+            background: #f1f5f9 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%234b5563" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>') no-repeat 14px center;
             background-size: 16px;
         }
 
         input:focus {
             border-color: var(--primary);
             background-color: white;
-            box-shadow: 0 0 0 4px rgba(127, 86, 217, 0.1);
+            box-shadow: 0 0 0 5px var(--glow);
             outline: none;
         }
 
@@ -150,13 +177,13 @@
             background: linear-gradient(135deg, var(--primary), var(--violet));
             color: white;
             border: none;
-            padding: 14px 24px;
-            border-radius: 12px;
+            padding: 16px 28px;
+            border-radius: 14px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(127, 86, 217, 0.3), 0 0 10px rgba(127, 86, 217, 0.2);
+            box-shadow: 0 6px 20px rgba(109, 40, 217, 0.4), 0 0 15px var(--glow);
             touch-action: manipulation;
             position: relative;
             overflow: hidden;
@@ -169,20 +196,20 @@
             left: 50%;
             width: 0;
             height: 0;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             border-radius: 50%;
             transform: translate(-50%, -50%);
-            transition: width 0.4s ease, height 0.4s ease;
+            transition: width 0.5s ease, height 0.5s ease;
         }
 
         button:hover::after {
-            width: 200px;
-            height: 200px;
+            width: 250px;
+            height: 250px;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(127, 86, 217, 0.4), 0 0 15px rgba(127, 86, 217, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(109, 40, 217, 0.5), 0 0 20px var(--glow);
         }
 
         button:disabled {
@@ -197,7 +224,7 @@
         }
 
         .auth-toggle {
-            margin-top: 16px;
+            margin-top: 18px;
             font-size: 0.95rem;
             text-align: center;
             color: #4b5563;
@@ -208,8 +235,8 @@
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
-            transition: color 0.2s;
-            padding-bottom: 2px;
+            transition: all 0.2s ease;
+            padding-bottom: 3px;
             border-bottom: 2px solid transparent;
         }
 
@@ -220,19 +247,20 @@
 
         .game-section {
             display: none;
-            padding: 20px;
+            padding: 24px;
         }
 
         .marquee-container {
-            background: linear-gradient(135deg, var(--yellow), #eab308);
+            background: linear-gradient(135deg, var(--yellow), #f59e0b);
             color: var(--dark);
-            padding: 12px;
-            margin-bottom: 12px;
-            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
+            border-radius: 14px;
             overflow: hidden;
             font-size: 0.95rem;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            animation: pulseGlow 2s infinite;
         }
 
         .marquee {
@@ -246,24 +274,31 @@
             to { transform: translateX(-100%); }
         }
 
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12); }
+            50% { box-shadow: 0 6px 25px rgba(249, 115, 22, 0.3); }
+            100% { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12); }
+        }
+
         .balance-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: linear-gradient(135deg, var(--secondary), var(--primary));
             color: white;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            padding: 18px;
+            border-radius: 14px;
+            margin-bottom: 24px;
             font-size: 0.95rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12), 0 0 15px var(--glow);
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 14px;
         }
 
         .balance-amount {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.75rem;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .low-balance {
@@ -280,63 +315,62 @@
         .balance-actions {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            gap: 10px;
             width: 100%;
-            max-width: 300px;
+            max-width: 320px;
         }
 
         .balance-actions button:not(#logoutBtn) {
-            padding: 10px;
+            padding: 12px;
             font-size: 0.9rem;
-            border-radius: 8px;
-            width: 100%;
-            text-align: center;
+            border-radius: 10px;
         }
 
         #logoutBtn {
             grid-column: 1 / -1;
-            padding: 10px;
+            padding: 12px;
             font-size: 0.9rem;
-            border-radius: 8px;
+            border-radius: 10px;
             background: linear-gradient(135deg, #6b7280, #4b5563);
-            margin-top: 8px;
+            margin-top: 10px;
         }
 
         .timer-container {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             background: white;
-            padding: 12px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 14px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08), 0 0 10px var(--glow);
         }
 
         .timer {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 2.25rem;
+            font-weight: 800;
             color: var(--primary);
-            background: linear-gradient(135deg, rgba(127, 86, 217, 0.1), rgba(168, 85, 247, 0.1));
-            padding: 10px 20px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(109, 40, 217, 0.15), rgba(192, 132, 252, 0.15));
+            padding: 12px 24px;
+            border-radius: 12px;
             display: inline-block;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         .timer-label {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #6b7280;
-            margin-top: 8px;
+            margin-top: 10px;
         }
 
         .color-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 14px;
+            margin-bottom: 24px;
         }
 
         .color-option {
-            height: 90px;
-            border-radius: 12px;
+            height: 100px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -344,8 +378,8 @@
             color: white;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            font-size: 0.9rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            font-size: 0.95rem;
             touch-action: manipulation;
             position: relative;
             overflow: hidden;
@@ -358,9 +392,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.1);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s ease;
         }
 
         .color-option:hover::before {
@@ -368,14 +402,14 @@
         }
 
         .color-option:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
 
         .color-option.selected {
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px) scale(1.06);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 0 15px var(--glow);
+            border: 3px solid rgba(255, 255, 255, 0.4);
         }
 
         .color-option.disabled {
@@ -386,11 +420,11 @@
         }
 
         .red {
-            background: linear-gradient(135deg, var(--red), #ef4444);
+            background: linear-gradient(135deg, var(--red), #dc2626);
         }
 
         .green {
-            background: linear-gradient(135deg, var(--green), #22c55e);
+            background: linear-gradient(135deg, var(--green), #16a34a);
         }
 
         .violet {
@@ -398,28 +432,28 @@
         }
 
         .bet-section {
-            margin-top: 20px;
+            margin-top: 24px;
         }
 
         .bet-amounts {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
+            gap: 10px;
+            margin-bottom: 18px;
         }
 
         .bet-amount-btn {
-            padding: 12px 8px;
+            padding: 14px 10px;
             background: linear-gradient(135deg, var(--secondary), var(--primary));
-            font-size: 0.85rem;
-            border-radius: 8px;
+            font-size: 0.9rem;
+            border-radius: 10px;
             transition: all 0.3s ease;
         }
 
         .bet-amount-btn.selected {
-            background: linear-gradient(135deg, var(--yellow), #eab308);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(250, 204, 21, 0.3);
+            background: linear-gradient(135deg, var(--yellow), #f59e0b);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
         }
 
         .bet-amount-btn.disabled {
@@ -430,88 +464,88 @@
 
         .place-bet {
             width: 100%;
-            margin-top: 12px;
-            padding: 14px;
-            font-size: 1rem;
+            margin-top: 14px;
+            padding: 16px;
+            font-size: 1.1rem;
         }
 
         .history {
-            margin-top: 24px;
+            margin-top: 28px;
             background: white;
-            padding: 16px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 18px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
 
         .history-title {
-            font-size: 1.1rem;
-            margin-bottom: 12px;
+            font-size: 1.2rem;
+            margin-bottom: 14px;
             color: var(--dark);
             font-weight: 600;
         }
 
         .history-items {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             overflow-x: auto;
-            padding-bottom: 8px;
+            padding-bottom: 10px;
             scrollbar-width: thin;
             scrollbar-color: var(--primary) #e5e7eb;
         }
 
         .history-item {
-            min-width: 48px;
-            height: 48px;
-            border-radius: 10px;
+            min-width: 52px;
+            height: 52px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
             color: white;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
         }
 
         .result-section {
             display: none;
             text-align: center;
-            padding: 16px;
-            margin-top: 20px;
-            border-radius: 12px;
+            padding: 18px;
+            margin-top: 24px;
+            border-radius: 14px;
             font-size: 0.95rem;
             font-weight: 600;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
 
         .win {
-            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.1));
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(34, 197, 94, 0.15));
             color: #16a34a;
         }
 
         .lose {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
             color: #dc2626;
         }
 
         .info {
-            background: linear-gradient(135deg, rgba(127, 86, 217, 0.1), rgba(168, 85, 247, 0.1));
+            background: linear-gradient(135deg, rgba(109, 40, 217, 0.15), rgba(192, 132, 252, 0.15));
             color: var(--primary);
         }
 
         .loading {
             display: none;
             text-align: center;
-            padding: 20px;
+            padding: 24px;
         }
 
         .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
+            border: 5px solid rgba(0, 0, 0, 0.1);
             border-radius: 50%;
-            border-top: 4px solid var(--primary);
-            width: 32px;
-            height: 32px;
+            border-top: 5px solid var(--primary);
+            width: 36px;
+            height: 36px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 12px;
+            margin: 0 auto 14px;
         }
 
         @keyframes spin {
@@ -520,26 +554,25 @@
         }
 
         .message {
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 14px;
             text-align: center;
             display: none;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 500;
         }
 
         .error {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
             color: #dc2626;
         }
 
         .success {
-            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.1));
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(34, 197, 94, 0.15));
             color: #16a34a;
         }
 
-        /* Support Modal Styles */
         .support-modal {
             display: none;
             position: fixed;
@@ -547,7 +580,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -555,190 +588,195 @@
 
         .support-content {
             background: white;
-            border-radius: 16px;
+            border-radius: 20px;
             width: 90%;
-            max-width: 400px;
-            max-height: 80vh;
+            max-width: 420px;
+            max-height: 85vh;
             overflow-y: auto;
-            padding: 20px;
+            padding: 24px;
             position: relative;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), 0 0 20px var(--glow);
         }
 
         .support-close {
             position: absolute;
-            right: 20px;
-            top: 20px;
-            font-size: 1.5rem;
+            right: 24px;
+            top: 24px;
+            font-size: 1.75rem;
             cursor: pointer;
             color: #4b5563;
+            transition: color 0.2s;
+        }
+
+        .support-close:hover {
+            color: var(--primary);
         }
 
         .support-title {
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
             color: var(--dark);
         }
 
         .support-form {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 14px;
+            margin-bottom: 24px;
         }
 
         .support-form input {
-            padding: 12px 16px;
-            background: #f8fafc;
+            padding: 14px 16px;
+            background: #f1f5f9;
             background-size: 16px;
         }
 
         .support-form textarea {
-            padding: 12px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
             font-size: 0.95rem;
             resize: vertical;
-            min-height: 100px;
+            min-height: 120px;
             transition: all 0.3s ease;
         }
 
         .support-form textarea:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(127, 86, 217, 0.1);
+            box-shadow: 0 0 0 5px var(--glow);
             outline: none;
         }
 
         .message-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
 
         .message-item {
-            padding: 12px;
-            border-radius: 10px;
+            padding: 14px;
+            border-radius: 12px;
             font-size: 0.9rem;
         }
 
         .message-item.user {
-            background: linear-gradient(135deg, rgba(127, 86, 217, 0.1), rgba(168, 85, 247, 0.1));
+            background: linear-gradient(135deg, rgba(109, 40, 217, 0.15), rgba(192, 132, 252, 0.15));
             color: var(--primary);
-            margin-left: 20px;
+            margin-left: 24px;
         }
 
         .message-item.admin {
-            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.1));
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(34, 197, 94, 0.15));
             color: #16a34a;
-            margin-right: 20px;
+            margin-right: 24px;
         }
 
         .message-meta {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             opacity: 0.7;
-            margin-top: 4px;
+            margin-top: 6px;
         }
 
         @media (max-width: 480px) {
             body {
-                padding: 8px;
+                padding: 12px;
                 font-size: 14px;
             }
 
             .container {
                 max-width: 100%;
-                border-radius: 16px;
-                margin: 8px 0;
+                border-radius: 20px;
+                margin: 12px 0;
             }
 
             header {
-                padding: 16px;
+                padding: 20px;
             }
 
             h1 {
-                font-size: 1.5rem;
+                font-size: 1.75rem;
             }
 
             header p {
-                font-size: 0.9rem;
+                font-size: 0.95rem;
             }
 
             .auth-section {
-                padding: 20px;
-                gap: 12px;
+                padding: 24px;
+                gap: 14px;
             }
 
             .auth-form {
-                padding: 16px;
-                gap: 12px;
+                padding: 20px;
+                gap: 14px;
             }
 
             input {
-                padding: 10px 14px 10px 36px;
+                padding: 12px 14px 12px 40px;
                 font-size: 0.9rem;
                 background-size: 14px;
             }
 
             button {
-                padding: 12px 20px;
-                font-size: 0.9rem;
+                padding: 14px 24px;
+                font-size: 0.95rem;
             }
 
             .game-section {
-                padding: 16px;
+                padding: 20px;
             }
 
             .marquee-container {
-                padding: 10px;
+                padding: 12px;
                 font-size: 0.9rem;
             }
 
             .balance-info {
                 flex-direction: column;
-                gap: 12px;
-                padding: 14px;
+                gap: 14px;
+                padding: 16px;
                 font-size: 0.9rem;
             }
 
             .balance-amount {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
             }
 
             .balance-actions {
                 grid-template-columns: 1fr 1fr 1fr;
-                gap: 6px;
+                gap: 8px;
                 max-width: 100%;
             }
 
             .balance-actions button:not(#logoutBtn) {
-                padding: 8px;
+                padding: 10px;
                 font-size: 0.85rem;
             }
 
             #logoutBtn {
-                padding: 8px;
+                padding: 10px;
                 font-size: 0.85rem;
-                margin-top: 6px;
+                margin-top: 8px;
             }
 
             .timer {
-                font-size: 1.75rem;
-                padding: 8px 16px;
+                font-size: 2rem;
+                padding: 10px 20px;
             }
 
             .timer-label {
-                font-size: 0.8rem;
+                font-size: 0.85rem;
             }
 
             .color-options {
                 grid-template-columns: 1fr 1fr 1fr;
-                gap: 10px;
+                gap: 12px;
             }
 
             .color-option {
-                height: 70px;
-                font-size: 0.85rem;
+                height: 80px;
+                font-size: 0.9rem;
             }
 
             .bet-amounts {
@@ -747,37 +785,37 @@
             }
 
             .bet-amount-btn {
-                padding: 10px 6px;
-                font-size: 0.8rem;
+                padding: 12px 8px;
+                font-size: 0.85rem;
             }
 
             .place-bet {
-                padding: 12px;
+                padding: 14px;
             }
 
             .history-item {
-                min-width: 40px;
-                height: 40px;
-                font-size: 0.8rem;
+                min-width: 48px;
+                height: 48px;
+                font-size: 0.85rem;
             }
 
             .result-section {
-                padding: 14px;
+                padding: 16px;
                 font-size: 0.9rem;
             }
 
             .message {
-                font-size: 0.85rem;
-                padding: 10px;
+                font-size: 0.9rem;
+                padding: 12px;
             }
 
             .support-content {
                 width: 95%;
-                padding: 16px;
+                padding: 20px;
             }
 
             .support-title {
-                font-size: 1.1rem;
+                font-size: 1.2rem;
             }
 
             .support-form textarea {
@@ -789,7 +827,7 @@
             }
 
             .message-meta {
-                font-size: 0.75rem;
+                font-size: 0.8rem;
             }
         }
 
@@ -811,7 +849,7 @@
             }
 
             .balance-actions button:not(#logoutBtn) {
-                padding: 8px;
+                padding: 10px;
                 font-size: 0.8rem;
             }
 
@@ -824,7 +862,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Ninja club</h1>
+            <h1>Ninja Club</h1>
             <p>Predict the next color and win big!</p>
         </header>
 
@@ -905,7 +943,6 @@
             </div>
         </div>
 
-        <!-- Support Modal -->
         <div class="support-modal" id="supportModal">
             <div class="support-content">
                 <span class="support-close" id="supportClose">×</span>
@@ -1007,7 +1044,6 @@
             window.location.href = 'withdraw.html';
         });
         supportBtn.addEventListener('click', () => {
-            // Ensure support button in game section behaves same as auth section
             showSupportModal(true);
         });
         authSupportBtn.addEventListener('click', () => {
@@ -1044,7 +1080,6 @@
         // Support functions
         function showSupportModal(fromGameSection = false) {
             supportModal.style.display = 'flex';
-            // Pre-fill mobile number for logged-in users and make it read-only in game section
             supportMobileInput.value = currentUserMobile || '';
             supportMobileInput.readOnly = fromGameSection && currentUserMobile;
             loadMessages();
@@ -1174,7 +1209,7 @@
         function updateTimerDisplay() {
             timerDisplay.textContent = timer;
             if (timer <= 5) {
-                timerDisplay.style.color = '#d63031';
+                timerDisplay.style.color = '#dc2626';
                 if (canBet) {
                     showMessage(betMessage, 'Betting closed! Press Place Bet to confirm your bet.', 'error');
                     canBet = false;
