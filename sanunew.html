@@ -256,14 +256,22 @@
             border-radius: 12px;
             margin-bottom: 20px;
             font-size: 0.95rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
             flex-wrap: wrap;
             gap: 12px;
         }
 
         .balance-amount {
-            font-size: 1.5rem;
-            font-weight: 700;
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            transition: transform 0.3s ease, color 0.3s ease;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .balance-amount.update {
+            transform: scale(1.1);
+            color: var(--yellow);
         }
 
         .low-balance {
@@ -414,6 +422,8 @@
             font-size: 0.85rem;
             border-radius: 8px;
             transition: all 0.3s ease;
+            color: white;
+            font-weight: 600;
         }
 
         .bet-amount-btn.selected {
@@ -785,7 +795,7 @@
             }
 
             .balance-amount {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
             }
 
             .balance-actions {
@@ -1090,6 +1100,12 @@
         const historyList = document.getElementById('historyList');
         const historyBtn = document.getElementById('historyBtn');
 
+        // Initialize bet amount buttons with formatted currency
+        betAmountBtns.forEach(btn => {
+            const amount = parseInt(btn.dataset.amount);
+            btn.textContent = `₹${amount.toLocaleString('en-IN')}`;
+        });
+
         // Initialize timer
         startTimer();
 
@@ -1267,8 +1283,8 @@
                                 historyDiv.className = `history-entry ${item.win ? 'win' : 'lose'}`;
                                 historyDiv.innerHTML = `
                                     <div>Color: ${item.color.charAt(0).toUpperCase() + item.color.slice(1)}</div>
-                                    <div>Bet Amount: ₹${item.amount}</div>
-                                    <div>Result: ${item.win ? `Won ₹${item.winAmount}` : 'Lost'}</div>
+                                    <div>Bet Amount: ₹${item.amount.toLocaleString('en-IN')}</div>
+                                    <div>Result: ${item.win ? `Won ₹${item.winAmount.toLocaleString('en-IN')}` : 'Lost'}</div>
                                     <div class="history-entry-meta">
                                         ${new Date(item.timestamp).toLocaleString()}
                                     </div>
@@ -1558,7 +1574,7 @@
                 };
                 database.ref('users/' + currentUserMobile + '/currentBet').set(betData)
                     .then(() => {
-                        showMessage(betMessage, `Bet placed: ₹${selectedAmount} on ${selectedColor}`, 'success');
+                        showMessage(betMessage, `Bet placed: ₹${selectedAmount.toLocaleString('en-IN')} on ${selectedColor}`, 'success');
                         selectedColor = null;
                         selectedAmount = null;
                         colorOptions.forEach(opt => opt.classList.remove('selected'));
@@ -1619,9 +1635,9 @@
                 if (result === betColor) {
                     winAmount = betAmount * multiplier;
                     currentBalance += winAmount;
-                    showResult(`You won ₹${winAmount}!`, 'win');
+                    showResult(`You won ₹${winAmount.toLocaleString('en-IN')}!`, 'win');
                 } else {
-                    showResult(`You lost ₹${betAmount}.`, 'lose');
+                    showResult(`You lost ₹${betAmount.toLocaleString('en-IN')}.`, 'lose');
                 }
 
                 gameHistory.unshift({
@@ -1685,7 +1701,9 @@
         }
 
         function updateUI() {
-            balanceAmount.textContent = `₹${currentBalance.toFixed(2)}`;
+            balanceAmount.textContent = `₹${currentBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            balanceAmount.classList.add('update');
+            setTimeout(() => balanceAmount.classList.remove('update'), 300);
             if (currentBalance < 10) {
                 balanceAmount.classList.add('low-balance');
                 showMessage(betMessage, 'Low balance! Please deposit more cash to continue playing.', 'error');
