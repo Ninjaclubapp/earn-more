@@ -37,21 +37,20 @@
         }
 
         .announcement-section {
-            width: 100%;
-            max-width: 400px;
             background: linear-gradient(135deg, var(--yellow), #f1c40f);
             color: var(--dark);
-            padding: 8px;
+            padding: 10px;
+            text-align: center;
+            margin: 10px 15px;
             border-radius: 8px;
-            margin-bottom: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
             overflow: hidden;
-            display: none; /* Hidden by default */
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
         }
 
         .announcement-marquee {
-            font-size: 0.9rem;
-            font-weight: 500;
+            display: inline-block;
             white-space: nowrap;
             animation: marquee 15s linear infinite;
         }
@@ -283,9 +282,9 @@
             }
 
             .announcement-section {
-                max-width: 100%;
-                padding: 6px;
-                border-radius: 6px;
+                margin: 8px 12px;
+                padding: 8px;
+                font-size: 0.8rem;
             }
 
             .announcement-marquee {
@@ -370,15 +369,15 @@
     </style>
 </head>
 <body>
-    <div class="announcement-section" id="announcementSection">
-        <div class="announcement-marquee" id="announcementMarquee">Loading announcements...</div>
-    </div>
-
     <div class="container">
         <header>
             <h1>Withdraw</h1>
             <p>Withdraw money from your wallet</p>
         </header>
+
+        <div class="announcement-section" id="announcementSection">
+            <div class="announcement-marquee" id="announcementMarquee">Loading announcements...</div>
+        </div>
 
         <div class="withdraw-section">
             <label for="mobileInput" class="sr-only">Mobile Number for Withdrawal</label>
@@ -547,7 +546,7 @@
             showLoading(true, 'loading');
             submitWithdrawBtn.disabled = true;
 
-            // Use a transaction to safely update the balance
+            // UseBent a transaction to safely update the balance
             database.ref('users/' + mobile).transaction(userData => {
                 if (!userData) {
                     return null; // User doesn't exist, abort transaction
