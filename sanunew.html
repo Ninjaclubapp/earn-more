@@ -1,3 +1,6 @@
+To make the "Bet History" and "Support" buttons the same size as the "Add Cash" and "Withdraw" buttons, I'll update the CSS for the balance-actions section to ensure consistent styling across all buttons. Specifically, I'll adjust the grid layout and button styles to match the sizes and ensure uniformity. The HTML and JavaScript will remain unchanged since this is purely a styling fix.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -279,13 +282,13 @@
 
         .balance-actions {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 8px;
             width: 100%;
             max-width: 300px;
         }
 
-        .balance-actions button:not(#logoutBtn) {
+        .balance-actions button {
             padding: 10px;
             font-size: 0.9rem;
             border-radius: 8px;
@@ -789,12 +792,12 @@
             }
 
             .balance-actions {
-                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-columns: 1fr 1fr;
                 gap: 6px;
                 max-width: 100%;
             }
 
-            .balance-actions button:not(#logoutBtn) {
+            .balance-actions button {
                 padding: 8px;
                 font-size: 0.85rem;
             }
@@ -891,14 +894,15 @@
 
             .balance-actions {
                 grid-template-columns: 1fr 1fr;
+                gap: 6px;
             }
 
-            .balance-actions button:not(#logoutBtn) {
+            .balance-actions button {
                 padding: 8px;
                 font-size: 0.8rem;
             }
 
-            .balance-actions #supportBtn, .balance-actions #historyBtn {
+            #logoutBtn {
                 grid-column: 1 / -1;
             }
         }
@@ -1755,3 +1759,4 @@
     </script>
 </body>
 </html>
+```
