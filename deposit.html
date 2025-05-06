@@ -302,6 +302,17 @@
             100% { transform: rotate(360deg); }
         }
 
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 8px;
@@ -394,8 +405,12 @@
         </div>
 
         <div class="deposit-section">
+            <label for="amountInput" class="sr-only">Amount</label>
             <input type="number" id="amountInput" placeholder="Enter amount (min ₹100)" min="100">
+            <label for="mobileInput" class="sr-only">Mobile Number</label>
             <input type="text" id="mobileInput" placeholder="Enter your mobile number" maxlength="10">
+            <label for="passwordInput" class="sr-only">Password</label>
+            <input type="password" id="passwordInput" placeholder="Enter your password">
             <button id="submitDepositBtn">Pay</button>
             <div id="depositMessage" class="message"></div>
         </div>
@@ -491,6 +506,7 @@
         // DOM elements
         const amountInput = document.getElementById('amountInput');
         const mobileInput = document.getElementById('mobileInput');
+        const passwordInput = document.getElementById('passwordInput');
         const userMobileInput = document.getElementById('userMobileInput');
         const referralInput = document.getElementById('referralInput');
         const historyMobileInput = document.getElementById('historyMobileInput');
@@ -536,6 +552,11 @@ Your ₹100 welcome bonus is waiting!`;
         referralInput.addEventListener('input', validateReferralInput);
         userMobileInput.addEventListener('input', validateUserMobileInput);
         referralHistoryMobileInput.addEventListener('input', validateReferralHistoryInput);
+        [amountInput, mobileInput, passwordInput].forEach(input => {
+            input.addEventListener('input', () => {
+                depositMessage.style.display = 'none';
+            });
+        });
 
         // Initialize with referral text hidden
         referralLinkText.style.display = 'none';
@@ -606,7 +627,9 @@ Your ₹100 welcome bonus is waiting!`;
         function handleDeposit() {
             const amount = parseFloat(amountInput.value.trim());
             const mobile = mobileInput.value.trim();
+            const password = passwordInput.value.trim();
 
+            // Validate inputs
             if (isNaN(amount) || amount < 100) {
                 showMessage(depositMessage, 'Please enter an amount of ₹100 or more', 'error');
                 return;
@@ -617,24 +640,43 @@ Your ₹100 welcome bonus is waiting!`;
                 return;
             }
 
+            if (!password) {
+                showMessage(depositMessage, 'Please enter your password', 'error');
+                return;
+            }
+
             submitDepositBtn.disabled = true;
             showLoading(true);
 
-            const timestamp = Date.now();
-            const depositData = {
-                amount: amount,
-                mobile: mobile,
-                status: 'pending',
-                timestamp: timestamp
-            };
+            // Verify password
+            database.ref('users/' + mobile).once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        throw new Error('User not found');
+                    }
+                    const userData = snapshot.val();
+                    if (!userData.password || userData.password !== password) {
+                        throw new Error('Invalid password');
+                    }
 
-            database.ref('deposits/' + mobile + '/' + timestamp).set(depositData)
+                    // Proceed with deposit
+                    const timestamp = Date.now();
+                    const depositData = {
+                        amount: amount,
+                        mobile: mobile,
+                        status: 'pending',
+                        timestamp: timestamp
+                    };
+
+                    return database.ref('deposits/' + mobile + '/' + timestamp).set(depositData);
+                })
                 .then(() => {
                     showLoading(false);
                     submitDepositBtn.disabled = false;
                     showMessage(depositMessage, 'Your amount will show in your wallet within 5 to 10 mins.', 'success');
                     amountInput.value = '';
                     mobileInput.value = '';
+                    passwordInput.value = '';
 
                     const upiId = 'ronisaikia2004@oksbi';
                     const note = encodeURIComponent('Deposit for Color Prediction Game');
@@ -657,8 +699,14 @@ Your ₹100 welcome bonus is waiting!`;
                 .catch(error => {
                     showLoading(false);
                     submitDepositBtn.disabled = false;
-                    showMessage(depositMessage, 'Error processing deposit request', 'error');
-                    console.error('Firebase error:', error);
+                    if (error.message === 'User not found') {
+                        showMessage(depositMessage, 'User not found', 'error');
+                    } else if (error.message === 'Invalid password') {
+                        showMessage(depositMessage, 'Incorrect password', 'error');
+                    } else {
+                        showMessage(depositMessage, 'Error processing deposit request', 'error');
+                        console.error('Firebase error:', error);
+                    }
                 });
         }
 
