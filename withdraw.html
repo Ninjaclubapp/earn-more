@@ -36,6 +36,31 @@
             font-size: 16px;
         }
 
+        .announcement-section {
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(135deg, var(--yellow), #f1c40f);
+            color: var(--dark);
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            display: none; /* Hidden by default */
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .announcement-marquee {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
         .container {
             width: 100%;
             max-width: 400px;
@@ -43,7 +68,6 @@
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            margin-top: 10px;
         }
 
         header {
@@ -258,6 +282,16 @@
                 font-size: 14px;
             }
 
+            .announcement-section {
+                max-width: 100%;
+                padding: 6px;
+                border-radius: 6px;
+            }
+
+            .announcement-marquee {
+                font-size: 0.85rem;
+            }
+
             .container {
                 max-width: 100%;
                 border-radius: 10px;
@@ -324,7 +358,7 @@
 
             .message {
                 font-size: 0.8rem;
-                Padilla: 6px;
+                padding: 6px;
             }
         }
 
@@ -336,6 +370,10 @@
     </style>
 </head>
 <body>
+    <div class="announcement-section" id="announcementSection">
+        <div class="announcement-marquee" id="announcementMarquee">Loading announcements...</div>
+    </div>
+
     <div class="container">
         <header>
             <h1>Withdraw</h1>
@@ -409,15 +447,21 @@
         const submitWithdrawBtn = document.getElementById('submitWithdrawBtn');
         const withdrawMessage = document.getElementById('withdrawMessage');
         const historyTableBody = document.getElementById('historyTableBody');
+        const announcementSection = document.getElementById('announcementSection');
+        const announcementMarquee = document.getElementById('announcementMarquee');
 
         // Event listeners
         submitWithdrawBtn.addEventListener('click', handleWithdraw);
         historyMobileInput.addEventListener('input', debounce(loadWithdrawalHistory, 500));
+        mobileInput.addEventListener('input', debounce(loadAnnouncements, 500));
         [mobileInput, amountInput, upiInput, historyMobileInput].forEach(input => {
             input.addEventListener('input', () => {
                 withdrawMessage.style.display = 'none';
             });
         });
+
+        // Load announcements on page load
+        loadAnnouncements();
 
         // Debounce function
         function debounce(func, wait) {
@@ -426,6 +470,56 @@
                 clearTimeout(timeout);
                 timeout = setTimeout(() => func.apply(this, args), wait);
             };
+        }
+
+        // Load announcements
+        function loadAnnouncements() {
+            const mobile = mobileInput.value.trim();
+            announcementSection.style.display = 'none'; // Hide by default
+
+            // Check for user-specific announcement
+            if (mobile && mobile.length === 10 && !isNaN(mobile)) {
+                database.ref('announcements/users/' + mobile).once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            const announcement = snapshot.val();
+                            displayAnnouncement(announcement.message);
+                        } else {
+                            // Fallback to global announcement
+                            loadGlobalAnnouncement();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading user announcement:', error);
+                        loadGlobalAnnouncement(); // Fallback on error
+                    });
+            } else {
+                // Load global announcement if no valid mobile
+                loadGlobalAnnouncement();
+            }
+        }
+
+        // Load global announcement
+        function loadGlobalAnnouncement() {
+            database.ref('announcements/global').once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const announcement = snapshot.val();
+                        displayAnnouncement(announcement.message);
+                    } else {
+                        displayAnnouncement('No announcements available.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading global announcement:', error);
+                    displayAnnouncement('No announcements available.');
+                });
+        }
+
+        // Display announcement
+        function displayAnnouncement(message) {
+            announcementMarquee.textContent = message;
+            announcementSection.style.display = 'block';
         }
 
         // Withdraw handling
@@ -453,60 +547,63 @@
             showLoading(true, 'loading');
             submitWithdrawBtn.disabled = true;
 
-            database.ref('users/' + mobile).once('value')
-                .then(snapshot => {
-                    if (!snapshot.exists()) {
-                        showLoading(false, 'loading');
-                        submitWithdrawBtn.disabled = false;
-                        showMessage(withdrawMessage, 'User not found', 'error');
-                        return;
-                    }
+            // Use a transaction to safely update the balance
+            database.ref('users/' + mobile).transaction(userData => {
+                if (!userData) {
+                    return null; // User doesn't exist, abort transaction
+                }
 
-                    const userData = snapshot.val();
-                    const currentBalance = userData.balance || 0;
+                const currentBalance = userData.balance || 0;
+                if (amount > currentBalance) {
+                    return null; // Insufficient balance, abort transaction
+                }
 
-                    if (amount > currentBalance) {
-                        showLoading(false, 'loading');
-                        submitWithdrawBtn.disabled = false;
-                        showMessage(withdrawMessage, 'Insufficient balance', 'error');
-                        return;
-                    }
-
-                    const timestamp = Date.now();
-                    const withdrawData = {
-                        amount: amount,
-                        mobile: mobile,
-                        upiId: upiId,
-                        status: 'pending',
-                        timestamp: timestamp
-                    };
-
-                    const updates = {};
-                    updates['withdrawals/' + mobile + '/' + timestamp] = withdrawData;
-                    updates['users/' + mobile + '/balance'] = currentBalance - amount; // Deduct the requested amount
-
-                    database.ref().update(updates)
-                        .then(() => {
-                            showLoading(false, 'loading');
-                            showMessage(withdrawMessage, 'Withdrawal request submitted. Amount deducted from your balance.', 'success');
-                            mobileInput.value = '';
-                            amountInput.value = '';
-                            upiInput.value = '';
-                            submitWithdrawBtn.disabled = false;
-                        })
-                        .catch(error => {
-                            showLoading(false, 'loading');
-                            showMessage(withdrawMessage, 'Error processing withdrawal request', 'error');
-                            submitWithdrawBtn.disabled = false;
-                            console.error('Firebase error:', error);
-                        });
-                })
-                .catch(error => {
+                // Update only the balance field
+                userData.balance = currentBalance - amount;
+                return userData; // Return the updated user data
+            }, (error, committed, snapshot) => {
+                if (error) {
                     showLoading(false, 'loading');
-                    showMessage(withdrawMessage, 'Error accessing user data', 'error');
                     submitWithdrawBtn.disabled = false;
-                    console.error('Firebase error:', error);
-                });
+                    showMessage(withdrawMessage, 'Error processing withdrawal request', 'error');
+                    console.error('Transaction error:', error);
+                    return;
+                }
+
+                if (!committed) {
+                    showLoading(false, 'loading');
+                    submitWithdrawBtn.disabled = false;
+                    showMessage(withdrawMessage, snapshot.exists() ? 'Insufficient balance' : 'User not found', 'error');
+                    return;
+                }
+
+                // Proceed with recording the withdrawal
+                const timestamp = Date.now();
+                const withdrawData = {
+                    amount: amount,
+                    mobile: mobile,
+                    upiId: upiId,
+                    status: 'pending',
+                    timestamp: timestamp
+                };
+
+                // Record the withdrawal
+                database.ref('withdrawals/' + mobile + '/' + timestamp).set(withdrawData)
+                    .then(() => {
+                        showLoading(false, 'loading');
+                        showMessage(withdrawMessage, 'Withdrawal request submitted. Amount deducted from your balance.', 'success');
+                        mobileInput.value = '';
+                        amountInput.value = '';
+                        upiInput.value = '';
+                        submitWithdrawBtn.disabled = false;
+                    })
+                    .catch(error => {
+                        showLoading(false, 'loading');
+                        showMessage(withdrawMessage, 'Error recording withdrawal request', 'error');
+                        submitWithdrawBtn.disabled = false;
+                        console.error('Firebase error:', error);
+                    });
+            });
         }
 
         // Load withdrawal history
