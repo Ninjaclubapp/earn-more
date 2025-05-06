@@ -62,6 +62,29 @@
             font-size: 0.9rem;
         }
 
+        .announcement-section {
+            background: linear-gradient(135deg, var(--yellow), #f1c40f);
+            color: var(--dark);
+            padding: 10px;
+            text-align: center;
+            margin: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .announcement-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
         .deposit-section {
             padding: 15px;
             display: flex;
@@ -302,6 +325,12 @@
                 font-size: 0.8rem;
             }
 
+            .announcement-section {
+                margin: 8px 12px;
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+
             .deposit-section, .history-section, .referral-section, .referral-history-section {
                 padding: 12px;
                 gap: 8px;
@@ -357,6 +386,12 @@
             <h1>Add Cash</h1>
             <p>Deposit money to your wallet</p>
         </header>
+
+        <div class="announcement-section">
+            <div class="announcement-marquee" id="announcementMarquee">
+                Loading announcement...
+            </div>
+        </div>
 
         <div class="deposit-section">
             <input type="number" id="amountInput" placeholder="Enter amount (min ₹100)" min="100">
@@ -472,6 +507,7 @@
         const historyTableBody = document.getElementById('historyTableBody');
         const referralHistoryTableBody = document.getElementById('referralHistoryTableBody');
         const loading = document.getElementById('loading');
+        const announcementMarquee = document.getElementById('announcementMarquee');
 
         // Referral link text
         const referralText = `Win Real Cash Daily – Start with ₹100 FREE!
@@ -504,6 +540,26 @@ Your ₹100 welcome bonus is waiting!`;
         // Initialize with referral text hidden
         referralLinkText.style.display = 'none';
         let isReferralLinkVisible = false;
+
+        // Load announcement from Firebase
+        function loadAnnouncement() {
+            database.ref('announcements/current').once('value')
+                .then(snapshot => {
+                    const announcement = snapshot.val();
+                    if (announcement && announcement.text) {
+                        announcementMarquee.textContent = announcement.text;
+                    } else {
+                        announcementMarquee.textContent = 'No announcements at the moment. Stay tuned!';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading announcement:', error);
+                    announcementMarquee.textContent = 'Failed to load announcement.';
+                });
+        }
+
+        // Load announcement on page load
+        loadAnnouncement();
 
         // Validation functions
         function validateReferralInput() {
@@ -561,7 +617,7 @@ Your ₹100 welcome bonus is waiting!`;
                 return;
             }
 
-            submitDepositBtn.disabled = true; // Disable button to prevent multiple submissions
+            submitDepositBtn.disabled = true;
             showLoading(true);
 
             const timestamp = Date.now();
@@ -575,29 +631,24 @@ Your ₹100 welcome bonus is waiting!`;
             database.ref('deposits/' + mobile + '/' + timestamp).set(depositData)
                 .then(() => {
                     showLoading(false);
-                    submitDepositBtn.disabled = false; // Re-enable button
+                    submitDepositBtn.disabled = false;
                     showMessage(depositMessage, 'Your amount will show in your wallet within 5 to 10 mins.', 'success');
                     amountInput.value = '';
                     mobileInput.value = '';
 
-                    // Construct UPI deep link
-                    const upiId = 'ronisaikia2004@oksbi'; // Your UPI ID
+                    const upiId = 'ronisaikia2004@oksbi';
                     const note = encodeURIComponent('Deposit for Color Prediction Game');
                     const upiLink = `upi://pay?pa=${upiId}&pn=Recipient&am=${amount}&tn=${note}&cu=INR`;
 
-                    // Check if the user is on a mobile device
                     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
                     if (isMobile) {
-                        // Redirect to UPI app on mobile
                         window.location.href = upiLink;
-                        // Fallback for devices without UPI apps
                         setTimeout(() => {
                             if (document.visibilityState === 'visible') {
                                 showMessage(depositMessage, 'No UPI app found. Please install a UPI app like Google Pay or PhonePe.', 'error');
                             }
                         }, 3000);
                     } else {
-                        // Show message for desktop users
                         showMessage(depositMessage, 'Please open this page on a mobile device with a UPI app to complete the payment.', 'error');
                     }
 
@@ -605,7 +656,7 @@ Your ₹100 welcome bonus is waiting!`;
                 })
                 .catch(error => {
                     showLoading(false);
-                    submitDepositBtn.disabled = false; // Re-enable button on error
+                    submitDepositBtn.disabled = false;
                     showMessage(depositMessage, 'Error processing deposit request', 'error');
                     console.error('Firebase error:', error);
                 });
@@ -633,14 +684,12 @@ Your ₹100 welcome bonus is waiting!`;
 
             showLoading(true);
             
-            // Check if the referred user exists
             database.ref('users/' + referredMobile).once('value')
                 .then(snapshot => {
                     if (!snapshot.exists()) {
                         throw new Error('Referred user not found');
                     }
                     
-                    // Check if referral already exists
                     return database.ref('referrals/' + userMobile + '/' + referredMobile).once('value');
                 })
                 .then(refSnapshot => {
@@ -648,7 +697,6 @@ Your ₹100 welcome bonus is waiting!`;
                         throw new Error('Referral already submitted for this user');
                     }
                     
-                    // Create the referral record with pending status
                     const timestamp = Date.now();
                     const referralData = {
                         referredMobile: referredMobile,
