@@ -556,7 +556,7 @@
             showLoading(true, 'loading');
             submitWithdrawBtn.disabled = true;
 
-            // Verify password
+            // Fetch user data and verify password
             database.ref('users/' + mobile).once('value')
                 .then(snapshot => {
                     if (!snapshot.exists()) {
@@ -567,20 +567,31 @@
                         throw new Error('Invalid password');
                     }
 
-                    // Proceed with balance check and withdrawal
+                    const currentBalance = userData.balance || 0;
+
+                    // Client-side balance check
+                    if (amount > currentBalance) {
+                        throw new Error('Insufficient balance');
+                    }
+                    if (currentBalance - amount < 10) {
+                        throw new Error('Minimum balance of ₹10 required');
+                    }
+
+                    // Proceed with transaction to ensure atomic update
                     return database.ref('users/' + mobile).transaction(userData => {
                         if (!userData) {
-                            return null; // User doesn't exist, abort transaction
+                            return null; // User doesn't exist, abort
                         }
 
-                        const currentBalance = userData.balance || 0;
-                        if (amount > currentBalance) {
-                            return null; // Insufficient balance, abort transaction
+                        const balance = userData.balance || 0;
+                        // Re-validate balance in transaction to handle concurrent updates
+                        if (amount > balance || balance - amount < 10) {
+                            return null; // Abort if balance insufficient or minimum balance violated
                         }
 
-                        // Update only the balance field
-                        userData.balance = currentBalance - amount;
-                        return userData; // Return the updated user data
+                        // Update balance
+                        userData.balance = balance - amount;
+                        return userData;
                     });
                 })
                 .then(result => {
@@ -588,11 +599,21 @@
                     if (!committed) {
                         showLoading(false, 'loading');
                         submitWithdrawBtn.disabled = false;
-                        showMessage(withdrawMessage, snapshot.exists() ? 'Insufficient balance' : 'User not found', 'error');
+                        if (!snapshot.exists()) {
+                            showMessage(withdrawMessage, 'User not found', 'error');
+                        } else {
+                            // Check balance again to provide specific error
+                            const currentBalance = snapshot.val().balance || 0;
+                            if (amount > currentBalance) {
+                                showMessage(withdrawMessage, 'Insufficient balance', 'error');
+                            } else {
+                                showMessage(withdrawMessage, 'You should maintain ₹10 in your account', 'error');
+                            }
+                        }
                         return;
                     }
 
-                    // Proceed with recording the withdrawal
+                    // Record the withdrawal
                     const timestamp = Date.now();
                     const withdrawData = {
                         amount: amount,
@@ -602,7 +623,6 @@
                         timestamp: timestamp
                     };
 
-                    // Record the withdrawal
                     return database.ref('withdrawals/' + mobile + '/' + timestamp).set(withdrawData);
                 })
                 .then(() => {
@@ -621,6 +641,10 @@
                         showMessage(withdrawMessage, 'User not found', 'error');
                     } else if (error.message === 'Invalid password') {
                         showMessage(withdrawMessage, 'Incorrect password', 'error');
+                    } else if (error.message === 'Insufficient balance') {
+                        showMessage(withdrawMessage, 'Insufficient balance', 'error');
+                    } else if (error.message === 'Minimum balance of ₹10 required') {
+                        showMessage(withdrawMessage, 'You should maintain ₹10 in your account', 'error');
                     } else {
                         showMessage(withdrawMessage, 'Error processing withdrawal request', 'error');
                         console.error('Firebase error:', error);
