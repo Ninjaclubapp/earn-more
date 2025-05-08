@@ -406,7 +406,7 @@
 
         <div class="deposit-section">
             <label for="amountInput" class="sr-only">Amount</label>
-            <input type="number" id="amountInput" placeholder="Enter amount (min ₹100)" min="100">
+            <input type="number" id="amountInput" placeholder="Enter amount (min ₹20)" min="20">
             <label for="mobileInput" class="sr-only">Mobile Number</label>
             <input type="text" id="mobileInput" placeholder="Enter your mobile number" maxlength="10">
             <label for="passwordInput" class="sr-only">Password</label>
@@ -630,8 +630,8 @@ Your ₹100 welcome bonus is waiting!`;
             const password = passwordInput.value.trim();
 
             // Validate inputs
-            if (isNaN(amount) || amount < 100) {
-                showMessage(depositMessage, 'Please enter an amount of ₹100 or more', 'error');
+            if (isNaN(amount) || amount < 20) {
+                showMessage(depositMessage, 'Please enter an amount of ₹20 or more', 'error');
                 return;
             }
 
