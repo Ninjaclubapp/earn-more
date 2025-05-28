@@ -1073,6 +1073,7 @@
         const regMessage = document.getElementById('regMessage');
         const loading = document.getElementById('loading');
         const gameSection = document.getElementById('gameSection');
+        const authSection = document.getElementById('authSection');
         const balanceAmount = document.getElementById('balanceAmount');
         const addCashBtn = document.getElementById('addCashBtn');
         const withdrawBtn = document.getElementById('withdrawBtn');
@@ -1108,6 +1109,27 @@
 
         // Initialize timer
         startTimer();
+
+        // Check for existing session on page load
+        window.addEventListener('load', () => {
+            const savedMobile = localStorage.getItem('currentUserMobile');
+            if (savedMobile) {
+                // Attempt to auto-login with saved mobile
+                autoLogin(savedMobile);
+            } else {
+                hideGameSection();
+            }
+        });
+
+        // Handle browser back button
+        window.addEventListener('popstate', (event) => {
+            const savedMobile = localStorage.getItem('currentUserMobile');
+            if (savedMobile) {
+                // Prevent showing login screen if user is logged in
+                event.preventDefault();
+                showGameSection();
+            }
+        });
 
         // Event listeners
         loginBtn.addEventListener('click', handleLogin);
@@ -1164,6 +1186,37 @@
                 selectedAmount = parseInt(btn.dataset.amount);
             });
         });
+
+        // Auto-login function
+        function autoLogin(mobile) {
+            showLoading(true);
+            database.ref('users/' + mobile).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        currentUserMobile = mobile;
+                        currentBalance = userData.balance || 100;
+                        gameHistory = userData.history || [];
+                        updateUI();
+                        showLoading(false);
+                        showGameSection();
+                        // Push state to prevent back button from breaking session
+                        history.pushState({ loggedIn: true }, '', window.location.href);
+                    } else {
+                        showLoading(false);
+                        localStorage.removeItem('currentUserMobile');
+                        hideGameSection();
+                        showMessage(authMessage, 'Session expired. Please log in again.', 'error');
+                    }
+                })
+                .catch(error => {
+                    showLoading(false);
+                    localStorage.removeItem('currentUserMobile');
+                    hideGameSection();
+                    showMessage(authMessage, 'Error restoring session. Please log in again.', 'error');
+                    console.error('Firebase error:', error);
+                });
+        }
 
         // Support functions
         function showSupportModal(fromGameSection = false) {
@@ -1408,9 +1461,13 @@
                             currentUserMobile = mobile;
                             currentBalance = userData.balance || 100;
                             gameHistory = userData.history || [];
+                            // Store session in localStorage
+                            localStorage.setItem('currentUserMobile', mobile);
                             updateUI();
                             showLoading(false);
                             showGameSection();
+                            // Push state to history
+                            history.pushState({ loggedIn: true }, '', window.location.href);
                             showMessage(authMessage, 'Login successful!', 'success');
                         } else {
                             showLoading(false);
@@ -1461,6 +1518,8 @@
                             currentUserMobile = mobile;
                             currentBalance = 100;
                             gameHistory = [];
+                            // Store session in localStorage
+                            localStorage.setItem('currentUserMobile', mobile);
                             updateUI();
                             showLoading(false);
                             showGameSection();
@@ -1469,6 +1528,8 @@
                             mobileInput.value = mobile;
                             passwordInput.value = '';
                             hideMessage(regMessage);
+                            // Push state to history
+                            history.pushState({ loggedIn: true }, '', window.location.href);
                             showMessage(authMessage, 'Registration successful! You have been logged in.', 'success');
                         });
                     }
@@ -1486,9 +1547,13 @@
             selectedAmount = null;
             mobileInput.value = '';
             passwordInput.value = '';
+            // Clear session from localStorage
+            localStorage.removeItem('currentUserMobile');
             hideGameSection();
             hideMessage(authMessage);
             database.ref(`users/${currentUserMobile}/supportMessages`).off();
+            // Push state to clear history
+            history.pushState({ loggedIn: false }, '', window.location.href);
         }
 
         async function placeBet() {
@@ -1769,7 +1834,7 @@
             element.style.display = 'none';
         }
 
-        // Initialize UI
+        // Initialize initialized
         hideGameSection();
     </script>
 </body>
