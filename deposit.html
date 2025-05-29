@@ -7,6 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
+        /* CSS Variables */
         :root {
             --primary: #6c5ce7;
             --secondary: #a29bfe;
@@ -18,6 +19,7 @@
             --light: #f5f6fa;
         }
 
+        /* Global Styles */
         * {
             margin: 0;
             padding: 0;
@@ -152,6 +154,55 @@
             font-size: 0.85rem;
             font-weight: bold;
             margin-bottom: 10px;
+        }
+
+        /* New styles for timer and status */
+        .deposit-status-section {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            gap: 15px;
+            text-align: center;
+            background: #f0f8ff;
+            border-radius: 10px;
+            margin: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .deposit-status-section .timer-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            background: rgba(108, 92, 231, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            min-width: 150px; /* Ensure consistent size */
+        }
+
+        .deposit-status-section .status-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .deposit-status-section .status-message {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .deposit-status-section .status-message.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .deposit-status-section .status-message.error {
+            background-color: #ffebee;
+            color: #c62828;
         }
 
         .referral-section {
@@ -342,7 +393,7 @@
                 font-size: 0.8rem;
             }
 
-            .deposit-section, .history-section, .referral-section, .referral-history-section {
+            .deposit-section, .history-section, .referral-section, .referral-history-section, .deposit-status-section {
                 padding: 12px;
                 gap: 8px;
             }
@@ -361,6 +412,20 @@
             .payment-message {
                 font-size: 0.8rem;
                 padding: 6px;
+            }
+
+            .deposit-status-section .timer-display {
+                font-size: 2rem;
+                padding: 8px 15px;
+            }
+
+            .deposit-status-section .status-text {
+                font-size: 1rem;
+            }
+
+            .deposit-status-section .status-message {
+                font-size: 0.85rem;
+                padding: 10px;
             }
 
             .history-table, .referral-history-table {
@@ -404,7 +469,7 @@
             </div>
         </div>
 
-        <div class="deposit-section">
+        <div class="deposit-section" id="depositFormSection">
             <label for="amountInput" class="sr-only">Amount</label>
             <input type="number" id="amountInput" placeholder="Enter amount (min ₹20)" min="20">
             <label for="mobileInput" class="sr-only">Mobile Number</label>
@@ -413,6 +478,12 @@
             <input type="password" id="passwordInput" placeholder="Enter your password">
             <button id="submitDepositBtn">Pay</button>
             <div id="depositMessage" class="message"></div>
+        </div>
+
+        <div class="deposit-status-section" id="depositStatusSection">
+            <div class="timer-display" id="depositTimerDisplay">05:00</div>
+            <div class="status-text" id="depositStatusText">Waiting for admin approval...</div>
+            <div class="status-message" id="depositStatusMessage"></div>
         </div>
 
         <div class="referral-section">
@@ -489,7 +560,7 @@
     <script>
         // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyA8NZdS7LukcSsYyVRRmjL3UTHCgSEbVKY",
+            apiKey: "AIzaSyA8NZdS7LukcSsYyVRRmjL3UTHCgSEbVKY", // Replace with your Firebase API Key
             authDomain: "bigwin-1e632.firebaseapp.com",
             databaseURL: "https://bigwin-1e632-default-rtdb.firebaseio.com",
             projectId: "bigwin-1e632",
@@ -525,6 +596,21 @@
         const loading = document.getElementById('loading');
         const announcementMarquee = document.getElementById('announcementMarquee');
 
+        // New DOM elements for deposit status
+        const depositFormSection = document.getElementById('depositFormSection');
+        const depositStatusSection = document.getElementById('depositStatusSection');
+        const depositTimerDisplay = document.getElementById('depositTimerDisplay');
+        const depositStatusText = document.getElementById('depositStatusText');
+        const depositStatusMessage = document.getElementById('depositStatusMessage');
+
+        // Deposit Timer Variables
+        let depositTimerInterval;
+        let depositTimeRemaining = 0; // in seconds
+        let currentPendingDepositRef = null;
+        let currentPendingDepositMobile = null;
+        let currentPendingDepositTimestamp = null;
+        let depositListenerDetached = false; // Flag to prevent multiple detachments
+
         // Referral link text
         const referralText = `Win Real Cash Daily – Start with ₹100 FREE!
 Looking for an easy way to earn online? Try this Color Prediction Game – simple, fun, and 100% real!
@@ -540,6 +626,37 @@ Join Now & Start Earning:
 ➡ https://sanu8486.github.io/earn-more/sanunew.html
 
 Your ₹100 welcome bonus is waiting!`;
+
+        // --- Utility Functions (Moved to top for scope accessibility) ---
+
+        // Show message
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // Show/hide loading spinner
+        function showLoading(show) {
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        // Format timestamp
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${day}-${month}-${year} ${hours}:${minutes}`;
+        }
+
+        // --- End of Utility Functions ---
+
 
         // Event listeners
         submitDepositBtn.addEventListener('click', handleDeposit);
@@ -625,6 +742,7 @@ Your ₹100 welcome bonus is waiting!`;
 
         // Handle deposit submission with UPI redirect
         function handleDeposit() {
+            console.log("handleDeposit called."); // Debug log
             const amount = parseFloat(amountInput.value.trim());
             const mobile = mobileInput.value.trim();
             const password = passwordInput.value.trim();
@@ -668,47 +786,143 @@ Your ₹100 welcome bonus is waiting!`;
                         timestamp: timestamp
                     };
 
-                    return database.ref('deposits/' + mobile + '/' + timestamp).set(depositData);
-                })
-                .then(() => {
-                    showLoading(false);
-                    submitDepositBtn.disabled = false;
-                    showMessage(depositMessage, 'Your amount will show in your wallet within 5 to 10 mins.', 'success');
-                    amountInput.value = '';
-                    mobileInput.value = '';
-                    passwordInput.value = '';
+                    // Store pending deposit in Firebase
+                    return database.ref('deposits/' + mobile + '/' + timestamp).set(depositData)
+                        .then(() => {
+                            currentPendingDepositMobile = mobile;
+                            currentPendingDepositTimestamp = timestamp;
+                            // Start listening for status changes for this specific deposit
+                            startDepositStatusListener(mobile, timestamp);
+                            startDepositTimer(); // Start the 5-minute timer
+                            
+                            console.log("Deposit request submitted and timer started."); // Debug log
 
-                    const upiId = 'ronisaikia2004@oksbi';
-                    const note = encodeURIComponent('Deposit for Color Prediction Game');
-                    const upiLink = `upi://pay?pa=${upiId}&pn=Recipient&am=${amount}&tn=${note}&cu=INR`;
+                            showLoading(false);
+                            showMessage(depositMessage, 'Deposit request submitted. Waiting for approval...', 'success');
+                            
+                            // Hide deposit form and show status section
+                            depositFormSection.style.display = 'none';
+                            depositStatusSection.style.display = 'flex';
+                            console.log("Deposit status section display set to flex."); // Debug log
 
-                    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-                    if (isMobile) {
-                        window.location.href = upiLink;
-                        setTimeout(() => {
-                            if (document.visibilityState === 'visible') {
-                                showMessage(depositMessage, 'No UPI app found. Please install a UPI app like Google Pay or PhonePe.', 'error');
+                            // UPI redirect logic - Modified to use tez:// for Google Pay
+                            const upiId = 'ronisaikia2004@oksbi'; // Example UPI ID
+                            const note = encodeURIComponent('Deposit for Color Prediction Game');
+                            // Using tez:// for Google Pay direct link
+                            const upiLink = `tez://upi/pay?pa=${upiId}&pn=Recipient&am=${amount}&tn=${note}&cu=INR`;
+
+                            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+                            if (isMobile) {
+                                window.location.href = upiLink;
+                                // Fallback if UPI app doesn't open
+                                setTimeout(() => {
+                                    if (document.visibilityState === 'visible') {
+                                        depositStatusText.textContent = 'Payment initiated. Please complete in your UPI app.';
+                                        showMessage(depositStatusMessage, 'If UPI app did not open, please open your UPI app manually and pay to ' + upiId + ' for ₹' + amount + '.', 'error');
+                                    }
+                                }, 3000);
+                            } else {
+                                depositStatusText.textContent = 'Please complete payment manually.';
+                                showMessage(depositStatusMessage, 'Please open your UPI app on mobile and pay to ' + upiId + ' for ₹' + amount + '. Your deposit will be approved shortly.', 'info');
                             }
-                        }, 3000);
-                    } else {
-                        showMessage(depositMessage, 'Please open this page on a mobile device with a UPI app to complete the payment.', 'error');
-                    }
 
-                    loadDepositHistory();
+                            // Clear form fields
+                            amountInput.value = '';
+                            mobileInput.value = '';
+                            passwordInput.value = '';
+                            loadDepositHistory(); // Refresh history
+                        });
                 })
                 .catch(error => {
                     showLoading(false);
                     submitDepositBtn.disabled = false;
+                    console.error('Error in handleDeposit:', error); // More specific error log
                     if (error.message === 'User not found') {
                         showMessage(depositMessage, 'User not found', 'error');
                     } else if (error.message === 'Invalid password') {
                         showMessage(depositMessage, 'Incorrect password', 'error');
                     } else {
                         showMessage(depositMessage, 'Error processing deposit request', 'error');
-                        console.error('Firebase error:', error);
                     }
                 });
         }
+
+        // --- Deposit Timer and Status Logic ---
+        function startDepositTimer() {
+            depositTimeRemaining = 5 * 60; // 5 minutes in seconds
+            updateDepositTimerDisplay();
+            depositTimerInterval = setInterval(() => {
+                depositTimeRemaining--;
+                updateDepositTimerDisplay();
+                if (depositTimeRemaining <= 0) {
+                    clearInterval(depositTimerInterval);
+                    handleDepositTimeout();
+                }
+            }, 1000);
+        }
+
+        function updateDepositTimerDisplay() {
+            const minutes = Math.floor(depositTimeRemaining / 60);
+            const seconds = depositTimeRemaining % 60;
+            depositTimerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function startDepositStatusListener(mobile, timestamp) {
+            currentPendingDepositRef = database.ref(`deposits/${mobile}/${timestamp}/status`);
+            depositListenerDetached = false; // Reset flag
+
+            currentPendingDepositRef.on('value', snapshot => {
+                if (depositListenerDetached) return; // Prevent action if listener was already detached
+
+                const status = snapshot.val();
+                if (status === 'approved') {
+                    clearInterval(depositTimerInterval);
+                    depositStatusText.textContent = 'Deposit Approved!';
+                    showMessage(depositStatusMessage, 'Your deposit has been successfully added to your wallet!', 'success');
+                    detachDepositListener(); // Detach listener after approval
+                    resetDepositFlow();
+                    // Optionally, update user's balance in the main game if this was integrated
+                    // For this standalone page, we just show success and reset.
+                } else if (status === 'rejected') {
+                    clearInterval(depositTimerInterval);
+                    depositStatusText.textContent = 'Deposit Rejected.';
+                    showMessage(depositStatusMessage, 'Your deposit was rejected. Please contact support.', 'error');
+                    detachDepositListener(); // Detach listener after rejection
+                    resetDepositFlow();
+                }
+            });
+        }
+
+        function handleDepositTimeout() {
+            depositStatusText.textContent = 'Approval timed out.';
+            showMessage(depositStatusMessage, 'Your deposit was not approved within 5 minutes. Please contact support with your transaction details.', 'error');
+            detachDepositListener(); // Detach listener on timeout
+            resetDepositFlow();
+        }
+
+        function detachDepositListener() {
+            if (currentPendingDepositRef && !depositListenerDetached) {
+                currentPendingDepositRef.off('value');
+                depositListenerDetached = true;
+                currentPendingDepositRef = null;
+                currentPendingDepositMobile = null;
+                currentPendingDepositTimestamp = null;
+            }
+        }
+
+        function resetDepositFlow() {
+            clearInterval(depositTimerInterval);
+            depositFormSection.style.display = 'flex'; // Show form again
+            depositStatusSection.style.display = 'none'; // Hide status section
+            submitDepositBtn.disabled = false; // Re-enable pay button
+            hideMessage(depositMessage); // Clear any old messages on the form
+            hideMessage(depositStatusMessage); // Clear status message
+            depositStatusText.textContent = 'Waiting for admin approval...'; // Reset status text
+            depositTimerDisplay.textContent = '05:00'; // Reset timer display
+            loadDepositHistory(); // Refresh history to show final status
+        }
+
+        // --- Referral and History Functions (from original code) ---
 
         // Handle referral submission (pending admin approval)
         function handleReferral() {
@@ -777,15 +991,17 @@ Your ₹100 welcome bonus is waiting!`;
 
         // Copy referral link
         function copyReferralLink() {
-            navigator.clipboard.writeText(referralText)
-                .then(() => {
-                    showMessage(copyMessage, 'Referral link copied to clipboard!', 'success');
-                })
-                .catch(err => {
-                    showMessage(copyMessage, 'Failed to copy text', 'error');
-                    console.error('Failed to copy: ', err);
-                });
+            document.execCommand('copy'); // Use document.execCommand for clipboard operations in iframes
+            showMessage(copyMessage, 'Referral link copied to clipboard!', 'success');
         }
+
+        // Listen for copy event for document.execCommand('copy')
+        document.addEventListener('copy', function(e) {
+            if (e.clipboardData) {
+                e.clipboardData.setData('text/plain', referralText);
+                e.preventDefault();
+            }
+        });
 
         // Share via WhatsApp
         function shareViaWhatsApp() {
@@ -802,28 +1018,22 @@ Your ₹100 welcome bonus is waiting!`;
             }
 
             showLoading(true);
-            database.ref('deposits/' + mobile).once('value')
-                .then(snapshot => {
-                    showLoading(false);
-                    historyTableBody.innerHTML = '';
-                    if (snapshot.exists()) {
-                        const deposits = [];
-                        snapshot.forEach(childSnapshot => {
-                            deposits.push(childSnapshot.val());
-                        });
-                        deposits.sort((a, b) => b.timestamp - a.timestamp);
-                        deposits.slice(0, 10).forEach(deposit => {
-                            addDepositToTable(deposit);
-                        });
-                    } else {
-                        showMessage(depositMessage, 'No deposit history found', 'error');
-                    }
-                })
-                .catch(error => {
-                    showLoading(false);
-                    showMessage(depositMessage, 'Error loading deposit history', 'error');
-                    console.error('Firebase error:', error);
-                });
+            database.ref('deposits/' + mobile).on('value', snapshot => { // Use on() for real-time updates
+                showLoading(false);
+                historyTableBody.innerHTML = '';
+                if (snapshot.exists()) {
+                    const deposits = [];
+                    snapshot.forEach(childSnapshot => {
+                        deposits.push(childSnapshot.val());
+                    });
+                    deposits.sort((a, b) => b.timestamp - a.timestamp);
+                    deposits.slice(0, 10).forEach(deposit => {
+                        addDepositToTable(deposit);
+                    });
+                } else {
+                    showMessage(depositMessage, 'No deposit history found', 'error');
+                }
+            });
         }
 
         // Load referral history
@@ -835,28 +1045,22 @@ Your ₹100 welcome bonus is waiting!`;
             }
 
             showLoading(true);
-            database.ref('referrals/' + mobile).once('value')
-                .then(snapshot => {
-                    showLoading(false);
-                    referralHistoryTableBody.innerHTML = '';
-                    if (snapshot.exists()) {
-                        const referrals = [];
-                        snapshot.forEach(childSnapshot => {
-                            referrals.push(childSnapshot.val());
-                        });
-                        referrals.sort((a, b) => b.timestamp - a.timestamp);
-                        referrals.slice(0, 10).forEach(referral => {
-                            addReferralToTable(referral);
-                        });
-                    } else {
-                        showMessage(referralMessage, 'No referral history found', 'error');
-                    }
-                })
-                .catch(error => {
-                    showLoading(false);
-                    showMessage(referralMessage, 'Error loading referral history', 'error');
-                    console.error('Firebase error:', error);
-                });
+            database.ref('referrals/' + mobile).on('value', snapshot => { // Use on() for real-time updates
+                showLoading(false);
+                referralHistoryTableBody.innerHTML = '';
+                if (snapshot.exists()) {
+                    const referrals = [];
+                    snapshot.forEach(childSnapshot => {
+                        referrals.push(childSnapshot.val());
+                    });
+                    referrals.sort((a, b) => b.timestamp - a.timestamp);
+                    referrals.slice(0, 10).forEach(referral => {
+                        addReferralToTable(referral);
+                    });
+                } else {
+                    showMessage(referralMessage, 'No referral history found', 'error');
+                }
+            });
         }
 
         // Add deposit to table
@@ -885,32 +1089,6 @@ Your ₹100 welcome bonus is waiting!`;
                 <td>${formattedDate}</td>
             `;
             referralHistoryTableBody.appendChild(row);
-        }
-
-        // Format timestamp
-        function formatTimestamp(timestamp) {
-            const date = new Date(timestamp);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}-${month}-${year} ${hours}:${minutes}`;
-        }
-
-        // Show message
-        function showMessage(element, message, type) {
-            element.textContent = message;
-            element.className = `message ${type}`;
-            element.style.display = 'block';
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 5000);
-        }
-
-        // Show/hide loading spinner
-        function showLoading(show) {
-            loading.style.display = show ? 'block' : 'none';
         }
     </script>
 </body>
