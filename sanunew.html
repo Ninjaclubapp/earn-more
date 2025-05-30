@@ -182,7 +182,7 @@
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(127, 86, 217, 0.4), 0 0 15px rgba(127, 86, 217, 0.3);
+            box-shadow: 0 6px 20px rgba(127, 86, 217, 0.4), 15px rgba(127, 86, 217, 0.3);
         }
 
         button:disabled {
@@ -549,7 +549,6 @@
             color: #16a34a;
         }
 
-        /* Support Modal Styles */
         .support-modal {
             display: none;
             position: fixed;
@@ -650,7 +649,6 @@
             margin-top: 4px;
         }
 
-        /* History Modal Styles */
         .history-modal {
             display: none;
             position: fixed;
@@ -731,6 +729,63 @@
             font-size: 0.8rem;
             opacity: 0.7;
             margin-top: 4px;
+        }
+
+        .suspension-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .suspension-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .suspension-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #4b5563;
+        }
+
+        .suspension-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #dc2626;
+        }
+
+        .suspension-message {
+            font-size: 0.95rem;
+            color: #4b5563;
+            margin-bottom: 20px;
+        }
+
+        .suspension-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .suspension-actions button {
+            flex: 1;
+            padding: 12px;
+            font-size: 0.95rem;
         }
 
         @media (max-width: 480px) {
@@ -865,12 +920,12 @@
                 padding: 10px;
             }
 
-            .support-content, .history-content {
+            .support-content, .history-content, .suspension-content {
                 width: 95%;
                 padding: 16px;
             }
 
-            .support-title, .history-title {
+            .support-title, .history-title, .suspension-title {
                 font-size: 1.1rem;
             }
 
@@ -878,12 +933,17 @@
                 font-size: 0.9rem;
             }
 
-            .message-item, .history-entry {
+            .message-item, .history-entry, .suspension-message {
                 font-size: 0.85rem;
             }
 
             .message-meta, .history-entry-meta {
                 font-size: 0.75rem;
+            }
+
+            .suspension-actions button {
+                padding: 10px;
+                font-size: 0.9rem;
             }
         }
 
@@ -919,7 +979,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Ninja club</h1>
+            <h1>Ninja Club</h1>
             <p>Predict the next color and win big!</p>
         </header>
 
@@ -1026,6 +1086,18 @@
                 <div class="history-list" id="historyList"></div>
             </div>
         </div>
+
+        <div class="suspension-modal" id="suspensionModal">
+            <div class="suspension-content">
+                <span class="suspension-close" id="suspensionClose">×</span>
+                <div class="suspension-title">Account Suspended</div>
+                <div class="suspension-message" id="suspensionMessage"></div>
+                <div class="suspension-actions">
+                    <button id="suspensionContactBtn">Contact Support</button>
+                    <button id="suspensionLogoutBtn">Logout</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1055,11 +1127,11 @@
         let timerInterval;
         let canBet = true;
         let isBetting = false;
+        let userData = {};
 
         // Global game settings from admin panel
         let defaultNewUserBalance = 100;
         let minimumPlayableBalance = 10;
-
 
         // DOM elements
         const mobileInput = document.getElementById('mobileInput');
@@ -1104,6 +1176,11 @@
         const historyMessage = document.getElementById('historyMessage');
         const historyList = document.getElementById('historyList');
         const historyBtn = document.getElementById('historyBtn');
+        const suspensionModal = document.getElementById('suspensionModal');
+        const suspensionClose = document.getElementById('suspensionClose');
+        const suspensionMessage = document.getElementById('suspensionMessage');
+        const suspensionContactBtn = document.getElementById('suspensionContactBtn');
+        const suspensionLogoutBtn = document.getElementById('suspensionLogoutBtn');
 
         // Initialize bet amount buttons with formatted currency
         betAmountBtns.forEach(btn => {
@@ -1116,10 +1193,9 @@
 
         // Check for existing session on page load
         window.addEventListener('load', async () => {
-            await loadGameSettingsFromFirebase(); // Load settings first
+            await loadGameSettingsFromFirebase();
             const savedMobile = localStorage.getItem('currentUserMobile');
             if (savedMobile) {
-                // Attempt to auto-login with saved mobile
                 autoLogin(savedMobile);
             } else {
                 hideGameSection();
@@ -1130,7 +1206,6 @@
         window.addEventListener('popstate', (event) => {
             const savedMobile = localStorage.getItem('currentUserMobile');
             if (savedMobile) {
-                // Prevent showing login screen if user is logged in
                 event.preventDefault();
                 showGameSection();
             }
@@ -1150,9 +1225,25 @@
             hideMessage(regMessage);
         });
         addCashBtn.addEventListener('click', () => {
+            if (userData.suspended) {
+                showSuspensionModal();
+                return;
+            }
+            if (userData.canWithdraw === false) {
+                showMessage(betMessage, 'Deposits are disabled for your account', 'error');
+                return;
+            }
             window.location.href = 'deposit.html';
         });
         withdrawBtn.addEventListener('click', () => {
+            if (userData.suspended) {
+                showSuspensionModal();
+                return;
+            }
+            if (userData.canWithdraw === false) {
+                showMessage(betMessage, 'Withdrawals are disabled for your account', 'error');
+                return;
+            }
             window.location.href = 'withdraw.html';
         });
         supportBtn.addEventListener('click', () => {
@@ -1165,13 +1256,36 @@
         placeBetBtn.addEventListener('click', placeBet);
         supportClose.addEventListener('click', hideSupportModal);
         sendSupportMessage.addEventListener('click', sendMessage);
-        historyBtn.addEventListener('click', showHistoryModal);
+        historyBtn.addEventListener('click', () => {
+            if (userData.suspended) {
+                showSuspensionModal();
+                return;
+            }
+            showHistoryModal();
+        });
         historyClose.addEventListener('click', hideHistoryModal);
         viewHistoryBtn.addEventListener('click', loadHistory);
+        suspensionClose.addEventListener('click', hideSuspensionModal);
+        suspensionContactBtn.addEventListener('click', () => {
+            hideSuspensionModal();
+            showSupportModal(true);
+        });
+        suspensionLogoutBtn.addEventListener('click', () => {
+            hideSuspensionModal();
+            handleLogout();
+        });
 
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
                 if (!canBet) return;
+                if (userData.suspended || userData.canBet === false) {
+                    if (userData.suspended) {
+                        showSuspensionModal();
+                    } else {
+                        showMessage(betMessage, 'Betting is disabled for your account', 'error');
+                    }
+                    return;
+                }
                 colorOptions.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
                 selectedColor = option.dataset.color;
@@ -1184,6 +1298,14 @@
             btn.addEventListener('click', () => {
                 if (!canBet || !selectedColor) {
                     showMessage(betMessage, 'Please select a color first', 'error');
+                    return;
+                }
+                if (userData.suspended || userData.canBet === false) {
+                    if (userData.suspended) {
+                        showSuspensionModal();
+                    } else {
+                        showMessage(betMessage, 'Betting is disabled for your account', 'error');
+                    }
                     return;
                 }
                 betAmountBtns.forEach(b => b.classList.remove('selected'));
@@ -1203,41 +1325,52 @@
                 }
             } catch (error) {
                 console.error('Error loading game settings from Firebase:', error);
-                // Fallback to default values if there's an error
                 defaultNewUserBalance = 100;
                 minimumPlayableBalance = 10;
             }
         }
 
         // Auto-login function
-        function autoLogin(mobile) {
+        async function autoLogin(mobile) {
             showLoading(true);
-            database.ref('users/' + mobile).once('value')
-                .then(snapshot => {
-                    if (snapshot.exists()) {
-                        const userData = snapshot.val();
-                        currentUserMobile = mobile;
-                        currentBalance = userData.balance || defaultNewUserBalance; // Use defaultNewUserBalance
-                        gameHistory = userData.history || [];
-                        updateUI();
-                        showLoading(false);
-                        showGameSection();
-                        // Push state to prevent back button from breaking session
-                        history.pushState({ loggedIn: true }, '', window.location.href);
-                    } else {
-                        showLoading(false);
-                        localStorage.removeItem('currentUserMobile');
-                        hideGameSection();
-                        showMessage(authMessage, 'Session expired. Please log in again.', 'error');
+            try {
+                const snapshot = await database.ref('users/' + mobile).once('value');
+                if (snapshot.exists()) {
+                    userData = snapshot.val();
+                    currentUserMobile = mobile;
+                    currentBalance = userData.balance || defaultNewUserBalance;
+                    gameHistory = userData.history || [];
+                    updateUI();
+                    showLoading(false);
+                    showGameSection();
+                    history.pushState({ loggedIn: true }, '', window.location.href);
+                    if (userData.suspended) {
+                        showSuspensionModal();
                     }
-                })
-                .catch(error => {
+                } else {
                     showLoading(false);
                     localStorage.removeItem('currentUserMobile');
                     hideGameSection();
-                    showMessage(authMessage, 'Error restoring session. Please log in again.', 'error');
-                    console.error('Firebase error:', error);
-                });
+                    showMessage(authMessage, 'Session expired. Please log in again.', 'error');
+                }
+            } catch (error) {
+                showLoading(false);
+                localStorage.removeItem('currentUserMobile');
+                hideGameSection();
+                showMessage(authMessage, 'Error restoring session. Please log in again.', 'error');
+                console.error('Firebase error:', error);
+            }
+        }
+
+        // Suspension modal functions
+        function showSuspensionModal() {
+            // Use admin-set suspension message, fallback to generic message only if not set
+            suspensionMessage.textContent = userData.suspensionMessage || 'Your account has been suspended. Please contact support for assistance.';
+            suspensionModal.style.display = 'flex';
+        }
+
+        function hideSuspensionModal() {
+            suspensionModal.style.display = 'none';
         }
 
         // Support functions
@@ -1253,7 +1386,6 @@
             supportMobileInput.value = '';
             supportMobileInput.readOnly = false;
             supportMessageInput.value = '';
-            // Only attempt to detach listener if currentUserMobile is not null
             if (currentUserMobile) {
                 database.ref(`supportMessages/${currentUserMobile}`).off();
             }
@@ -1298,8 +1430,7 @@
                 return;
             }
 
-            // Detach previous listener if any, before attaching new one
-            if (currentUserMobile && database.ref(`supportMessages/${currentUserMobile}`)) {
+            if (currentUserMobile) {
                 database.ref(`supportMessages/${currentUserMobile}`).off();
             }
 
@@ -1421,109 +1552,67 @@
 
         function initializeGame() {
             setupMarqueeListener();
-            updateUI();
-        }
-
-        // Game logic
-        function startTimer() {
-            clearInterval(timerInterval);
-            timer = 20;
-            updateTimerDisplay();
-            timerInterval = setInterval(() => {
-                timer--;
-                updateTimerDisplay();
-                if (timer <= 0) {
-                    clearInterval(timerInterval);
-                    processResult();
-                    setTimeout(() => {
-                        resetRound();
-                        startTimer();
-                    }, 3000);
-                }
-            }, 1000);
-        }
-
-        function updateTimerDisplay() {
-            timerDisplay.textContent = timer;
-            if (timer <= 5) {
-                timerDisplay.style.color = '#d63031';
-                if (canBet) {
-                    showMessage(betMessage, 'Betting closed! Press Place Bet to confirm your bet.', 'error');
-                    canBet = false;
-                    placeBetBtn.disabled = true;
-                    colorOptions.forEach(opt => opt.classList.add('disabled'));
-                    betAmountBtns.forEach(btn => btn.classList.add('disabled'));
-                }
-            } else {
-                timerDisplay.style.color = 'var(--primary)';
+            // Ensure suspension status is checked on game initialization
+            if (userData.suspended) {
+                showSuspensionModal();
             }
         }
 
-        function resetRound() {
-            selectedColor = null;
-            selectedAmount = null;
-            colorOptions.forEach(opt => opt.classList.remove('selected', 'disabled'));
-            betAmountBtns.forEach(btn => btn.classList.remove('selected', 'disabled'));
-            resultSection.style.display = 'none';
-            canBet = true;
-            placeBetBtn.disabled = false;
-            isBetting = false;
-            hideMessage(betMessage);
-        }
-
-        function handleLogin() {
+        // Authentication functions
+        async function handleLogin() {
             const mobile = mobileInput.value.trim();
             const password = passwordInput.value.trim();
+
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 showMessage(authMessage, 'Please enter a valid 10-digit mobile number', 'error');
                 return;
             }
-            if (!password || password.length < 6) {
-                showMessage(authMessage, 'Please enter your password (min 6 characters)', 'error');
+            if (!password) {
+                showMessage(authMessage, 'Please enter a password', 'error');
                 return;
             }
+
             showLoading(true);
-            database.ref('users/' + mobile).once('value')
-                .then(snapshot => {
-                    if (snapshot.exists()) {
-                        const userData = snapshot.val();
-                        if (userData.password === password) {
-                            currentUserMobile = mobile;
-                            currentBalance = userData.balance || defaultNewUserBalance; // Use defaultNewUserBalance
-                            gameHistory = userData.history || [];
-                            // Store session in localStorage
-                            localStorage.setItem('currentUserMobile', mobile);
-                            updateUI();
-                            showLoading(false);
-                            showGameSection();
-                            // Push state to history
-                            history.pushState({ loggedIn: true }, '', window.location.href);
-                            showMessage(authMessage, 'Login successful!', 'success');
-                        } else {
-                            showLoading(false);
-                            showMessage(authMessage, 'Incorrect password', 'error');
-                        }
+            try {
+                const snapshot = await database.ref('users/' + mobile).once('value');
+                if (snapshot.exists()) {
+                    const user = snapshot.val();
+                    if (user.password === password) {
+                        userData = user;
+                        currentUserMobile = mobile;
+                        currentBalance = user.balance || defaultNewUserBalance;
+                        gameHistory = user.history || [];
+                        localStorage.setItem('currentUserMobile', mobile);
+                        updateUI();
+                        showLoading(false);
+                        showGameSection();
+                        history.pushState({ loggedIn: true }, '', window.location.href);
+                        initializeGame();
                     } else {
                         showLoading(false);
-                        showMessage(authMessage, 'Account not found. Please register.', 'error');
+                        showMessage(authMessage, 'Incorrect password', 'error');
                     }
-                })
-                .catch(error => {
+                } else {
                     showLoading(false);
-                    showMessage(authMessage, 'Error accessing your account. Please try again.', 'error');
-                    console.error('Firebase error:', error);
-                });
+                    showMessage(authMessage, 'No account found with this mobile number', 'error');
+                }
+            } catch (error) {
+                showLoading(false);
+                showMessage(authMessage, 'Error logging in. Please try again.', 'error');
+                console.error('Firebase error:', error);
+            }
         }
 
-        function handleRegister() {
+        async function handleRegister() {
             const mobile = regMobileInput.value.trim();
             const password = regPasswordInput.value.trim();
             const confirmPassword = regConfirmPasswordInput.value.trim();
+
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 showMessage(regMessage, 'Please enter a valid 10-digit mobile number', 'error');
                 return;
             }
-            if (!password || password.length < 6) {
+            if (password.length < 6) {
                 showMessage(regMessage, 'Password must be at least 6 characters', 'error');
                 return;
             }
@@ -1531,325 +1620,85 @@
                 showMessage(regMessage, 'Passwords do not match', 'error');
                 return;
             }
+
             showLoading(true);
-            database.ref('users/' + mobile).once('value')
-                .then(snapshot => {
-                    if (snapshot.exists()) {
-                        showLoading(false);
-                        showMessage(regMessage, 'Mobile number already registered. Please login.', 'error');
-                    } else {
-                        database.ref('users/' + mobile).set({
-                            password: password,
-                            balance: defaultNewUserBalance, // Use defaultNewUserBalance from settings
-                            history: [],
-                            supportMessages: {},
-                            forceOpposite: false
-                        }).then(() => {
-                            currentUserMobile = mobile;
-                            currentBalance = defaultNewUserBalance; // Use defaultNewUserBalance
-                            gameHistory = [];
-                            // Store session in localStorage
-                            localStorage.setItem('currentUserMobile', mobile);
-                            updateUI();
-                            showLoading(false);
-                            showGameSection();
-                            registerForm.style.display = 'none';
-                            loginForm.style.display = 'flex';
-                            mobileInput.value = mobile;
-                            passwordInput.value = '';
-                            hideMessage(regMessage);
-                            // Push state to history
-                            history.pushState({ loggedIn: true }, '', window.location.href);
-                            showMessage(authMessage, 'Registration successful! You have been logged in.', 'success');
-                        });
-                    }
-                })
-                .catch(error => {
+            try {
+                const snapshot = await database.ref('users/' + mobile).once('value');
+                if (snapshot.exists()) {
                     showLoading(false);
-                    showMessage(regMessage, 'Error creating account. Please try again.', 'error');
-                    console.error('Firebase error:', error);
-                });
+                    showMessage(regMessage, 'An account with this mobile number already exists', 'error');
+                } else {
+                    const newUser = {
+                        mobile: mobile,
+                        password: password,
+                        balance: defaultNewUserBalance,
+                        history: [],
+                        canBet: true,
+                        canWithdraw: true,
+                        winProbability: 20,
+                        suspended: false
+                    };
+                    await database.ref('users/' + mobile).set(newUser);
+                    showLoading(false);
+                    showMessage(regMessage, 'Registration successful! Please log in.', 'success');
+                    registerForm.style.display = 'none';
+                    loginForm.style.display = 'flex';
+                    regMobileInput.value = '';
+                    regPasswordInput.value = '';
+                    regConfirmPasswordInput.value = '';
+                }
+            } catch (error) {
+                showLoading(false);
+                showMessage(regMessage, 'Error registering. Please try again.', 'error');
+                console.error('Firebase error:', error);
+            }
         }
 
         function handleLogout() {
+            localStorage.removeItem('currentUserMobile');
             currentUserMobile = null;
-            selectedColor = null;
-            selectedAmount = null;
+            userData = {};
+            currentBalance = 100;
+            gameHistory = [];
+            hideGameSection();
             mobileInput.value = '';
             passwordInput.value = '';
-            // Clear session from localStorage
-            localStorage.removeItem('currentUserMobile');
-            hideGameSection();
-            hideMessage(authMessage);
-            // Detach listener for support messages on logout
-            if (currentUserMobile) { // Check if currentUserMobile is not null before detaching
-                database.ref(`supportMessages/${currentUserMobile}`).off();
-            }
-            // Push state to clear history
+            database.ref(`supportMessages/${currentUserMobile}`).off();
+            database.ref(`users/${currentUserMobile}/personalMessage`).off();
+            database.ref('gameSettings/broadcastMessage').off();
             history.pushState({ loggedIn: false }, '', window.location.href);
         }
 
-        async function placeBet() {
-            if (isBetting) return;
-            isBetting = true;
-            placeBetBtn.disabled = true;
-
-            try {
-                const snapshot = await database.ref('gameSettings/bettingEnabled').once('value');
-                const bettingEnabled = snapshot.val() !== false;
-                if (!bettingEnabled) {
-                    showMessage(betMessage, 'Betting is currently disabled by the admin.', 'error');
-                    isBetting = false;
-                    placeBetBtn.disabled = false;
-                    return;
-                }
-            } catch (error) {
-                console.error('Error checking betting status:', error);
-                showMessage(betMessage, 'Error checking game status. Please try again.', 'error');
-                isBetting = false;
-                placeBetBtn.disabled = false;
-                return;
-            }
-
-            // Use minimumPlayableBalance from settings
-            if (currentBalance < minimumPlayableBalance) {
-                showMessage(betMessage, `Minimum balance reached (₹${minimumPlayableBalance}). Please deposit more cash.`, 'error');
-                isBetting = false;
-                placeBetBtn.disabled = false;
-                return;
-            }
-
-            if (!selectedColor) {
-                showMessage(betMessage, 'Please select a color first', 'error');
-                isBetting = false;
-                placeBetBtn.disabled = false;
-                return;
-            }
-
-            if (!selectedAmount) {
-                showMessage(betMessage, 'Please select a bet amount', 'error');
-                isBetting = false;
-                placeBetBtn.disabled = false;
-                return;
-            }
-
-            if (selectedAmount > currentBalance) {
-                showMessage(betMessage, `You don't have enough balance for this bet`, 'error');
-                isBetting = false;
-                placeBetBtn.disabled = false;
-                return;
-            }
-
-            // Ensure balance after bet is not less than minimumPlayableBalance
-            if (currentBalance - selectedAmount < minimumPlayableBalance) {
-                showMessage(betMessage, `You must keep at least ₹${minimumPlayableBalance} in your balance`, 'error');
-                isBetting = false;
-                placeBetBtn.disabled = false;
-                return;
-            }
-
-            if (selectedAmount < 10) { // Still hardcoding minimum bet amount, consider making this configurable if needed
-                showMessage(betMessage, 'Minimum bet amount is ₹10', 'error');
-                isBetting = false;
-                placeBetBtn.disabled = false;
-                return;
-            }
-
-            if (timer <= 5) {
-                showMessage(betMessage, 'Too late to place bet! Wait for next round', 'error');
-                isBetting = false;
-                placeBetBtn.disabled = true;
-                return;
-            }
-
-            canBet = false;
-            currentBalance -= selectedAmount;
-            updateUI();
-
-            if (currentUserMobile) {
-                const betData = {
-                    color: selectedColor,
-                    amount: selectedAmount,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                };
-                database.ref('users/' + currentUserMobile + '/currentBet').set(betData)
-                    .then(() => {
-                        showMessage(betMessage, `Bet placed: ₹${selectedAmount.toLocaleString('en-IN')} on ${selectedColor}`, 'success');
-                        selectedColor = null;
-                        selectedAmount = null;
-                        colorOptions.forEach(opt => opt.classList.remove('selected'));
-                        betAmountBtns.forEach(btn => btn.classList.remove('selected'));
-                    })
-                    .catch(error => {
-                        console.error('Error saving bet:', error);
-                        showMessage(betMessage, 'Error placing bet. Please try again.', 'error');
-                        currentBalance += selectedAmount;
-                        updateUI();
-                        isBetting = false;
-                        placeBetBtn.disabled = false;
-                        canBet = true;
-                    });
-            }
-        }
-
-        async function processResult() {
-            let result;
-            let isAdminControlled = false;
-            let currentBet = null;
-            let winProbability = 20;
-            let forceOpposite = false;
-
-            try {
-                if (currentUserMobile) {
-                    const snapshot = await database.ref('users/' + currentUserMobile).once('value');
-                    const userData = snapshot.val();
-                    currentBet = userData.currentBet;
-                    winProbability = userData.winProbability || 20;
-                    forceOpposite = userData.forceOpposite || false;
-                }
-            } catch (error) {
-                console.error('Error checking user data:', error);
-            }
-
-            try {
-                if (currentUserMobile && currentBet && currentBet.outcome) {
-                    result = currentBet.outcome;
-                    isAdminControlled = true;
-                } else if (forceOpposite && currentBet) {
-                    const colors = ['red', 'green', 'violet'].filter(color => color !== currentBet.color);
-                    result = colors[Math.floor(Math.random() * colors.length)];
-                    isAdminControlled = true;
-                } else {
-                    result = generateRandomResult(currentBet ? currentBet.color : null, winProbability);
-                }
-            } catch (error) {
-                console.error('Error determining result:', error);
-                result = generateRandomResult(null, 20);
-            }
-
-            if (currentUserMobile && currentBet) {
-                const { color: betColor, amount: betAmount } = currentBet;
-                const multiplier = getMultiplier(betColor);
-                let winAmount = 0;
-
-                if (result === betColor) {
-                    winAmount = betAmount * multiplier;
-                    currentBalance += winAmount;
-                    showResult(`You won ₹${winAmount.toLocaleString('en-IN')}!`, 'win');
-                } else {
-                    showResult(`You lost ₹${betAmount.toLocaleString('en-IN')}.`, 'lose');
-                }
-
-                gameHistory.unshift({
-                    color: result,
-                    amount: betAmount,
-                    win: result === betColor,
-                    winAmount: winAmount,
-                    timestamp: Date.now(),
-                    adminControlled: isAdminControlled,
-                    playerInvolved: true
-                });
-            } else {
-                gameHistory.unshift({
-                    color: result,
-                    timestamp: Date.now(),
-                    adminControlled: isAdminControlled,
-                    playerInvolved: false
-                });
-                showResult(`Result: ${result.charAt(0).toUpperCase() + result.slice(1)}`, 'info');
-            }
-
-            if (gameHistory.length > 10) {
-                gameHistory = gameHistory.slice(0, 10);
-            }
-
-            updateUI();
-            updateFirebase();
-
-            if (currentUserMobile) {
-                database.ref('users/' + currentUserMobile + '/currentBet').remove().catch(error => {
-                    console.error('Error clearing current bet:', error);
-                });
-            }
-        }
-
-        function generateRandomResult(betColor, winProbability) {
-            if (!betColor) {
-                const random = Math.random();
-                if (random < 0.1) return 'violet';
-                if (random < 0.55) return 'red';
-                return 'green';
-            }
-
-            const winChance = winProbability / 100;
-            if (Math.random() < winChance) {
-                return betColor;
-            }
-
-            const colors = ['red', 'green', 'violet'];
-            const oppositeColors = colors.filter(color => color !== betColor);
-            return oppositeColors[Math.floor(Math.random() * oppositeColors.length)];
-        }
-
-        function getMultiplier(color) {
-            switch(color) {
-                case 'red': return 2;
-                case 'green': return 2;
-                case 'violet': return 3;
-                default: return 1;
-            }
-        }
-
+        // UI update functions
         function updateUI() {
             balanceAmount.textContent = `₹${currentBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            balanceAmount.classList.add('update');
-            setTimeout(() => balanceAmount.classList.remove('update'), 300);
-            if (currentBalance < minimumPlayableBalance) { // Use minimumPlayableBalance
+            if (currentBalance < minimumPlayableBalance) {
                 balanceAmount.classList.add('low-balance');
-                showMessage(betMessage, `Low balance! Please deposit more cash to continue playing. Minimum required: ₹${minimumPlayableBalance}.`, 'error');
             } else {
                 balanceAmount.classList.remove('low-balance');
             }
-            updateHistoryDisplay();
+            updateHistoryUI();
         }
 
-        function updateFirebase() {
-            if (!currentUserMobile) return;
-            const userData = {
-                balance: currentBalance,
-                history: gameHistory
-            };
-            database.ref('users/' + currentUserMobile).update(userData)
-                .catch(error => {
-                    console.error('Error updating Firebase:', error);
-                });
-        }
-
-        function updateHistoryDisplay() {
+        function updateHistoryUI() {
             historyItems.innerHTML = '';
-            gameHistory.slice(0, 10).forEach(item => {
-                const div = document.createElement('div');
-                div.className = `history-item ${item.color}`;
-                div.textContent = item.color.charAt(0).toUpperCase();
-                historyItems.appendChild(div);
+            gameHistory.slice(-5).reverse().forEach(item => {
+                const historyDiv = document.createElement('div');
+                historyDiv.className = `history-item ${item.color}`;
+                historyDiv.textContent = item.color.charAt(0).toUpperCase();
+                historyItems.appendChild(historyDiv);
             });
-        }
-
-        function showResult(message, type) {
-            resultSection.textContent = message;
-            resultSection.className = `result-section ${type}`;
-            resultSection.style.display = 'block';
         }
 
         function showGameSection() {
             authSection.style.display = 'none';
             gameSection.style.display = 'block';
-            initializeGame();
+            updateUI();
         }
 
         function hideGameSection() {
-            authSection.style.display = 'block';
             gameSection.style.display = 'none';
+            authSection.style.display = 'block';
         }
 
         function showLoading(show) {
@@ -1869,8 +1718,126 @@
             element.style.display = 'none';
         }
 
-        // Initialize
-        hideGameSection();
+        // Timer functions
+        function startTimer() {
+            clearInterval(timerInterval);
+            timer = 20;
+            timerDisplay.textContent = timer;
+            canBet = true;
+            colorOptions.forEach(opt => opt.classList.remove('disabled'));
+            betAmountBtns.forEach(btn => btn.classList.remove('disabled'));
+            placeBetBtn.disabled = false;
+            timerInterval = setInterval(() => {
+                timer--;
+                timerDisplay.textContent = timer;
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    canBet = false;
+                    colorOptions.forEach(opt => opt.classList.add('disabled'));
+                    betAmountBtns.forEach(btn => btn.classList.add('disabled'));
+                    placeBetBtn.disabled = true;
+                    setTimeout(startTimer, 5000);
+                }
+            }, 1000);
+        }
+
+        // Betting function
+        async function placeBet() {
+            if (!canBet) {
+                showMessage(betMessage, 'Betting is closed for this round', 'error');
+                return;
+            }
+            if (!selectedColor || !selectedAmount) {
+                showMessage(betMessage, 'Please select a color and bet amount', 'error');
+                return;
+            }
+            if (userData.suspended || userData.canBet === false) {
+                if (userData.suspended) {
+                    showSuspensionModal();
+                } else {
+                    showMessage(betMessage, 'Betting is disabled for your account', 'error');
+                }
+                return;
+            }
+            if (currentBalance < selectedAmount) {
+                showMessage(betMessage, 'Insufficient balance', 'error');
+                return;
+            }
+            if (currentBalance < minimumPlayableBalance) {
+                showMessage(betMessage, `Balance below minimum playable amount (₹${minimumPlayableBalance})`, 'error');
+                return;
+            }
+
+            isBetting = true;
+            showLoading(true);
+            try {
+                currentBalance -= selectedAmount;
+                await database.ref(`users/${currentUserMobile}/balance`).set(currentBalance);
+
+                const colors = ['red', 'green', 'violet'];
+                let winningColor = colors[Math.floor(Math.random() * colors.length)];
+
+                let winProbability = userData.winProbability || 20;
+                if (userData.forceOpposite) {
+                    winProbability = 0;
+                }
+
+                const random = Math.random() * 100;
+                let win = random < winProbability;
+
+                if (userData.forceOpposite) {
+                    win = false;
+                    if (selectedColor === winningColor) {
+                        let otherColors = colors.filter(c => c !== selectedColor);
+                        winningColor = otherColors[Math.floor(Math.random() * otherColors.length)];
+                    }
+                }
+
+                let winAmount = 0;
+                if (win && selectedColor === winningColor) {
+                    winAmount = selectedColor === 'violet' ? selectedAmount * 3 : selectedAmount * 2;
+                    currentBalance += winAmount;
+                    await database.ref(`users/${currentUserMobile}/balance`).set(currentBalance);
+                }
+
+                const historyItem = {
+                    color: winningColor,
+                    amount: selectedAmount,
+                    win: win && selectedColor === winningColor,
+                    winAmount: winAmount,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    playerInvolved: true
+                };
+
+                gameHistory.push(historyItem);
+                await database.ref(`users/${currentUserMobile}/history`).set(gameHistory);
+
+                updateUI();
+                showLoading(false);
+
+                resultSection.style.display = 'block';
+                resultSection.className = `result-section ${win && selectedColor === winningColor ? 'win' : 'lose'}`;
+                resultSection.textContent = win && selectedColor === winningColor
+                    ? `You won ₹${winAmount.toLocaleString('en-IN')} on ${selectedColor}!`
+                    : `You lost ₹${selectedAmount.toLocaleString('en-IN')} on ${selectedColor}. Winning color: ${winningColor}.`;
+
+                selectedColor = null;
+                selectedAmount = null;
+                colorOptions.forEach(opt => opt.classList.remove('selected'));
+                betAmountBtns.forEach(btn => btn.classList.remove('selected'));
+
+                setTimeout(() => {
+                    resultSection.style.display = 'none';
+                }, 3000);
+
+                isBetting = false;
+            } catch (error) {
+                showLoading(false);
+                showMessage(betMessage, 'Error placing bet. Please try again.', 'error');
+                console.error('Firebase error:', error);
+                isBetting = false;
+            }
+        }
     </script>
 </body>
 </html>
