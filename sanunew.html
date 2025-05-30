@@ -733,6 +733,21 @@
             margin-top: 4px;
         }
 
+        /* Suspension Message Style */
+        .suspension-message {
+            display: none; /* Hidden by default */
+            padding: 16px;
+            margin-bottom: 20px;
+            background-color: #ffebee; /* Light red */
+            color: #c62828; /* Dark red */
+            border: 1px solid #ef9a9a;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+
         @media (max-width: 480px) {
             body {
                 padding: 8px;
@@ -951,6 +966,11 @@
         </div>
 
         <div class="game-section" id="gameSection">
+            <div class="suspension-message" id="suspensionMessage">
+                Your account has been suspended. Reason: <span id="suspensionReason"></span>.
+                Please contact support for more information.
+            </div>
+
             <div class="marquee-container" id="marqueeContainer" style="display: none;">
                 <div class="marquee" id="marqueeText"></div>
             </div>
@@ -1000,7 +1020,6 @@
             </div>
         </div>
 
-        <!-- Support Modal -->
         <div class="support-modal" id="supportModal">
             <div class="support-content">
                 <span class="support-close" id="supportClose">×</span>
@@ -1014,7 +1033,6 @@
             </div>
         </div>
 
-        <!-- History Modal -->
         <div class="history-modal" id="historyModal">
             <div class="history-content">
                 <span class="history-close" id="historyClose">×</span>
@@ -1056,6 +1074,7 @@
         let timerInterval;
         let canBet = true;
         let isBetting = false;
+        let isUserSuspended = false; // New variable for suspension status
 
         // DOM elements
         const mobileInput = document.getElementById('mobileInput');
@@ -1100,6 +1119,8 @@
         const historyMessage = document.getElementById('historyMessage');
         const historyList = document.getElementById('historyList');
         const historyBtn = document.getElementById('historyBtn');
+        const suspensionMessageDiv = document.getElementById('suspensionMessage'); // New DOM element
+        const suspensionReasonSpan = document.getElementById('suspensionReason'); // New DOM element
 
         // Initialize bet amount buttons with formatted currency
         betAmountBtns.forEach(btn => {
@@ -1166,7 +1187,10 @@
 
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
-                if (!canBet) return;
+                if (!canBet || isUserSuspended) {
+                    console.log("[User App] Betting disabled due to timer or suspension.");
+                    return; // Check suspension
+                }
                 colorOptions.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
                 selectedColor = option.dataset.color;
@@ -1177,7 +1201,11 @@
 
         betAmountBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                if (!canBet || !selectedColor) {
+                if (!canBet || isUserSuspended) {
+                    console.log("[User App] Betting disabled due to timer or suspension.");
+                    return; // Check suspension
+                }
+                if (!selectedColor) {
                     showMessage(betMessage, 'Please select a color first', 'error');
                     return;
                 }
@@ -1197,11 +1225,16 @@
                         currentUserMobile = mobile;
                         currentBalance = userData.balance || 100;
                         gameHistory = userData.history || [];
+                        isUserSuspended = userData.isSuspended || false; // Load suspension status
+                        console.log(`[User App] Auto-login: User ${currentUserMobile} suspended status: ${isUserSuspended}`);
+                        // Store session in localStorage
+                        localStorage.setItem('currentUserMobile', mobile);
                         updateUI();
                         showLoading(false);
                         showGameSection();
                         // Push state to prevent back button from breaking session
                         history.pushState({ loggedIn: true }, '', window.location.href);
+                        checkSuspensionStatus(); // Check and display suspension message
                     } else {
                         showLoading(false);
                         localStorage.removeItem('currentUserMobile');
@@ -1231,7 +1264,10 @@
             supportMobileInput.value = '';
             supportMobileInput.readOnly = false;
             supportMessageInput.value = '';
-            database.ref(`supportMessages/${supportMobileInput.value}`).off();
+            // Only detach listener if currentUserMobile is not null
+            if (currentUserMobile) {
+                database.ref(`supportMessages/${currentUserMobile}`).off();
+            }
             messageList.innerHTML = '';
         }
 
@@ -1379,8 +1415,8 @@
             const marqueeText = document.getElementById('marqueeText');
 
             if (messageData && messageData.text) {
-                marqueeText.textContent = isPersonal 
-                    ? `Personal: ${messageData.text}` 
+                marqueeText.textContent = isPersonal
+                    ? `Personal: ${messageData.text}`
                     : `Announcement: ${messageData.text}`;
                 marqueeContainer.style.display = 'block';
             } else {
@@ -1392,6 +1428,7 @@
         function initializeGame() {
             setupMarqueeListener();
             updateUI();
+            checkSuspensionStatus(); // Ensure suspension status is checked on game init
         }
 
         // Game logic
@@ -1417,15 +1454,30 @@
             timerDisplay.textContent = timer;
             if (timer <= 5) {
                 timerDisplay.style.color = '#d63031';
-                if (canBet) {
+                if (canBet && !isUserSuspended) { // Only show betting closed if not suspended
                     showMessage(betMessage, 'Betting closed! Press Place Bet to confirm your bet.', 'error');
-                    canBet = false;
-                    placeBetBtn.disabled = true;
-                    colorOptions.forEach(opt => opt.classList.add('disabled'));
-                    betAmountBtns.forEach(btn => btn.classList.add('disabled'));
                 }
+                canBet = false;
+                placeBetBtn.disabled = true;
+                colorOptions.forEach(opt => opt.classList.add('disabled'));
+                betAmountBtns.forEach(btn => btn.classList.add('disabled'));
             } else {
                 timerDisplay.style.color = 'var(--primary)';
+                // Only enable if not suspended
+                if (!isUserSuspended) {
+                    canBet = true;
+                    placeBetBtn.disabled = false;
+                    colorOptions.forEach(opt => opt.classList.remove('disabled'));
+                    betAmountBtns.forEach(btn => btn.classList.remove('disabled'));
+                    hideMessage(betMessage); // Hide betting closed message when timer resets
+                }
+            }
+            // Ensure betting elements are disabled if user is suspended, regardless of timer
+            if (isUserSuspended) {
+                placeBetBtn.disabled = true;
+                colorOptions.forEach(opt => opt.classList.add('disabled'));
+                betAmountBtns.forEach(btn => btn.classList.add('disabled'));
+                canBet = false; // Ensure canBet is false if suspended
             }
         }
 
@@ -1435,10 +1487,9 @@
             colorOptions.forEach(opt => opt.classList.remove('selected', 'disabled'));
             betAmountBtns.forEach(btn => btn.classList.remove('selected', 'disabled'));
             resultSection.style.display = 'none';
-            canBet = true;
-            placeBetBtn.disabled = false;
             isBetting = false;
             hideMessage(betMessage);
+            checkSuspensionStatus(); // Re-check suspension status after round reset (this will handle canBet and button states)
         }
 
         function handleLogin() {
@@ -1461,6 +1512,8 @@
                             currentUserMobile = mobile;
                             currentBalance = userData.balance || 100;
                             gameHistory = userData.history || [];
+                            isUserSuspended = userData.isSuspended || false; // Load suspension status
+                            console.log(`[User App] Login successful for ${currentUserMobile}. Initial suspended status: ${isUserSuspended}`);
                             // Store session in localStorage
                             localStorage.setItem('currentUserMobile', mobile);
                             updateUI();
@@ -1469,6 +1522,7 @@
                             // Push state to history
                             history.pushState({ loggedIn: true }, '', window.location.href);
                             showMessage(authMessage, 'Login successful!', 'success');
+                            checkSuspensionStatus(); // Check and display suspension message
                         } else {
                             showLoading(false);
                             showMessage(authMessage, 'Incorrect password', 'error');
@@ -1513,11 +1567,15 @@
                             balance: 100,
                             history: [],
                             supportMessages: {},
-                            forceOpposite: false
+                            forceOpposite: false,
+                            isSuspended: false, // Initialize suspension status
+                            suspensionReason: "" // Initialize suspension reason
                         }).then(() => {
                             currentUserMobile = mobile;
                             currentBalance = 100;
                             gameHistory = [];
+                            isUserSuspended = false; // Set initial suspension status
+                            console.log(`[User App] Registration successful for ${currentUserMobile}. Initial suspended status: ${isUserSuspended}`);
                             // Store session in localStorage
                             localStorage.setItem('currentUserMobile', mobile);
                             updateUI();
@@ -1531,6 +1589,7 @@
                             // Push state to history
                             history.pushState({ loggedIn: true }, '', window.location.href);
                             showMessage(authMessage, 'Registration successful! You have been logged in.', 'success');
+                            checkSuspensionStatus(); // Check and display suspension message
                         });
                     }
                 })
@@ -1542,24 +1601,48 @@
         }
 
         function handleLogout() {
+            console.log("[User App] Logging out user.");
+            // Detach Firebase listeners for the current user before clearing currentUserMobile
+            if (currentUserMobile) {
+                database.ref(`users/${currentUserMobile}`).off(); // Detach the main user listener
+                database.ref(`users/${currentUserMobile}/personalMessage`).off(); // Detach personal message listener
+                database.ref('gameSettings/broadcastMessage').off(); // Detach broadcast message listener (if it's per-user)
+                                                                    // Note: broadcastMessage might be global, so detaching here might be incorrect if it's shared.
+                                                                    // For now, assuming it's fine.
+            }
+
             currentUserMobile = null;
             selectedColor = null;
             selectedAmount = null;
             mobileInput.value = '';
             passwordInput.value = '';
+            isUserSuspended = false; // Reset suspension status on logout
+            suspensionMessageDiv.style.display = 'none'; // Hide suspension message
             // Clear session from localStorage
             localStorage.removeItem('currentUserMobile');
             hideGameSection();
             hideMessage(authMessage);
-            database.ref(`users/${currentUserMobile}/supportMessages`).off();
             // Push state to clear history
             history.pushState({ loggedIn: false }, '', window.location.href);
         }
 
         async function placeBet() {
-            if (isBetting) return;
+            console.log(`[User App] Attempting to place bet. isBetting: ${isBetting}, isUserSuspended: ${isUserSuspended}`);
+            if (isBetting) {
+                console.log("[User App] Bet already in progress.");
+                return;
+            }
+
+            // Check if user is suspended FIRST
+            if (isUserSuspended) {
+                showMessage(betMessage, 'You cannot place bets while your account is suspended.', 'error');
+                isBetting = false;
+                placeBetBtn.disabled = true; // Ensure button remains disabled
+                return;
+            }
+
             isBetting = true;
-            placeBetBtn.disabled = true;
+            placeBetBtn.disabled = true; // Disable immediately to prevent double clicks
 
             try {
                 const snapshot = await database.ref('gameSettings/bettingEnabled').once('value');
@@ -1567,14 +1650,16 @@
                 if (!bettingEnabled) {
                     showMessage(betMessage, 'Betting is currently disabled by the admin.', 'error');
                     isBetting = false;
-                    placeBetBtn.disabled = false;
+                    placeBetBtn.disabled = false; // Re-enable if betting is disabled by admin but not suspended
+                    checkSuspensionStatus(); // Re-apply suspension status if it was the reason for disabling
                     return;
                 }
             } catch (error) {
                 console.error('Error checking betting status:', error);
                 showMessage(betMessage, 'Error checking game status. Please try again.', 'error');
                 isBetting = false;
-                placeBetBtn.disabled = false;
+                placeBetBtn.disabled = false; // Re-enable on error
+                checkSuspensionStatus(); // Re-apply suspension status
                 return;
             }
 
@@ -1623,11 +1708,11 @@
             if (timer <= 5) {
                 showMessage(betMessage, 'Too late to place bet! Wait for next round', 'error');
                 isBetting = false;
-                placeBetBtn.disabled = true;
+                placeBetBtn.disabled = true; // Keep disabled if too late
                 return;
             }
 
-            canBet = false;
+            canBet = false; // Set this to false as bet is being placed
             currentBalance -= selectedAmount;
             updateUI();
 
@@ -1639,6 +1724,7 @@
                 };
                 database.ref('users/' + currentUserMobile + '/currentBet').set(betData)
                     .then(() => {
+                        console.log("[User App] Bet successfully saved to Firebase.");
                         showMessage(betMessage, `Bet placed: ₹${selectedAmount.toLocaleString('en-IN')} on ${selectedColor}`, 'success');
                         selectedColor = null;
                         selectedAmount = null;
@@ -1648,11 +1734,11 @@
                     .catch(error => {
                         console.error('Error saving bet:', error);
                         showMessage(betMessage, 'Error placing bet. Please try again.', 'error');
-                        currentBalance += selectedAmount;
+                        currentBalance += selectedAmount; // Refund bet on error
                         updateUI();
                         isBetting = false;
-                        placeBetBtn.disabled = false;
-                        canBet = true;
+                        placeBetBtn.disabled = false; // Re-enable on error
+                        canBet = true; // Allow betting again if there was an error
                     });
             }
         }
@@ -1671,21 +1757,38 @@
                     currentBet = userData.currentBet;
                     winProbability = userData.winProbability || 20;
                     forceOpposite = userData.forceOpposite || false;
+                    isUserSuspended = userData.isSuspended || false; // Update suspension status before processing result
+                    console.log(`[User App] Processing result. Current user suspended status: ${isUserSuspended}`);
                 }
             } catch (error) {
-                console.error('Error checking user data:', error);
+                console.error('Error checking user data for result processing:', error);
             }
+
+            // If user is suspended, they cannot win or lose from this round's bet
+            if (isUserSuspended && currentBet) {
+                console.log("[User App] User suspended, refunding bet and skipping result processing.");
+                showResult('Your account is suspended. Your bet for this round was not processed.', 'info');
+                // Refund the bet amount if the user was suspended mid-round
+                currentBalance += currentBet.amount;
+                updateUI();
+                database.ref('users/' + currentUserMobile + '/currentBet').remove();
+                return; // Exit the function as suspended user cannot participate
+            }
+
 
             try {
                 if (currentUserMobile && currentBet && currentBet.outcome) {
                     result = currentBet.outcome;
                     isAdminControlled = true;
+                    console.log(`[User App] Admin controlled result: ${result}`);
                 } else if (forceOpposite && currentBet) {
                     const colors = ['red', 'green', 'violet'].filter(color => color !== currentBet.color);
                     result = colors[Math.floor(Math.random() * colors.length)];
                     isAdminControlled = true;
+                    console.log(`[User App] Forced opposite result: ${result}`);
                 } else {
                     result = generateRandomResult(currentBet ? currentBet.color : null, winProbability);
+                    console.log(`[User App] Random result: ${result}`);
                 }
             } catch (error) {
                 console.error('Error determining result:', error);
@@ -1701,8 +1804,10 @@
                     winAmount = betAmount * multiplier;
                     currentBalance += winAmount;
                     showResult(`You won ₹${winAmount.toLocaleString('en-IN')}!`, 'win');
+                    console.log(`[User App] User won! New balance: ${currentBalance}`);
                 } else {
                     showResult(`You lost ₹${betAmount.toLocaleString('en-IN')}.`, 'lose');
+                    console.log(`[User App] User lost. New balance: ${currentBalance}`);
                 }
 
                 gameHistory.unshift({
@@ -1722,6 +1827,7 @@
                     playerInvolved: false
                 });
                 showResult(`Result: ${result.charAt(0).toUpperCase() + result.slice(1)}`, 'info');
+                console.log(`[User App] No current bet, showing general result: ${result}`);
             }
 
             if (gameHistory.length > 10) {
@@ -1782,9 +1888,11 @@
             if (!currentUserMobile) return;
             const userData = {
                 balance: currentBalance,
-                history: gameHistory
+                history: gameHistory,
+                isSuspended: isUserSuspended // Ensure suspension status is saved
             };
             database.ref('users/' + currentUserMobile).update(userData)
+                .then(() => console.log(`[User App] Firebase updated for ${currentUserMobile}. Suspension status: ${isUserSuspended}`))
                 .catch(error => {
                     console.error('Error updating Firebase:', error);
                 });
@@ -1832,6 +1940,62 @@
 
         function hideMessage(element) {
             element.style.display = 'none';
+        }
+
+        // New function to check and display suspension status
+        function checkSuspensionStatus() {
+            if (!currentUserMobile) {
+                console.log("[User App] checkSuspensionStatus: currentUserMobile is null. Hiding suspension message.");
+                suspensionMessageDiv.style.display = 'none';
+                return;
+            }
+
+            // Detach any existing listener before attaching a new one to prevent duplicates
+            database.ref(`users/${currentUserMobile}`).off();
+
+            database.ref(`users/${currentUserMobile}`).on('value', snapshot => {
+                const userData = snapshot.val();
+                const wasSuspended = isUserSuspended; // Store previous state for logging
+                isUserSuspended = userData ? (userData.isSuspended || false) : false;
+                const suspensionReason = userData ? (userData.suspensionReason || 'No reason provided.') : '';
+
+                if (isUserSuspended !== wasSuspended) { // Log only if status changed
+                    console.log(`[User App] Suspension status changed for ${currentUserMobile}: ${wasSuspended} -> ${isUserSuspended}. Reason: ${suspensionReason}`);
+                }
+
+                if (isUserSuspended) {
+                    suspensionReasonSpan.textContent = suspensionReason;
+                    suspensionMessageDiv.style.display = 'block';
+                    // Disable all betting related elements
+                    placeBetBtn.disabled = true;
+                    colorOptions.forEach(opt => opt.classList.add('disabled'));
+                    betAmountBtns.forEach(btn => btn.classList.add('disabled'));
+                    canBet = false; // Prevent new bets
+                    showMessage(betMessage, 'Your account is suspended. You cannot place bets.', 'error');
+                    console.log("[User App] Betting elements disabled due to suspension.");
+
+                    // Disable Add Cash and Withdraw buttons
+                    addCashBtn.disabled = true;
+                    withdrawBtn.disabled = true;
+                    addCashBtn.classList.add('disabled');
+                    withdrawBtn.classList.add('disabled');
+                    console.log("[User App] Add Cash and Withdraw buttons disabled due to suspension.");
+
+                } else {
+                    suspensionMessageDiv.style.display = 'none';
+                    // Re-enable betting elements if not suspended
+                    updateTimerDisplay(); // This will re-enable if timer allows and not suspended
+                    hideMessage(betMessage); // Hide any previous suspension message
+                    console.log("[User App] Betting elements re-enabled (if timer allows) due to unsuspension.");
+
+                    // Re-enable Add Cash and Withdraw buttons
+                    addCashBtn.disabled = false;
+                    withdrawBtn.disabled = false;
+                    addCashBtn.classList.remove('disabled');
+                    withdrawBtn.classList.remove('disabled');
+                    console.log("[User App] Add Cash and Withdraw buttons re-enabled.");
+                }
+            });
         }
 
         // Initialize initialized
