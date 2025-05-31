@@ -786,59 +786,6 @@
             border-radius: 12px;
         }
 
-        /* Suspension Popup Styles */
-        .suspension-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .suspension-content {
-            background: white;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 400px;
-            padding: 20px;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-
-        .suspension-close {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #4b5563;
-        }
-
-        .suspension-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--dark);
-        }
-
-        .suspension-message {
-            font-size: 0.95rem;
-            color: #4b5563;
-            margin-bottom: 20px;
-        }
-
-        .suspension-ok {
-            padding: 12px 24px;
-            font-size: 0.95rem;
-            border-radius: 12px;
-        }
-
         @media (max-width: 480px) {
             body {
                 padding: 8px;
@@ -971,12 +918,12 @@
                 padding: 10px;
             }
 
-            .support-content, .history-content, .withdraw-disabled-content, .suspension-content {
+            .support-content, .history-content, .withdraw-disabled-content {
                 width: 95%;
                 padding: 16px;
             }
 
-            .support-title, .history-title, .withdraw-disabled-title, .suspension-title {
+            .support-title, .history-title, .withdraw-disabled-title {
                 font-size: 1.1rem;
             }
 
@@ -984,7 +931,7 @@
                 font-size: 0.9rem;
             }
 
-            .message-item, .history-entry, .withdraw-disabled-message, .suspension-message {
+            .message-item, .history-entry, .withdraw-disabled-message {
                 font-size: 0.85rem;
             }
 
@@ -1141,15 +1088,6 @@
                 <button class="withdraw-disabled-ok" id="withdrawDisabledOk">OK</button>
             </div>
         </div>
-
-        <div class="suspension-modal" id="suspensionModal">
-            <div class="suspension-content">
-                <span class="suspension-close" id="suspensionClose">×</span>
-                <div class="suspension-title">Account Suspended</div>
-                <div class="suspension-message" id="suspensionMessage"></div>
-                <button class="suspension-ok" id="suspensionOk">OK</button>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -1184,8 +1122,8 @@
         let withdrawalAllowed = true;
 
         // Global game settings from admin panel
-        let defaultNewUserBalance = 100;
-        let minimumPlayableBalance = 10;
+        let defaultNewUserBalance = 51;
+        let minimumPlayableBalance = 20;
 
         // DOM elements
         const mobileInput = document.getElementById('mobileInput');
@@ -1234,10 +1172,6 @@
         const withdrawDisabledClose = document.getElementById('withdrawDisabledClose');
         const withdrawDisabledMessage = document.getElementById('withdrawDisabledMessage');
         const withdrawDisabledOk = document.getElementById('withdrawDisabledOk');
-        const suspensionModal = document.getElementById('suspensionModal');
-        const suspensionClose = document.getElementById('suspensionClose');
-        const suspensionMessage = document.getElementById('suspensionMessage');
-        const suspensionOk = document.getElementById('suspensionOk');
 
         // Initialize bet amount buttons with formatted currency
         betAmountBtns.forEach(btn => {
@@ -1290,16 +1224,7 @@
         });
         withdrawBtn.addEventListener('click', () => {
             if (isSuspended) {
-                database.ref('users/' + currentUserMobile).once('value')
-                    .then(snapshot => {
-                        const userData = snapshot.val();
-                        const message = userData.suspensionMessage || 'Your account is suspended. Please contact support.';
-                        showSuspensionModal(message);
-                    })
-                    .catch(error => {
-                        console.error('Error fetching suspension message:', error);
-                        showSuspensionModal('Your account is suspended. Please contact support.');
-                    });
+                showMessage(betMessage, 'Your account is suspended. Please contact support.', 'error');
                 return;
             }
             if (!withdrawalAllowed) {
@@ -1332,8 +1257,6 @@
         viewHistoryBtn.addEventListener('click', loadHistory);
         withdrawDisabledClose.addEventListener('click', hideWithdrawDisabledModal);
         withdrawDisabledOk.addEventListener('click', hideWithdrawDisabledModal);
-        suspensionClose.addEventListener('click', hideSuspensionModal);
-        suspensionOk.addEventListener('click', hideSuspensionModal);
 
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
@@ -1388,6 +1311,13 @@
                 .then(snapshot => {
                     if (snapshot.exists()) {
                         const userData = snapshot.val();
+                        if (userData.suspended) {
+                            showLoading(false);
+                            localStorage.removeItem('currentUserMobile');
+                            hideGameSection();
+                            showMessage(authMessage, userData.suspensionMessage || 'Your account is suspended. Please contact support.', 'error');
+                            return;
+                        }
                         currentUserMobile = mobile;
                         currentBalance = userData.balance || defaultNewUserBalance;
                         gameHistory = userData.history || [];
@@ -1398,10 +1328,6 @@
                         showLoading(false);
                         showGameSection();
                         history.pushState({ loggedIn: true }, '', window.location.href);
-                        if (isSuspended) {
-                            const message = userData.suspensionMessage || 'Your account is suspended. Please contact support.';
-                            showSuspensionModal(message);
-                        }
                     } else {
                         showLoading(false);
                         localStorage.removeItem('currentUserMobile');
@@ -1427,17 +1353,6 @@
         function hideWithdrawDisabledModal() {
             withdrawDisabledModal.style.display = 'none';
             withdrawDisabledMessage.textContent = '';
-        }
-
-        // Suspension popup functions
-        function showSuspensionModal(message) {
-            suspensionMessage.textContent = message;
-            suspensionModal.style.display = 'flex';
-        }
-
-        function hideSuspensionModal() {
-            suspensionModal.style.display = 'none';
-            suspensionMessage.textContent = '';
         }
 
         // Support functions
@@ -1695,6 +1610,11 @@
                     if (snapshot.exists()) {
                         const userData = snapshot.val();
                         if (userData.password === password) {
+                            if (userData.suspended) {
+                                showLoading(false);
+                                showMessage(authMessage, userData.suspensionMessage || 'Your account is suspended. Please contact support.', 'error');
+                                return;
+                            }
                             currentUserMobile = mobile;
                             currentBalance = userData.balance || defaultNewUserBalance;
                             gameHistory = userData.history || [];
@@ -1707,10 +1627,6 @@
                             showGameSection();
                             history.pushState({ loggedIn: true }, '', window.location.href);
                             showMessage(authMessage, 'Login successful!', 'success');
-                            if (isSuspended) {
-                                const message = userData.suspensionMessage || 'Your account is suspended. Please contact support.';
-                                showSuspensionModal(message);
-                            }
                         } else {
                             showLoading(false);
                             showMessage(authMessage, 'Incorrect password', 'error');
