@@ -810,6 +810,7 @@
             }
 
             #logoutBtn {
+                grid-column: 1 / -1;
                 padding: 8px;
                 font-size: 0.85rem;
                 margin-top: 6px;
@@ -1000,7 +1001,6 @@
             </div>
         </div>
 
-        <!-- Support Modal -->
         <div class="support-modal" id="supportModal">
             <div class="support-content">
                 <span class="support-close" id="supportClose">×</span>
@@ -1014,7 +1014,6 @@
             </div>
         </div>
 
-        <!-- History Modal -->
         <div class="history-modal" id="historyModal">
             <div class="history-content">
                 <span class="history-close" id="historyClose">×</span>
@@ -1056,6 +1055,13 @@
         let timerInterval;
         let canBet = true;
         let isBetting = false;
+        let isSuspended = false;
+        let bettingAllowed = true;
+        let withdrawalAllowed = true;
+
+        // Global game settings from admin panel
+        let defaultNewUserBalance = 100;
+        let minimumPlayableBalance = 10;
 
         // DOM elements
         const mobileInput = document.getElementById('mobileInput');
@@ -1111,10 +1117,10 @@
         startTimer();
 
         // Check for existing session on page load
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
+            await loadGameSettingsFromFirebase();
             const savedMobile = localStorage.getItem('currentUserMobile');
             if (savedMobile) {
-                // Attempt to auto-login with saved mobile
                 autoLogin(savedMobile);
             } else {
                 hideGameSection();
@@ -1125,7 +1131,6 @@
         window.addEventListener('popstate', (event) => {
             const savedMobile = localStorage.getItem('currentUserMobile');
             if (savedMobile) {
-                // Prevent showing login screen if user is logged in
                 event.preventDefault();
                 showGameSection();
             }
@@ -1145,9 +1150,17 @@
             hideMessage(regMessage);
         });
         addCashBtn.addEventListener('click', () => {
+            if (isSuspended) {
+                showMessage(betMessage, 'Your account is suspended. Please contact support.', 'error');
+                return;
+            }
             window.location.href = 'deposit.html';
         });
         withdrawBtn.addEventListener('click', () => {
+            if (isSuspended || !withdrawalAllowed) {
+                showMessage(betMessage, isSuspended ? 'Your account is suspended. Please contact support.' : 'Withdrawal is disabled for your account.', 'error');
+                return;
+            }
             window.location.href = 'withdraw.html';
         });
         supportBtn.addEventListener('click', () => {
@@ -1166,7 +1179,10 @@
 
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
-                if (!canBet) return;
+                if (!canBet || isSuspended || !bettingAllowed) {
+                    showMessage(betMessage, isSuspended ? 'Your account is suspended. Please contact support.' : 'Betting is disabled for your account.', 'error');
+                    return;
+                }
                 colorOptions.forEach(opt => opt.classList.remove('selected'));
                 option.classList.add('selected');
                 selectedColor = option.dataset.color;
@@ -1177,7 +1193,11 @@
 
         betAmountBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                if (!canBet || !selectedColor) {
+                if (!canBet || isSuspended || !bettingAllowed) {
+                    showMessage(betMessage, isSuspended ? 'Your account is suspended. Please contact support.' : 'Betting is disabled for your account.', 'error');
+                    return;
+                }
+                if (!selectedColor) {
                     showMessage(betMessage, 'Please select a color first', 'error');
                     return;
                 }
@@ -1187,6 +1207,22 @@
             });
         });
 
+        // Function to load game settings from Firebase
+        async function loadGameSettingsFromFirebase() {
+            try {
+                const snapshot = await database.ref('gameSettings').once('value');
+                const settings = snapshot.val();
+                if (settings) {
+                    defaultNewUserBalance = settings.defaultBalance !== null ? settings.defaultBalance : 100;
+                    minimumPlayableBalance = settings.minPlayableBalance !== null ? settings.minPlayableBalance : 10;
+                }
+            } catch (error) {
+                console.error('Error loading game settings from Firebase:', error);
+                defaultNewUserBalance = 100;
+                minimumPlayableBalance = 10;
+            }
+        }
+
         // Auto-login function
         function autoLogin(mobile) {
             showLoading(true);
@@ -1194,13 +1230,22 @@
                 .then(snapshot => {
                     if (snapshot.exists()) {
                         const userData = snapshot.val();
+                        if (userData.suspended) {
+                            showLoading(false);
+                            localStorage.removeItem('currentUserMobile');
+                            hideGameSection();
+                            showMessage(authMessage, userData.suspensionMessage || 'Your account is suspended. Please contact support.', 'error');
+                            return;
+                        }
                         currentUserMobile = mobile;
-                        currentBalance = userData.balance || 100;
+                        currentBalance = userData.balance || defaultNewUserBalance;
                         gameHistory = userData.history || [];
+                        isSuspended = userData.suspended || false;
+                        bettingAllowed = userData.bettingAllowed !== false;
+                        withdrawalAllowed = userData.withdrawalAllowed !== false;
                         updateUI();
                         showLoading(false);
                         showGameSection();
-                        // Push state to prevent back button from breaking session
                         history.pushState({ loggedIn: true }, '', window.location.href);
                     } else {
                         showLoading(false);
@@ -1231,7 +1276,9 @@
             supportMobileInput.value = '';
             supportMobileInput.readOnly = false;
             supportMessageInput.value = '';
-            database.ref(`supportMessages/${supportMobileInput.value}`).off();
+            if (currentUserMobile) {
+                database.ref(`supportMessages/${currentUserMobile}`).off();
+            }
             messageList.innerHTML = '';
         }
 
@@ -1271,6 +1318,10 @@
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 messageList.innerHTML = '';
                 return;
+            }
+
+            if (currentUserMobile && database.ref(`supportMessages/${currentUserMobile}`)) {
+                database.ref(`supportMessages/${currentUserMobile}`).off();
             }
 
             database.ref(`supportMessages/${mobile}`).on('value', snapshot => {
@@ -1363,24 +1414,34 @@
         function setupMarqueeListener() {
             if (!currentUserMobile) return;
 
-            database.ref(`users/${currentUserMobile}/personalMessage`).on('value', snapshot => {
-                const personalMessage = snapshot.val();
-                updateMarquee(personalMessage, true);
+            database.ref(`users/${currentUserMobile}`).on('value', snapshot => {
+                const userData = snapshot.val();
+                if (userData) {
+                    isSuspended = userData.suspended || false;
+                    bettingAllowed = userData.bettingAllowed !== false;
+                    withdrawalAllowed = userData.withdrawalAllowed !== false;
+                    const suspensionMessage = userData.suspensionMessage;
+                    const personalMessage = userData.personalMessage;
+                    updateMarquee(suspensionMessage || personalMessage, !!suspensionMessage);
+                }
+                updateUI();
             });
 
             database.ref('gameSettings/broadcastMessage').on('value', snapshot => {
                 const broadcastMessage = snapshot.val();
-                updateMarquee(broadcastMessage, false);
+                if (!isSuspended) {
+                    updateMarquee(broadcastMessage, false);
+                }
             });
         }
 
-        function updateMarquee(messageData, isPersonal) {
+        function updateMarquee(messageData, isPersonalOrSuspension) {
             const marqueeContainer = document.getElementById('marqueeContainer');
             const marqueeText = document.getElementById('marqueeText');
 
-            if (messageData && messageData.text) {
-                marqueeText.textContent = isPersonal 
-                    ? `Personal: ${messageData.text}` 
+            if (messageData && (typeof messageData === 'string' || messageData.text)) {
+                marqueeText.textContent = isPersonalOrSuspension 
+                    ? `Suspension: ${typeof messageData === 'string' ? messageData : messageData.text}`
                     : `Announcement: ${messageData.text}`;
                 marqueeContainer.style.display = 'block';
             } else {
@@ -1436,8 +1497,7 @@
             betAmountBtns.forEach(btn => btn.classList.remove('selected', 'disabled'));
             resultSection.style.display = 'none';
             canBet = true;
-            placeBetBtn.disabled = false;
-            isBetting = false;
+            placeBetBtn.disabled = isSuspended || !bettingAllowed;
             hideMessage(betMessage);
         }
 
@@ -1458,15 +1518,21 @@
                     if (snapshot.exists()) {
                         const userData = snapshot.val();
                         if (userData.password === password) {
+                            if (userData.suspended) {
+                                showLoading(false);
+                                showMessage(authMessage, userData.suspensionMessage || 'Your account is suspended. Please contact support.', 'error');
+                                return;
+                            }
                             currentUserMobile = mobile;
-                            currentBalance = userData.balance || 100;
+                            currentBalance = userData.balance || defaultNewUserBalance;
                             gameHistory = userData.history || [];
-                            // Store session in localStorage
+                            isSuspended = userData.suspended || false;
+                            bettingAllowed = userData.bettingAllowed !== false;
+                            withdrawalAllowed = userData.withdrawalAllowed !== false;
                             localStorage.setItem('currentUserMobile', mobile);
                             updateUI();
                             showLoading(false);
                             showGameSection();
-                            // Push state to history
                             history.pushState({ loggedIn: true }, '', window.location.href);
                             showMessage(authMessage, 'Login successful!', 'success');
                         } else {
@@ -1510,15 +1576,21 @@
                     } else {
                         database.ref('users/' + mobile).set({
                             password: password,
-                            balance: 100,
+                            balance: defaultNewUserBalance,
                             history: [],
                             supportMessages: {},
-                            forceOpposite: false
+                            forceOpposite: false,
+                            suspended: false,
+                            bettingAllowed: true,
+                            withdrawalAllowed: true,
+                            suspensionMessage: null
                         }).then(() => {
                             currentUserMobile = mobile;
-                            currentBalance = 100;
+                            currentBalance = defaultNewUserBalance;
                             gameHistory = [];
-                            // Store session in localStorage
+                            isSuspended = false;
+                            bettingAllowed = true;
+                            withdrawalAllowed = true;
                             localStorage.setItem('currentUserMobile', mobile);
                             updateUI();
                             showLoading(false);
@@ -1528,7 +1600,6 @@
                             mobileInput.value = mobile;
                             passwordInput.value = '';
                             hideMessage(regMessage);
-                            // Push state to history
                             history.pushState({ loggedIn: true }, '', window.location.href);
                             showMessage(authMessage, 'Registration successful! You have been logged in.', 'success');
                         });
@@ -1547,12 +1618,16 @@
             selectedAmount = null;
             mobileInput.value = '';
             passwordInput.value = '';
-            // Clear session from localStorage
+            isSuspended = false;
+            bettingAllowed = true;
+            withdrawalAllowed = true;
             localStorage.removeItem('currentUserMobile');
             hideGameSection();
             hideMessage(authMessage);
-            database.ref(`users/${currentUserMobile}/supportMessages`).off();
-            // Push state to clear history
+            if (currentUserMobile) {
+                database.ref(`supportMessages/${currentUserMobile}`).off();
+                database.ref(`users/${currentUserMobile}`).off();
+            }
             history.pushState({ loggedIn: false }, '', window.location.href);
         }
 
@@ -1561,62 +1636,69 @@
             isBetting = true;
             placeBetBtn.disabled = true;
 
+            if (isSuspended || !bettingAllowed) {
+                showMessage(betMessage, isSuspended ? 'Your account is suspended. Please contact support.' : 'Betting is disabled for your account.', 'error');
+                isBetting = false;
+                placeBetBtn.disabled = isSuspended || !bettingAllowed;
+                return;
+            }
+
             try {
                 const snapshot = await database.ref('gameSettings/bettingEnabled').once('value');
                 const bettingEnabled = snapshot.val() !== false;
                 if (!bettingEnabled) {
                     showMessage(betMessage, 'Betting is currently disabled by the admin.', 'error');
                     isBetting = false;
-                    placeBetBtn.disabled = false;
+                    placeBetBtn.disabled = isSuspended || !bettingAllowed;
                     return;
                 }
             } catch (error) {
                 console.error('Error checking betting status:', error);
                 showMessage(betMessage, 'Error checking game status. Please try again.', 'error');
                 isBetting = false;
-                placeBetBtn.disabled = false;
+                placeBetBtn.disabled = isSuspended || !bettingAllowed;
                 return;
             }
 
-            if (currentBalance < 10) {
-                showMessage(betMessage, 'Minimum balance reached (₹10). Please deposit more cash.', 'error');
+            if (currentBalance < minimumPlayableBalance) {
+                showMessage(betMessage, `Minimum balance reached (₹${minimumPlayableBalance}). Please deposit more cash.`, 'error');
                 isBetting = false;
-                placeBetBtn.disabled = false;
+                placeBetBtn.disabled = isSuspended || !bettingAllowed;
                 return;
             }
 
             if (!selectedColor) {
                 showMessage(betMessage, 'Please select a color first', 'error');
                 isBetting = false;
-                placeBetBtn.disabled = false;
+                placeBetBtn.disabled = isSuspended || !bettingAllowed;
                 return;
             }
 
             if (!selectedAmount) {
                 showMessage(betMessage, 'Please select a bet amount', 'error');
                 isBetting = false;
-                placeBetBtn.disabled = false;
+                placeBetBtn.disabled = isSuspended || !bettingAllowed;
                 return;
             }
 
             if (selectedAmount > currentBalance) {
                 showMessage(betMessage, `You don't have enough balance for this bet`, 'error');
                 isBetting = false;
-                placeBetBtn.disabled = false;
+                placeBetBtn.disabled = isSuspended || !bettingAllowed;
                 return;
             }
 
-            if (currentBalance - selectedAmount < 10) {
-                showMessage(betMessage, `You must keep at least ₹10 in your balance`, 'error');
+            if (currentBalance - selectedAmount < minimumPlayableBalance) {
+                showMessage(betMessage, `You must keep at least ₹${minimumPlayableBalance} in your balance`, 'error');
                 isBetting = false;
-                placeBetBtn.disabled = false;
+                placeBetBtn.disabled = isSuspended || !bettingAllowed;
                 return;
             }
 
             if (selectedAmount < 10) {
                 showMessage(betMessage, 'Minimum bet amount is ₹10', 'error');
                 isBetting = false;
-                placeBetBtn.disabled = false;
+                placeBetBtn.disabled = isSuspended || !bettingAllowed;
                 return;
             }
 
@@ -1651,10 +1733,11 @@
                         currentBalance += selectedAmount;
                         updateUI();
                         isBetting = false;
-                        placeBetBtn.disabled = false;
+                        placeBetBtn.disabled = isSuspended || !bettingAllowed;
                         canBet = true;
                     });
             }
+            isBetting = false;
         }
 
         async function processResult() {
@@ -1769,9 +1852,9 @@
             balanceAmount.textContent = `₹${currentBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             balanceAmount.classList.add('update');
             setTimeout(() => balanceAmount.classList.remove('update'), 300);
-            if (currentBalance < 10) {
+            if (currentBalance < minimumPlayableBalance) {
                 balanceAmount.classList.add('low-balance');
-                showMessage(betMessage, 'Low balance! Please deposit more cash to continue playing.', 'error');
+                showMessage(betMessage, `Low balance! Please deposit more cash to continue playing. Minimum required: ₹${minimumPlayableBalance}.`, 'error');
             } else {
                 balanceAmount.classList.remove('low-balance');
             }
@@ -1834,7 +1917,7 @@
             element.style.display = 'none';
         }
 
-        // Initialize initialized
+        // Initialize
         hideGameSection();
     </script>
 </body>
