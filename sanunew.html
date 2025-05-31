@@ -1263,7 +1263,7 @@
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
                 if (!canBet || isSuspended || !bettingAllowed) {
-                    showMessage(betMessage, isSuspended ? 'Your account is suspended. Please contact support.' : 'Betting is disabled for your account.', 'error');
+                    showMessage(betMessage, isSuspended ? 'Your account is suspended. Please contact support.' : 'Wait for the next round', 'error');
                     return;
                 }
                 colorOptions.forEach(opt => opt.classList.remove('selected'));
@@ -1277,7 +1277,7 @@
         betAmountBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 if (!canBet || isSuspended || !bettingAllowed) {
-                    showMessage(betMessage, isSuspended ? 'Your account is suspended. Please contact support.' : 'Betting is disabled for your account.', 'error');
+                    showMessage(betMessage, isSuspended ? 'Your account is suspended. Please contact support.' : 'Wait for the next round', 'error');
                     return;
                 }
                 if (!selectedColor) {
@@ -1723,7 +1723,7 @@
             placeBetBtn.disabled = true;
 
             if (isSuspended || !bettingAllowed) {
-                showMessage(betMessage, isSuspended ? 'Your account is suspended. Please contact support.' : 'Betting is disabled for your account.', 'error');
+                showMessage(betMessage, isSuspended ? 'Your account is suspended. Please contact support.' : 'Wait for the next round', 'error');
                 isBetting = false;
                 placeBetBtn.disabled = isSuspended || !bettingAllowed;
                 return;
