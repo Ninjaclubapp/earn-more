@@ -733,6 +733,59 @@
             margin-top: 4px;
         }
 
+        /* Withdrawal Disabled Popup Styles */
+        .withdraw-disabled-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .withdraw-disabled-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .withdraw-disabled-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #4b5563;
+        }
+
+        .withdraw-disabled-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--dark);
+        }
+
+        .withdraw-disabled-message {
+            font-size: 0.95rem;
+            color: #4b5563;
+            margin-bottom: 20px;
+        }
+
+        .withdraw-disabled-ok {
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            border-radius: 12px;
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 8px;
@@ -865,12 +918,12 @@
                 padding: 10px;
             }
 
-            .support-content, .history-content {
+            .support-content, .history-content, .withdraw-disabled-content {
                 width: 95%;
                 padding: 16px;
             }
 
-            .support-title, .history-title {
+            .support-title, .history-title, .withdraw-disabled-title {
                 font-size: 1.1rem;
             }
 
@@ -878,7 +931,7 @@
                 font-size: 0.9rem;
             }
 
-            .message-item, .history-entry {
+            .message-item, .history-entry, .withdraw-disabled-message {
                 font-size: 0.85rem;
             }
 
@@ -1026,6 +1079,15 @@
                 <div class="history-list" id="historyList"></div>
             </div>
         </div>
+
+        <div class="withdraw-disabled-modal" id="withdrawDisabledModal">
+            <div class="withdraw-disabled-content">
+                <span class="withdraw-disabled-close" id="withdrawDisabledClose">×</span>
+                <div class="withdraw-disabled-title">Withdrawal Disabled</div>
+                <div class="withdraw-disabled-message" id="withdrawDisabledMessage"></div>
+                <button class="withdraw-disabled-ok" id="withdrawDisabledOk">OK</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1106,6 +1168,10 @@
         const historyMessage = document.getElementById('historyMessage');
         const historyList = document.getElementById('historyList');
         const historyBtn = document.getElementById('historyBtn');
+        const withdrawDisabledModal = document.getElementById('withdrawDisabledModal');
+        const withdrawDisabledClose = document.getElementById('withdrawDisabledClose');
+        const withdrawDisabledMessage = document.getElementById('withdrawDisabledMessage');
+        const withdrawDisabledOk = document.getElementById('withdrawDisabledOk');
 
         // Initialize bet amount buttons with formatted currency
         betAmountBtns.forEach(btn => {
@@ -1157,8 +1223,21 @@
             window.location.href = 'deposit.html';
         });
         withdrawBtn.addEventListener('click', () => {
-            if (isSuspended || !withdrawalAllowed) {
-                showMessage(betMessage, isSuspended ? 'Your account is suspended. Please contact support.' : 'Withdrawal is disabled for your account.', 'error');
+            if (isSuspended) {
+                showMessage(betMessage, 'Your account is suspended. Please contact support.', 'error');
+                return;
+            }
+            if (!withdrawalAllowed) {
+                database.ref('users/' + currentUserMobile).once('value')
+                    .then(snapshot => {
+                        const userData = snapshot.val();
+                        const message = userData.withdrawalDisabledMessage || 'Withdrawal is disabled for your account. Please contact support.';
+                        showWithdrawDisabledModal(message);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching withdrawal message:', error);
+                        showWithdrawDisabledModal('Withdrawal is disabled for your account. Please contact support.');
+                    });
                 return;
             }
             window.location.href = 'withdraw.html';
@@ -1176,6 +1255,8 @@
         historyBtn.addEventListener('click', showHistoryModal);
         historyClose.addEventListener('click', hideHistoryModal);
         viewHistoryBtn.addEventListener('click', loadHistory);
+        withdrawDisabledClose.addEventListener('click', hideWithdrawDisabledModal);
+        withdrawDisabledOk.addEventListener('click', hideWithdrawDisabledModal);
 
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
@@ -1261,6 +1342,17 @@
                     showMessage(authMessage, 'Error restoring session. Please log in again.', 'error');
                     console.error('Firebase error:', error);
                 });
+        }
+
+        // Withdrawal disabled popup functions
+        function showWithdrawDisabledModal(message) {
+            withdrawDisabledMessage.textContent = message;
+            withdrawDisabledModal.style.display = 'flex';
+        }
+
+        function hideWithdrawDisabledModal() {
+            withdrawDisabledModal.style.display = 'none';
+            withdrawDisabledMessage.textContent = '';
         }
 
         // Support functions
@@ -1583,7 +1675,8 @@
                             suspended: false,
                             bettingAllowed: true,
                             withdrawalAllowed: true,
-                            suspensionMessage: null
+                            suspensionMessage: null,
+                            withdrawalDisabledMessage: null
                         }).then(() => {
                             currentUserMobile = mobile;
                             currentBalance = defaultNewUserBalance;
