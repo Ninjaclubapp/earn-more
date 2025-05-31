@@ -233,6 +233,7 @@
             font-size: 0.95rem;
             font-weight: 600;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: block !important;
         }
 
         .marquee {
@@ -1005,8 +1006,8 @@
         </div>
 
         <div class="game-section" id="gameSection">
-            <div class="marquee-container" id="marqueeContainer" style="display: none;">
-                <div class="marquee" id="marqueeText"></div>
+            <div class="marquee-container" id="marqueeContainer">
+                <div class="marquee" id="marqueeText">Welcome to Ninja Club!</div>
             </div>
             <div class="balance-info">
                 <div>
@@ -1172,6 +1173,7 @@
         const withdrawDisabledClose = document.getElementById('withdrawDisabledClose');
         const withdrawDisabledMessage = document.getElementById('withdrawDisabledMessage');
         const withdrawDisabledOk = document.getElementById('withdrawDisabledOk');
+        const marqueeText = document.getElementById('marqueeText');
 
         // Initialize bet amount buttons with formatted currency
         betAmountBtns.forEach(btn => {
@@ -1521,24 +1523,15 @@
 
             database.ref('gameSettings/broadcastMessage').on('value', snapshot => {
                 const broadcastMessage = snapshot.val();
-                if (!isSuspended) {
-                    updateMarquee(broadcastMessage, false);
-                }
+                updateMarquee(broadcastMessage, false);
             });
         }
 
         function updateMarquee(messageData, isPersonalOrSuspension) {
-            const marqueeContainer = document.getElementById('marqueeContainer');
-            const marqueeText = document.getElementById('marqueeText');
-
             if (messageData && (typeof messageData === 'string' || messageData.text)) {
                 marqueeText.textContent = isPersonalOrSuspension 
                     ? `Suspension: ${typeof messageData === 'string' ? messageData : messageData.text}`
                     : `Announcement: ${messageData.text}`;
-                marqueeContainer.style.display = 'block';
-            } else {
-                marqueeContainer.style.display = 'none';
-                marqueeText.textContent = '';
             }
         }
 
@@ -2001,9 +1994,6 @@
             element.textContent = message;
             element.className = `message ${type}`;
             element.style.display = 'block';
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 3000);
         }
 
         function hideMessage(element) {
