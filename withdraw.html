@@ -41,7 +41,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start; /* Align to start, allowing content to flow naturally */
-            padding: 20px; /* More padding for overall symmetry */
+            padding: 0; /* Removed body padding for full width */
             font-size: 16px;
             overflow-x: hidden; /* Prevent horizontal scroll */
             position: relative; /* For confetti */
@@ -57,7 +57,7 @@
             height: 100%;
             background: linear-gradient(45deg, #f06, #f06, #9f6, #0cf);
             background-size: 400% 400%;
-            animation: gradientAnimation 15s ease infinite;
+            animation: gradientAnimation 25s ease infinite; /* Increased duration for smoother performance */
             z-index: -1;
             opacity: 0.1; /* Subtle overlay */
         }
@@ -74,15 +74,15 @@
             color: var(--dark-text);
             padding: 12px;
             text-align: center;
-            margin: 15px auto; /* Center horizontally with auto margins */
+            margin: 15px 0; /* Adjusted margin for full width */
             border-radius: 12px; /* More rounded */
             font-size: 1rem;
             font-weight: bold;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Stronger shadow */
             position: relative;
-            width: calc(100% - 40px); /* Adjust width to account for body padding */
-            max-width: 450px; /* Consistent max-width with container */
+            width: 100%; /* Full width */
+            max-width: none; /* Removed max-width constraint */
         }
 
         .announcement-marquee {
@@ -99,13 +99,13 @@
 
         /* Main Container */
         .container {
-            width: calc(100% - 40px); /* Adjust width to account for body padding */
-            max-width: 450px; /* Consistent max-width */
+            width: 100%; /* Full width */
+            max-width: none; /* Removed max-width constraint */
             background: var(--card-bg);
             border-radius: 20px; /* Even more rounded */
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Deeper shadow */
             overflow: hidden;
-            margin: 15px auto; /* Center horizontally with auto margins */
+            margin: 15px 0; /* Adjusted margin for full width */
             position: relative;
             z-index: 1; /* Ensure it's above the background animation */
         }
@@ -129,7 +129,7 @@
             height: 200%;
             background: rgba(255, 255, 255, 0.1);
             transform: rotate(45deg);
-            animation: headerShine 3s infinite linear;
+            animation: headerShine 5s infinite linear; /* Increased duration for smoother performance */
         }
 
         @keyframes headerShine {
@@ -174,8 +174,8 @@
             border: 2px solid var(--border-color);
             border-radius: 10px; /* More rounded inputs */
             font-size: 1rem;
-            width: 100%; /* Take full width of parent section */
-            max-width: 350px; /* Slightly increased max-width for inputs */
+            width: calc(100% - 40px); /* Adjusted for internal padding */
+            max-width: none; /* Removed max-width constraint */
             transition: all 0.4s ease; /* Smoother transition */
             background-color: #f8f8f8; /* Light grey background */
             color: var(--dark-text);
@@ -265,8 +265,8 @@
             font-weight: bold;
             margin-bottom: 10px;
             border: 1px solid rgba(253, 203, 110, 0.3); /* Using direct RGB for rgba */
-            width: 100%; /* Ensure it takes full width of its parent */
-            max-width: 350px; /* Consistent max-width with inputs */
+            width: calc(100% - 40px); /* Adjusted for internal padding */
+            max-width: none; /* Removed max-width constraint */
         }
 
         /* History Section */
@@ -289,7 +289,7 @@
         }
 
         .history-table {
-            width: 100%;
+            width: calc(100% - 40px); /* Adjusted for internal padding */
             border-collapse: separate; /* Use separate for rounded corners on cells */
             border-spacing: 0;
             font-size: 0.9rem;
@@ -368,8 +368,8 @@
             animation: fadeIn 0.5s ease-out; /* Fade in animation */
             position: relative;
             overflow: hidden;
-            width: 100%; /* Ensure it takes full width of its parent */
-            max-width: 350px; /* Consistent max-width with inputs */
+            width: calc(100% - 40px); /* Adjusted for internal padding */
+            max-width: none; /* Removed max-width constraint */
         }
 
         .message.error {
@@ -459,23 +459,23 @@
         /* Responsive Adjustments */
         @media (max-width: 480px) {
             body {
-                padding: 10px; /* Reduced padding for smaller screens */
+                padding: 0; /* Ensures full width on mobile */
                 font-size: 14px;
             }
 
             .announcement-section {
-                margin: 10px auto; /* Centered with auto margins */
+                margin: 10px 0; /* Adjusted margin for full width */
                 padding: 10px;
                 font-size: 0.9rem;
                 border-radius: 10px;
-                width: calc(100% - 20px); /* Adjust width for smaller body padding */
+                width: 100%; /* Full width */
             }
 
             .container {
                 max-width: 100%;
                 border-radius: 15px;
-                margin: 10px auto; /* Centered with auto margins */
-                width: calc(100% - 20px); /* Adjust width for smaller body padding */
+                margin: 10px 0; /* Adjusted margin for full width */
+                width: 100%; /* Full width */
             }
 
             header {
@@ -500,7 +500,7 @@
                 padding: 10px 12px;
                 font-size: 0.9rem;
                 border-radius: 8px;
-                max-width: 100%; /* Inputs take full width within their section */
+                width: calc(100% - 30px); /* Adjusted for internal padding */
             }
 
             label {
@@ -517,14 +517,14 @@
             .fee-message {
                 font-size: 0.85rem;
                 padding: 8px;
-                max-width: 100%; /* Message takes full width within its section */
+                width: calc(100% - 30px); /* Adjusted for internal padding */
             }
 
             .history-table {
                 font-size: 0.85rem;
                 display: block;
                 overflow-x: auto;
-                /* white-space: nowrap;  Removed from table, applied to td */
+                width: calc(100% - 30px); /* Adjusted for internal padding */
             }
 
             .history-table th, .history-table td {
@@ -549,7 +549,7 @@
                 font-size: 0.9rem;
                 padding: 10px;
                 border-radius: 8px;
-                max-width: 100%; /* Message takes full width within its section */
+                width: calc(100% - 30px); /* Adjusted for internal padding */
             }
 
             .status-pending, .status-approved, .status-rejected {
@@ -944,7 +944,7 @@
         function triggerConfetti() {
             // Using direct color values for confetti to avoid issues with CSS variables in inline style
             const colors = ['#f06', '#9f6', '#0cf', '#6c5ce7', '#fdcb6e', '#55efc4'];
-            const numConfetti = 50; // Number of confetti pieces
+            const numConfetti = 30; // Reduced number of confetti pieces
 
             for (let i = 0; i < numConfetti; i++) {
                 const confetti = document.createElement('div');
