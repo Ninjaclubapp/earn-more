@@ -16,6 +16,8 @@
             --yellow: #fdcb6e;
             --dark: #2d3436;
             --light: #f5f6fa;
+            --accent-orange: #ff7f50; /* New accent color */
+            --accent-blue: #00cec9; /* New accent color */
         }
 
         * {
@@ -51,11 +53,37 @@
             color: white;
             padding: 15px;
             text-align: center;
+            position: relative;
+            overflow: hidden; /* For pseudo-elements */
+        }
+
+        header::before {
+            content: '💰'; /* Emoji for excitement */
+            position: absolute;
+            top: 5px;
+            left: 15px;
+            font-size: 1.8rem;
+            animation: bounce 1s infinite alternate;
+        }
+
+        header::after {
+            content: '💸'; /* Emoji for excitement */
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            font-size: 1.8rem;
+            animation: bounce 1s infinite alternate reverse;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
         }
 
         h1 {
             font-size: 1.5rem;
             margin-bottom: 8px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
         }
 
         header p {
@@ -72,6 +100,7 @@
             font-size: 0.9rem;
             font-weight: bold;
             overflow: hidden;
+            border: 2px solid var(--accent-orange); /* Added border */
         }
 
         .announcement-marquee {
@@ -106,6 +135,7 @@
         input:focus {
             border-color: var(--primary);
             outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2); /* Focus glow */
         }
 
         input.valid {
@@ -128,6 +158,8 @@
             transition: all 0.3s;
             box-shadow: 0 3px 8px rgba(108, 92, 231, 0.3);
             touch-action: manipulation;
+            text-transform: uppercase; /* Make buttons more prominent */
+            letter-spacing: 0.5px;
         }
 
         button:hover {
@@ -135,11 +167,17 @@
             box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
         }
 
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(108, 92, 231, 0.3);
+        }
+
         button:disabled {
             background: #ddd;
             transform: none;
             box-shadow: none;
             cursor: not-allowed;
+            opacity: 0.7;
         }
 
         .payment-message {
@@ -160,19 +198,42 @@
             border-radius: 10px;
             margin: 10px 15px;
             text-align: center;
+            border: 2px dashed var(--accent-blue); /* Playful border */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .referral-section::before {
+            content: '🎁'; /* Gift emoji */
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 2rem;
+            opacity: 0.6;
+        }
+
+        .referral-section::after {
+            content: '🎉'; /* Party popper emoji */
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 2rem;
+            opacity: 0.6;
         }
 
         .referral-title {
-            font-size: 1rem;
+            font-size: 1.1rem; /* Slightly larger */
             font-weight: bold;
             margin-bottom: 10px;
             color: var(--primary);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
         .referral-message {
-            font-size: 0.8rem;
+            font-size: 0.85rem; /* Slightly larger */
             color: #666;
             margin-bottom: 10px;
+            line-height: 1.4;
         }
 
         .referral-link-section {
@@ -180,10 +241,11 @@
             padding: 10px;
             background-color: #e6f7ff;
             border-radius: 8px;
+            border: 1px solid var(--accent-blue);
         }
 
         .referral-link-title {
-            font-size: 0.9rem;
+            font-size: 0.95rem; /* Slightly larger */
             font-weight: bold;
             margin-bottom: 8px;
             color: var(--dark);
@@ -197,6 +259,10 @@
             border-radius: 5px;
             margin-bottom: 10px;
             word-break: break-all;
+            text-align: left; /* Align text better */
+            white-space: pre-wrap; /* Preserve line breaks */
+            line-height: 1.5;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .toggle-link-btn {
@@ -217,13 +283,18 @@
         .history-section, .referral-history-section {
             padding: 15px;
             margin-top: 10px;
+            background-color: white; /* Consistent background */
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .history-title, .referral-history-title {
-            font-size: 1rem;
+            font-size: 1.05rem; /* Slightly larger */
             font-weight: bold;
             margin-bottom: 10px;
             color: var(--dark);
+            border-bottom: 2px solid var(--secondary); /* Underline effect */
+            padding-bottom: 5px;
         }
 
         .history-table, .referral-history-table {
@@ -235,7 +306,7 @@
         .history-table th, .history-table td,
         .referral-history-table th, .referral-history-table td {
             padding: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid #eee; /* Lighter border */
             text-align: left;
         }
 
@@ -243,23 +314,33 @@
             background: linear-gradient(135deg, var(--secondary), var(--primary));
             color: white;
             font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .history-table tr:nth-child(even),
         .referral-history-table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+        .history-table tr:hover,
+        .referral-history-table tr:hover {
+            background-color: #f0f0f0; /* Hover effect */
+        }
+
 
         .status-pending {
             color: #f39c12;
+            font-weight: bold;
         }
 
         .status-approved {
             color: #00b894;
+            font-weight: bold;
         }
 
         .status-rejected {
             color: #d63031;
+            font-weight: bold;
         }
 
         .message {
@@ -269,16 +350,19 @@
             text-align: center;
             display: none;
             font-size: 0.85rem;
+            font-weight: bold; /* Make messages stand out */
         }
 
         .error {
             background-color: #ffebee;
             color: #c62828;
+            border: 1px solid #c62828;
         }
 
         .success {
             background-color: #e8f5e9;
             color: #2e7d32;
+            border: 1px solid #2e7d32;
         }
 
         .loading {
@@ -427,21 +511,7 @@
                 <div class="referral-link-title">Share Your Referral Link</div>
                 <button class="toggle-link-btn" id="toggleLinkBtn">Show Referral Link</button>
                 <div class="referral-link-text" id="referralLinkText">
-                    Win Real Cash Daily – Start with ₹100 FREE!
-                    Looking for an easy way to earn online? Try this Color Prediction Game – simple, fun, and 100% real!
-
-                    Get ₹100 instantly when you register – no investment needed to start!
-
-                    Why Join?
-                    ✨ Trusted platform
-                    ✨ Instant withdrawal
-                    ✨ Daily earning opportunities
-
-                    Join Now & Start Earning:
-                    ➡ https://sanu8486.github.io/earn-more/sanunew.html
-
-                    Your ₹100 welcome bonus is waiting!
-                </div>
+                    </div>
                 <button class="copy-btn" id="copyReferralBtn">Copy Referral Link</button>
                 <button class="whatsapp-btn" id="whatsappShareBtn">Share via WhatsApp</button>
                 <div id="copyMessage" class="message"></div>
@@ -525,21 +595,30 @@
         const loading = document.getElementById('loading');
         const announcementMarquee = document.getElementById('announcementMarquee');
 
-        // Referral link text
-        const referralText = `Win Real Cash Daily – Start with ₹100 FREE!
-Looking for an easy way to earn online? Try this Color Prediction Game – simple, fun, and 100% real!
+        // Referral link text (UPDATED)
+        const referralText = `🎉💸 Get ₹50 FREE – Play & Win Real Cash Daily! 💸🎉
 
-Get ₹100 instantly when you register – no investment needed to start!
+Looking for the easiest way to earn online?
 
-Why Join?
-✨ Trusted platform
-✨ Instant withdrawal
-✨ Daily earning opportunities
+🔥 Try the Color Prediction Game – it’s fast, fun & 100% real! 🎯🎨
+💥 Register now and get ₹50 instantly – No investment needed!
 
-Join Now & Start Earning:
+✅ Instant Withdrawals
+
+✅ Daily Cash Prizes
+
+✅ Trusted & Addictive Gameplay
+🚀 Ready to turn fun into real money?
+👉 Register, Play & Win Big:
+
 ➡ https://sanu8486.github.io/earn-more/sanunew.html
+🎁 Your ₹50 bonus is waiting – grab it before it’s gone! 🔥
 
-Your ₹100 welcome bonus is waiting!`;
+Start playing. Start winning. Start earning. 🏆📲`;
+
+        // Set the referral link text initially
+        referralLinkText.textContent = referralText;
+
 
         // Event listeners
         submitDepositBtn.addEventListener('click', handleDeposit);
@@ -686,8 +765,10 @@ Your ₹100 welcome bonus is waiting!`;
                     if (isMobile) {
                         window.location.href = upiLink;
                         setTimeout(() => {
+                            // This timeout is a fallback to check if the app switched back to the page
+                            // It's not foolproof for detecting if the UPI app was actually opened.
                             if (document.visibilityState === 'visible') {
-                                showMessage(depositMessage, 'No UPI app found. Please install a UPI app like Google Pay or PhonePe.', 'error');
+                                showMessage(depositMessage, 'No UPI app found or payment not completed. Please install a UPI app like Google Pay or PhonePe and try again.', 'error');
                             }
                         }, 3000);
                     } else {
@@ -816,7 +897,10 @@ Your ₹100 welcome bonus is waiting!`;
                             addDepositToTable(deposit);
                         });
                     } else {
-                        showMessage(depositMessage, 'No deposit history found', 'error');
+                        // Display "No deposit history found" message only if the mobile number is valid but no history exists
+                        if (mobile.length === 10 && !isNaN(mobile)) {
+                             showMessage(depositMessage, 'No deposit history found for this number.', 'error');
+                        }
                     }
                 })
                 .catch(error => {
@@ -849,7 +933,10 @@ Your ₹100 welcome bonus is waiting!`;
                             addReferralToTable(referral);
                         });
                     } else {
-                        showMessage(referralMessage, 'No referral history found', 'error');
+                        // Display "No referral history found" message only if the mobile number is valid but no history exists
+                        if (mobile.length === 10 && !isNaN(mobile)) {
+                            showMessage(referralMessage, 'No referral history found for this number.', 'error');
+                        }
                     }
                 })
                 .catch(error => {
