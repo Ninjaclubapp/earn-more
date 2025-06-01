@@ -7,52 +7,89 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
+        /* Modernized Color Palette & Variables */
         :root {
-            --primary: #6c5ce7;
-            --secondary: #a29bfe;
-            --red: #ff7675;
-            --green: #55efc4;
-            --violet: #a55eea;
-            --yellow: #fdcb6e;
-            --dark: #2d3436;
-            --light: #f5f6fa;
+            --primary: #6c5ce7; /* Original primary, good base */
+            --secondary: #a29bfe; /* Original secondary */
+            --accent-purple: #a55eea; /* Original violet */
+            --accent-orange: #ff7675; /* Original red, now more vibrant */
+            --accent-green: #55efc4; /* Original green */
+            --accent-yellow: #fdcb6e; /* Original yellow, slightly brighter */
+            --dark-text: #2c3e50; /* Darker, more professional text */
+            --light-bg: #ecf0f1; /* Lighter background */
+            --card-bg: #ffffff; /* White card background */
+            --border-color: #e0e0e0; /* Light border */
+            --success-color: #27ae60; /* Stronger success green */
+            --error-color: #e74c3c; /* Stronger error red */
+            --warning-color: #f39c12; /* Warning orange */
         }
 
+        /* Global Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Prefer Inter, fallback to Segoe UI */
+            border-radius: 8px; /* Apply rounded corners globally */
         }
 
         body {
-            background-color: var(--light);
-            color: var(--dark);
+            background: linear-gradient(135deg, var(--light-bg) 0%, #dcdcdc 100%); /* Subtle gradient background */
+            color: var(--dark-text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 10px;
+            justify-content: flex-start; /* Align to start, allowing content to flow naturally */
+            padding: 20px; /* More padding for overall symmetry */
             font-size: 16px;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            position: relative; /* For confetti */
         }
 
+        /* Background animation for extra excitement */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #f06, #f06, #9f6, #0cf);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            z-index: -1;
+            opacity: 0.1; /* Subtle overlay */
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Announcement Section */
         .announcement-section {
-            background: linear-gradient(135deg, var(--yellow), #f1c40f);
-            color: var(--dark);
-            padding: 10px;
+            background: linear-gradient(90deg, var(--accent-yellow), var(--accent-orange)); /* Brighter gradient */
+            color: var(--dark-text);
+            padding: 12px;
             text-align: center;
-            margin: 10px 15px;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            margin: 15px auto; /* Center horizontally with auto margins */
+            border-radius: 12px; /* More rounded */
+            font-size: 1rem;
             font-weight: bold;
             overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+            position: relative;
+            width: calc(100% - 40px); /* Adjust width to account for body padding */
+            max-width: 450px; /* Consistent max-width with container */
         }
 
         .announcement-marquee {
             display: inline-block;
             white-space: nowrap;
-            animation: marquee 15s linear infinite;
+            animation: marquee 20s linear infinite; /* Slower, smoother marquee */
+            padding: 0 100%; /* Ensure full scroll */
         }
 
         @keyframes marquee {
@@ -60,42 +97,66 @@
             100% { transform: translateX(-100%); }
         }
 
+        /* Main Container */
         .container {
-            width: 100%;
-            max-width: 400px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            width: calc(100% - 40px); /* Adjust width to account for body padding */
+            max-width: 450px; /* Consistent max-width */
+            background: var(--card-bg);
+            border-radius: 20px; /* Even more rounded */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Deeper shadow */
+            overflow: hidden;
+            margin: 15px auto; /* Center horizontally with auto margins */
+            position: relative;
+            z-index: 1; /* Ensure it's above the background animation */
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent-purple)); /* Vibrant header gradient */
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
             overflow: hidden;
         }
 
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--violet));
-            color: white;
-            padding: 15px;
-            text-align: center;
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            animation: headerShine 3s infinite linear;
+        }
+
+        @keyframes headerShine {
+            0% { transform: rotate(45deg) translate(-100%, -100%); }
+            100% { transform: rotate(45deg) translate(100%, 100%); }
         }
 
         h1 {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
+            font-size: 1.4rem; /* Adjusted for single line visibility on most screens */
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            /* Text will wrap if necessary to ensure full visibility */
         }
 
         header p {
-            font-size: 0.9rem;
+            font-size: 1rem;
+            opacity: 0.9;
         }
 
-        .withdraw-section {
-            padding: 15px;
+        /* Sections */
+        .withdraw-section, .history-section {
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .history-section {
-            padding: 15px;
-            margin-top: 10px;
+            gap: 15px; /* More space between elements */
+            align-items: center; /* Center items within the flex container */
         }
 
         .history-input-container {
@@ -103,160 +164,247 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            width: 100%; /* Ensure it takes full width of its parent for centering */
         }
 
+        /* Input Fields */
         input {
-            padding: 10px 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            width: 100%;
-            max-width: 250px;
-            transition: all 0.3s;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px; /* More rounded inputs */
+            font-size: 1rem;
+            width: 100%; /* Take full width of parent section */
+            max-width: 350px; /* Slightly increased max-width for inputs */
+            transition: all 0.4s ease; /* Smoother transition */
+            background-color: #f8f8f8; /* Light grey background */
+            color: var(--dark-text);
         }
 
         input:focus {
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3); /* Glowing effect on focus */
             outline: none;
+            background-color: var(--card-bg); /* White on focus */
         }
 
         label {
-            font-size: 0.9rem;
-            color: var(--dark);
-            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--dark-text);
+            font-weight: 600; /* Bolder labels */
+            text-align: center;
+            width: 100%; /* Ensure label takes full width for centering text */
         }
 
+        /* Buttons */
         button {
-            background: linear-gradient(135deg, var(--primary), var(--violet));
+            background: linear-gradient(135deg, var(--primary), var(--accent-purple));
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            padding: 12px 25px; /* Larger buttons */
+            border-radius: 10px; /* More rounded */
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 3px 8px rgba(108, 92, 231, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4); /* Stronger shadow */
             touch-action: manipulation;
+            position: relative;
+            overflow: hidden;
+            width: auto; /* Allow button to size based on content */
+            min-width: 180px; /* Ensure a minimum width for consistency */
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: width 0.4s ease, height 0.4s ease, top 0.4s ease, left 0.4s ease;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
+
+        button:hover::before {
+            width: 200%;
+            height: 200%;
+            top: 50%;
+            left: 50%;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
+            transform: translateY(-3px); /* More pronounced lift */
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.5); /* Even stronger shadow */
+        }
+
+        button:active {
+            transform: translateY(0); /* Press effect */
+            box-shadow: 0 2px 5px rgba(108, 92, 231, 0.3);
         }
 
         button:disabled {
-            background: #ddd;
+            background: #cccccc;
             transform: none;
             box-shadow: none;
             cursor: not-allowed;
+            opacity: 0.7;
         }
 
+        /* Fee Message */
         .fee-message {
-            padding: 8px;
-            background-color: rgba(253, 203, 110, 0.2);
-            color: var(--dark);
-            border-radius: 5px;
+            padding: 10px;
+            background-color: rgba(253, 203, 110, 0.15); /* Using direct RGB for rgba */
+            color: var(--warning-color); /* Warning color */
+            border-radius: 8px;
             text-align: center;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: bold;
             margin-bottom: 10px;
+            border: 1px solid rgba(253, 203, 110, 0.3); /* Using direct RGB for rgba */
+            width: 100%; /* Ensure it takes full width of its parent */
+            max-width: 350px; /* Consistent max-width with inputs */
         }
 
+        /* History Section */
         .history-title {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: bold;
             margin-bottom: 10px;
-            color: var(--dark);
+            color: var(--dark-text);
             text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .history-hint {
-            font-size: 0.8rem;
-            color: var(--dark);
-            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 15px;
             text-align: center;
+            line-height: 1.4;
         }
 
         .history-table {
             width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
+            border-collapse: separate; /* Use separate for rounded corners on cells */
+            border-spacing: 0;
+            font-size: 0.9rem;
+            border-radius: 10px;
+            overflow: hidden; /* Ensures rounded corners are applied */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
         }
 
         .history-table th, .history-table td {
-            padding: 8px;
-            border: 1px solid #ddd;
+            padding: 8px 10px; /* Reduced padding */
+            border-bottom: 1px solid var(--border-color); /* Only bottom border for cleaner look */
             text-align: left;
         }
 
+        .history-table td {
+            white-space: nowrap; /* Prevent text from wrapping */
+            overflow: hidden; /* Hide overflowing content */
+            text-overflow: ellipsis; /* Display ellipsis for truncated text */
+        }
+
         .history-table th {
-            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
             color: white;
             font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .history-table tr:last-child td {
+            border-bottom: none; /* No border on last row */
         }
 
         .history-table tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #fcfcfc; /* Very light stripe */
+        }
+
+        .history-table tr:hover {
+            background-color: #f5f5f5; /* Subtle hover effect */
+        }
+
+        /* Status Badges */
+        .status-pending, .status-approved, .status-rejected {
+            padding: 5px 10px;
+            border-radius: 20px; /* Pill shape */
+            font-weight: bold;
+            font-size: 0.8rem;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .status-pending {
-            color: #f39c12;
+            background-color: rgba(243, 156, 18, 0.15); /* Using direct RGB for rgba */
+            color: var(--warning-color);
         }
 
         .status-approved {
-            color: #00b894;
+            background-color: rgba(39, 174, 96, 0.15); /* Using direct RGB for rgba */
+            color: var(--success-color);
         }
 
         .status-rejected {
-            color: #d63031;
+            background-color: rgba(231, 76, 60, 0.15); /* Using direct RGB for rgba */
+            color: var(--error-color);
         }
 
+        /* Message Display */
         .message {
-            padding: 8px;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
             text-align: center;
             display: none;
-            font-size: 0.85rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            animation: fadeIn 0.5s ease-out; /* Fade in animation */
+            position: relative;
+            overflow: hidden;
+            width: 100%; /* Ensure it takes full width of its parent */
+            max-width: 350px; /* Consistent max-width with inputs */
         }
 
-        .message button {
-            background: none;
-            color: var(--primary);
-            border: none;
-            text-decoration: underline;
-            cursor: pointer;
-            font-size: 0.85rem;
-            padding: 0;
-            margin-left: 5px;
-        }
-
-        .error {
+        .message.error {
             background-color: #ffebee;
-            color: #c62828;
+            color: var(--error-color);
+            border: 1px solid rgba(231, 76, 60, 0.3); /* Using direct RGB for rgba */
         }
 
-        .success {
+        .message.success {
             background-color: #e8f5e9;
-            color: #2e7d32;
+            color: var(--success-color);
+            border: 1px solid rgba(39, 174, 96, 0.3); /* Using direct RGB for rgba */
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading Spinner */
         .loading {
             display: none;
             text-align: center;
-            padding: 15px;
+            padding: 20px;
+            color: var(--primary);
         }
 
         .spinner {
-            border: 3px solid rgba(0, 0, 0, 0.1);
+            border: 4px solid rgba(108, 92, 231, 0.2); /* Lighter border */
             border-radius: 50%;
-            border-top: 3px solid var(--primary);
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 8px;
+            border-top: 4px solid var(--primary); /* Primary color top */
+            width: 30px; /* Larger spinner */
+            height: 30px;
+            animation: spin 0.8s linear infinite; /* Faster spin */
+            margin: 0 auto 10px;
         }
 
         @keyframes spin {
@@ -275,95 +423,144 @@
             border: 0;
         }
 
+        /* Confetti Container (hidden by default) */
+        #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary); /* Default color */
+            opacity: 0;
+            animation: confettiFall 3s ease-out forwards;
+            border-radius: 50%;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translate(0, -100px) rotateZ(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y)) rotateZ(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Adjustments */
         @media (max-width: 480px) {
             body {
-                padding: 8px;
+                padding: 10px; /* Reduced padding for smaller screens */
                 font-size: 14px;
             }
 
             .announcement-section {
-                margin: 8px 12px;
-                padding: 8px;
-                font-size: 0.8rem;
-            }
-
-            .announcement-marquee {
-                font-size: 0.85rem;
+                margin: 10px auto; /* Centered with auto margins */
+                padding: 10px;
+                font-size: 0.9rem;
+                border-radius: 10px;
+                width: calc(100% - 20px); /* Adjust width for smaller body padding */
             }
 
             .container {
                 max-width: 100%;
-                border-radius: 10px;
+                border-radius: 15px;
+                margin: 10px auto; /* Centered with auto margins */
+                width: calc(100% - 20px); /* Adjust width for smaller body padding */
             }
 
             header {
-                padding: 12px;
+                padding: 15px;
             }
 
             h1 {
-                font-size: 1.3rem;
+                font-size: 1.2rem; /* Even smaller font size for mobile */
+                /* Allow wrapping on smaller screens to ensure full visibility */
             }
 
             header p {
-                font-size: 0.8rem;
-            }
-
-            .withdraw-section, .history-section {
-                padding: 12px;
-                gap: 8px;
-            }
-
-            .history-input-container {
-                margin-bottom: 10px;
-            }
-
-            input {
-                padding: 8px 10px;
-                font-size: 0.85rem;
-                max-width: 100%;
-            }
-
-            label {
-                font-size: 0.85rem;
-            }
-
-            button {
-                padding: 8px 15px;
-                font-size: 0.85rem;
-            }
-
-            .fee-message {
-                font-size: 0.8rem;
-                padding: 6px;
-            }
-
-            .history-table {
-                font-size: 0.8rem;
-                display: block;
-                overflow-x: auto;
-            }
-
-            .history-table th, .history-table td {
-                padding: 6px;
-            }
-
-            .history-title {
                 font-size: 0.9rem;
             }
 
+            .withdraw-section, .history-section {
+                padding: 15px;
+                gap: 12px;
+            }
+
+            input {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+                border-radius: 8px;
+                max-width: 100%; /* Inputs take full width within their section */
+            }
+
+            label {
+                font-size: 0.9rem;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                border-radius: 8px;
+                min-width: 150px; /* Smaller min-width for mobile buttons */
+            }
+
+            .fee-message {
+                font-size: 0.85rem;
+                padding: 8px;
+                max-width: 100%; /* Message takes full width within its section */
+            }
+
+            .history-table {
+                font-size: 0.85rem;
+                display: block;
+                overflow-x: auto;
+                /* white-space: nowrap;  Removed from table, applied to td */
+            }
+
+            .history-table th, .history-table td {
+                padding: 8px 10px; /* Reduced padding for mobile */
+            }
+
+            .history-table td {
+                white-space: nowrap; /* Ensure cells don't wrap on mobile */
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .history-title {
+                font-size: 1rem;
+            }
+
             .history-hint {
-                font-size: 0.75rem;
+                font-size: 0.8rem;
             }
 
             .message {
-                font-size: 0.8rem;
-                padding: 6px;
+                font-size: 0.9rem;
+                padding: 10px;
+                border-radius: 8px;
+                max-width: 100%; /* Message takes full width within its section */
+            }
+
+            .status-pending, .status-approved, .status-rejected {
+                font-size: 0.75rem;
+                padding: 4px 8px;
             }
         }
 
         @media (max-width: 360px) {
             .history-table {
-                min-width: 320px;
+                min-width: 300px; /* Ensure table is still usable on very small screens */
             }
         }
     </style>
@@ -371,46 +568,46 @@
 <body>
     <div class="container">
         <header>
-            <h1>Withdraw</h1>
-            <p>Withdraw money from your wallet</p>
+            <h1>🎉 Withdraw Your Winnings! 🎉</h1>
+            <p>Securely withdraw money from your wallet and celebrate!</p>
         </header>
 
         <div class="announcement-section" id="announcementSection">
-            <div class="announcement-marquee" id="announcementMarquee">Loading announcements...</div>
+            <div class="announcement-marquee" id="announcementMarquee">Loading exciting announcements...</div>
         </div>
 
         <div class="withdraw-section">
             <label for="mobileInput" class="sr-only">Mobile Number for Withdrawal</label>
-            <input type="tel" id="mobileInput" placeholder="Enter your mobile number" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
+            <input type="tel" id="mobileInput" placeholder="Enter your 10-digit mobile number" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
             <label for="amountInput" class="sr-only">Amount</label>
             <input type="number" id="amountInput" placeholder="Enter amount (min ₹500)" min="500">
             <label for="upiInput" class="sr-only">UPI ID</label>
-            <input type="text" id="upiInput" placeholder="Enter UPI ID">
+            <input type="text" id="upiInput" placeholder="Enter your UPI ID (e.g., example@bank)">
             <label for="passwordInput" class="sr-only">Password</label>
             <input type="password" id="passwordInput" placeholder="Enter your password">
-            <button id="submitWithdrawBtn">Submit</button>
-            <div class="fee-message">3% platform fee, 1% TDS charge</div>
+            <button id="submitWithdrawBtn">💰 Withdraw Now! 💰</button>
+            <div class="fee-message">Heads up! A 3% platform fee and 1% TDS charge apply to all withdrawals.</div>
             <div id="withdrawMessage" class="message"></div>
         </div>
 
         <div class="history-section">
-            <div class="history-title">Withdrawal History (Net Amount Received)</div>
+            <div class="history-title">🌟 Your Withdrawal Journey 🌟</div>
             <div class="history-input-container">
-                <label for="historyMobileInput">Mobile Number</label>
+                <label for="historyMobileInput">View History for Mobile Number</label>
                 <input type="tel" id="historyMobileInput" placeholder="Enter mobile number for history" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
             </div>
-            <p class="history-hint">Enter a mobile number to view withdrawal history. Amounts shown are after 3% platform fee and 1% TDS.</p>
+            <p class="history-hint">See your past withdrawals! Amounts shown are the net amount you received after fees.</p>
             <div class="loading" id="historyLoading" aria-live="polite">
                 <div class="spinner" role="status"></div>
-                <p>Loading history...</p>
+                <p>Fetching your exciting history...</p>
             </div>
             <table class="history-table" id="historyTable">
                 <thead>
                     <tr>
-                        <th>Amount (₹)</th>
+                        <th>Net Amount (₹)</th>
                         <th>UPI ID</th>
                         <th>Status</th>
-                        <th>Date</th>
+                        <th>Date & Time</th>
                     </tr>
                 </thead>
                 <tbody id="historyTableBody"></tbody>
@@ -419,10 +616,11 @@
 
         <div class="loading" id="loading" aria-live="polite">
             <div class="spinner" role="status"></div>
-            <p>Processing...</p>
+            <p>Processing your request with a dash of magic...</p>
         </div>
     </div>
 
+    <div id="confetti-container"></div>
     <script>
         // Firebase configuration
         const firebaseConfig = {
@@ -451,6 +649,7 @@
         const historyTableBody = document.getElementById('historyTableBody');
         const announcementSection = document.getElementById('announcementSection');
         const announcementMarquee = document.getElementById('announcementMarquee');
+        const confettiContainer = document.getElementById('confetti-container');
 
         // Event listeners
         submitWithdrawBtn.addEventListener('click', handleWithdraw);
@@ -458,6 +657,7 @@
         mobileInput.addEventListener('input', debounce(loadAnnouncements, 500));
         [mobileInput, amountInput, upiInput, passwordInput, historyMobileInput].forEach(input => {
             input.addEventListener('input', () => {
+                // Hide message when user starts typing again
                 withdrawMessage.style.display = 'none';
             });
         });
@@ -465,7 +665,7 @@
         // Load announcements on page load
         loadAnnouncements();
 
-        // Debounce function
+        // Debounce function to limit function calls
         function debounce(func, wait) {
             let timeout;
             return function (...args) {
@@ -474,12 +674,12 @@
             };
         }
 
-        // Load announcements
+        // Load announcements (user-specific or global)
         function loadAnnouncements() {
             const mobile = mobileInput.value.trim();
             announcementSection.style.display = 'none'; // Hide by default
 
-            // Check for user-specific announcement
+            // Check for user-specific announcement first
             if (mobile && mobile.length === 10 && !isNaN(mobile)) {
                 database.ref('announcements/users/' + mobile).once('value')
                     .then(snapshot => {
@@ -487,7 +687,7 @@
                             const announcement = snapshot.val();
                             displayAnnouncement(announcement.message);
                         } else {
-                            // Fallback to global announcement
+                            // Fallback to global announcement if no user-specific
                             loadGlobalAnnouncement();
                         }
                     })
@@ -496,7 +696,7 @@
                         loadGlobalAnnouncement(); // Fallback on error
                     });
             } else {
-                // Load global announcement if no valid mobile
+                // Load global announcement if no valid mobile entered
                 loadGlobalAnnouncement();
             }
         }
@@ -509,54 +709,54 @@
                         const announcement = snapshot.val();
                         displayAnnouncement(announcement.message);
                     } else {
-                        displayAnnouncement('No announcements available.');
+                        displayAnnouncement('No exciting announcements available at the moment!');
                     }
                 })
                 .catch(error => {
                     console.error('Error loading global announcement:', error);
-                    displayAnnouncement('No announcements available.');
+                    displayAnnouncement('Failed to load announcements. Please try again later.');
                 });
         }
 
-        // Display announcement
+        // Display announcement in the marquee
         function displayAnnouncement(message) {
             announcementMarquee.textContent = message;
             announcementSection.style.display = 'block';
         }
 
-        // Withdraw handling
+        // Handle withdrawal request
         function handleWithdraw() {
             const mobile = mobileInput.value.trim();
             const amount = parseFloat(amountInput.value.trim());
             const upiId = upiInput.value.trim();
             const password = passwordInput.value.trim();
 
-            // Validate inputs
+            // Input validation
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
-                showMessage(withdrawMessage, 'Please enter a valid 10-digit mobile number', 'error');
+                showMessage(withdrawMessage, 'Please enter a valid 10-digit mobile number.', 'error');
                 return;
             }
 
             if (isNaN(amount) || amount < 500) {
-                showMessage(withdrawMessage, 'Please enter an amount of ₹500 or more', 'error');
+                showMessage(withdrawMessage, 'Please enter an amount of ₹500 or more.', 'error');
                 return;
             }
 
             const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+$/;
             if (!upiId || !upiRegex.test(upiId)) {
-                showMessage(withdrawMessage, 'Please enter a valid UPI ID (e.g., username@bank)', 'error');
+                showMessage(withdrawMessage, 'Please enter a valid UPI ID (e.g., username@bank).', 'error');
                 return;
             }
 
             if (!password) {
-                showMessage(withdrawMessage, 'Please enter your password', 'error');
+                showMessage(withdrawMessage, 'Please enter your password to proceed.', 'error');
                 return;
             }
 
             showLoading(true, 'loading');
-            submitWithdrawBtn.disabled = true;
+            submitWithdrawBtn.disabled = true; // Disable button during processing
 
-            // Fetch user data and verify password
+            // Fetch user data and verify password securely
             database.ref('users/' + mobile).once('value')
                 .then(snapshot => {
                     if (!snapshot.exists()) {
@@ -569,7 +769,7 @@
 
                     const currentBalance = userData.balance || 0;
 
-                    // Client-side balance check
+                    // Client-side balance check (pre-transaction)
                     if (amount > currentBalance) {
                         throw new Error('Insufficient balance');
                     }
@@ -577,14 +777,14 @@
                         throw new Error('Minimum balance of ₹10 required');
                     }
 
-                    // Proceed with transaction to ensure atomic update
+                    // Use Firebase transaction for atomic balance update
                     return database.ref('users/' + mobile).transaction(userData => {
                         if (!userData) {
-                            return null; // User doesn't exist, abort
+                            return null; // User doesn't exist, abort transaction
                         }
 
                         const balance = userData.balance || 0;
-                        // Re-validate balance in transaction to handle concurrent updates
+                        // Re-validate balance within the transaction to prevent race conditions
                         if (amount > balance || balance - amount < 10) {
                             return null; // Abort if balance insufficient or minimum balance violated
                         }
@@ -599,27 +799,27 @@
                     if (!committed) {
                         showLoading(false, 'loading');
                         submitWithdrawBtn.disabled = false;
+                        // Provide specific error message based on transaction failure reason
                         if (!snapshot.exists()) {
-                            showMessage(withdrawMessage, 'User not found', 'error');
+                            showMessage(withdrawMessage, 'User not found. Please check your mobile number.', 'error');
                         } else {
-                            // Check balance again to provide specific error
                             const currentBalance = snapshot.val().balance || 0;
                             if (amount > currentBalance) {
-                                showMessage(withdrawMessage, 'Insufficient balance', 'error');
+                                showMessage(withdrawMessage, 'Oops! Insufficient balance for this withdrawal.', 'error');
                             } else {
-                                showMessage(withdrawMessage, 'You should maintain ₹10 in your account', 'error');
+                                showMessage(withdrawMessage, 'Please ensure a minimum balance of ₹10 is maintained.', 'error');
                             }
                         }
                         return;
                     }
 
-                    // Record the withdrawal
+                    // If transaction committed, record the withdrawal
                     const timestamp = Date.now();
                     const withdrawData = {
                         amount: amount,
                         mobile: mobile,
                         upiId: upiId,
-                        status: 'pending',
+                        status: 'pending', // Status is pending initially
                         timestamp: timestamp
                     };
 
@@ -627,42 +827,45 @@
                 })
                 .then(() => {
                     showLoading(false, 'loading');
-                    showMessage(withdrawMessage, 'Withdrawal request submitted. Amount deducted from your balance.', 'success');
+                    showMessage(withdrawMessage, '🎉 Withdrawal request submitted successfully! Amount deducted from your balance. Get ready to celebrate! 🎉', 'success');
+                    triggerConfetti(); // Trigger confetti on success
+                    // Clear input fields
                     mobileInput.value = '';
                     amountInput.value = '';
                     upiInput.value = '';
                     passwordInput.value = '';
-                    submitWithdrawBtn.disabled = false;
+                    submitWithdrawBtn.disabled = false; // Re-enable button
                 })
                 .catch(error => {
                     showLoading(false, 'loading');
-                    submitWithdrawBtn.disabled = false;
+                    submitWithdrawBtn.disabled = false; // Re-enable button on error
+                    // Display user-friendly error messages
                     if (error.message === 'User not found') {
-                        showMessage(withdrawMessage, 'User not found', 'error');
+                        showMessage(withdrawMessage, 'User not found. Please check your mobile number.', 'error');
                     } else if (error.message === 'Invalid password') {
-                        showMessage(withdrawMessage, 'Incorrect password', 'error');
+                        showMessage(withdrawMessage, 'Incorrect password. Please try again.', 'error');
                     } else if (error.message === 'Insufficient balance') {
-                        showMessage(withdrawMessage, 'Insufficient balance', 'error');
+                        showMessage(withdrawMessage, 'Insufficient balance. Please deposit more funds.', 'error');
                     } else if (error.message === 'Minimum balance of ₹10 required') {
-                        showMessage(withdrawMessage, 'You should maintain ₹10 in your account', 'error');
+                        showMessage(withdrawMessage, 'You must maintain at least ₹10 in your account.', 'error');
                     } else {
-                        showMessage(withdrawMessage, 'Error processing withdrawal request', 'error');
-                        console.error('Firebase error:', error);
+                        showMessage(withdrawMessage, 'An unexpected error occurred. Please try again later. <button onclick="handleWithdraw()">Retry</button>', 'error');
+                        console.error('Firebase withdrawal error:', error);
                     }
                 });
         }
 
-        // Load withdrawal history
+        // Load withdrawal history for a given mobile number
         function loadWithdrawalHistory() {
             const mobile = historyMobileInput.value.trim();
             if (!mobile) {
                 historyTableBody.innerHTML = '';
-                showMessage(withdrawMessage, 'Enter a mobile number to view withdrawal history', 'error');
+                showMessage(withdrawMessage, 'Enter a mobile number to view withdrawal history.', 'error');
                 return;
             }
             if (mobile.length !== 10 || isNaN(mobile)) {
                 historyTableBody.innerHTML = '';
-                showMessage(withdrawMessage, 'Please enter a valid 10-digit mobile number', 'error');
+                showMessage(withdrawMessage, 'Please enter a valid 10-digit mobile number for history.', 'error');
                 return;
             }
 
@@ -670,45 +873,47 @@
             database.ref('withdrawals/' + mobile).once('value')
                 .then(snapshot => {
                     showLoading(false, 'historyLoading');
-                    historyTableBody.innerHTML = '';
+                    historyTableBody.innerHTML = ''; // Clear previous history
                     if (snapshot.exists()) {
                         const withdrawals = [];
                         snapshot.forEach(childSnapshot => {
                             withdrawals.push(childSnapshot.val());
                         });
+                        // Sort by timestamp (most recent first) and show top 10
                         withdrawals.sort((a, b) => b.timestamp - a.timestamp);
                         withdrawals.slice(0, 10).forEach(withdrawal => {
                             addWithdrawalToTable(withdrawal);
                         });
                     } else {
-                        showMessage(withdrawMessage, 'No withdrawal history found', 'error');
+                        showMessage(withdrawMessage, 'No withdrawal history found for this number. Start winning!', 'error');
                     }
                 })
                 .catch(error => {
                     showLoading(false, 'historyLoading');
                     showMessage(withdrawMessage, 'Error loading withdrawal history. <button onclick="loadWithdrawalHistory()">Retry</button>', 'error');
-                    console.error('Firebase error:', error);
+                    console.error('Firebase history error:', error);
                 });
         }
 
-        // Add withdrawal to table
+        // Add a single withdrawal entry to the history table
         function addWithdrawalToTable(withdrawal) {
             const row = document.createElement('tr');
             const formattedDate = formatTimestamp(withdrawal.timestamp);
             const statusClass = `status-${withdrawal.status.toLowerCase()}`;
             const platformFee = withdrawal.amount * 0.03;
             const tds = withdrawal.amount * 0.01;
-            const netAmount = withdrawal.amount - platformFee - tds; // Calculate net amount
+            const netAmount = withdrawal.amount - platformFee - tds; // Calculate net amount received
+
             row.innerHTML = `
-                <td>₹${netAmount.toFixed(2)}</td> <!-- Show net amount -->
+                <td>₹${netAmount.toFixed(2)}</td>
                 <td>${withdrawal.upiId}</td>
-                <td class="${statusClass}">${withdrawal.status}</td>
+                <td><span class="${statusClass}">${withdrawal.status}</span></td>
                 <td>${formattedDate}</td>
             `;
             historyTableBody.appendChild(row);
         }
 
-        // Format timestamp
+        // Format timestamp into a readable date and time string
         function formatTimestamp(timestamp) {
             const date = new Date(timestamp);
             const day = String(date.getDate()).padStart(2, '0');
@@ -719,19 +924,43 @@
             return `${day}-${month}-${year} ${hours}:${minutes}`;
         }
 
-        // Show message
+        // Display a message to the user (success/error)
         function showMessage(element, message, type) {
             element.innerHTML = message;
-            element.className = `message ${type}`;
+            element.className = `message ${type}`; // Apply type class for styling
             element.style.display = 'block';
+            // Hide message after 5 seconds
             setTimeout(() => {
                 element.style.display = 'none';
             }, 5000);
         }
 
-        // Show loading
+        // Show/hide loading indicators
         function showLoading(show, target) {
             document.getElementById(target).style.display = show ? 'block' : 'none';
+        }
+
+        // Confetti effect function
+        function triggerConfetti() {
+            // Using direct color values for confetti to avoid issues with CSS variables in inline style
+            const colors = ['#f06', '#9f6', '#0cf', '#6c5ce7', '#fdcb6e', '#55efc4'];
+            const numConfetti = 50; // Number of confetti pieces
+
+            for (let i = 0; i < numConfetti; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw'; // Random horizontal position
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.setProperty('--x', (Math.random() - 0.5) * 500 + 'px'); // Random horizontal drift
+                confetti.style.setProperty('--y', (window.innerHeight + 200) + 'px'); // Fall to bottom
+                confetti.style.animationDelay = (Math.random() * 0.8) + 's'; // Stagger animation
+                confettiContainer.appendChild(confetti);
+
+                // Remove confetti after animation to prevent DOM clutter
+                confetti.addEventListener('animationend', () => {
+                    confetti.remove();
+                });
+            }
         }
     </script>
 </body>
