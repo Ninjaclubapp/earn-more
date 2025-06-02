@@ -6,22 +6,23 @@
     <title>Withdraw - Color Prediction Game</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Modernized Color Palette & Variables */
         :root {
-            --primary: #6c5ce7; /* Original primary, good base */
-            --secondary: #a29bfe; /* Original secondary */
-            --accent-purple: #a55eea; /* Original violet */
-            --accent-orange: #ff7675; /* Original red, now more vibrant */
-            --accent-green: #55efc4; /* Original green */
-            --accent-yellow: #fdcb6e; /* Original yellow, slightly brighter */
-            --dark-text: #2c3e50; /* Darker, more professional text */
-            --light-bg: #ecf0f1; /* Lighter background */
-            --card-bg: #ffffff; /* White card background */
-            --border-color: #e0e0e0; /* Light border */
-            --success-color: #27ae60; /* Stronger success green */
-            --error-color: #e74c3c; /* Stronger error red */
-            --warning-color: #f39c12; /* Warning orange */
+            --primary: #6c5ce7;
+            --primary-light: #a29bfe;
+            --secondary: #00cec9;
+            --accent-green: #00b894;
+            --accent-orange: #f39c12;
+            --accent-red: #e74c3c;
+            --background: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-dark: #2d3436;
+            --text-light: #636e72;
+            --border: #dfe6e9;
+            --shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
         }
 
         /* Global Styles */
@@ -29,67 +30,75 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Prefer Inter, fallback to Segoe UI */
-            border-radius: 8px; /* Apply rounded corners globally */
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, var(--light-bg) 0%, #dcdcdc 100%); /* Subtle gradient background */
-            color: var(--dark-text);
+            background: var(--background);
+            color: var(--text-dark);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Align to start, allowing content to flow naturally */
-            padding: 0; /* Removed body padding for full width */
+            padding: 15px;
             font-size: 16px;
-            overflow-x: hidden; /* Prevent horizontal scroll */
-            position: relative; /* For confetti */
+            overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        /* Background animation for extra excitement */
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* Global Message Container */
+        .global-messages {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, #f06, #f06, #9f6, #0cf);
-            background-size: 400% 400%;
-            animation: gradientAnimation 25s ease infinite; /* Increased duration for smoother performance */
-            z-index: -1;
-            opacity: 0.1; /* Subtle overlay */
-        }
-
-        @keyframes gradientAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 0 15px;
+            margin-bottom: 15px;
         }
 
         /* Announcement Section */
         .announcement-section {
-            background: linear-gradient(90deg, var(--accent-yellow), var(--accent-orange)); /* Brighter gradient */
-            color: var(--dark-text);
-            padding: 12px;
+            background: var(--gradient);
+            color: white;
+            padding: 10px 15px;
             text-align: center;
-            margin: 15px 0; /* Adjusted margin for full width */
-            border-radius: 12px; /* More rounded */
-            font-size: 1rem;
-            font-weight: bold;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 600px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Stronger shadow */
             position: relative;
-            width: 100%; /* Full width */
-            max-width: none; /* Removed max-width constraint */
+            z-index: 1;
+        }
+
+        .announcement-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                            rgba(255,255,255,0.1) 0%, 
+                            rgba(255,255,255,0.3) 50%, 
+                            rgba(255,255,255,0.1) 100%);
+            z-index: -1;
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .announcement-marquee {
             display: inline-block;
             white-space: nowrap;
-            animation: marquee 20s linear infinite; /* Slower, smoother marquee */
-            padding: 0 100%; /* Ensure full scroll */
+            animation: marquee 15s linear infinite;
         }
 
         @keyframes marquee {
@@ -99,312 +108,436 @@
 
         /* Main Container */
         .container {
-            width: 100%; /* Full width */
-            max-width: none; /* Removed max-width constraint */
+            width: 100%;
+            max-width: 600px;
             background: var(--card-bg);
-            border-radius: 20px; /* Even more rounded */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Deeper shadow */
+            border-radius: 15px;
+            box-shadow: var(--shadow);
             overflow: hidden;
-            margin: 15px 0; /* Adjusted margin for full width */
             position: relative;
-            z-index: 1; /* Ensure it's above the background animation */
+            margin-bottom: 15px;
+            margin-top: 0; /* Removed margin-top to eliminate space above header */
         }
 
         /* Header */
         header {
-            background: linear-gradient(135deg, var(--primary), var(--accent-purple)); /* Vibrant header gradient */
+            background: var(--gradient);
             color: white;
-            padding: 20px;
+            padding: 20px 15px;
             text-align: center;
             position: relative;
             overflow: hidden;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
         }
 
         header::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(45deg);
-            animation: headerShine 5s infinite linear; /* Increased duration for smoother performance */
-        }
-
-        @keyframes headerShine {
-            0% { transform: rotate(45deg) translate(-100%, -100%); }
-            100% { transform: rotate(45deg) translate(100%, 100%); }
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
         }
 
         h1 {
-            font-size: 1.4rem; /* Adjusted for single line visibility on most screens */
-            margin-bottom: 5px;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            /* Text will wrap if necessary to ensure full visibility */
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::before {
+            content: '💰';
+            position: absolute;
+            left: -35px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.4rem;
+        }
+
+        h1::after {
+            content: '💰';
+            position: absolute;
+            right: -35px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.4rem;
         }
 
         header p {
-            font-size: 1rem;
+            font-size: 0.95rem;
             opacity: 0.9;
+            max-width: 80%;
+            margin: 0 auto;
         }
 
         /* Sections */
         .withdraw-section, .history-section {
-            padding: 20px;
+            padding: 20px 15px;
             display: flex;
             flex-direction: column;
-            gap: 15px; /* More space between elements */
-            align-items: center; /* Center items within the flex container */
+            gap: 12px;
+            align-items: center;
         }
 
         .history-input-container {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            width: 100%; /* Ensure it takes full width of its parent for centering */
+            gap: 8px;
+            width: 100%;
         }
 
         /* Input Fields */
+        .input-group {
+            width: 100%;
+            position: relative;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            text-align: left;
+            width: 100%;
+            display: block;
+            margin-bottom: 6px;
+        }
+
         input {
             padding: 12px 15px;
-            border: 2px solid var(--border-color);
-            border-radius: 10px; /* More rounded inputs */
-            font-size: 1rem;
-            width: calc(100% - 40px); /* Adjusted for internal padding */
-            max-width: none; /* Removed max-width constraint */
-            transition: all 0.4s ease; /* Smoother transition */
-            background-color: #f8f8f8; /* Light grey background */
-            color: var(--dark-text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            width: 100%;
+            background: #fafafa;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            font-weight: 500;
         }
 
         input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3); /* Glowing effect on focus */
             outline: none;
-            background-color: var(--card-bg); /* White on focus */
-        }
-
-        label {
-            font-size: 0.95rem;
-            color: var(--dark-text);
-            font-weight: 600; /* Bolder labels */
-            text-align: center;
-            width: 100%; /* Ensure label takes full width for centering text */
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+            background: white;
         }
 
         /* Buttons */
         button {
-            background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+            background: var(--gradient);
             color: white;
             border: none;
-            padding: 12px 25px; /* Larger buttons */
-            border-radius: 10px; /* More rounded */
+            padding: 13px 25px;
+            border-radius: 8px;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4); /* Stronger shadow */
-            touch-action: manipulation;
+            box-shadow: var(--shadow);
+            width: auto;
+            min-width: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             position: relative;
             overflow: hidden;
-            width: auto; /* Allow button to size based on content */
-            min-width: 180px; /* Ensure a minimum width for consistency */
+            margin-top: 8px;
         }
 
         button::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            transition: width 0.4s ease, height 0.4s ease, top 0.4s ease, left 0.4s ease;
-            transform: translate(-50%, -50%);
-            z-index: 0;
+            content: '💸';
+            font-size: 1rem;
+            transition: transform 0.3s ease;
         }
 
-        button:hover::before {
-            width: 200%;
-            height: 200%;
-            top: 50%;
-            left: 50%;
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                            rgba(255,255,255,0.1) 0%, 
+                            rgba(255,255,255,0.3) 50%, 
+                            rgba(255,255,255,0.1) 100%);
+            transform: translateX(-100%);
         }
 
         button:hover {
-            transform: translateY(-3px); /* More pronounced lift */
-            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.5); /* Even stronger shadow */
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(108, 92, 231, 0.2);
+        }
+
+        button:hover::before {
+            transform: scale(1.2);
+        }
+
+        button:hover::after {
+            animation: shine 1.5s infinite;
         }
 
         button:active {
-            transform: translateY(0); /* Press effect */
-            box-shadow: 0 2px 5px rgba(108, 92, 231, 0.3);
+            transform: translateY(0);
         }
 
         button:disabled {
-            background: #cccccc;
-            transform: none;
-            box-shadow: none;
+            background: #b2bec3;
             cursor: not-allowed;
-            opacity: 0.7;
+            box-shadow: none;
         }
 
-        /* Fee Message */
+        button:disabled::before {
+            content: '';
+        }
+
+        /* Fee Message with Sticker */
         .fee-message {
             padding: 10px;
-            background-color: rgba(253, 203, 110, 0.15); /* Using direct RGB for rgba */
-            color: var(--warning-color); /* Warning color */
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--accent-orange);
             border-radius: 8px;
             text-align: center;
-            font-size: 0.9rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            border: 1px solid rgba(253, 203, 110, 0.3); /* Using direct RGB for rgba */
-            width: calc(100% - 40px); /* Adjusted for internal padding */
-            max-width: none; /* Removed max-width constraint */
+            font-size: 0.85rem;
+            font-weight: 500;
+            width: 100%;
+            position: relative;
+            padding-left: 35px;
+            margin-top: 8px;
+            border-left: 3px solid var(--accent-orange);
+        }
+
+        .fee-message::before {
+            content: '⚡';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--accent-orange);
+        }
+
+        /* UPI Note */
+        .upi-note {
+            padding: 10px;
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+            width: 100%;
+            position: relative;
+            padding-left: 35px;
+            margin-top: 5px;
+            border-left: 3px solid #3498db;
+        }
+
+        .upi-note::before {
+            content: 'ℹ️';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
         }
 
         /* History Section */
+        .history-section {
+            padding: 15px; /* Reduced padding for compactness */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
         .history-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: var(--dark-text);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-dark);
             text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            position: relative;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .history-title::before {
+            content: '📜';
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--primary);
         }
 
         .history-hint {
             font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 15px;
+            color: var(--text-light);
             text-align: center;
             line-height: 1.4;
+            margin-bottom: 10px;
+            max-width: 90%;
+        }
+
+        .history-table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-top: 5px; /* Reduced margin */
         }
 
         .history-table {
-            width: calc(100% - 40px); /* Adjusted for internal padding */
-            border-collapse: separate; /* Use separate for rounded corners on cells */
+            width: 100%;
+            border-collapse: separate;
             border-spacing: 0;
             font-size: 0.9rem;
+            background: var(--card-bg);
             border-radius: 10px;
-            overflow: hidden; /* Ensures rounded corners are applied */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            min-width: 450px; /* Slightly reduced for compactness */
         }
 
         .history-table th, .history-table td {
-            padding: 8px 10px; /* Reduced padding */
-            border-bottom: 1px solid var(--border-color); /* Only bottom border for cleaner look */
+            padding: 10px 12px; /* Reduced padding */
             text-align: left;
-        }
-
-        .history-table td {
-            white-space: nowrap; /* Prevent text from wrapping */
-            overflow: hidden; /* Hide overflowing content */
-            text-overflow: ellipsis; /* Display ellipsis for truncated text */
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
         }
 
         .history-table th {
-            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            background: var(--primary);
             color: white;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
         }
 
         .history-table tr:last-child td {
-            border-bottom: none; /* No border on last row */
-        }
-
-        .history-table tr:nth-child(even) {
-            background-color: #fcfcfc; /* Very light stripe */
+            border-bottom: none;
         }
 
         .history-table tr:hover {
-            background-color: #f5f5f5; /* Subtle hover effect */
+            background: #f1f3f9;
         }
 
         /* Status Badges */
         .status-pending, .status-approved, .status-rejected {
             padding: 5px 10px;
-            border-radius: 20px; /* Pill shape */
-            font-weight: bold;
+            border-radius: 15px;
             font-size: 0.8rem;
+            font-weight: 600;
             display: inline-block;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .status-pending {
-            background-color: rgba(243, 156, 18, 0.15); /* Using direct RGB for rgba */
-            color: var(--warning-color);
+            background: rgba(243, 156, 18, 0.15);
+            color: var(--accent-orange);
         }
 
         .status-approved {
-            background-color: rgba(39, 174, 96, 0.15); /* Using direct RGB for rgba */
-            color: var(--success-color);
+            background: rgba(0, 184, 148, 0.15);
+            color: var(--accent-green);
         }
 
         .status-rejected {
-            background-color: rgba(231, 76, 60, 0.15); /* Using direct RGB for rgba */
-            color: var(--error-color);
+            background: rgba(231, 76, 60, 0.15);
+            color: var(--accent-red);
         }
 
         /* Message Display */
         .message {
             padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 15px;
+            border-radius: 8px;
+            margin: 8px 0;
             text-align: center;
-            display: none;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 500;
-            animation: fadeIn 0.5s ease-out; /* Fade in animation */
-            position: relative;
-            overflow: hidden;
-            width: calc(100% - 40px); /* Adjusted for internal padding */
-            max-width: none; /* Removed max-width constraint */
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.3s ease;
         }
 
-        .message.error {
-            background-color: #ffebee;
-            color: var(--error-color);
-            border: 1px solid rgba(231, 76, 60, 0.3); /* Using direct RGB for rgba */
-        }
-
-        .message.success {
-            background-color: #e8f5e9;
-            color: var(--success-color);
-            border: 1px solid rgba(39, 174, 96, 0.3); /* Using direct RGB for rgba */
+        .global-message {
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            width: 100%;
+            animation: fadeIn 0.3s ease;
+            box-shadow: var(--shadow);
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
+            from { opacity: 0; transform: translateY(-15px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.error, .global-message.error {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--accent-red);
+            border-left: 3px solid var(--accent-red);
+        }
+
+        .message.success, .global-message.success {
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--accent-green);
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .message button, .global-message button {
+            background: transparent;
+            color: inherit;
+            text-decoration: underline;
+            padding: 0;
+            min-width: auto;
+            display: inline;
+            box-shadow: none;
+            font-size: inherit;
+            font-weight: inherit;
+        }
+
+        .message button:hover, .global-message button:hover {
+            background: transparent;
+            transform: none;
+            box-shadow: none;
         }
 
         /* Loading Spinner */
         .loading {
             display: none;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             color: var(--primary);
         }
 
         .spinner {
-            border: 4px solid rgba(108, 92, 231, 0.2); /* Lighter border */
+            border: 3px solid rgba(108, 92, 231, 0.1);
+            border-top: 3px solid var(--primary);
             border-radius: 50%;
-            border-top: 4px solid var(--primary); /* Primary color top */
-            width: 30px; /* Larger spinner */
-            height: 30px;
-            animation: spin 0.8s linear infinite; /* Faster spin */
-            margin: 0 auto 10px;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 8px;
         }
 
         @keyframes spin {
@@ -423,7 +556,7 @@
             border: 0;
         }
 
-        /* Confetti Container (hidden by default) */
+        /* Confetti */
         #confetti-container {
             position: fixed;
             top: 0;
@@ -432,124 +565,99 @@
             height: 100%;
             pointer-events: none;
             z-index: 9999;
-            overflow: hidden;
         }
 
         .confetti {
             position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: var(--primary); /* Default color */
-            opacity: 0;
-            animation: confettiFall 3s ease-out forwards;
-            border-radius: 50%;
+            width: 8px;
+            height: 8px;
+            opacity: 0.8;
+            animation: confettiFall 2s ease-out forwards;
         }
 
         @keyframes confettiFall {
-            0% {
-                transform: translate(0, -100px) rotateZ(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(var(--x), var(--y)) rotateZ(720deg);
-                opacity: 0;
-            }
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
 
         /* Responsive Adjustments */
         @media (max-width: 480px) {
             body {
-                padding: 0; /* Ensures full width on mobile */
-                font-size: 14px;
+                padding: 10px;
             }
 
-            .announcement-section {
-                margin: 10px 0; /* Adjusted margin for full width */
-                padding: 10px;
-                font-size: 0.9rem;
-                border-radius: 10px;
-                width: 100%; /* Full width */
+            .global-messages {
+                padding: 0 10px;
+                margin-bottom: 10px;
             }
 
             .container {
-                max-width: 100%;
-                border-radius: 15px;
-                margin: 10px 0; /* Adjusted margin for full width */
-                width: 100%; /* Full width */
+                border-radius: 12px;
+                margin-bottom: 10px;
             }
 
             header {
-                padding: 15px;
+                padding: 15px 10px;
             }
 
             h1 {
-                font-size: 1.2rem; /* Even smaller font size for mobile */
-                /* Allow wrapping on smaller screens to ensure full visibility */
+                font-size: 1.4rem;
+            }
+
+            h1::before, h1::after {
+                font-size: 1.1rem;
+            }
+
+            h1::before {
+                left: -25px;
+            }
+
+            h1::after {
+                right: -25px;
             }
 
             header p {
-                font-size: 0.9rem;
+                font-size: 0.85rem;
+                max-width: 90%;
             }
 
             .withdraw-section, .history-section {
-                padding: 15px;
-                gap: 12px;
+                padding: 15px 10px;
+                gap: 10px;
             }
 
             input {
                 padding: 10px 12px;
                 font-size: 0.9rem;
-                border-radius: 8px;
-                width: calc(100% - 30px); /* Adjusted for internal padding */
             }
 
             label {
-                font-size: 0.9rem;
+                font-size: 0.85rem;
             }
 
             button {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-                border-radius: 8px;
-                min-width: 150px; /* Smaller min-width for mobile buttons */
+                padding: 11px 20px;
+                font-size: 0.95rem;
+                min-width: 140px;
             }
 
-            .fee-message {
-                font-size: 0.85rem;
-                padding: 8px;
-                width: calc(100% - 30px); /* Adjusted for internal padding */
+            .history-title {
+                font-size: 1.1rem;
+            }
+
+            .history-title::before {
+                left: -25px;
+                font-size: 1rem;
             }
 
             .history-table {
                 font-size: 0.85rem;
-                display: block;
-                overflow-x: auto;
-                width: calc(100% - 30px); /* Adjusted for internal padding */
+                min-width: 100%;
             }
 
             .history-table th, .history-table td {
-                padding: 8px 10px; /* Reduced padding for mobile */
-            }
-
-            .history-table td {
-                white-space: nowrap; /* Ensure cells don't wrap on mobile */
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .history-title {
-                font-size: 1rem;
-            }
-
-            .history-hint {
-                font-size: 0.8rem;
-            }
-
-            .message {
-                font-size: 0.9rem;
-                padding: 10px;
-                border-radius: 8px;
-                width: calc(100% - 30px); /* Adjusted for internal padding */
+                padding: 8px 10px;
+                white-space: normal;
             }
 
             .status-pending, .status-approved, .status-rejected {
@@ -557,66 +665,88 @@
                 padding: 4px 8px;
             }
         }
-
-        @media (max-width: 360px) {
-            .history-table {
-                min-width: 300px; /* Ensure table is still usable on very small screens */
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎉 Withdraw Your Winnings! 🎉</h1>
-            <p>Securely withdraw money from your wallet and celebrate!</p>
+            <h1>Withdraw Your Winnings!</h1>
+            <p>Securely cash out and enjoy your rewards!</p>
         </header>
 
         <div class="announcement-section" id="announcementSection">
             <div class="announcement-marquee" id="announcementMarquee">Loading exciting announcements...</div>
         </div>
 
+        <div class="global-messages" id="globalMessages"></div>
+
         <div class="withdraw-section">
-            <label for="mobileInput" class="sr-only">Mobile Number for Withdrawal</label>
-            <input type="tel" id="mobileInput" placeholder="Enter your 10-digit mobile number" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
-            <label for="amountInput" class="sr-only">Amount</label>
-            <input type="number" id="amountInput" placeholder="Enter amount (min ₹500)" min="500">
-            <label for="upiInput" class="sr-only">UPI ID</label>
-            <input type="text" id="upiInput" placeholder="Enter your UPI ID (e.g., example@bank)">
-            <label for="passwordInput" class="sr-only">Password</label>
-            <input type="password" id="passwordInput" placeholder="Enter your password">
-            <button id="submitWithdrawBtn">💰 Withdraw Now! 💰</button>
-            <div class="fee-message">Heads up! A 3% platform fee and 1% TDS charge apply to all withdrawals.</div>
+            <div class="input-group">
+                <label for="mobileInput">Mobile Number</label>
+                <input type="tel" id="mobileInput" placeholder="Enter 10-digit mobile number" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
+            </div>
+            
+            <div class="input-group">
+                <label for="amountInput">Amount (₹)</label>
+                <input type="number" id="amountInput" placeholder="Enter amount (min ₹500)" min="500">
+            </div>
+            
+            <div class="input-group">
+                <label for="upiInput">UPI ID</label>
+                <input type="text" id="upiInput" placeholder="Enter UPI ID (e.g., name@bank)">
+            </div>
+            
+            <div class="input-group">
+                <label for="passwordInput">Password</label>
+                <input type="password" id="passwordInput" placeholder="Enter your password">
+            </div>
+            
+            <button id="submitWithdrawBtn">Withdraw Now</button>
+            
+            <div class="fee-message">3% platform fee and 1% TDS apply to withdrawals.</div>
+            
+            <div class="upi-note">
+                Note: If you entered wrong UPI ID by mistake, please contact our support team immediately for refund assistance.
+            </div>
+            
             <div id="withdrawMessage" class="message"></div>
         </div>
 
-        <div class="history-section">
-            <div class="history-title">🌟 Your Withdrawal Journey 🌟</div>
+        <div class="history-section" id="historySection">
+            <div class="history-title">Your Withdrawal History</div>
+            
             <div class="history-input-container">
-                <label for="historyMobileInput">View History for Mobile Number</label>
-                <input type="tel" id="historyMobileInput" placeholder="Enter mobile number for history" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
+                <div class="input-group">
+                    <label for="historyMobileInput">Mobile Number for History</label>
+                    <input type="tel" id="historyMobileInput" placeholder="Enter mobile number" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
+                </div>
             </div>
-            <p class="history-hint">See your past withdrawals! Amounts shown are the net amount you received after fees.</p>
+            
+            <p class="history-hint">View past withdrawals. Amounts shown are after fees.</p>
+            
             <div class="loading" id="historyLoading" aria-live="polite">
                 <div class="spinner" role="status"></div>
-                <p>Fetching your exciting history...</p>
+                <p>Loading history...</p>
             </div>
-            <table class="history-table" id="historyTable">
-                <thead>
-                    <tr>
-                        <th>Net Amount (₹)</th>
-                        <th>UPI ID</th>
-                        <th>Status</th>
-                        <th>Date & Time</th>
-                    </tr>
-                </thead>
-                <tbody id="historyTableBody"></tbody>
-            </table>
+            
+            <div class="history-table-container" id="historyTableContainer">
+                <table class="history-table" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Net Amount (₹)</th>
+                            <th>UPI ID</th>
+                            <th>Status</th>
+                            <th>Date & Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+            </div>
         </div>
 
         <div class="loading" id="loading" aria-live="polite">
             <div class="spinner" role="status"></div>
-            <p>Processing your request with a dash of magic...</p>
+            <p>Processing your request...</p>
         </div>
     </div>
 
@@ -647,9 +777,12 @@
         const submitWithdrawBtn = document.getElementById('submitWithdrawBtn');
         const withdrawMessage = document.getElementById('withdrawMessage');
         const historyTableBody = document.getElementById('historyTableBody');
+        const historyTableContainer = document.getElementById('historyTableContainer');
+        const historySection = document.getElementById('historySection');
         const announcementSection = document.getElementById('announcementSection');
         const announcementMarquee = document.getElementById('announcementMarquee');
         const confettiContainer = document.getElementById('confetti-container');
+        const globalMessages = document.getElementById('globalMessages');
 
         // Event listeners
         submitWithdrawBtn.addEventListener('click', handleWithdraw);
@@ -657,15 +790,17 @@
         mobileInput.addEventListener('input', debounce(loadAnnouncements, 500));
         [mobileInput, amountInput, upiInput, passwordInput, historyMobileInput].forEach(input => {
             input.addEventListener('input', () => {
-                // Hide message when user starts typing again
                 withdrawMessage.style.display = 'none';
             });
         });
 
+        // Initially hide history table until valid input
+        historyTableContainer.style.display = 'none';
+
         // Load announcements on page load
         loadAnnouncements();
 
-        // Debounce function to limit function calls
+        // Debounce function
         function debounce(func, wait) {
             let timeout;
             return function (...args) {
@@ -674,29 +809,24 @@
             };
         }
 
-        // Load announcements (user-specific or global)
+        // Load announcements
         function loadAnnouncements() {
             const mobile = mobileInput.value.trim();
-            announcementSection.style.display = 'none'; // Hide by default
-
-            // Check for user-specific announcement first
+            announcementSection.style.display = 'none';
             if (mobile && mobile.length === 10 && !isNaN(mobile)) {
                 database.ref('announcements/users/' + mobile).once('value')
                     .then(snapshot => {
                         if (snapshot.exists()) {
-                            const announcement = snapshot.val();
-                            displayAnnouncement(announcement.message);
+                            displayAnnouncement(snapshot.val().message);
                         } else {
-                            // Fallback to global announcement if no user-specific
                             loadGlobalAnnouncement();
                         }
                     })
                     .catch(error => {
                         console.error('Error loading user announcement:', error);
-                        loadGlobalAnnouncement(); // Fallback on error
+                        loadGlobalAnnouncement();
                     });
             } else {
-                // Load global announcement if no valid mobile entered
                 loadGlobalAnnouncement();
             }
         }
@@ -706,57 +836,72 @@
             database.ref('announcements/global').once('value')
                 .then(snapshot => {
                     if (snapshot.exists()) {
-                        const announcement = snapshot.val();
-                        displayAnnouncement(announcement.message);
+                        displayAnnouncement(snapshot.val().message);
                     } else {
-                        displayAnnouncement('No exciting announcements available at the moment!');
+                        displayAnnouncement('No announcements available.');
                     }
                 })
                 .catch(error => {
                     console.error('Error loading global announcement:', error);
-                    displayAnnouncement('Failed to load announcements. Please try again later.');
+                    displayAnnouncement('Failed to load announcements.');
                 });
         }
 
-        // Display announcement in the marquee
+        // Display announcement
         function displayAnnouncement(message) {
             announcementMarquee.textContent = message;
             announcementSection.style.display = 'block';
         }
 
-        // Handle withdrawal request
+        // Show global message
+        function showGlobalMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `global-message ${type}`;
+            messageDiv.innerHTML = message;
+            globalMessages.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.animation = 'fadeIn 0.3s ease reverse';
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 300);
+            }, 5000);
+        }
+
+        // Handle withdrawal
         function handleWithdraw() {
             const mobile = mobileInput.value.trim();
             const amount = parseFloat(amountInput.value.trim());
             const upiId = upiInput.value.trim();
             const password = passwordInput.value.trim();
 
-            // Input validation
+            globalMessages.innerHTML = '';
+            withdrawMessage.style.display = 'none';
+
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
-                showMessage(withdrawMessage, 'Please enter a valid 10-digit mobile number.', 'error');
+                showGlobalMessage('Enter a valid 10-digit mobile number.', 'error');
                 return;
             }
 
             if (isNaN(amount) || amount < 500) {
-                showMessage(withdrawMessage, 'Please enter an amount of ₹500 or more.', 'error');
+                showGlobalMessage('Enter an amount of ₹500 or more.', 'error');
                 return;
             }
 
             const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+$/;
             if (!upiId || !upiRegex.test(upiId)) {
-                showMessage(withdrawMessage, 'Please enter a valid UPI ID (e.g., username@bank).', 'error');
+                showGlobalMessage('Enter a valid UPI ID (e.g., name@bank).', 'error');
                 return;
             }
 
             if (!password) {
-                showMessage(withdrawMessage, 'Please enter your password to proceed.', 'error');
+                showGlobalMessage('Enter your password.', 'error');
                 return;
             }
 
             showLoading(true, 'loading');
-            submitWithdrawBtn.disabled = true; // Disable button during processing
+            submitWithdrawBtn.disabled = true;
 
-            // Fetch user data and verify password securely
             database.ref('users/' + mobile).once('value')
                 .then(snapshot => {
                     if (!snapshot.exists()) {
@@ -768,8 +913,6 @@
                     }
 
                     const currentBalance = userData.balance || 0;
-
-                    // Client-side balance check (pre-transaction)
                     if (amount > currentBalance) {
                         throw new Error('Insufficient balance');
                     }
@@ -777,19 +920,10 @@
                         throw new Error('Minimum balance of ₹10 required');
                     }
 
-                    // Use Firebase transaction for atomic balance update
                     return database.ref('users/' + mobile).transaction(userData => {
-                        if (!userData) {
-                            return null; // User doesn't exist, abort transaction
-                        }
-
+                        if (!userData) return null;
                         const balance = userData.balance || 0;
-                        // Re-validate balance within the transaction to prevent race conditions
-                        if (amount > balance || balance - amount < 10) {
-                            return null; // Abort if balance insufficient or minimum balance violated
-                        }
-
-                        // Update balance
+                        if (amount > balance || balance - amount < 10) return null;
                         userData.balance = balance - amount;
                         return userData;
                     });
@@ -799,27 +933,25 @@
                     if (!committed) {
                         showLoading(false, 'loading');
                         submitWithdrawBtn.disabled = false;
-                        // Provide specific error message based on transaction failure reason
                         if (!snapshot.exists()) {
-                            showMessage(withdrawMessage, 'User not found. Please check your mobile number.', 'error');
+                            showGlobalMessage('User not found.', 'error');
                         } else {
                             const currentBalance = snapshot.val().balance || 0;
                             if (amount > currentBalance) {
-                                showMessage(withdrawMessage, 'Oops! Insufficient balance for this withdrawal.', 'error');
+                                showGlobalMessage('Insufficient balance.', 'error');
                             } else {
-                                showMessage(withdrawMessage, 'Please ensure a minimum balance of ₹10 is maintained.', 'error');
+                                showGlobalMessage('Minimum balance of ₹10 required.', 'error');
                             }
                         }
                         return;
                     }
 
-                    // If transaction committed, record the withdrawal
                     const timestamp = Date.now();
                     const withdrawData = {
                         amount: amount,
                         mobile: mobile,
                         upiId: upiId,
-                        status: 'pending', // Status is pending initially
+                        status: 'pending',
                         timestamp: timestamp
                     };
 
@@ -827,82 +959,85 @@
                 })
                 .then(() => {
                     showLoading(false, 'loading');
-                    showMessage(withdrawMessage, '🎉 Withdrawal request submitted successfully! Amount deducted from your balance. Get ready to celebrate! 🎉', 'success');
-                    triggerConfetti(); // Trigger confetti on success
-                    // Clear input fields
+                    showGlobalMessage('Withdrawal request submitted successfully!', 'success');
+                    triggerConfetti();
                     mobileInput.value = '';
                     amountInput.value = '';
                     upiInput.value = '';
                     passwordInput.value = '';
-                    submitWithdrawBtn.disabled = false; // Re-enable button
+                    submitWithdrawBtn.disabled = false;
                 })
                 .catch(error => {
                     showLoading(false, 'loading');
-                    submitWithdrawBtn.disabled = false; // Re-enable button on error
-                    // Display user-friendly error messages
+                    submitWithdrawBtn.disabled = false;
                     if (error.message === 'User not found') {
-                        showMessage(withdrawMessage, 'User not found. Please check your mobile number.', 'error');
+                        showGlobalMessage('User not found.', 'error');
                     } else if (error.message === 'Invalid password') {
-                        showMessage(withdrawMessage, 'Incorrect password. Please try again.', 'error');
+                        showGlobalMessage('Incorrect password.', 'error');
                     } else if (error.message === 'Insufficient balance') {
-                        showMessage(withdrawMessage, 'Insufficient balance. Please deposit more funds.', 'error');
+                        showGlobalMessage('Insufficient balance.', 'error');
                     } else if (error.message === 'Minimum balance of ₹10 required') {
-                        showMessage(withdrawMessage, 'You must maintain at least ₹10 in your account.', 'error');
+                        showGlobalMessage('Minimum balance of ₹10 required.', 'error');
                     } else {
-                        showMessage(withdrawMessage, 'An unexpected error occurred. Please try again later. <button onclick="handleWithdraw()">Retry</button>', 'error');
+                        showGlobalMessage('An error occurred. <button onclick="handleWithdraw()">Retry</button>', 'error');
                         console.error('Firebase withdrawal error:', error);
                     }
                 });
         }
 
-        // Load withdrawal history for a given mobile number
+        // Load withdrawal history
         function loadWithdrawalHistory() {
             const mobile = historyMobileInput.value.trim();
             if (!mobile) {
                 historyTableBody.innerHTML = '';
-                showMessage(withdrawMessage, 'Enter a mobile number to view withdrawal history.', 'error');
+                historyTableContainer.style.display = 'none';
+                showGlobalMessage('Enter a mobile number for history.', 'error');
                 return;
             }
             if (mobile.length !== 10 || isNaN(mobile)) {
                 historyTableBody.innerHTML = '';
-                showMessage(withdrawMessage, 'Please enter a valid 10-digit mobile number for history.', 'error');
+                historyTableContainer.style.display = 'none';
+                showGlobalMessage('Enter a valid 10-digit mobile number.', 'error');
                 return;
             }
 
             showLoading(true, 'historyLoading');
+            historyTableContainer.style.display = 'none';
             database.ref('withdrawals/' + mobile).once('value')
                 .then(snapshot => {
                     showLoading(false, 'historyLoading');
-                    historyTableBody.innerHTML = ''; // Clear previous history
+                    historyTableBody.innerHTML = '';
                     if (snapshot.exists()) {
                         const withdrawals = [];
                         snapshot.forEach(childSnapshot => {
                             withdrawals.push(childSnapshot.val());
                         });
-                        // Sort by timestamp (most recent first) and show top 10
                         withdrawals.sort((a, b) => b.timestamp - a.timestamp);
                         withdrawals.slice(0, 10).forEach(withdrawal => {
                             addWithdrawalToTable(withdrawal);
                         });
+                        historyTableContainer.style.display = 'block'; // Show table when data is available
                     } else {
-                        showMessage(withdrawMessage, 'No withdrawal history found for this number. Start winning!', 'error');
+                        showGlobalMessage('No withdrawal history found.', 'error');
+                        historyTableContainer.style.display = 'none';
                     }
                 })
                 .catch(error => {
                     showLoading(false, 'historyLoading');
-                    showMessage(withdrawMessage, 'Error loading withdrawal history. <button onclick="loadWithdrawalHistory()">Retry</button>', 'error');
+                    historyTableContainer.style.display = 'none';
+                    showGlobalMessage('Error loading history. <button onclick="loadWithdrawalHistory()">Retry</button>', 'error');
                     console.error('Firebase history error:', error);
                 });
         }
 
-        // Add a single withdrawal entry to the history table
+        // Add withdrawal to table
         function addWithdrawalToTable(withdrawal) {
             const row = document.createElement('tr');
             const formattedDate = formatTimestamp(withdrawal.timestamp);
             const statusClass = `status-${withdrawal.status.toLowerCase()}`;
             const platformFee = withdrawal.amount * 0.03;
             const tds = withdrawal.amount * 0.01;
-            const netAmount = withdrawal.amount - platformFee - tds; // Calculate net amount received
+            const netAmount = withdrawal.amount - platformFee - tds;
 
             row.innerHTML = `
                 <td>₹${netAmount.toFixed(2)}</td>
@@ -913,7 +1048,7 @@
             historyTableBody.appendChild(row);
         }
 
-        // Format timestamp into a readable date and time string
+        // Format timestamp
         function formatTimestamp(timestamp) {
             const date = new Date(timestamp);
             const day = String(date.getDate()).padStart(2, '0');
@@ -924,39 +1059,35 @@
             return `${day}-${month}-${year} ${hours}:${minutes}`;
         }
 
-        // Display a message to the user (success/error)
+        // Show message
         function showMessage(element, message, type) {
             element.innerHTML = message;
-            element.className = `message ${type}`; // Apply type class for styling
+            element.className = `message ${type}`;
             element.style.display = 'block';
-            // Hide message after 5 seconds
             setTimeout(() => {
                 element.style.display = 'none';
             }, 5000);
         }
 
-        // Show/hide loading indicators
+        // Show/hide loading
         function showLoading(show, target) {
             document.getElementById(target).style.display = show ? 'block' : 'none';
         }
 
-        // Confetti effect function
+        // Confetti effect
         function triggerConfetti() {
-            // Using direct color values for confetti to avoid issues with CSS variables in inline style
-            const colors = ['#f06', '#9f6', '#0cf', '#6c5ce7', '#fdcb6e', '#55efc4'];
-            const numConfetti = 30; // Reduced number of confetti pieces
-
+            const colors = ['#6c5ce7', '#00cec9', '#00b894', '#f39c12'];
+            const numConfetti = 50;
             for (let i = 0; i < numConfetti; i++) {
                 const confetti = document.createElement('div');
                 confetti.classList.add('confetti');
-                confetti.style.left = Math.random() * 100 + 'vw'; // Random horizontal position
+                confetti.style.left = Math.random() * 100 + 'vw';
                 confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.setProperty('--x', (Math.random() - 0.5) * 500 + 'px'); // Random horizontal drift
-                confetti.style.setProperty('--y', (window.innerHeight + 200) + 'px'); // Fall to bottom
-                confetti.style.animationDelay = (Math.random() * 0.8) + 's'; // Stagger animation
+                confetti.style.width = Math.random() * 8 + 6 + 'px';
+                confetti.style.height = Math.random() * 8 + 6 + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
                 confettiContainer.appendChild(confetti);
-
-                // Remove confetti after animation to prevent DOM clutter
                 confetti.addEventListener('animationend', () => {
                     confetti.remove();
                 });
