@@ -707,6 +707,7 @@
                 <label for="referralInput">Referred Mobile Number</label>
                 <input type="tel" id="referralInput" placeholder="Enter 10-digit referred mobile number" maxlength="10" pattern="[0-9]{10}" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
             </div>
+            <div class="global-messages" id="referralMessages"></div>
             <button id="submitReferralBtn">Claim Bonus</button>
             <div class="referral-link-section">
                 <div class="referral-link-title">Share Your Referral Link</div>
@@ -797,6 +798,7 @@
         const toggleLinkBtn = document.getElementById('toggleLinkBtn');
         const referralLinkText = document.getElementById('referralLinkText');
         const globalMessages = document.getElementById('globalMessages');
+        const referralMessages = document.getElementById('referralMessages'); // New: Specific div for referral messages
         const historyTableBody = document.getElementById('historyTableBody');
         const referralHistoryTableBody = document.getElementById('referralHistoryTableBody');
         const historyTableContainer = document.getElementById('historyTableContainer');
@@ -841,6 +843,12 @@ Start playing. Start winning. Start earning. 🏆📲`;
         [amountInput, mobileInput, passwordInput].forEach(input => {
             input.addEventListener('input', () => {
                 globalMessages.innerHTML = '';
+            });
+        });
+        // Clear referral messages when referral inputs change
+        [userMobileInput, referralInput].forEach(input => {
+            input.addEventListener('input', () => {
+                referralMessages.innerHTML = '';
             });
         });
 
@@ -929,6 +937,22 @@ Start playing. Start winning. Start earning. 🏆📲`;
             messageDiv.className = `global-message ${type}`;
             messageDiv.innerHTML = message;
             globalMessages.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.animation = 'fadeIn 0.3s ease reverse';
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 300);
+            }, 5000);
+        }
+
+        // New: Function to show referral-specific messages
+        function showReferralMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `global-message ${type}`;
+            messageDiv.innerHTML = message;
+            referralMessages.innerHTML = ''; // Clear previous messages in this section
+            referralMessages.appendChild(messageDiv);
             
             setTimeout(() => {
                 messageDiv.style.animation = 'fadeIn 0.3s ease reverse';
@@ -1029,20 +1053,20 @@ Start playing. Start winning. Start earning. 🏆📲`;
             const referredMobile = referralInput.value.trim();
             const userMobile = userMobileInput.value.trim();
             
-            globalMessages.innerHTML = '';
+            referralMessages.innerHTML = ''; // Clear existing referral messages
 
             if (!referredMobile || referredMobile.length !== 10 || isNaN(referredMobile)) {
-                showGlobalMessage('Please enter a valid 10-digit referred mobile number', 'error');
+                showReferralMessage('Please enter a valid 10-digit referred mobile number', 'error');
                 return;
             }
             
             if (!userMobile || userMobile.length !== 10 || isNaN(userMobile)) {
-                showGlobalMessage('Please enter a valid 10-digit mobile number', 'error');
+                showReferralMessage('Please enter a valid 10-digit mobile number', 'error');
                 return;
             }
             
             if (referredMobile === userMobile) {
-                showGlobalMessage('You cannot refer yourself', 'error');
+                showReferralMessage('You cannot refer yourself', 'error');
                 return;
             }
 
@@ -1073,7 +1097,7 @@ Start playing. Start winning. Start earning. 🏆📲`;
                 })
                 .then(() => {
                     showLoading(false);
-                    showGlobalMessage('Referral submitted! Awaiting admin approval.', 'success');
+                    showReferralMessage('Referral submitted! Awaiting admin approval.', 'success');
                     referralInput.value = '';
                     userMobileInput.value = '';
                     loadReferralHistory();
@@ -1081,11 +1105,11 @@ Start playing. Start winning. Start earning. 🏆📲`;
                 .catch(error => {
                     showLoading(false);
                     if (error.message === 'Referred user not found') {
-                        showGlobalMessage('This mobile number is not registered with us', 'error');
+                        showReferralMessage('This mobile number is not registered with us', 'error');
                     } else if (error.message === 'Referral already submitted for this user') {
-                        showGlobalMessage('Referral already submitted for this user', 'error');
+                        showReferralMessage('Referral already submitted for this user', 'error');
                     } else {
-                        showGlobalMessage('Error processing referral request. <button onclick="handleReferral()">Retry</button>', 'error');
+                        showReferralMessage('Error processing referral request. <button onclick="handleReferral()">Retry</button>', 'error');
                         console.error('Firebase error:', error);
                     }
                 });
