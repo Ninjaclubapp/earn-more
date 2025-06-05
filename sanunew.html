@@ -788,6 +788,142 @@
             border-radius: 12px;
         }
 
+        /* Result Popup Styles */
+        .result-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .result-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 350px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            opacity: 0;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 0.8s ease;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .result-message {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            color: #4b5563;
+        }
+
+        .result-amount {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 15px 0;
+            color: var(--dark);
+        }
+
+        .result-win .result-content {
+            background: linear-gradient(135deg, #f0fdf4, #ffffff);
+            border: 2px solid #bbf7d0;
+        }
+
+        .result-win .result-icon {
+            color: #16a34a;
+        }
+
+        .result-win .result-title {
+            color: #16a34a;
+        }
+
+        .result-win .result-amount {
+            color: #16a34a;
+        }
+
+        .result-lose .result-content {
+            background: linear-gradient(135deg, #fef2f2, #ffffff);
+            border: 2px solid #fecaca;
+        }
+
+        .result-lose .result-icon {
+            color: #dc2626;
+        }
+
+        .result-lose .result-title {
+            color: #dc2626;
+        }
+
+        .result-info .result-content {
+            background: linear-gradient(135deg, #f5f3ff, #ffffff);
+            border: 2px solid #ddd6fe;
+        }
+
+        .result-info .result-icon {
+            color: var(--primary);
+        }
+
+        .result-info .result-title {
+            color: var(--primary);
+        }
+
+        .result-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .result-close:hover {
+            color: var(--primary);
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: confetti-fall 3s linear forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 8px;
@@ -940,6 +1076,26 @@
             .message-meta, .history-entry-meta {
                 font-size: 0.75rem;
             }
+
+            .result-content {
+                padding: 20px;
+            }
+
+            .result-icon {
+                font-size: 3rem;
+            }
+
+            .result-title {
+                font-size: 1.3rem;
+            }
+
+            .result-message {
+                font-size: 0.9rem;
+            }
+
+            .result-amount {
+                font-size: 1.5rem;
+            }
         }
 
         @media (max-width: 360px) {
@@ -1053,6 +1209,18 @@
             <div class="history">
                 <div class="history-title">Recent Results</div>
                 <div class="history-items" id="historyItems"></div>
+            </div>
+        </div>
+
+        <!-- Result Popup -->
+        <div class="result-popup" id="resultPopup">
+            <div class="result-content">
+                <span class="result-close" id="resultClose">×</span>
+                <div class="result-icon" id="resultIcon">🎉</div>
+                <div class="result-title" id="resultTitle">Congratulations!</div>
+                <div class="result-message" id="resultMessage">You won this round!</div>
+                <div class="result-amount" id="resultAmount">₹0</div>
+                <button id="resultOkBtn" class="place-bet">OK</button>
             </div>
         </div>
 
@@ -1175,6 +1343,13 @@
         const withdrawDisabledMessage = document.getElementById('withdrawDisabledMessage');
         const withdrawDisabledOk = document.getElementById('withdrawDisabledOk');
         const marqueeText = document.getElementById('marqueeText');
+        const resultPopup = document.getElementById('resultPopup');
+        const resultClose = document.getElementById('resultClose');
+        const resultIcon = document.getElementById('resultIcon');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultMessage = document.getElementById('resultMessage');
+        const resultAmount = document.getElementById('resultAmount');
+        const resultOkBtn = document.getElementById('resultOkBtn');
 
         // Initialize bet amount buttons with formatted currency
         betAmountBtns.forEach(btn => {
@@ -1260,6 +1435,8 @@
         viewHistoryBtn.addEventListener('click', loadHistory);
         withdrawDisabledClose.addEventListener('click', hideWithdrawDisabledModal);
         withdrawDisabledOk.addEventListener('click', hideWithdrawDisabledModal);
+        resultClose.addEventListener('click', () => resultPopup.style.display = 'none');
+        resultOkBtn.addEventListener('click', () => resultPopup.style.display = 'none');
 
         colorOptions.forEach(option => {
             option.addEventListener('click', () => {
@@ -1870,9 +2047,9 @@
                 if (result === betColor) {
                     winAmount = betAmount * multiplier;
                     currentBalance += winAmount;
-                    showResult(`You won ₹${winAmount.toLocaleString('en-IN')}!`, 'win');
+                    showWinPopup(winAmount, betAmount, betColor);
                 } else {
-                    showResult(`You lost ₹${betAmount.toLocaleString('en-IN')}.`, 'lose');
+                    showLosePopup(betAmount, betColor);
                 }
 
                 gameHistory.unshift({
@@ -1891,7 +2068,7 @@
                     adminControlled: isAdminControlled,
                     playerInvolved: false
                 });
-                showResult(`Result: ${result.charAt(0).toUpperCase() + result.slice(1)}`, 'info');
+                showInfoPopup(result);
             }
 
             if (gameHistory.length > 10) {
@@ -1904,6 +2081,52 @@
             if (currentUserMobile) {
                 database.ref('users/' + currentUserMobile + '/currentBet').remove().catch(error => {
                     console.error('Error clearing current bet:', error);
+                });
+            }
+        }
+
+        function showWinPopup(winAmount, betAmount, color) {
+            resultPopup.className = 'result-popup result-win';
+            resultIcon.textContent = '🎉';
+            resultTitle.textContent = 'Congratulations!';
+            resultMessage.textContent = `You won with ${color.toUpperCase()}!`;
+            resultAmount.textContent = `+₹${winAmount.toLocaleString('en-IN')}`;
+            resultPopup.style.display = 'flex';
+            createConfetti();
+        }
+
+        function showLosePopup(betAmount, color) {
+            resultPopup.className = 'result-popup result-lose';
+            resultIcon.textContent = '😢';
+            resultTitle.textContent = 'Better Luck Next Time!';
+            resultMessage.textContent = `You lost ₹${betAmount.toLocaleString('en-IN')} on ${color.toUpperCase()}`;
+            resultAmount.textContent = `-₹${betAmount.toLocaleString('en-IN')}`;
+            resultPopup.style.display = 'flex';
+        }
+
+        function showInfoPopup(result) {
+            resultPopup.className = 'result-popup result-info';
+            resultIcon.textContent = '🔮';
+            resultTitle.textContent = 'Round Result';
+            resultMessage.textContent = `The winning color was ${result.toUpperCase()}`;
+            resultAmount.textContent = '';
+            resultPopup.style.display = 'flex';
+        }
+
+        function createConfetti() {
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.animationDelay = Math.random() * 5 + 's';
+                document.body.appendChild(confetti);
+                
+                confetti.addEventListener('animationend', () => {
+                    confetti.remove();
                 });
             }
         }
