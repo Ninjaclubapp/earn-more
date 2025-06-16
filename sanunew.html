@@ -905,7 +905,7 @@
             height: 10px;
             background-color: #f00;
             border-radius: 50%;
-            animation: confetti-fall 3s linear forwards;
+            animation: confetti-fall 2s linear forwards;
         }
 
         @keyframes popIn {
@@ -915,8 +915,8 @@
 
         @keyframes bounce {
             0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-30px); }
-            60% { transform: translateY(-15px); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
         }
 
         @keyframes confetti-fall {
@@ -1507,7 +1507,6 @@
                         updateUI();
                         showLoading(false);
                         showGameSection();
-                        history.pushState({ loggedIn: true }, '', window.location.href);
                     } else {
                         showLoading(false);
                         localStorage.removeItem('currentUserMobile');
@@ -2068,7 +2067,10 @@
                     adminControlled: isAdminControlled,
                     playerInvolved: false
                 });
-                showInfoPopup(result);
+                // Only show info popup for logged-in users
+                if (currentUserMobile) {
+                    showInfoPopup(result);
+                }
             }
 
             if (gameHistory.length > 10) {
@@ -2116,13 +2118,14 @@
         function createConfetti() {
             const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
             
-            for (let i = 0; i < 50; i++) {
+            // Reduced number of confetti pieces from 50 to 20
+            for (let i = 0; i < 20; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
                 confetti.style.left = Math.random() * 100 + 'vw';
                 confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                confetti.style.animationDelay = Math.random() * 5 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 1) + 's'; // Reduced duration
+                confetti.style.animationDelay = Math.random() * 3 + 's'; // Reduced delay
                 document.body.appendChild(confetti);
                 
                 confetti.addEventListener('animationend', () => {
