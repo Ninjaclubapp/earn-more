@@ -238,6 +238,18 @@
             background: white;
         }
 
+        /* Balance Display */
+        .balance-display {
+            padding: 8px 12px;
+            background: rgba(0, 206, 201, 0.1);
+            color: var(--secondary);
+            border-radius: 8px;
+            border-left: 3px solid var(--secondary);
+            margin-top: 8px;
+            font-weight: 500;
+            display: none;
+        }
+
         /* Buttons */
         button {
             background: var(--gradient);
@@ -699,6 +711,9 @@
             <div class="input-group">
                 <label for="passwordInput">Password</label>
                 <input type="password" id="passwordInput" placeholder="Enter your password">
+                <div id="balanceDisplay" class="balance-display">
+                    Available Balance: ₹<span id="balanceAmount">0.00</span>
+                </div>
             </div>
             
             <button id="submitWithdrawBtn">Withdraw Now</button>
@@ -783,11 +798,75 @@
         const announcementMarquee = document.getElementById('announcementMarquee');
         const confettiContainer = document.getElementById('confetti-container');
         const globalMessages = document.getElementById('globalMessages');
+        const balanceDisplay = document.getElementById('balanceDisplay');
+        const balanceAmount = document.getElementById('balanceAmount');
+
+        // Store user data in localStorage
+        function storeUserData(mobile, password) {
+            localStorage.setItem('lastWithdrawMobile', mobile);
+            localStorage.setItem('lastWithdrawPassword', password);
+        }
+
+        // Get stored mobile from localStorage
+        function getStoredMobile() {
+            return localStorage.getItem('lastWithdrawMobile');
+        }
+
+        // Get stored password from localStorage
+        function getStoredPassword() {
+            return localStorage.getItem('lastWithdrawPassword');
+        }
+
+        // Clear stored user data
+        function clearUserData() {
+            localStorage.removeItem('lastWithdrawMobile');
+            localStorage.removeItem('lastWithdrawPassword');
+        }
+
+        // Check user balance and display it
+        function checkUserBalance() {
+            const mobile = mobileInput.value.trim();
+            const password = passwordInput.value.trim();
+            balanceDisplay.style.display = 'none';
+            
+            if (mobile && mobile.length === 10 && !isNaN(mobile) && password) {
+                database.ref('users/' + mobile).once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            const userData = snapshot.val();
+                            if (userData.password === password) {
+                                const balance = userData.balance || 0;
+                                balanceAmount.textContent = balance.toFixed(2);
+                                balanceDisplay.style.display = 'block';
+                                storeUserData(mobile, password);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking balance:', error);
+                    });
+            }
+        }
+
+        // On page load, check for stored user data
+        document.addEventListener('DOMContentLoaded', function() {
+            const storedMobile = getStoredMobile();
+            const storedPassword = getStoredPassword();
+            if (storedMobile && storedPassword) {
+                mobileInput.value = storedMobile;
+                historyMobileInput.value = storedMobile;
+                passwordInput.value = storedPassword;
+                checkUserBalance();
+                loadWithdrawalHistory();
+            }
+            loadAnnouncements();
+        });
 
         // Event listeners
         submitWithdrawBtn.addEventListener('click', handleWithdraw);
         historyMobileInput.addEventListener('input', debounce(loadWithdrawalHistory, 500));
         mobileInput.addEventListener('input', debounce(loadAnnouncements, 500));
+        passwordInput.addEventListener('input', debounce(checkUserBalance, 500));
         [mobileInput, amountInput, upiInput, passwordInput, historyMobileInput].forEach(input => {
             input.addEventListener('input', () => {
                 withdrawMessage.style.display = 'none';
@@ -796,9 +875,7 @@
 
         // Initially hide history table until valid input
         historyTableContainer.style.display = 'none';
-
-        // Load announcements on page load
-        loadAnnouncements();
+        balanceDisplay.style.display = 'none';
 
         // Debounce function
         function debounce(func, wait) {
@@ -961,11 +1038,17 @@
                     showLoading(false, 'loading');
                     showGlobalMessage('Withdrawal request submitted successfully!', 'success');
                     triggerConfetti();
-                    mobileInput.value = '';
+                    storeUserData(mobile, password);
                     amountInput.value = '';
                     upiInput.value = '';
-                    passwordInput.value = '';
                     submitWithdrawBtn.disabled = false;
+                    
+                    // Update balance display
+                    checkUserBalance();
+                    
+                    // Auto-populate history section
+                    historyMobileInput.value = mobile;
+                    loadWithdrawalHistory();
                 })
                 .catch(error => {
                     showLoading(false, 'loading');
@@ -974,6 +1057,7 @@
                         showGlobalMessage('User not found.', 'error');
                     } else if (error.message === 'Invalid password') {
                         showGlobalMessage('Incorrect password.', 'error');
+                        clearUserData();
                     } else if (error.message === 'Insufficient balance') {
                         showGlobalMessage('Insufficient balance.', 'error');
                     } else if (error.message === 'Minimum balance of ₹10 required') {
@@ -1016,7 +1100,7 @@
                         withdrawals.slice(0, 10).forEach(withdrawal => {
                             addWithdrawalToTable(withdrawal);
                         });
-                        historyTableContainer.style.display = 'block'; // Show table when data is available
+                        historyTableContainer.style.display = 'block';
                     } else {
                         showGlobalMessage('No withdrawal history found.', 'error');
                         historyTableContainer.style.display = 'none';
