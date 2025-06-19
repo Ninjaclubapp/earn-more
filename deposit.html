@@ -564,6 +564,29 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Timer Styles */
+        .timer-container {
+            display: none;
+            text-align: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(0, 206, 201, 0.1);
+            border-radius: 10px;
+            border: 1px solid var(--secondary);
+        }
+
+        .timer-text {
+            font-size: 1rem;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
         .sr-only {
             position: absolute;
             width: 1px;
@@ -679,6 +702,12 @@
         </div>
 
         <div class="global-messages" id="globalMessages"></div>
+
+        <!-- Timer Container -->
+        <div class="timer-container" id="timerContainer">
+            <div class="timer-text">Payment processing. Please wait...</div>
+            <div class="timer" id="timer">15</div>
+        </div>
 
         <div class="deposit-section">
             <div class="input-group">
@@ -798,7 +827,7 @@
         const toggleLinkBtn = document.getElementById('toggleLinkBtn');
         const referralLinkText = document.getElementById('referralLinkText');
         const globalMessages = document.getElementById('globalMessages');
-        const referralMessages = document.getElementById('referralMessages'); // New: Specific div for referral messages
+        const referralMessages = document.getElementById('referralMessages');
         const historyTableBody = document.getElementById('historyTableBody');
         const referralHistoryTableBody = document.getElementById('referralHistoryTableBody');
         const historyTableContainer = document.getElementById('historyTableContainer');
@@ -806,6 +835,29 @@
         const loading = document.getElementById('loading');
         const announcementSection = document.getElementById('announcementSection');
         const announcementMarquee = document.getElementById('announcementMarquee');
+        const timerContainer = document.getElementById('timerContainer');
+        const timerDisplay = document.getElementById('timer');
+
+        // Timer variables
+        let timerInterval;
+        let timerSeconds = 15;
+
+        // Remember user's mobile number
+        let rememberedMobile = localStorage.getItem('rememberedMobile') || '';
+
+        // Set remembered mobile number if available
+        if (rememberedMobile) {
+            mobileInput.value = rememberedMobile;
+            historyMobileInput.value = rememberedMobile;
+            referralHistoryMobileInput.value = rememberedMobile;
+            userMobileInput.value = rememberedMobile;
+            
+            // Automatically load history for remembered number
+            setTimeout(() => {
+                loadDepositHistory();
+                loadReferralHistory();
+            }, 500);
+        }
 
         // Referral link text
         const referralText = `🎉💸 Get ₹50 FREE – Play & Win Real Cash Daily! 💸🎉
@@ -890,6 +942,25 @@ Start playing. Start winning. Start earning. 🏆📲`;
             };
         }
 
+        // Start timer function
+        function startTimer() {
+            timerContainer.style.display = 'block';
+            timerSeconds = 15;
+            timerDisplay.textContent = timerSeconds;
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                timerDisplay.textContent = timerSeconds;
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerContainer.style.display = 'none';
+                    showGlobalMessage('Payment is processing. Please wait 1 minute for the amount to reflect in your wallet.', 'success');
+                }
+            }, 1000);
+        }
+
         // Validation functions
         function validateReferralInput() {
             const referredMobile = referralInput.value.trim();
@@ -946,7 +1017,7 @@ Start playing. Start winning. Start earning. 🏆📲`;
             }, 5000);
         }
 
-        // New: Function to show referral-specific messages
+        // Function to show referral-specific messages
         function showReferralMessage(message, type) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `global-message ${type}`;
@@ -985,6 +1056,10 @@ Start playing. Start winning. Start earning. 🏆📲`;
                 return;
             }
 
+            // Remember the mobile number for future use
+            localStorage.setItem('rememberedMobile', mobile);
+            rememberedMobile = mobile;
+
             submitDepositBtn.disabled = true;
             showLoading(true);
 
@@ -1011,9 +1086,11 @@ Start playing. Start winning. Start earning. 🏆📲`;
                 .then(() => {
                     showLoading(false);
                     submitDepositBtn.disabled = false;
-                    showGlobalMessage('Your amount will show in your wallet within 5 to 10 mins.', 'success');
+                    
+                    // Start the timer
+                    startTimer();
+                    
                     amountInput.value = '';
-                    mobileInput.value = '';
                     passwordInput.value = '';
 
                     const upiId = 'ronisaikia2004@oksbi';
@@ -1099,7 +1176,6 @@ Start playing. Start winning. Start earning. 🏆📲`;
                     showLoading(false);
                     showReferralMessage('Referral submitted! Awaiting admin approval.', 'success');
                     referralInput.value = '';
-                    userMobileInput.value = '';
                     loadReferralHistory();
                 })
                 .catch(error => {
@@ -1175,7 +1251,14 @@ Start playing. Start winning. Start earning. 🏆📲`;
 
         // Load deposit history
         function loadDepositHistory() {
-            const mobile = historyMobileInput.value.trim();
+            let mobile = historyMobileInput.value.trim();
+            
+            // If empty, use remembered mobile if available
+            if (!mobile && rememberedMobile) {
+                mobile = rememberedMobile;
+                historyMobileInput.value = mobile;
+            }
+            
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 historyTableBody.innerHTML = '';
                 historyTableContainer.style.display = 'none';
@@ -1219,7 +1302,14 @@ Start playing. Start winning. Start earning. 🏆📲`;
 
         // Load referral history
         function loadReferralHistory() {
-            const mobile = referralHistoryMobileInput.value.trim();
+            let mobile = referralHistoryMobileInput.value.trim();
+            
+            // If empty, use remembered mobile if available
+            if (!mobile && rememberedMobile) {
+                mobile = rememberedMobile;
+                referralHistoryMobileInput.value = mobile;
+            }
+            
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 referralHistoryTableBody.innerHTML = '';
                 referralHistoryTableContainer.style.display = 'none';
