@@ -235,6 +235,14 @@
             font-weight: 600;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             display: block !important;
+            background-size: 200% 200%;
+            animation: gradientAnimation 5s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .marquee {
@@ -1715,6 +1723,9 @@
         function initializeGame() {
             setupMarqueeListener();
             updateUI();
+            // Ensure buttons are enabled when game starts
+            addCashBtn.disabled = false;
+            withdrawBtn.disabled = false;
         }
 
         // Game logic
@@ -1892,6 +1903,9 @@
                 database.ref(`users/${currentUserMobile}`).off();
             }
             history.pushState({ loggedIn: false }, '', window.location.href);
+            // Reset button states
+            addCashBtn.disabled = false;
+            withdrawBtn.disabled = false;
         }
 
         async function placeBet() {
@@ -1976,6 +1990,10 @@
             currentBalance -= selectedAmount;
             updateUI();
 
+            // Disable cash operations while bet is processing
+            addCashBtn.disabled = true;
+            withdrawBtn.disabled = true;
+
             if (currentUserMobile) {
                 const betData = {
                     color: selectedColor,
@@ -1998,6 +2016,9 @@
                         isBetting = false;
                         placeBetBtn.disabled = isSuspended || !bettingAllowed;
                         canBet = true;
+                        // Re-enable cash operations if bet fails
+                        addCashBtn.disabled = false;
+                        withdrawBtn.disabled = false;
                     });
             }
             isBetting = false;
@@ -2076,6 +2097,10 @@
             if (gameHistory.length > 10) {
                 gameHistory = gameHistory.slice(0, 10);
             }
+
+            // Re-enable cash operations after result
+            addCashBtn.disabled = false;
+            withdrawBtn.disabled = false;
 
             updateUI();
             updateFirebase();
