@@ -993,8 +993,8 @@
                     if (amount > currentBalance) {
                         throw new Error('Insufficient balance');
                     }
-                    if (currentBalance - amount < 10) {
-                        throw new Error('Minimum balance of ₹10 required');
+                    if (currentBalance - amount < 5) {
+                        throw new Error('Minimum balance of ₹5 is to be maintain in your wallet, For Account maintenance⛑');
                     }
 
                     return database.ref('users/' + mobile).transaction(userData => {
