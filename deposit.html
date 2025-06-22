@@ -46,6 +46,67 @@
             line-height: 1.6;
         }
 
+        /* Promotional Banner */
+        .promotional-banner {
+            background: linear-gradient(135deg, #ff7676 0%, #f54ea2 100%);
+            color: white;
+            padding: 12px 15px;
+            text-align: center;
+            margin: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            animation: pulse 2s infinite;
+            width: calc(100% - 30px);
+            max-width: 400px;
+        }
+
+        .promo-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .promo-highlight {
+            font-weight: 700;
+            font-size: 1rem;
+            display: block;
+            margin-bottom: 5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .promo-offers {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .promo-item {
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+        }
+
+        .promo-separator {
+            opacity: 0.7;
+        }
+
+        .promo-note {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
         /* Global Message Container */
         .global-messages {
             width: 100%;
@@ -564,29 +625,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Timer Styles */
-        .timer-container {
-            display: none;
-            text-align: center;
-            padding: 15px;
-            margin: 10px 0;
-            background: rgba(0, 206, 201, 0.1);
-            border-radius: 10px;
-            border: 1px solid var(--secondary);
-        }
-
-        .timer-text {
-            font-size: 1rem;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-
-        .timer {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
         .sr-only {
             position: absolute;
             width: 1px;
@@ -602,6 +640,28 @@
         @media (max-width: 480px) {
             body {
                 padding: 10px;
+            }
+
+            .promotional-banner {
+                padding: 10px 12px;
+                margin: 8px 10px;
+            }
+            
+            .promo-highlight {
+                font-size: 0.9rem;
+            }
+            
+            .promo-offers {
+                font-size: 1rem;
+                gap: 8px;
+            }
+            
+            .promo-item {
+                padding: 4px 8px;
+            }
+            
+            .promo-note {
+                font-size: 0.75rem;
             }
 
             .global-messages {
@@ -697,17 +757,24 @@
             <p>Deposit money to your wallet</p>
         </header>
 
+        <!-- Promotional Banner -->
+        <div class="promotional-banner">
+            <div class="promo-content">
+                <span class="promo-highlight">🔥 LIMITED TIME OFFER 🔥</span>
+                <div class="promo-offers">
+                    <span class="promo-item">Add ₹20 Get ₹30</span>
+                    <span class="promo-separator">|</span>
+                    <span class="promo-item">Add ₹50 Get ₹150</span>
+                </div>
+                <div class="promo-note">Bonus will be credited instantly after deposit!</div>
+            </div>
+        </div>
+
         <div class="announcement-section" id="announcementSection">
             <div class="announcement-marquee" id="announcementMarquee">Loading announcement...</div>
         </div>
 
         <div class="global-messages" id="globalMessages"></div>
-
-        <!-- Timer Container -->
-        <div class="timer-container" id="timerContainer">
-            <div class="timer-text">Payment processing. Please wait...</div>
-            <div class="timer" id="timer">15</div>
-        </div>
 
         <div class="deposit-section">
             <div class="input-group">
@@ -835,29 +902,6 @@
         const loading = document.getElementById('loading');
         const announcementSection = document.getElementById('announcementSection');
         const announcementMarquee = document.getElementById('announcementMarquee');
-        const timerContainer = document.getElementById('timerContainer');
-        const timerDisplay = document.getElementById('timer');
-
-        // Timer variables
-        let timerInterval;
-        let timerSeconds = 15;
-
-        // Remember user's mobile number
-        let rememberedMobile = localStorage.getItem('rememberedMobile') || '';
-
-        // Set remembered mobile number if available
-        if (rememberedMobile) {
-            mobileInput.value = rememberedMobile;
-            historyMobileInput.value = rememberedMobile;
-            referralHistoryMobileInput.value = rememberedMobile;
-            userMobileInput.value = rememberedMobile;
-            
-            // Automatically load history for remembered number
-            setTimeout(() => {
-                loadDepositHistory();
-                loadReferralHistory();
-            }, 500);
-        }
 
         // Referral link text
         const referralText = `🎉💸 Get ₹50 FREE – Play & Win Real Cash Daily! 💸🎉
@@ -942,25 +986,6 @@ Start playing. Start winning. Start earning. 🏆📲`;
             };
         }
 
-        // Start timer function
-        function startTimer() {
-            timerContainer.style.display = 'block';
-            timerSeconds = 15;
-            timerDisplay.textContent = timerSeconds;
-            
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timerSeconds--;
-                timerDisplay.textContent = timerSeconds;
-                
-                if (timerSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    timerContainer.style.display = 'none';
-                    showGlobalMessage('Payment is processing. Please wait 1 minute for the amount to reflect in your wallet.', 'success');
-                }
-            }, 1000);
-        }
-
         // Validation functions
         function validateReferralInput() {
             const referredMobile = referralInput.value.trim();
@@ -1017,7 +1042,7 @@ Start playing. Start winning. Start earning. 🏆📲`;
             }, 5000);
         }
 
-        // Function to show referral-specific messages
+        // New: Function to show referral-specific messages
         function showReferralMessage(message, type) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `global-message ${type}`;
@@ -1056,10 +1081,6 @@ Start playing. Start winning. Start earning. 🏆📲`;
                 return;
             }
 
-            // Remember the mobile number for future use
-            localStorage.setItem('rememberedMobile', mobile);
-            rememberedMobile = mobile;
-
             submitDepositBtn.disabled = true;
             showLoading(true);
 
@@ -1086,11 +1107,9 @@ Start playing. Start winning. Start earning. 🏆📲`;
                 .then(() => {
                     showLoading(false);
                     submitDepositBtn.disabled = false;
-                    
-                    // Start the timer
-                    startTimer();
-                    
+                    showGlobalMessage('Your amount will show in your wallet within 5 to 10 mins.', 'success');
                     amountInput.value = '';
+                    mobileInput.value = '';
                     passwordInput.value = '';
 
                     const upiId = 'ronisaikia2004@oksbi';
@@ -1176,6 +1195,7 @@ Start playing. Start winning. Start earning. 🏆📲`;
                     showLoading(false);
                     showReferralMessage('Referral submitted! Awaiting admin approval.', 'success');
                     referralInput.value = '';
+                    userMobileInput.value = '';
                     loadReferralHistory();
                 })
                 .catch(error => {
@@ -1251,14 +1271,7 @@ Start playing. Start winning. Start earning. 🏆📲`;
 
         // Load deposit history
         function loadDepositHistory() {
-            let mobile = historyMobileInput.value.trim();
-            
-            // If empty, use remembered mobile if available
-            if (!mobile && rememberedMobile) {
-                mobile = rememberedMobile;
-                historyMobileInput.value = mobile;
-            }
-            
+            const mobile = historyMobileInput.value.trim();
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 historyTableBody.innerHTML = '';
                 historyTableContainer.style.display = 'none';
@@ -1302,14 +1315,7 @@ Start playing. Start winning. Start earning. 🏆📲`;
 
         // Load referral history
         function loadReferralHistory() {
-            let mobile = referralHistoryMobileInput.value.trim();
-            
-            // If empty, use remembered mobile if available
-            if (!mobile && rememberedMobile) {
-                mobile = rememberedMobile;
-                referralHistoryMobileInput.value = mobile;
-            }
-            
+            const mobile = referralHistoryMobileInput.value.trim();
             if (!mobile || mobile.length !== 10 || isNaN(mobile)) {
                 referralHistoryTableBody.innerHTML = '';
                 referralHistoryTableContainer.style.display = 'none';
