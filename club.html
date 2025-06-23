@@ -202,6 +202,9 @@
             font-size: 0.95rem;
             text-align: center;
             color: #4b5563;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .auth-toggle span {
@@ -1147,7 +1150,10 @@
                 <input type="text" id="mobileInput" placeholder="Enter your mobile number" maxlength="10">
                 <input type="password" id="passwordInput" placeholder="Enter your password">
                 <button id="loginBtn">Login</button>
-                <div class="auth-toggle">Don't have an account? <span id="showRegister">Register</span></div>
+                <div class="auth-toggle">
+                    <div>Don't have an account? <span id="showRegister">Register</span></div>
+                    <div>Forgot password? <span id="forgotPassword">Contact Support</span></div>
+                </div>
                 <div id="authMessage" class="message"></div>
             </div>
 
@@ -1156,7 +1162,9 @@
                 <input type="password" id="regPasswordInput" placeholder="Create a password (min 6 chars)">
                 <input type="password" id="regConfirmPasswordInput" placeholder="Confirm password">
                 <button id="registerBtn">Register</button>
-                <div class="auth-toggle">Already have an account? <span id="showLogin">Login</span></div>
+                <div class="auth-toggle">
+                    <div>Already have an account? <span id="showLogin">Login</span></div>
+                </div>
                 <div id="regMessage" class="message"></div>
             </div>
 
@@ -1313,6 +1321,7 @@
         const registerBtn = document.getElementById('registerBtn');
         const showRegister = document.getElementById('showRegister');
         const showLogin = document.getElementById('showLogin');
+        const forgotPassword = document.getElementById('forgotPassword');
         const loginForm = document.getElementById('loginForm');
         const registerForm = document.getElementById('registerForm');
         const authMessage = document.getElementById('authMessage');
@@ -1400,6 +1409,10 @@
             registerForm.style.display = 'none';
             loginForm.style.display = 'flex';
             hideMessage(regMessage);
+        });
+        forgotPassword.addEventListener('click', () => {
+            showSupportModal(false);
+            showMessage(authMessage, 'Please contact support with your mobile number to reset your password.', 'info');
         });
         addCashBtn.addEventListener('click', () => {
             if (isSuspended) {
@@ -1545,8 +1558,17 @@
         // Support functions
         function showSupportModal(fromGameSection = false) {
             supportModal.style.display = 'flex';
-            supportMobileInput.value = currentUserMobile || '';
-            supportMobileInput.readOnly = fromGameSection && currentUserMobile;
+            // Only set mobile if we're coming from game section or forgot password
+            if (fromGameSection && currentUserMobile) {
+                supportMobileInput.value = currentUserMobile;
+                supportMobileInput.readOnly = true;
+            } else if (!fromGameSection && mobileInput.value) {
+                supportMobileInput.value = mobileInput.value.trim();
+                supportMobileInput.readOnly = false;
+            } else {
+                supportMobileInput.value = '';
+                supportMobileInput.readOnly = false;
+            }
             loadMessages();
         }
 
