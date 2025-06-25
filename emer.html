@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emergency Alert App</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div id="app" class="w-full max-w-sm p-6 bg-white rounded-2xl shadow-lg">
+    <!-- Login/Register Screen -->
+    <div id="loginSection">
+      <h2 class="text-2xl font-bold mb-4 text-center">Login/Register</h2>
+      <input id="mobile" type="tel" placeholder="Enter 10-digit Mobile Number" maxlength="10" class="w-full p-2 mb-4 border rounded" />
+      <button onclick="loginUser()" class="w-full bg-blue-600 text-white p-2 rounded">Continue</button>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard" class="hidden">
+      <!-- Admin Banner Message -->
+      <div id="adminBanner" class="hidden bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4 rounded" role="alert">
+        <p class="font-bold">Important Message from Admin:</p>
+        <p id="bannerMessage"></p>
+      </div>
+
+      <h2 class="text-xl font-bold mb-4 text-center">Emergency Dashboard</h2>
+      <p class="mb-4 text-center">Welcome, <span id="userMobile" class="font-semibold"></span></p>
+
+      <div class="mb-4">
+        <button onclick="sendAlert('danger')" class="w-full bg-red-600 text-white p-2 mb-2 rounded">🚨 I Am In Danger</button>
+        <button onclick="sendAlert('call')" class="w-full bg-yellow-500 text-white p-2 mb-2 rounded">📞 I Need A Call</button>
+        <button onclick="toggleCustomMessageInput()" class="w-full bg-green-500 text-white p-2 rounded">🆘 Custom Help Request</button>
+        <div id="customMessageInput" class="hidden mt-2">
+          <textarea id="customMessage" class="w-full p-2 border rounded" rows="3" placeholder="Enter your custom message..."></textarea>
+          <button onclick="sendAlert('custom')" class="w-full bg-green-700 text-white p-2 mt-2 rounded">Send Custom Alert</button>
+        </div>
+      </div>
+
+      <div id="alertStatus" class="text-center mt-4 text-sm font-semibold"></div>
+
+      <h3 class="text-lg font-bold mt-6 mb-2">Previous Alerts:</h3>
+      <div id="previousAlerts" class="max-h-48 overflow-y-auto border p-2 rounded bg-gray-50">
+        <p class="text-gray-500 text-center">No previous alerts.</p>
+      </div>
+      <p class="text-xs text-gray-500 mt-4 text-center">
+        **Important Note:** This app is for emergency use only. Do not use for entertainment or non-emergency situations.
+      </p>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyClBohbm2-pReGrbNMsm7ttDvwM2wEIfEo",
+      authDomain: "miner-5939b.firebaseapp.com",
+      databaseURL: "https://miner-5939b-default-rtdb.firebaseio.com",
+      projectId: "miner-5939b",
+      storageBucket: "miner-5939b.firebasestorage.app",
+      messagingSenderId: "936240933139",
+      appId: "1:936240933139:web:fe877e387fc82951d552e6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const alertStatusElement = document.getElementById("alertStatus");
+    const adminBannerElement = document.getElementById("adminBanner");
+    const bannerMessageElement = document.getElementById("bannerMessage");
+
+    function showStatusMessage(message, isError = false) {
+      alertStatusElement.innerText = message;
+      alertStatusElement.className = `text-center mt-4 text-sm font-semibold ${isError ? 'text-red-600' : 'text-green-600'}`;
+      setTimeout(() => {
+        alertStatusElement.innerText = '';
+      }, 5000); // Clear message after 5 seconds
+    }
+
+    function loginUser() {
+      const mobile = document.getElementById("mobile").value;
+      if (/^\d{10}$/.test(mobile)) {
+        localStorage.setItem("mobile", mobile);
+        document.getElementById("userMobile").innerText = mobile;
+        document.getElementById("loginSection").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+
+        set(ref(db, `users/${mobile}`), {
+          mobile: mobile,
+          registeredAt: new Date().toISOString()
+        }).then(() => {
+          displayPreviousAlerts(mobile); // Display previous alerts on successful login
+          fetchAndDisplayBanner(); // Fetch and display banner on successful login
+        }).catch((error) => {
+          console.error("Firebase registration error:", error);
+          showStatusMessage("Failed to register user: " + error.message, true);
+        });
+      } else {
+        alert("Please enter a valid 10-digit mobile number.");
+      }
+    }
+
+    function toggleCustomMessageInput() {
+      document.getElementById("customMessageInput").classList.toggle("hidden");
+    }
+
+    function sendAlert(type) {
+      const mobile = localStorage.getItem("mobile");
+      if (!mobile) {
+        showStatusMessage("User not logged in. Please register first.", true);
+        return;
+      }
+
+      const timestampRaw = new Date().toISOString();
+      const timestamp = timestampRaw.replace(/[.#$\[\]]/g, '_'); // Firebase key friendly
+
+      let message = "";
+      if (type === 'custom') {
+        message = document.getElementById("customMessage").value.trim();
+        if (!message) {
+          showStatusMessage("Please enter a custom message.", true);
+          return;
+        }
+      }
+
+      const saveAlert = (location, locationAvailable) => {
+        const alertData = {
+          type: type,
+          location: location,
+          time: timestampRaw,
+          message: message,
+          status: "pending", // Default status when alert is created
+          adminReply: "" // Initialize empty admin reply
+        };
+
+        const userAlertPath = `users/${mobile}/alerts/${timestamp}`;
+        const allAlertsPath = `all_emergency_alerts/${mobile}_${timestamp}`; // Unique ID for all_emergency_alerts
+
+        // Save to user's personal alerts
+        set(ref(db, userAlertPath), alertData)
+          .then(() => {
+            // Also save a copy to the global alerts for admin view
+            const globalAlertData = {
+              ...alertData,
+              userId: mobile,
+              userAlertId: timestamp // Reference back to the user's specific alert key (timestamp)
+            };
+            return set(ref(db, allAlertsPath), globalAlertData);
+          })
+          .then(() => {
+            let statusMessage = "✅ Alert sent successfully!";
+            if (locationAvailable) {
+              statusMessage += " Your location was captured.";
+            } else {
+              statusMessage += " Location could not be accurately determined.";
+            }
+            showStatusMessage(statusMessage);
+            document.getElementById("customMessage").value = ''; // Clear custom message
+            document.getElementById("customMessageInput").classList.add("hidden"); // Hide input
+            displayPreviousAlerts(mobile); // Refresh previous alerts
+          })
+          .catch((error) => {
+            console.error("Firebase error:", error);
+            showStatusMessage("❌ Failed to send alert: " + error.message, true);
+          });
+      };
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const location = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            };
+            saveAlert(location, true);
+          },
+          (error) => {
+            console.warn("⚠️ Geolocation failed. Using fallback location.", error.message);
+            const fallback = { latitude: 0, longitude: 0, locationUnavailable: true };
+            saveAlert(fallback, false);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 } // Enhanced accuracy options
+        );
+      } else {
+        const fallback = { latitude: 0, longitude: 0, locationUnavailable: true };
+        saveAlert(fallback, false);
+      }
+    }
+
+    function displayPreviousAlerts(mobile) {
+      const previousAlertsDiv = document.getElementById("previousAlerts");
+      previousAlertsDiv.innerHTML = '<p class="text-gray-500 text-center">Loading previous alerts...</p>';
+
+      const alertsRef = query(ref(db, `users/${mobile}/alerts`), orderByChild('time'), limitToLast(10)); // Get last 10 alerts
+
+      onValue(alertsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const alerts = [];
+          snapshot.forEach((childSnapshot) => {
+            alerts.push(childSnapshot.val());
+          });
+          alerts.reverse(); // Display newest first
+
+          previousAlertsDiv.innerHTML = ''; // Clear "Loading" message
+          alerts.forEach(alert => {
+            const alertElement = document.createElement('div');
+            alertElement.className = 'border-b last:border-b-0 py-2';
+
+            const date = new Date(alert.time);
+            const formattedDate = date.toLocaleString(); // Format date and time
+
+            let locationInfo = '';
+            if (alert.location && alert.location.latitude !== 0 && alert.location.longitude !== 0) {
+              locationInfo = `Lat: ${alert.location.latitude.toFixed(4)}, Lon: ${alert.location.longitude.toFixed(4)}`;
+            } else {
+              locationInfo = 'Location not precisely captured.';
+            }
+
+            let messageContent = alert.message ? `<p class="text-sm">Message: <span class="font-normal">${alert.message}</span></p>` : '';
+            let adminReplyContent = alert.adminReply ? `<p class="text-sm text-blue-700">Admin Reply: <span class="font-normal">${alert.adminReply}</span></p>` : '';
+            
+            // Status badge with different colors based on status
+            let statusClass = 'bg-gray-200';
+            if (alert.status === 'responded') statusClass = 'bg-green-200 text-green-800';
+            else if (alert.status === 'under review') statusClass = 'bg-yellow-200 text-yellow-800';
+            else if (alert.status === 'pending') statusClass = 'bg-red-200 text-red-800';
+            
+            const statusBadge = `<span class="text-xs px-2 py-1 rounded-full ${statusClass}">${alert.status || 'pending'}</span>`;
+
+            alertElement.innerHTML = `
+              <div class="flex justify-between items-start">
+                <p class="font-semibold capitalize">${alert.type} Alert</p>
+                ${statusBadge}
+              </div>
+              <p class="text-sm">Time: <span class="font-normal">${formattedDate}</span></p>
+              <p class="text-sm">Location: <span class="font-normal">${locationInfo}</span></p>
+              ${messageContent}
+              ${adminReplyContent}
+            `;
+            previousAlertsDiv.appendChild(alertElement);
+          });
+        } else {
+          previousAlertsDiv.innerHTML = '<p class="text-gray-500 text-center">No previous alerts.</p>';
+        }
+      }, (error) => {
+        console.error("Error fetching previous alerts:", error);
+        previousAlertsDiv.innerHTML = '<p class="text-red-500 text-center">Error loading alerts.</p>';
+      });
+    }
+
+    function fetchAndDisplayBanner() {
+      const bannerRef = ref(db, 'admin/bannerMessage');
+      onValue(bannerRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data && data.message) {
+          bannerMessageElement.innerText = data.message;
+          adminBannerElement.classList.remove('hidden');
+        } else {
+          adminBannerElement.classList.add('hidden');
+        }
+      });
+    }
+
+    // Bind functions to window
+    window.loginUser = loginUser;
+    window.sendAlert = sendAlert;
+    window.toggleCustomMessageInput = toggleCustomMessageInput; // Make accessible globally
+
+    // Auto-login if mobile is already stored
+    window.addEventListener("load", () => {
+      const savedMobile = localStorage.getItem("mobile");
+      if (savedMobile) {
+        document.getElementById("userMobile").innerText = savedMobile;
+        document.getElementById("loginSection").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+        displayPreviousAlerts(savedMobile); // Display previous alerts on auto-login
+        fetchAndDisplayBanner(); // Fetch and display banner on auto-login
+      }
+    });
+  </script>
+</body>
+</html>
