@@ -5,51 +5,141 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emergency Alert App</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    .emergency-btn {
+      transition: all 0.2s ease;
+    }
+    .emergency-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .emergency-btn:active {
+      transform: translateY(0);
+    }
+    .alert-card {
+      transition: background-color 0.3s ease;
+    }
+    .alert-card:hover {
+      background-color: #f8fafc;
+    }
+    #previousAlerts::-webkit-scrollbar {
+      width: 6px;
+    }
+    #previousAlerts::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    #previousAlerts::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    #previousAlerts::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div id="app" class="w-full max-w-sm p-6 bg-white rounded-2xl shadow-lg">
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+  <div id="app" class="w-full max-w-md">
     <!-- Login/Register Screen -->
-    <div id="loginSection">
-      <h2 class="text-2xl font-bold mb-4 text-center">Login/Register</h2>
-      <input id="mobile" type="tel" placeholder="Enter 10-digit Mobile Number" maxlength="10" class="w-full p-2 mb-4 border rounded" />
-      <button onclick="loginUser()" class="w-full bg-blue-600 text-white p-2 rounded">Continue</button>
+    <div id="loginSection" class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-blue-600 py-4 px-6">
+        <h2 class="text-2xl font-bold text-white text-center">Emergency Alert</h2>
+      </div>
+      <div class="p-6">
+        <div class="mb-6">
+          <label for="mobile" class="block text-sm font-medium text-gray-700 mb-2">Mobile Number</label>
+          <input id="mobile" type="tel" placeholder="Enter 10-digit Mobile Number" maxlength="10" 
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+        </div>
+        <button onclick="loginUser()" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition emergency-btn">
+          Continue
+        </button>
+      </div>
     </div>
 
     <!-- Dashboard Screen -->
-    <div id="dashboard" class="hidden">
-      <div id="adminBanner" class="hidden bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4 rounded" role="alert">
-        <p class="font-bold">Important Message from Admin:</p>
-        <p id="bannerMessage"></p>
+    <div id="dashboard" class="hidden bg-white rounded-xl shadow-lg overflow-hidden">
+      <!-- Header -->
+      <div class="bg-blue-600 py-4 px-6">
+        <h2 class="text-xl font-bold text-white text-center">Emergency Dashboard</h2>
       </div>
-
-      <h2 class="text-xl font-bold mb-4 text-center">Emergency Dashboard</h2>
-      <p class="mb-4 text-center">Welcome, <span id="userMobile" class="font-semibold"></span></p>
-
-      <div class="mb-4">
-        <button onclick="sendAlert('danger')" class="w-full bg-red-600 text-white p-2 mb-2 rounded">🚨 I Am In Danger</button>
-        <button onclick="sendAlert('call')" class="w-full bg-yellow-500 text-white p-2 mb-2 rounded">📞 I Need A Call</button>
-        <button onclick="toggleCustomMessageInput()" class="w-full bg-green-500 text-white p-2 rounded">🆘 Custom Help Request</button>
-        <div id="customMessageInput" class="hidden mt-2">
-          <textarea id="customMessage" class="w-full p-2 border rounded" rows="3" placeholder="Enter your custom message..."></textarea>
-          <button onclick="sendAlert('custom')" class="w-full bg-green-700 text-white p-2 mt-2 rounded">Send Custom Alert</button>
+      
+      <div class="p-6">
+        <!-- Admin Banner -->
+        <div id="adminBanner" class="hidden bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 mb-6 rounded-lg">
+          <p class="font-bold text-sm">Important Message from Admin:</p>
+          <p id="bannerMessage" class="text-sm mt-1"></p>
         </div>
-      </div>
 
-      <div id="alertStatus" class="text-center mt-4 text-sm font-semibold"></div>
+        <!-- Welcome Message -->
+        <div class="mb-6 text-center">
+          <p class="text-gray-600">Welcome back,</p>
+          <p id="userMobile" class="text-lg font-semibold text-gray-800"></p>
+        </div>
 
-      <h3 class="text-lg font-bold mt-6 mb-2">Previous Alerts:</h3>
-      <div id="previousAlerts" class="max-h-48 overflow-y-auto border p-2 rounded bg-gray-50">
-        <p class="text-gray-500 text-center">No previous alerts.</p>
+        <!-- Alert Buttons -->
+        <div class="space-y-3 mb-6">
+          <button onclick="sendAlert('danger')" 
+                  class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition emergency-btn flex items-center justify-center">
+            <span class="mr-2">🚨</span> I Am In Danger
+          </button>
+          <button onclick="sendAlert('call')" 
+                  class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 px-4 rounded-lg transition emergency-btn flex items-center justify-center">
+            <span class="mr-2">📞</span> I Need A Call
+          </button>
+          <button onclick="toggleCustomMessageInput()" 
+                  class="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg transition emergency-btn flex items-center justify-center">
+            <span class="mr-2">🆘</span> Custom Help Request
+          </button>
+          
+          <!-- Custom Message Input -->
+          <div id="customMessageInput" class="hidden mt-3 bg-gray-50 p-4 rounded-lg">
+            <textarea id="customMessage" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" 
+                      rows="3" placeholder="Describe your emergency..."></textarea>
+            <button onclick="sendAlert('custom')" 
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg mt-3 transition emergency-btn">
+              Send Custom Alert
+            </button>
+          </div>
+        </div>
+
+        <!-- Alert Status -->
+        <div id="alertStatus" class="text-center mb-6 text-sm font-medium hidden transition-opacity duration-500"></div>
+
+        <!-- Previous Alerts -->
+        <div class="mb-4">
+          <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+            </svg>
+            Previous Alerts
+          </h3>
+          <div id="previousAlerts" class="border border-gray-200 rounded-lg p-3 bg-gray-50 max-h-64 overflow-y-auto">
+            <p class="text-gray-500 text-center py-4">No previous alerts.</p>
+          </div>
+        </div>
+
+        <!-- Footer Note -->
+        <p class="text-xs text-gray-500 text-center mt-6">
+          <strong>Important Note:</strong> This app is for emergency use only. Misuse may result in legal action.
+        </p>
       </div>
-      <p class="text-xs text-gray-500 mt-4 text-center">
-        **Important Note:** This app is for emergency use only. Do not use for entertainment or non-emergency situations.
-      </p>
+    </div>
+
+    <!-- Status Message Box (unused in current flow) -->
+    <div id="userMessageBox" class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-xl hidden z-50 transition-opacity duration-300 opacity-0">
+      <p id="userMessageText"></p>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+    import { getDatabase, ref, set, onValue, query, orderByChild, limitToLast, update } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyClBohbm2-pReGrbNMsm7ttDvwM2wEIfEo",
@@ -69,13 +159,146 @@
     const alertStatusElement = document.getElementById("alertStatus");
     const adminBannerElement = document.getElementById("adminBanner");
     const bannerMessageElement = document.getElementById("bannerMessage");
+    const userMessageBox = document.getElementById("userMessageBox");
+    const userMessageText = document.getElementById("userMessageText");
 
-    function showStatusMessage(message, isError = false) {
+    const policeStationsData = [
+      {
+        "name": "Kamrup Metro (Guwahati)",
+        "control": "(0361) 2540278, 2546286 (City PCR)",
+        "station": "Panbazar PS: 0361‑2524627; Chandmari PS: 0361‑2660204; Basistha PS: 0361‑2562158; Beltola PS: 0361‑2302158; Noonmati PS: 0361‑2550281",
+        "location": "Guwahati, Kamrup Metropolitan, Assam",
+        "latitude": 26.1844,
+        "longitude": 91.7458
+      },
+      {
+        "name": "Cachar (Silchar)",
+        "control": "(03842) 245866 (District PCR)",
+        "station": "Silchar PS: 03842‑246279 / 246214; Borkhola PS: 03842‑286433; Katigorah PS: 03842‑268175; Dholai PS: 03842‑258422",
+        "location": "Silchar, Cachar, Assam",
+        "latitude": 24.8333,
+        "longitude": 92.7793
+      },
+      {
+        "name": "Tinsukia District",
+        "control": "(0374) 2331476 (Police Control Room)",
+        "station": "Tinsukia PS: 0374‑2332100; Bordubi PS: 0374‑2824452; Makum PS: 0374‑2345557; Doomdooma PS: 03759‑240647; Digboi PS: 03751‑264844; Margherita PS: 03751‑220229",
+        "location": "Tinsukia, Assam",
+        "latitude": 27.4925,
+        "longitude": 95.3520
+      },
+      {
+        "name": "Jorhat District",
+        "control": "(0376) 2320018 (Police Control Room)",
+        "station": "Jorhat PS: 0376‑2320063 / 2320022; Borhula PS: 03771‑247406; Garamur PS: 0376‑274436; Jengraimukh PS: 0376‑272061; Mariani PS: 03771‑2142002; Teok PS: 0376‑2396424; Titabor PS: 03771‑248436",
+        "location": "Jorhat, Assam",
+        "latitude": 26.7440,
+        "longitude": 94.2047
+      },
+      {
+        "name": "Nagaon District",
+        "control": "(03672) 235620 (Police Control Room)",
+        "station": "SP Office: 03672‑235624; Nagaon PS: (via SP CUG); other local PS follow same STD code",
+        "location": "Nagaon, Assam",
+        "latitude": 26.3480,
+        "longitude": 92.6875
+      },
+      {
+        "name": "Sonitpur District (Tezpur)",
+        "control": "6026901052 (Police Control Room)",
+        "station": "Tezpur PS: 6026901027; Dhekiajuli PS: 6026901036; Rangapara PS: 6026901031; Missamari PS: 6026901035; Thelamara PS: 6026901037; Bebejia PS: 6026901041",
+        "location": "Tezpur, Sonitpur, Assam",
+        "latitude": 26.6330,
+        "longitude": 92.8032
+      },
+      {
+        "name": "Dibrugarh District",
+        "control": "(0373) 2329655 (Police Control Room)",
+        "station": "Dibrugarh PS: 0373‑2329067; Moran PS; Naharkatia PS; Chabua PS; Duliajan PS; Lahowal PS",
+        "location": "Dibrugarh, Assam",
+        "latitude": 27.4833,
+        "longitude": 94.9000
+      },
+      {
+        "name": "Dima Hasao District (Haflong)",
+        "control": "8638389873 (Police Control Room)",
+        "station": "SP Office: 03673‑236325; SDPO Maibang: 03673‑282453; Police Stations: Dehangi, Diyungmukh, Haflong, Harangajao, Langting, Mahur, Maibang, Umrangso",
+        "location": "Haflong, Dima Hasao, Assam",
+        "latitude": 25.5395,
+        "longitude": 93.0982
+      },
+      {
+        "name": "Dhemaji District",
+        "control": "6026900356 (PCR Dhemaji)",
+        "station": "SP Office: 03753‑224396; SDPO Jonai: 6026900342; Dhemaji PS (Sadar): 6026900345; Silapathar PS: 6026900346; Jonai PS: 6026900347",
+        "location": "Dhemaji, Assam",
+        "latitude": 27.4833,
+        "longitude": 94.5833
+      },
+      {
+        "name": "Karbi Anglong District (Diphu)",
+        "control": "(03671) 272254 (Diphu PCR)",
+        "station": "Police Stations: Bokajan, Howraghat, Dokmoka, Samelangso, Deithor, plus outposts across district",
+        "location": "Diphu, Karbi Anglong, Assam",
+        "latitude": 25.8333,
+        "longitude": 93.3000
+      },
+      {
+        "name": "Hailakandi District",
+        "control": "(03844) 222242 (PCR Hailakandi)",
+        "station": "Police Stations: Lala, Katlichera, Algapur, Ramnathpur, Panchgram, Katakhal, Bandukmara, Kalacherra, Bilaipur, Jamira, Karichera, Abdulapur, Lakhi Nagar, Shripur, Mhoanpur",
+        "location": "Hailakandi, Assam",
+        "latitude": 24.7000,
+        "longitude": 92.5500
+      },
+      {
+        "name": "Morigaon District",
+        "control": "(03678) 241161 (PCR Morigaon)",
+        "station": "Morigaon PS (OC): 03678‑240237; CI Laharighat: 03678‑240052; OC Jagiroad: 03678‑242237",
+        "location": "Morigaon, Assam",
+        "latitude": 26.3333,
+        "longitude": 92.2500
+      },
+      {
+        "name": "Lakhimpur District (North Lakhimpur)",
+        "control": "(03752) 223737 (Police Control Room)",
+        "station": "North Lakhimpur PS: 03752‑222115; Dhakuakhana PS: 03752‑254525; Bihpuria PS: 03752‑263230; Laluk PS: 03752‑256223; Baginadi PS: 03752‑266366; Ghilamara PS: 03752‑253401",
+        "location": "North Lakhimpur, Lakhimpur, Assam",
+        "latitude": 27.2300,
+        "longitude": 94.1000
+      },
+      {
+        "name": "Barpeta District",
+        "control": "(03664) 233xxx (approx. Barpeta PCR)",
+        "station": "Barpeta SP Office: 9435049599; Additional PS contacts per district local listings (e.g. Barpeta Town PS)",
+        "location": "Barpeta, Assam",
+        "latitude": 26.3190,
+        "longitude": 90.9640
+      },
+      {
+        "name": "Goalpara District",
+        "control": "(03663) 240003 (Goalpara PCR/OC)",
+        "station": "Goalpara PS (OC): 03663‑240031; Lakhipur PS: 03663‑283432; Dudhnoi PS: 03663‑281542; Rangjuli PS: 03663‑286042; Dhupdhara PS: 03663‑284303; Matia PS: 03663‑288001; Marnoi PS: 03663‑287001",
+        "location": "Goalpara, Assam",
+        "latitude": 26.1800,
+        "longitude": 90.6330
+      }
+    ];
+
+    function showAlertStatusMessage(message, isError = false) {
       alertStatusElement.innerText = message;
-      alertStatusElement.className = `text-center mt-4 text-sm font-semibold ${isError ? 'text-red-600' : 'text-green-600'}`;
+      alertStatusElement.classList.remove('hidden', 'text-green-600', 'text-red-600');
+      alertStatusElement.classList.add('block', isError ? 'text-red-600' : 'text-green-600');
+      alertStatusElement.style.opacity = 1;
+
       setTimeout(() => {
-        alertStatusElement.innerText = '';
-      }, 5000);
+        alertStatusElement.style.opacity = 0;
+        alertStatusElement.addEventListener('transitionend', function handler() {
+          alertStatusElement.classList.add('hidden');
+          alertStatusElement.classList.remove('block');
+          alertStatusElement.removeEventListener('transitionend', handler);
+        }, { once: true });
+      }, 3000);
     }
 
     function fetchUserLocation() {
@@ -114,10 +337,10 @@
           fetchAndDisplayBanner();
         }).catch((error) => {
           console.error("Firebase registration error:", error);
-          showStatusMessage("Failed to register user: " + error.message, true);
+          showAlertStatusMessage("Failed to register user: " + error.message, true);
         });
       } else {
-        alert("Please enter a valid 10-digit mobile number.");
+        showAlertStatusMessage("Please enter a valid 10-digit mobile number.", true);
       }
     }
 
@@ -125,10 +348,49 @@
       document.getElementById("customMessageInput").classList.toggle("hidden");
     }
 
+    function toRadians(degrees) {
+      return degrees * Math.PI / 180;
+    }
+
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = toRadians(lat2 - lat1);
+      const dLon = toRadians(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function findNearestPoliceStation(userLat, userLon) {
+      if (!policeStationsData || policeStationsData.length === 0) {
+        console.warn("No police station data loaded for nearest calculation.");
+        return null;
+      }
+
+      let nearestStation = null;
+      let minDistance = Infinity;
+
+      policeStationsData.forEach(station => {
+        if (typeof station.latitude === 'number' && typeof station.longitude === 'number') {
+          const distance = haversineDistance(userLat, userLon, station.latitude, station.longitude);
+          if (distance < minDistance) {
+            minDistance = distance;
+            nearestStation = station;
+          }
+        } else {
+          console.warn(`Police station "${station.name}" missing valid latitude/longitude for distance calculation.`);
+        }
+      });
+      return nearestStation;
+    }
+
     function sendAlert(type) {
       const mobile = localStorage.getItem("mobile");
       if (!mobile) {
-        showStatusMessage("User not logged in. Please register first.", true);
+        showAlertStatusMessage("User not logged in. Please register first.", true);
         return;
       }
 
@@ -139,52 +401,101 @@
       if (type === 'custom') {
         message = document.getElementById("customMessage").value.trim();
         if (!message) {
-          showStatusMessage("Please enter a custom message.", true);
+          showAlertStatusMessage("Please enter a custom message.", true);
           return;
         }
       }
 
       const saveAlert = (location, locationAvailable) => {
-        const alertData = {
-          type: type,
-          location: location,
-          time: timestampRaw,
-          message: message,
-          status: "pending",
-          adminReply: ""
-        };
+        let adminReplyMessage = "";
+        let autoStatus = "pending";
 
-        const userAlertPath = `users/${mobile}/alerts/${timestamp}`;
-        const allAlertsPath = `all_emergency_alerts/${mobile}_${timestamp}`;
-
-        set(ref(db, userAlertPath), alertData)
-          .then(() => {
-            const globalAlertData = {
-              ...alertData,
-              userId: mobile,
-              userAlertId: timestamp
-            };
-            return set(ref(db, allAlertsPath), globalAlertData);
-          })
-          .then(() => {
-            let statusMessage = "✅ Alert sent successfully!";
-            if (locationAvailable) {
-              statusMessage += " Your location was captured.";
-            } else {
-              statusMessage += " Location could not be accurately determined.";
-            }
-            showStatusMessage(statusMessage);
-            document.getElementById("customMessage").value = '';
-            document.getElementById("customMessageInput").classList.add("hidden");
-            displayPreviousAlerts(mobile);
-          })
-          .catch((error) => {
-            console.error("Firebase error:", error);
-            showStatusMessage("❌ Failed to send alert: " + error.message, true);
+        if (type === 'danger' && locationAvailable && location.latitude !== 0 && location.longitude !== 0) {
+          const nearestStation = findNearestPoliceStation(location.latitude, location.longitude);
+          if (nearestStation) {
+            adminReplyMessage = `Emergency. Your nearest PS is ${nearestStation.name}. Control: ${nearestStation.control}, Station: ${nearestStation.station}.`;
+            autoStatus = "responded";
+          } else {
+            getPoliceControlNumber().then(generalNum => {
+              if (generalNum) {
+                adminReplyMessage = `Emergency. Please contact Police Control: ${generalNum}.`;
+                autoStatus = "responded";
+              } else {
+                 getAutoReply('danger').then(defaultDangerReply => {
+                    adminReplyMessage = defaultDangerReply || "Emergency alert received. Help is on the way.";
+                    autoStatus = defaultDangerReply ? "responded" : "pending";
+                 }).finally(() => {
+                     finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
+                 });
+              }
+            }).catch(error => {
+              console.error("Error fetching general police control number:", error);
+              getAutoReply('danger').then(defaultDangerReply => {
+                adminReplyMessage = defaultDangerReply || "Emergency alert received. Help is on the way.";
+                autoStatus = defaultDangerReply ? "responded" : "pending";
+              }).finally(() => {
+                  finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
+              });
+            });
+            return;
+          }
+        } else {
+          getAutoReply(type).then(autoReplyText => {
+            adminReplyMessage = autoReplyText || "";
+            autoStatus = autoReplyText ? "responded" : "pending";
+          }).finally(() => {
+              finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
           });
+          return;
+        }
+        
+        finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
       };
 
-      if (latestLocation && latestLocation.latitude !== 0 && latestLocation.longitude !== 0) {
+      const finalizeAndSendAlert = (mobile, timestamp, type, location, message, adminReply, status) => {
+          const alertData = {
+            type: type,
+            location: location,
+            time: timestampRaw,
+            message: message,
+            status: status,
+            adminReply: adminReply
+          };
+
+          const userAlertPath = `users/${mobile}/alerts/${timestamp}`;
+          const allAlertsPath = `all_emergency_alerts/${mobile}_${timestamp}`;
+
+          set(ref(db, userAlertPath), alertData)
+            .then(() => {
+              const globalAlertData = {
+                ...alertData,
+                userId: mobile,
+                userAlertId: timestamp
+              };
+              return set(ref(db, allAlertsPath), globalAlertData);
+            })
+            .then(() => {
+              let statusMessage = "✅ Alert sent successfully!";
+              let isErrorMessage = false;
+              if (location.latitude === 0 && location.longitude === 0 && location.locationUnavailable) {
+                statusMessage += " Location could not be accurately determined.";
+                isErrorMessage = true;
+              } else if (location.latitude !== 0 || location.longitude !== 0) {
+                 statusMessage += " Your location was captured.";
+              }
+              
+              showAlertStatusMessage(statusMessage, isErrorMessage);
+              document.getElementById("customMessage").value = '';
+              document.getElementById("customMessageInput").classList.add("hidden");
+              displayPreviousAlerts(mobile);
+            })
+            .catch((error) => {
+              console.error("Firebase error:", error);
+              showAlertStatusMessage("❌ Failed to send alert: " + error.message, true);
+            });
+      };
+
+      if (latestLocation && (latestLocation.latitude !== 0 || latestLocation.longitude !== 0)) {
         saveAlert(latestLocation, true);
       } else {
         if (navigator.geolocation) {
@@ -209,6 +520,32 @@
       }
     }
 
+    function getAutoReply(type) {
+      return new Promise((resolve, reject) => {
+        onValue(ref(db, `admin/autoReplies/${type}`), (snapshot) => {
+          const autoReplyMessage = snapshot.val();
+          resolve(autoReplyMessage || '');
+        }, {
+          onlyOnce: true
+        }, (error) => {
+          reject(error);
+        });
+      });
+    }
+
+    function getPoliceControlNumber() {
+      return new Promise((resolve, reject) => {
+        onValue(ref(db, 'admin/autoReplies/policeControlNumber'), (snapshot) => {
+          const policeNum = snapshot.val();
+          resolve(policeNum || '');
+        }, {
+          onlyOnce: true
+        }, (error) => {
+          reject(error);
+        });
+      });
+    }
+
     function displayPreviousAlerts(mobile) {
       const previousAlertsDiv = document.getElementById("previousAlerts");
       previousAlertsDiv.innerHTML = '<p class="text-gray-500 text-center">Loading previous alerts...</p>';
@@ -226,13 +563,13 @@
           previousAlertsDiv.innerHTML = '';
           alerts.forEach(alert => {
             const alertElement = document.createElement('div');
-            alertElement.className = 'border-b last:border-b-0 py-2';
+            alertElement.className = 'border-b last:border-b-0 py-2 alert-card';
 
             const date = new Date(alert.time);
             const formattedDate = date.toLocaleString();
 
             let locationInfo = '';
-            if (alert.location && alert.location.latitude !== 0 && alert.location.longitude !== 0) {
+            if (alert.location && alert.location.latitude !== 0 && alert.location.longitude !== 0 && !alert.location.locationUnavailable) {
               const lat = alert.location.latitude.toFixed(4);
               const lon = alert.location.longitude.toFixed(4);
               const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
