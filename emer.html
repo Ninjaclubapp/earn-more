@@ -44,12 +44,16 @@
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
   <div id="app" class="w-full max-w-md">
-    <!-- Login/Register Screen -->
     <div id="loginSection" class="bg-white rounded-xl shadow-lg overflow-hidden">
       <div class="bg-blue-600 py-4 px-6">
         <h2 class="text-2xl font-bold text-white text-center">Emergency Alert</h2>
       </div>
       <div class="p-6">
+        <div class="mb-6">
+          <label for="userName" class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+          <input id="userName" type="text" placeholder="Enter Your Name"
+                 class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+        </div>
         <div class="mb-6">
           <label for="mobile" class="block text-sm font-medium text-gray-700 mb-2">Mobile Number</label>
           <input id="mobile" type="tel" placeholder="Enter 10-digit Mobile Number" maxlength="10" 
@@ -62,27 +66,25 @@
       </div>
     </div>
 
-    <!-- Dashboard Screen -->
     <div id="dashboard" class="hidden bg-white rounded-xl shadow-lg overflow-hidden">
-      <!-- Header -->
-      <div class="bg-blue-600 py-4 px-6">
-        <h2 class="text-xl font-bold text-white text-center">Emergency Dashboard</h2>
+      <div class="bg-blue-600 py-4 px-6 flex justify-between items-center">
+        <h2 class="text-xl font-bold text-white">Emergency Dashboard</h2>
+        <button onclick="logoutUser()" class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium py-2 px-4 rounded-lg transition emergency-btn">
+          Logout
+        </button>
       </div>
       
       <div class="p-6">
-        <!-- Admin Banner -->
         <div id="adminBanner" class="hidden bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 mb-6 rounded-lg">
           <p class="font-bold text-sm">Important Message from Admin:</p>
           <p id="bannerMessage" class="text-sm mt-1"></p>
         </div>
 
-        <!-- Welcome Message -->
         <div class="mb-6 text-center">
           <p class="text-gray-600">Welcome back,</p>
           <p id="userMobile" class="text-lg font-semibold text-gray-800"></p>
         </div>
 
-        <!-- Alert Buttons -->
         <div class="space-y-3 mb-6">
           <button onclick="sendAlert('danger')" 
                   class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition emergency-btn flex items-center justify-center">
@@ -97,7 +99,6 @@
             <span class="mr-2">🆘</span> Custom Help Request
           </button>
           
-          <!-- Custom Message Input -->
           <div id="customMessageInput" class="hidden mt-3 bg-gray-50 p-4 rounded-lg">
             <textarea id="customMessage" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" 
                       rows="3" placeholder="Describe your emergency..."></textarea>
@@ -108,10 +109,8 @@
           </div>
         </div>
 
-        <!-- Alert Status -->
         <div id="alertStatus" class="text-center mb-6 text-sm font-medium hidden transition-opacity duration-500"></div>
 
-        <!-- Previous Alerts -->
         <div class="mb-4">
           <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
@@ -124,14 +123,12 @@
           </div>
         </div>
 
-        <!-- Footer Note -->
         <p class="text-xs text-gray-500 text-center mt-6">
           <strong>Important Note:</strong> This app is for emergency use only. Misuse may result in legal action.
         </p>
       </div>
     </div>
 
-    <!-- Status Message Box (unused in current flow) -->
     <div id="userMessageBox" class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-xl hidden z-50 transition-opacity duration-300 opacity-0">
       <p id="userMessageText"></p>
     </div>
@@ -162,6 +159,8 @@
     const userMessageBox = document.getElementById("userMessageBox");
     const userMessageText = document.getElementById("userMessageText");
 
+    const userNameInput = document.getElementById("userName");
+    
     const policeStationsData = [
       {
         "name": "Kamrup Metro (Guwahati)",
@@ -322,15 +321,25 @@
 
     function loginUser() {
       const mobile = document.getElementById("mobile").value;
+      const userName = userNameInput.value.trim(); // Get the name and trim whitespace
+
+      if (!userName) { // Add validation for name
+        showAlertStatusMessage("Please enter your name.", true);
+        return;
+      }
+
       if (/^\d{10}$/.test(mobile)) {
         localStorage.setItem("mobile", mobile);
-        document.getElementById("userMobile").innerText = mobile;
+        localStorage.setItem("userName", userName); // Store the name in localStorage
+        document.getElementById("userMobile").innerText = `${userName} (${mobile})`; // Display name and mobile
+
         document.getElementById("loginSection").classList.add("hidden");
         document.getElementById("dashboard").classList.remove("hidden");
         fetchUserLocation();
 
         set(ref(db, `users/${mobile}`), {
           mobile: mobile,
+          name: userName, // Save the name to Firebase
           registeredAt: new Date().toISOString()
         }).then(() => {
           displayPreviousAlerts(mobile);
@@ -342,6 +351,18 @@
       } else {
         showAlertStatusMessage("Please enter a valid 10-digit mobile number.", true);
       }
+    }
+
+    // New Logout function
+    function logoutUser() {
+      localStorage.removeItem("mobile");
+      localStorage.removeItem("userName");
+      document.getElementById("dashboard").classList.add("hidden");
+      document.getElementById("loginSection").classList.remove("hidden");
+      // Clear input fields for next login
+      document.getElementById("mobile").value = '';
+      document.getElementById("userName").value = '';
+      showAlertStatusMessage("You have been logged out.", false);
     }
 
     function toggleCustomMessageInput() {
@@ -449,7 +470,7 @@
           return;
         }
         
-        finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
+        finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReply, status);
       };
 
       const finalizeAndSendAlert = (mobile, timestamp, type, location, message, adminReply, status) => {
@@ -572,7 +593,8 @@
             if (alert.location && alert.location.latitude !== 0 && alert.location.longitude !== 0 && !alert.location.locationUnavailable) {
               const lat = alert.location.latitude.toFixed(4);
               const lon = alert.location.longitude.toFixed(4);
-              const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
+              // Updated map link to be more universal and less prone to errors with specific Google Maps subdomains
+              const mapLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
               locationInfo = `Lat: ${lat}, Lon: ${lon} - <a href="${mapLink}" target="_blank" class="text-blue-600 underline">View on Map</a>`;
             } else {
               locationInfo = 'Location not precisely captured.';
@@ -625,11 +647,18 @@
     window.loginUser = loginUser;
     window.sendAlert = sendAlert;
     window.toggleCustomMessageInput = toggleCustomMessageInput;
+    window.logoutUser = logoutUser; // Make logout function globally accessible
 
     window.addEventListener("load", () => {
       const savedMobile = localStorage.getItem("mobile");
+      const savedUserName = localStorage.getItem("userName"); 
+
       if (savedMobile) {
-        document.getElementById("userMobile").innerText = savedMobile;
+        if (savedUserName) {
+          document.getElementById("userMobile").innerText = `${savedUserName} (${savedMobile})`; 
+        } else {
+          document.getElementById("userMobile").innerText = savedMobile;
+        }
         document.getElementById("loginSection").classList.add("hidden");
         document.getElementById("dashboard").classList.remove("hidden");
         fetchUserLocation();
