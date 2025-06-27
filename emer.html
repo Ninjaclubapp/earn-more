@@ -88,7 +88,6 @@
 </head>
 <body class="min-h-screen flex items-center justify-center p-2 sm:p-4">
   <div id="app" class="w-full max-w-md mx-auto">
-    <!-- Login Section -->
     <div id="loginSection" class="bg-white rounded-xl shadow-2xl overflow-hidden transform transition-all duration-300 ease-in-out">
       <div class="bg-gradient-to-r from-blue-600 to-blue-800 py-4 px-4 sm:py-6 sm:px-6 flex flex-col items-center justify-center">
         <span class="material-symbols-outlined text-white text-4xl sm:text-5xl mb-1 sm:mb-2">
@@ -116,7 +115,6 @@
       </div>
     </div>
 
-    <!-- Dashboard Section -->
     <div id="dashboard" class="hidden bg-white rounded-xl shadow-lg overflow-hidden">
       <div class="bg-blue-600 py-3 px-4 sm:py-4 sm:px-6 flex justify-between items-center">
         <h2 class="text-lg sm:text-xl font-bold text-white">Emergency Dashboard</h2>
@@ -126,19 +124,16 @@
       </div>
       
       <div class="p-3 sm:p-4">
-        <!-- Admin Banner -->
         <div id="adminBanner" class="hidden bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-3 mb-4 rounded-lg">
           <p class="font-bold text-xs sm:text-sm">Important Message from Admin:</p>
           <p id="bannerMessage" class="text-xs sm:text-sm mt-1"></p>
         </div>
 
-        <!-- User Welcome -->
         <div class="mb-4 text-center">
           <p class="text-sm sm:text-base text-gray-600">Welcome back,</p>
           <p id="userMobile" class="text-base sm:text-lg font-semibold text-gray-800 truncate px-2"></p>
         </div>
 
-        <!-- Emergency Buttons -->
         <div class="space-y-2 mb-4">
           <button id="dangerAlertBtn" onclick="initiateAlert('danger')" 
                   class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 sm:py-3 px-4 rounded-lg transition emergency-btn flex items-center justify-center">
@@ -153,7 +148,6 @@
             <span class="mr-2">🆘</span> Custom Help Request
           </button>
           
-          <!-- Custom Message Input -->
           <div id="customMessageInput" class="hidden mt-2 bg-gray-50 p-3 rounded-lg">
             <textarea id="customMessage" class="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" 
                       rows="3" placeholder="Describe your emergency..."></textarea>
@@ -164,11 +158,9 @@
           </div>
         </div>
 
-        <!-- Countdown and Status -->
         <div id="countdownDisplay" class="text-center text-base sm:text-lg font-bold text-red-600 mb-3 hidden"></div>
         <div id="alertStatus" class="text-center mb-4 text-xs sm:text-sm font-medium hidden transition-opacity duration-500"></div>
 
-        <!-- Previous Alerts -->
         <div class="mb-3">
           <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-2 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
@@ -181,7 +173,6 @@
           </div>
         </div>
 
-        <!-- Admin Chat -->
         <div class="mb-3">
           <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-2 flex items-center">
             <span class="material-symbols-outlined mr-1 sm:mr-2 text-gray-600 text-base sm:text-lg">chat</span>
@@ -200,14 +191,12 @@
           </div>
         </div>
 
-        <!-- Footer Note -->
         <p class="text-2xs sm:text-xs text-gray-500 text-center mt-4">
           <strong>Important Note:</strong> This app is for emergency use only. Misuse may result in legal action.
         </p>
       </div>
     </div>
 
-    <!-- User Message Box -->
     <div id="userMessageBox" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-xl hidden z-50 transition-opacity duration-300 opacity-0 text-sm max-w-xs">
       <p id="userMessageText"></p>
     </div>
@@ -233,6 +222,9 @@
     let latestLocation = null;
     let countdownInterval;
     let currentAlertType = null;
+    let lastAdminBannerMessage = ''; // To track changes in admin banner for notifications
+    let lastAlertAdminReply = ''; // To track changes in admin replies for notifications
+    let lastProcessedNotificationTimestamp = 0; // To prevent duplicate direct notifications
 
     const alertStatusElement = document.getElementById("alertStatus");
     const adminBannerElement = document.getElementById("adminBanner");
@@ -401,6 +393,29 @@
       }
     }
 
+    // Function to request notification permission
+    function requestNotificationPermission() {
+        if (!("Notification" in window)) {
+            console.log("This browser does not support desktop notification");
+        } else if (Notification.permission === "granted") {
+            console.log("Notification permission already granted.");
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(function (permission) {
+                if (permission === "granted") {
+                    console.log("Notification permission granted!");
+                } else {
+                    console.log("Notification permission denied.");
+                }
+            });
+        }
+    }
+
+    function showBrowserNotification(title, body) {
+        if (Notification.permission === "granted") {
+            new Notification(title, { body: body, icon: './emergency-icon.png' }); // You might want an actual icon
+        }
+    }
+
     function loginUser() {
       const mobile = document.getElementById("mobile").value;
       const userName = userNameInput.value.trim();
@@ -418,6 +433,7 @@
         document.getElementById("loginSection").classList.add("hidden");
         document.getElementById("dashboard").classList.remove("hidden");
         fetchUserLocation();
+        requestNotificationPermission(); // Request permission on login
 
         set(ref(db, `users/${mobile}`), {
           mobile: mobile,
@@ -427,6 +443,7 @@
           displayPreviousAlerts(mobile);
           fetchAndDisplayBanner();
           displayChatMessages(mobile);
+          listenForAdminNotifications(); // Start listening for direct notifications
         }).catch((error) => {
           console.error("Firebase registration error:", error);
           showAlertStatusMessage("Failed to register user: " + error.message, true);
@@ -701,10 +718,22 @@
       onValue(alertsRef, (snapshot) => {
         if (snapshot.exists()) {
           const alerts = [];
+          let latestAdminReplyForNotification = '';
           snapshot.forEach((childSnapshot) => {
-            alerts.push(childSnapshot.val());
+            const alertData = childSnapshot.val();
+            alerts.push(alertData);
+            // Check for new admin replies for notifications
+            if (alertData.adminReply && alertData.adminReply !== lastAlertAdminReply) {
+                latestAdminReplyForNotification = alertData.adminReply;
+            }
           });
           alerts.reverse();
+
+          // Trigger notification if there's a new admin reply and it's not the first load
+          if (latestAdminReplyForNotification && lastAlertAdminReply !== '' && latestAdminReplyForNotification !== lastAlertAdminReply) {
+              showBrowserNotification("Admin Reply to Your Alert", latestAdminReplyForNotification);
+          }
+          lastAlertAdminReply = latestAdminReplyForNotification || lastAlertAdminReply; // Update last tracked reply
 
           previousAlertsDiv.innerHTML = '';
           alerts.forEach(alert => {
@@ -718,7 +747,7 @@
             if (alert.location && alert.location.latitude !== 0 && alert.location.longitude !== 0 && !alert.location.locationUnavailable) {
               const lat = alert.location.latitude.toFixed(4);
               const lon = alert.location.longitude.toFixed(4);
-              const mapLink = `http://maps.google.com/?q=${lat},${lon}`;
+              const mapLink = `http://google.com/maps?q=${lat},${lon}`; // Corrected Google Maps link
               locationInfo = `Lat: ${lat}, Lon: ${lon} - <a href="${mapLink}" target="_blank" class="text-blue-600 underline hover:text-blue-800">View on Map</a>`;
             } else {
               locationInfo = 'Location not precisely captured.';
@@ -760,13 +789,37 @@
       onValue(bannerRef, (snapshot) => {
         const data = snapshot.val();
         if (data && data.message) {
-          bannerMessageElement.innerText = data.message;
-          adminBannerElement.classList.remove('hidden');
+            // Only show notification if the message has changed and it's not the initial load
+            if (lastAdminBannerMessage && data.message !== lastAdminBannerMessage) {
+                showBrowserNotification("Admin Update", data.message);
+            }
+            bannerMessageElement.innerText = data.message;
+            adminBannerElement.classList.remove('hidden');
+            lastAdminBannerMessage = data.message; // Update the last tracked message
         } else {
           adminBannerElement.classList.add('hidden');
+          lastAdminBannerMessage = ''; // Reset when no banner message
         }
       });
     }
+
+    // New function to listen for direct admin notifications
+    function listenForAdminNotifications() {
+        const notificationsRef = ref(db, 'admin/notifications');
+        onValue(notificationsRef, (snapshot) => {
+            snapshot.forEach((childSnapshot) => {
+                const notification = childSnapshot.val();
+                const notificationTimestamp = new Date(notification.timestamp).getTime();
+
+                // Only process notifications that are newer than the last one processed
+                if (notificationTimestamp > lastProcessedNotificationTimestamp) {
+                    showBrowserNotification("Important Announcement", notification.message);
+                    lastProcessedNotificationTimestamp = notificationTimestamp; // Update the timestamp
+                }
+            });
+        });
+    }
+
 
     function sendChatMessage() {
       const mobile = localStorage.getItem("mobile");
@@ -849,9 +902,11 @@
         document.getElementById("loginSection").classList.add("hidden");
         document.getElementById("dashboard").classList.remove("hidden");
         fetchUserLocation();
+        requestNotificationPermission(); // Request permission on page load if already logged in
         displayPreviousAlerts(savedMobile);
         fetchAndDisplayBanner();
         displayChatMessages(savedMobile);
+        listenForAdminNotifications(); // Start listening for direct notifications on load
       }
     });
   </script>
