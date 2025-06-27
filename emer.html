@@ -88,6 +88,7 @@
 </head>
 <body class="min-h-screen flex items-center justify-center p-2 sm:p-4">
   <div id="app" class="w-full max-w-md mx-auto">
+    <!-- Login Section -->
     <div id="loginSection" class="bg-white rounded-xl shadow-2xl overflow-hidden transform transition-all duration-300 ease-in-out">
       <div class="bg-gradient-to-r from-blue-600 to-blue-800 py-4 px-4 sm:py-6 sm:px-6 flex flex-col items-center justify-center">
         <span class="material-symbols-outlined text-white text-4xl sm:text-5xl mb-1 sm:mb-2">
@@ -115,6 +116,7 @@
       </div>
     </div>
 
+    <!-- Dashboard Section -->
     <div id="dashboard" class="hidden bg-white rounded-xl shadow-lg overflow-hidden">
       <div class="bg-blue-600 py-3 px-4 sm:py-4 sm:px-6 flex justify-between items-center">
         <h2 class="text-lg sm:text-xl font-bold text-white">Emergency Dashboard</h2>
@@ -124,16 +126,19 @@
       </div>
       
       <div class="p-3 sm:p-4">
+        <!-- Admin Banner -->
         <div id="adminBanner" class="hidden bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-3 mb-4 rounded-lg">
           <p class="font-bold text-xs sm:text-sm">Important Message from Admin:</p>
           <p id="bannerMessage" class="text-xs sm:text-sm mt-1"></p>
         </div>
 
+        <!-- User Welcome -->
         <div class="mb-4 text-center">
           <p class="text-sm sm:text-base text-gray-600">Welcome back,</p>
           <p id="userMobile" class="text-base sm:text-lg font-semibold text-gray-800 truncate px-2"></p>
         </div>
 
+        <!-- Emergency Buttons -->
         <div class="space-y-2 mb-4">
           <button id="dangerAlertBtn" onclick="initiateAlert('danger')" 
                   class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 sm:py-3 px-4 rounded-lg transition emergency-btn flex items-center justify-center">
@@ -148,6 +153,7 @@
             <span class="mr-2">🆘</span> Custom Help Request
           </button>
           
+          <!-- Custom Message Input -->
           <div id="customMessageInput" class="hidden mt-2 bg-gray-50 p-3 rounded-lg">
             <textarea id="customMessage" class="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition" 
                       rows="3" placeholder="Describe your emergency..."></textarea>
@@ -158,9 +164,11 @@
           </div>
         </div>
 
+        <!-- Countdown and Status -->
         <div id="countdownDisplay" class="text-center text-base sm:text-lg font-bold text-red-600 mb-3 hidden"></div>
         <div id="alertStatus" class="text-center mb-4 text-xs sm:text-sm font-medium hidden transition-opacity duration-500"></div>
 
+        <!-- Previous Alerts -->
         <div class="mb-3">
           <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-2 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
@@ -173,6 +181,7 @@
           </div>
         </div>
 
+        <!-- Admin Chat -->
         <div class="mb-3">
           <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-2 flex items-center">
             <span class="material-symbols-outlined mr-1 sm:mr-2 text-gray-600 text-base sm:text-lg">chat</span>
@@ -191,12 +200,14 @@
           </div>
         </div>
 
+        <!-- Footer Note -->
         <p class="text-2xs sm:text-xs text-gray-500 text-center mt-4">
           <strong>Important Note:</strong> This app is for emergency use only. Misuse may result in legal action.
         </p>
       </div>
     </div>
 
+    <!-- User Message Box -->
     <div id="userMessageBox" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-xl hidden z-50 transition-opacity duration-300 opacity-0 text-sm max-w-xs">
       <p id="userMessageText"></p>
     </div>
@@ -222,9 +233,6 @@
     let latestLocation = null;
     let countdownInterval;
     let currentAlertType = null;
-    let lastAdminBannerMessage = ''; // To track changes in admin banner for notifications
-    let lastAlertAdminReply = ''; // To track changes in admin replies for notifications
-    let lastProcessedNotificationTimestamp = 0; // To prevent duplicate direct notifications
 
     const alertStatusElement = document.getElementById("alertStatus");
     const adminBannerElement = document.getElementById("adminBanner");
@@ -359,17 +367,23 @@
     ];
 
     function showAlertStatusMessage(message, isError = false) {
-      alertStatusElement.innerText = message;
-      alertStatusElement.classList.remove('hidden', 'text-green-600', 'text-red-600');
-      alertStatusElement.classList.add('block', isError ? 'text-red-600' : 'text-green-600');
-      alertStatusElement.style.opacity = 1;
+      userMessageText.innerText = message;
+      userMessageBox.classList.remove('hidden', 'opacity-0');
+      userMessageBox.classList.add('block', 'opacity-100');
+      if (isError) {
+        userMessageBox.classList.remove('bg-gray-800');
+        userMessageBox.classList.add('bg-red-600');
+      } else {
+        userMessageBox.classList.remove('bg-red-600');
+        userMessageBox.classList.add('bg-gray-800');
+      }
 
       setTimeout(() => {
-        alertStatusElement.style.opacity = 0;
-        alertStatusElement.addEventListener('transitionend', function handler() {
-          alertStatusElement.classList.add('hidden');
-          alertStatusElement.classList.remove('block');
-          alertStatusElement.removeEventListener('transitionend', handler);
+        userMessageBox.classList.remove('opacity-100');
+        userMessageBox.classList.add('opacity-0');
+        userMessageBox.addEventListener('transitionend', function handler() {
+          userMessageBox.classList.add('hidden');
+          userMessageBox.removeEventListener('transitionend', handler);
         }, { once: true });
       }, 3000);
     }
@@ -393,29 +407,6 @@
       }
     }
 
-    // Function to request notification permission
-    function requestNotificationPermission() {
-        if (!("Notification" in window)) {
-            console.log("This browser does not support desktop notification");
-        } else if (Notification.permission === "granted") {
-            console.log("Notification permission already granted.");
-        } else if (Notification.permission !== "denied") {
-            Notification.requestPermission().then(function (permission) {
-                if (permission === "granted") {
-                    console.log("Notification permission granted!");
-                } else {
-                    console.log("Notification permission denied.");
-                }
-            });
-        }
-    }
-
-    function showBrowserNotification(title, body) {
-        if (Notification.permission === "granted") {
-            new Notification(title, { body: body, icon: './emergency-icon.png' }); // You might want an actual icon
-        }
-    }
-
     function loginUser() {
       const mobile = document.getElementById("mobile").value;
       const userName = userNameInput.value.trim();
@@ -433,7 +424,6 @@
         document.getElementById("loginSection").classList.add("hidden");
         document.getElementById("dashboard").classList.remove("hidden");
         fetchUserLocation();
-        requestNotificationPermission(); // Request permission on login
 
         set(ref(db, `users/${mobile}`), {
           mobile: mobile,
@@ -443,7 +433,6 @@
           displayPreviousAlerts(mobile);
           fetchAndDisplayBanner();
           displayChatMessages(mobile);
-          listenForAdminNotifications(); // Start listening for direct notifications
         }).catch((error) => {
           console.error("Firebase registration error:", error);
           showAlertStatusMessage("Failed to register user: " + error.message, true);
@@ -569,118 +558,180 @@
         }
       }
 
-      const saveAlert = (location, locationAvailable) => {
-        let adminReplyMessage = "";
-        let autoStatus = "pending";
+      let batteryLevel = 'N/A';
+      let isCharging = 'N/A';
 
-        if (type === 'danger' && locationAvailable && location.latitude !== 0 && location.longitude !== 0) {
-          const nearestStation = findNearestPoliceStation(location.latitude, location.longitude);
-          if (nearestStation) {
-            adminReplyMessage = `Emergency. Your nearest PS is ${nearestStation.name}. Control: ${nearestStation.control}, Station: ${nearestStation.station}.`;
-            autoStatus = "responded";
-          } else {
-            getPoliceControlNumber().then(generalNum => {
-              if (generalNum) {
-                adminReplyMessage = `Emergency. Please contact Police Control: ${generalNum}.`;
-                autoStatus = "responded";
+      const getBatteryInfo = () => {
+          return new Promise(resolve => {
+              if ('getBattery' in navigator) {
+                  navigator.getBattery().then(battery => {
+                      batteryLevel = (battery.level * 100).toFixed(0) + '%';
+                      isCharging = battery.charging ? 'Yes' : 'No';
+                      resolve();
+                  }).catch(e => {
+                      console.warn("Could not get battery info:", e);
+                      resolve(); // Resolve anyway to not block alert sending
+                  });
               } else {
-                 getAutoReply('danger').then(defaultDangerReply => {
-                    adminReplyMessage = defaultDangerReply || "Emergency alert received. Help is on the way.";
-                    autoStatus = defaultDangerReply ? "responded" : "pending";
-                 }).finally(() => {
-                     finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
-                 });
+                  resolve();
               }
-            }).catch(error => {
-              console.error("Error fetching general police control number:", error);
-              getAutoReply('danger').then(defaultDangerReply => {
-                adminReplyMessage = defaultDangerReply || "Emergency alert received. Help is on the way.";
-                autoStatus = defaultDangerReply ? "responded" : "pending";
-              }).finally(() => {
-                  finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
-              });
-            });
-            return;
-          }
-        } else {
-          getAutoReply(type).then(autoReplyText => {
-            adminReplyMessage = autoReplyText || "";
-            autoStatus = autoReplyText ? "responded" : "pending";
-          }).finally(() => {
-              finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
           });
-          return;
-        }
-        
-        finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
       };
 
-      const finalizeAndSendAlert = (mobile, timestamp, type, location, message, adminReply, status) => {
-          const alertData = {
-            type: type,
-            location: location,
-            time: timestampRaw,
-            message: message,
-            status: status,
-            adminReply: adminReply
+      const getDeviceType = () => {
+          const ua = navigator.userAgent;
+          if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua) ||
+              /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {
+              return "Mobile";
+          }
+          return "Desktop";
+      };
+
+      const getNetworkType = () => {
+        if (navigator.connection && navigator.connection.effectiveType) {
+            return navigator.connection.effectiveType; // e.g., "4g", "3g", "2g", "slow-2g"
+        } else if (navigator.connection && navigator.connection.type) {
+            return navigator.connection.type; // e.g., "wifi", "cellular", "ethernet", "none"
+        }
+        return 'Unknown';
+      };
+
+
+      const deviceType = getDeviceType();
+      const networkType = getNetworkType();
+
+
+      getBatteryInfo().then(() => {
+          const saveAlert = (location, locationAvailable) => {
+              let adminReplyMessage = "";
+              let autoStatus = "pending";
+
+              if (type === 'danger' && locationAvailable && location.latitude !== 0 && location.longitude !== 0) {
+                  const nearestStation = findNearestPoliceStation(location.latitude, location.longitude);
+                  if (nearestStation) {
+                      adminReplyMessage = `Emergency. Your nearest PS is ${nearestStation.name}. Control: ${nearestStation.control}, Station: ${nearestStation.station}.`;
+                      autoStatus = "responded";
+                  } else {
+                      getPoliceControlNumber().then(generalNum => {
+                          if (generalNum) {
+                              adminReplyMessage = `Emergency. Please contact Police Control: ${generalNum}.`;
+                              autoStatus = "responded";
+                          } else {
+                              getAutoReply('danger').then(defaultDangerReply => {
+                                  adminReplyMessage = defaultDangerReply || "Emergency alert received. Help is on the way.";
+                                  autoStatus = defaultDangerReply ? "responded" : "pending";
+                              }).finally(() => {
+                                  finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
+                              });
+                          }
+                      }).catch(error => {
+                          console.error("Error fetching general police control number:", error);
+                          getAutoReply('danger').then(defaultDangerReply => {
+                              adminReplyMessage = defaultDangerReply || "Emergency alert received. Help is on the way.";
+                              autoStatus = defaultDangerReply ? "responded" : "pending";
+                          }).finally(() => {
+                              finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
+                          });
+                      });
+                      return;
+                  }
+              } else {
+                  getAutoReply(type).then(autoReplyText => {
+                      adminReplyMessage = autoReplyText || "";
+                      autoStatus = autoReplyText ? "responded" : "pending";
+                  }).finally(() => {
+                      finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
+                  });
+                  return;
+              }
+
+              finalizeAndSendAlert(mobile, timestamp, type, location, message, adminReplyMessage, autoStatus);
           };
 
-          const userAlertPath = `users/${mobile}/alerts/${timestamp}`;
-          const allAlertsPath = `all_emergency_alerts/${mobile}_${timestamp}`;
-
-          set(ref(db, userAlertPath), alertData)
-            .then(() => {
-              const globalAlertData = {
-                ...alertData,
-                userId: mobile,
-                userAlertId: timestamp
+          const finalizeAndSendAlert = (mobile, timestamp, type, location, message, adminReply, status) => {
+              const alertData = {
+                  type: type,
+                  location: location,
+                  time: timestampRaw,
+                  message: message,
+                  status: status,
+                  adminReply: adminReply,
+                  battery: {
+                      level: batteryLevel,
+                      isCharging: isCharging
+                  },
+                  deviceType: deviceType,
+                  networkType: networkType // Added network type here
               };
-              return set(ref(db, allAlertsPath), globalAlertData);
-            })
-            .then(() => {
-              let statusMessage = "✅ Alert sent successfully!";
-              let isErrorMessage = false;
-              if (location.latitude === 0 && location.longitude === 0 && location.locationUnavailable) {
-                statusMessage += " Location could not be accurately determined.";
-                isErrorMessage = true;
-              } else if (location.latitude !== 0 || location.longitude !== 0) {
-                 statusMessage += " Your location was captured.";
+
+              const userAlertPath = `users/${mobile}/alerts/${timestamp}`;
+              const allAlertsPath = `all_emergency_alerts/${mobile}_${timestamp}`;
+
+              set(ref(db, userAlertPath), alertData)
+                  .then(() => {
+                      const globalAlertData = {
+                          ...alertData,
+                          userId: mobile,
+                          userAlertId: timestamp
+                      };
+                      return set(ref(db, allAlertsPath), globalAlertData);
+                  })
+                  .then(() => {
+                      let statusMessage = "✅ Alert sent successfully!";
+                      let isErrorMessage = false;
+                      if (location.latitude === 0 && location.longitude === 0 && location.locationUnavailable) {
+                          statusMessage += " Location could not be accurately determined.";
+                          isErrorMessage = true;
+                      } else if (location.latitude !== 0 || location.longitude !== 0) {
+                          statusMessage += " Your location was captured.";
+                      }
+
+                      showAlertStatusMessage(statusMessage, isErrorMessage);
+                      document.getElementById("customMessage").value = '';
+                      document.getElementById("customMessageInput").classList.add("hidden");
+                      displayPreviousAlerts(mobile);
+                  })
+                  .catch((error) => {
+                      console.error("Firebase error:", error);
+                      showAlertStatusMessage("❌ Failed to send alert: " + error.message, true);
+                  });
+          };
+
+          if (latestLocation && (latestLocation.latitude !== 0 || latestLocation.longitude !== 0)) {
+              saveAlert(latestLocation, true);
+          } else {
+              if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(
+                      (position) => {
+                          const location = {
+                              latitude: position.coords.latitude,
+                              longitude: position.coords.longitude
+                          };
+                          saveAlert(location, true);
+                      },
+                      (error) => {
+                          const fallback = {
+                              latitude: 0,
+                              longitude: 0,
+                              locationUnavailable: true
+                          };
+                          saveAlert(fallback, false);
+                      }, {
+                          enableHighAccuracy: true,
+                          timeout: 10000,
+                          maximumAge: 0
+                      }
+                  );
+              } else {
+                  const fallback = {
+                      latitude: 0,
+                      longitude: 0,
+                      locationUnavailable: true
+                  };
+                  saveAlert(fallback, false);
               }
-              
-              showAlertStatusMessage(statusMessage, isErrorMessage);
-              document.getElementById("customMessage").value = '';
-              document.getElementById("customMessageInput").classList.add("hidden");
-              displayPreviousAlerts(mobile);
-            })
-            .catch((error) => {
-              console.error("Firebase error:", error);
-              showAlertStatusMessage("❌ Failed to send alert: " + error.message, true);
-            });
-      };
-
-      if (latestLocation && (latestLocation.latitude !== 0 || latestLocation.longitude !== 0)) {
-        saveAlert(latestLocation, true);
-      } else {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const location = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude
-              };
-              saveAlert(location, true);
-            },
-            (error) => {
-              const fallback = { latitude: 0, longitude: 0, locationUnavailable: true };
-              saveAlert(fallback, false);
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-          );
-        } else {
-          const fallback = { latitude: 0, longitude: 0, locationUnavailable: true };
-          saveAlert(fallback, false);
-        }
-      }
+          }
+      });
     }
 
     function getAutoReply(type) {
@@ -718,22 +769,10 @@
       onValue(alertsRef, (snapshot) => {
         if (snapshot.exists()) {
           const alerts = [];
-          let latestAdminReplyForNotification = '';
           snapshot.forEach((childSnapshot) => {
-            const alertData = childSnapshot.val();
-            alerts.push(alertData);
-            // Check for new admin replies for notifications
-            if (alertData.adminReply && alertData.adminReply !== lastAlertAdminReply) {
-                latestAdminReplyForNotification = alertData.adminReply;
-            }
+            alerts.push(childSnapshot.val());
           });
           alerts.reverse();
-
-          // Trigger notification if there's a new admin reply and it's not the first load
-          if (latestAdminReplyForNotification && lastAlertAdminReply !== '' && latestAdminReplyForNotification !== lastAlertAdminReply) {
-              showBrowserNotification("Admin Reply to Your Alert", latestAdminReplyForNotification);
-          }
-          lastAlertAdminReply = latestAdminReplyForNotification || lastAlertAdminReply; // Update last tracked reply
 
           previousAlertsDiv.innerHTML = '';
           alerts.forEach(alert => {
@@ -747,7 +786,7 @@
             if (alert.location && alert.location.latitude !== 0 && alert.location.longitude !== 0 && !alert.location.locationUnavailable) {
               const lat = alert.location.latitude.toFixed(4);
               const lon = alert.location.longitude.toFixed(4);
-              const mapLink = `http://google.com/maps?q=${lat},${lon}`; // Corrected Google Maps link
+              const mapLink = `http://maps.google.com/?q=${lat},${lon}`;
               locationInfo = `Lat: ${lat}, Lon: ${lon} - <a href="${mapLink}" target="_blank" class="text-blue-600 underline hover:text-blue-800">View on Map</a>`;
             } else {
               locationInfo = 'Location not precisely captured.';
@@ -789,37 +828,13 @@
       onValue(bannerRef, (snapshot) => {
         const data = snapshot.val();
         if (data && data.message) {
-            // Only show notification if the message has changed and it's not the initial load
-            if (lastAdminBannerMessage && data.message !== lastAdminBannerMessage) {
-                showBrowserNotification("Admin Update", data.message);
-            }
-            bannerMessageElement.innerText = data.message;
-            adminBannerElement.classList.remove('hidden');
-            lastAdminBannerMessage = data.message; // Update the last tracked message
+          bannerMessageElement.innerText = data.message;
+          adminBannerElement.classList.remove('hidden');
         } else {
           adminBannerElement.classList.add('hidden');
-          lastAdminBannerMessage = ''; // Reset when no banner message
         }
       });
     }
-
-    // New function to listen for direct admin notifications
-    function listenForAdminNotifications() {
-        const notificationsRef = ref(db, 'admin/notifications');
-        onValue(notificationsRef, (snapshot) => {
-            snapshot.forEach((childSnapshot) => {
-                const notification = childSnapshot.val();
-                const notificationTimestamp = new Date(notification.timestamp).getTime();
-
-                // Only process notifications that are newer than the last one processed
-                if (notificationTimestamp > lastProcessedNotificationTimestamp) {
-                    showBrowserNotification("Important Announcement", notification.message);
-                    lastProcessedNotificationTimestamp = notificationTimestamp; // Update the timestamp
-                }
-            });
-        });
-    }
-
 
     function sendChatMessage() {
       const mobile = localStorage.getItem("mobile");
@@ -902,11 +917,9 @@
         document.getElementById("loginSection").classList.add("hidden");
         document.getElementById("dashboard").classList.remove("hidden");
         fetchUserLocation();
-        requestNotificationPermission(); // Request permission on page load if already logged in
         displayPreviousAlerts(savedMobile);
         fetchAndDisplayBanner();
         displayChatMessages(savedMobile);
-        listenForAdminNotifications(); // Start listening for direct notifications on load
       }
     });
   </script>
