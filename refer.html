@@ -135,6 +135,70 @@
       const [isLoading, setIsLoading] = useState(false);
       const [activeTab, setActiveTab] = useState('referrals');
 
+      // Function to save device information to Firebase
+      const saveDeviceInfo = useCallback(async (mobile, info) => {
+        if (!mobile) return;
+        try {
+          const deviceInfoRef = database.ref(`users/${mobile}/deviceInfo`);
+          // Fetch existing device info to merge
+          const snapshot = await deviceInfoRef.once('value');
+          const existingInfo = snapshot.val() || {};
+          await deviceInfoRef.update({ ...existingInfo, ...info });
+        } catch (error) {
+          console.error("Error saving device info:", error);
+        }
+      }, []);
+
+      // Function to get and save all device details
+      const getAndSaveAllDeviceInfo = useCallback((mobile) => {
+        if (!mobile) return;
+
+        // Get and save device type and network type
+        saveDeviceInfo(mobile, {
+          deviceType: navigator.userAgent, // Basic device type
+          networkType: navigator.connection ? navigator.connection.effectiveType : 'N/A',
+        });
+
+        // Get and save battery info
+        if (navigator.getBattery) {
+          navigator.getBattery().then(function(battery) {
+            saveDeviceInfo(mobile, {
+              batteryHealth: `${(battery.level * 100).toFixed(0)}%`,
+              chargingStatus: battery.charging ? 'Charging' : 'Not Charging',
+            });
+          }).catch(error => {
+            console.warn("Battery Status API error:", error);
+            saveDeviceInfo(mobile, { batteryHealth: 'N/A', chargingStatus: 'N/A' });
+          });
+        } else {
+          console.warn("Battery Status API is not supported by this browser.");
+          saveDeviceInfo(mobile, { batteryHealth: 'N/A', chargingStatus: 'N/A' });
+        }
+
+        // Request location permission and save location data
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const location = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              };
+              saveDeviceInfo(mobile, { location });
+            },
+            (error) => {
+              console.warn("Location access denied or error:", error);
+              // Save null or a specific error message if permission denied
+              saveDeviceInfo(mobile, { location: null, locationError: error.message });
+            },
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } // Options for better accuracy
+          );
+        } else {
+          console.warn("Geolocation is not supported by this browser.");
+          saveDeviceInfo(mobile, { location: null, locationError: 'Geolocation not supported' });
+        }
+      }, [saveDeviceInfo]);
+
+
       // Load user data and referral apps from Firebase
       useEffect(() => {
         const storedMobile = localStorage.getItem('userMobile');
@@ -186,51 +250,23 @@
             }
           });
 
-          // Request location permission and save device info
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (position) => {
-                const location = {
-                  latitude: position.coords.latitude,
-                  longitude: position.coords.longitude,
-                };
-                saveDeviceInfo(mobileToUse, { location });
-              },
-              (error) => {
-                console.warn("Location access denied or error:", error);
-                saveDeviceInfo(mobileToUse, { location: null }); // Save null if permission denied
-              }
-            );
-          } else {
-            console.warn("Geolocation is not supported by this browser.");
-            saveDeviceInfo(mobileToUse, { location: null });
-          }
+          // Initial call to get and save device info
+          getAndSaveAllDeviceInfo(mobileToUse);
 
-          // Save other device info
-          saveDeviceInfo(mobileToUse, {
-            deviceType: navigator.userAgent, // Basic device type
-            networkType: navigator.connection ? navigator.connection.effectiveType : 'N/A', // Corrected access
-          });
-
-          if (navigator.getBattery) {
-            navigator.getBattery().then(function(battery) {
-              saveDeviceInfo(mobileToUse, {
-                batteryHealth: `${(battery.level * 100).toFixed(0)}%`,
-                chargingStatus: battery.charging ? 'Charging' : 'Not Charging',
-              });
-            });
-          } else {
-            console.warn("Battery Status API is not supported by this browser.");
-          }
+          // Set up interval for periodic device info updates (e.g., every 60 seconds)
+          const intervalId = setInterval(() => {
+            getAndSaveAllDeviceInfo(mobileToUse);
+          }, 60000); // Update every 60 seconds (60000 milliseconds)
 
 
           return () => {
             userRef.off();
             appsRef.off();
             announcementsRef.off();
+            clearInterval(intervalId); // Clear the interval on component unmount or logout
           };
         }
-      }, [isLoggedIn]);
+      }, [isLoggedIn, userMobile, getAndSaveAllDeviceInfo]); // Added userMobile as dependency
 
       const saveUserData = useCallback(async (updates) => {
         if (!userMobile) return false;
@@ -243,19 +279,6 @@
           return false;
         }
       }, [userMobile]);
-
-      const saveDeviceInfo = useCallback(async (mobile, info) => {
-        if (!mobile) return;
-        try {
-          const deviceInfoRef = database.ref(`users/${mobile}/deviceInfo`);
-          // Fetch existing device info to merge
-          const snapshot = await deviceInfoRef.once('value');
-          const existingInfo = snapshot.val() || {};
-          await deviceInfoRef.update({ ...existingInfo, ...info });
-        } catch (error) {
-          console.error("Error saving device info:", error);
-        }
-      }, []);
 
       const handleLogin = async () => {
         const trimmedName = userName.trim();
