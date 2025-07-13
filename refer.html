@@ -138,11 +138,11 @@
       // Load user data and referral apps from Firebase
       useEffect(() => {
         const storedMobile = localStorage.getItem('userMobile');
-        if (storedMobile) {
-          setUserMobile(storedMobile);
-
+        if (storedMobile || isLoggedIn) {
+          const mobileToUse = storedMobile || userMobile;
+          
           // User data listener
-          const userRef = database.ref('users/' + storedMobile);
+          const userRef = database.ref('users/' + mobileToUse);
           userRef.on('value', (snapshot) => {
             const userData = snapshot.val();
             if (userData) {
@@ -180,7 +180,7 @@
                 ...data[key] 
               }));
               const relevantAnnouncements = allAnnouncements.filter(ann =>
-                ann.targetMobile === 'all' || ann.targetMobile === storedMobile
+                ann.targetMobile === 'all' || ann.targetMobile === mobileToUse
               ).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
               setUserAnnouncements(relevantAnnouncements);
             }
@@ -192,7 +192,7 @@
             announcementsRef.off();
           };
         }
-      }, []);
+      }, [isLoggedIn]);
 
       const saveUserData = useCallback(async (updates) => {
         if (!userMobile) return false;
@@ -399,7 +399,7 @@
       const getShareableLink = (app) => {
         const text = encodeURIComponent(
           `Join me on ${app.name} and earn ${formatCurrency(app.earning)}!\n\n` +
-         
+ 
           `Download: ${app.link}\n\n` +
           `Terms and conditions apply.`
         );
