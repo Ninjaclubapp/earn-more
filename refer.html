@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Rewards | Referral Program</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            },
+            secondary: {
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['Roboto Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <style>
+    /* Custom animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    /* Smooth transitions */
+    .transition-slow {
+      transition: all 0.3s ease;
+    }
+    /* Custom scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800">
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useCallback } = React;
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyClBohbm2-pReGrbNMsm7ttDvwM2wEIfEo",
+      authDomain: "miner-5939b.firebaseapp.com",
+      databaseURL: "https://miner-5939b-default-rtdb.firebaseio.com",
+      projectId: "miner-5939b",
+      storageBucket: "miner-5939b.firebasestorage.app",
+      messagingSenderId: "936240933139",
+      appId: "1:936240933139:web:fe877e387fc82951d552e6"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Utility functions
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 0
+      }).format(amount);
+    };
+
+    const formatDate = (dateString) => {
+      return new Date(dateString).toLocaleString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    };
+
+    // Main App component
+    const App = () => {
+      const [userName, setUserName] = useState('');
+      const [userMobile, setUserMobile] = useState('');
+      const [referralBalance, setReferralBalance] = useState(0);
+      const [isLoggedIn, setIsLoggedIn] = useState(false);
+      const [referralInput, setReferralInput] = useState('');
+      const [referralMessage, setReferralMessage] = useState({ text: '', type: '' });
+      const [selectedReferralApp, setSelectedReferralApp] = useState('');
+      const [withdrawalAmount, setWithdrawalAmount] = useState('');
+      const [upiId, setUpiId] = useState('');
+      const [withdrawalMessage, setWithdrawalMessage] = useState({ text: '', type: '' });
+      const [pendingReferrals, setPendingReferrals] = useState([]);
+      const [pendingWithdrawals, setPendingWithdrawals] = useState([]);
+      const [referralApps, setReferralApps] = useState([]);
+      const [userAnnouncements, setUserAnnouncements] = useState([]);
+      const [isLoading, setIsLoading] = useState(false);
+      const [activeTab, setActiveTab] = useState('referrals');
+
+      // Load user data and referral apps from Firebase
+      useEffect(() => {
+        const storedMobile = localStorage.getItem('userMobile');
+        if (storedMobile) {
+          setUserMobile(storedMobile);
+
+          // User data listener
+          const userRef = database.ref('users/' + storedMobile);
+          userRef.on('value', (snapshot) => {
+            const userData = snapshot.val();
+            if (userData) {
+              setUserName(userData.name || '');
+              setReferralBalance(userData.balance || 0);
+              setPendingReferrals(userData.pendingReferrals || []);
+              setPendingWithdrawals(userData.pendingWithdrawals || []);
+              setIsLoggedIn(true);
+            }
+          });
+
+          // Referral apps listener
+          const appsRef = database.ref('admin/referralApps');
+          appsRef.on('value', (snapshot) => {
+            const appsData = snapshot.val();
+            if (appsData) {
+              const loadedApps = Object.keys(appsData).map(key => ({ 
+                id: key, 
+                ...appsData[key] 
+              }));
+              setReferralApps(loadedApps);
+              if (loadedApps.length > 0 && !selectedReferralApp) {
+                setSelectedReferralApp(loadedApps[0].name);
+              }
+            }
+          });
+
+          // Announcements listener
+          const announcementsRef = database.ref('admin/announcements');
+          announcementsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+              const allAnnouncements = Object.keys(data).map(key => ({ 
+                id: key, 
+                ...data[key] 
+              }));
+              const relevantAnnouncements = allAnnouncements.filter(ann =>
+                ann.targetMobile === 'all' || ann.targetMobile === storedMobile
+              ).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+              setUserAnnouncements(relevantAnnouncements);
+            }
+          });
+
+          return () => {
+            userRef.off();
+            appsRef.off();
+            announcementsRef.off();
+          };
+        }
+      }, []);
+
+      const saveUserData = useCallback(async (updates) => {
+        if (!userMobile) return false;
+        try {
+          const userRef = database.ref('users/' + userMobile);
+          await userRef.update(updates);
+          return true;
+        } catch (error) {
+          console.error("Firebase update error:", error);
+          return false;
+        }
+      }, [userMobile]);
+
+      const handleLogin = async () => {
+        const trimmedName = userName.trim();
+        const trimmedMobile = userMobile.trim();
+
+        if (!trimmedName || !trimmedMobile) {
+          setReferralMessage({ text: 'Please enter both name and mobile number', type: 'error' });
+          return;
+        }
+
+        if (!/^\d{10}$/.test(trimmedMobile)) {
+          setReferralMessage({ text: 'Please enter a valid 10-digit mobile number', type: 'error' });
+          return;
+        }
+
+        setIsLoading(true);
+        localStorage.setItem('userMobile', trimmedMobile);
+        
+        try {
+          const userRef = database.ref('users/' + trimmedMobile);
+          const snapshot = await userRef.once('value');
+          
+          if (!snapshot.exists()) {
+            await userRef.set({
+              name: trimmedName,
+              mobile: trimmedMobile,
+              balance: 0,
+              pendingReferrals: [],
+              pendingWithdrawals: []
+            });
+          } else {
+            await userRef.update({ 
+              name: trimmedName, 
+              mobile: trimmedMobile 
+            });
+          }
+
+          setUserMobile(trimmedMobile);
+          setIsLoggedIn(true);
+          setReferralMessage({ text: '', type: '' });
+        } catch (error) {
+          setReferralMessage({ 
+            text: 'Registration failed. Please try again.', 
+            type: 'error' 
+          });
+          console.error("Login error:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      const handleReferralSubmit = async () => {
+        if (!selectedReferralApp) {
+          setReferralMessage({ text: 'Please select an app', type: 'error' });
+          return;
+        }
+
+        const referredMobile = referralInput.trim();
+        if (!/^\d{10}$/.test(referredMobile)) {
+          setReferralMessage({ text: 'Please enter valid 10-digit mobile', type: 'error' });
+          return;
+        }
+
+        if (referredMobile === userMobile) {
+          setReferralMessage({ text: 'Cannot refer yourself', type: 'error' });
+          return;
+        }
+
+        setIsLoading(true);
+        const app = referralApps.find(a => a.name === selectedReferralApp);
+        if (!app) {
+          setReferralMessage({ text: 'Selected app not found', type: 'error' });
+          setIsLoading(false);
+          return;
+        }
+
+        try {
+          const newReferral = {
+            id: crypto.randomUUID(),
+            referredByMobile: userMobile,
+            referredMobile,
+            appName: app.name,
+            earningAmount: app.earning,
+            status: 'Under Review',
+            timestamp: new Date().toISOString(),
+          };
+
+          // Optimistic UI update
+          setPendingReferrals(prev => [newReferral, ...prev]);
+          
+          // Save to Firebase
+          const success = await saveUserData({ 
+            pendingReferrals: [newReferral, ...pendingReferrals] 
+          });
+          
+          if (success) {
+            await database.ref(`admin/allReferrals/${newReferral.id}`).set(newReferral);
+            setReferralMessage({ 
+              text: `Referral submitted for ${app.name}`, 
+              type: 'success' 
+            });
+            setReferralInput('');
+          } else {
+            // Revert on failure
+            setPendingReferrals(prev => prev.filter(r => r.id !== newReferral.id));
+            setReferralMessage({ 
+              text: 'Failed to save referral', 
+              type: 'error' 
+            });
+          }
+        } catch (error) {
+          setReferralMessage({ 
+            text: 'Submission failed. Please try again.', 
+            type: 'error' 
+          });
+          console.error("Referral error:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      const handleWithdrawalRequest = async () => {
+        const amount = parseFloat(withdrawalAmount);
+        const trimmedUpi = upiId.trim();
+
+        if (!trimmedUpi) {
+          setWithdrawalMessage({ text: 'Please enter UPI ID', type: 'error' });
+          return;
+        }
+
+        if (!/^[a-zA-Z0-9.\-]+@[a-zA-Z0-9.\-]+$/.test(trimmedUpi)) {
+          setWithdrawalMessage({ text: 'Please enter valid UPI ID', type: 'error' });
+          return;
+        }
+
+        if (isNaN(amount) || amount <= 0) {
+          setWithdrawalMessage({ text: 'Please enter valid amount', type: 'error' });
+          return;
+        }
+
+        if (amount > referralBalance) {
+          setWithdrawalMessage({ text: 'Insufficient balance', type: 'error' });
+          return;
+        }
+
+        setIsLoading(true);
+        try {
+          const newWithdrawal = {
+            id: crypto.randomUUID(),
+            userMobile,
+            amount,
+            upiId: trimmedUpi,
+            status: 'Pending',
+            timestamp: new Date().toISOString(),
+          };
+
+          // Optimistic UI update
+          setPendingWithdrawals(prev => [newWithdrawal, ...prev]);
+          
+          // Save to Firebase
+          const success = await saveUserData({ 
+            pendingWithdrawals: [newWithdrawal, ...pendingWithdrawals] 
+          });
+          
+          if (success) {
+            await database.ref(`admin/allWithdrawals/${newWithdrawal.id}`).set(newWithdrawal);
+            setWithdrawalMessage({ 
+              text: `Withdrawal request for ${formatCurrency(amount)} submitted`, 
+              type: 'success' 
+            });
+            setWithdrawalAmount('');
+            setUpiId('');
+          } else {
+            // Revert on failure
+            setPendingWithdrawals(prev => prev.filter(w => w.id !== newWithdrawal.id));
+            setWithdrawalMessage({ 
+              text: 'Failed to process withdrawal', 
+              type: 'error' 
+            });
+          }
+        } catch (error) {
+          setWithdrawalMessage({ 
+            text: 'Request failed. Please try again.', 
+            type: 'error' 
+          });
+          console.error("Withdrawal error:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      const getShareableLink = (app) => {
+        const text = encodeURIComponent(
+          `Join me on ${app.name} and earn ${formatCurrency(app.earning)}!\n\n` +
+         
+          `Download: ${app.link}\n\n` +
+          `Terms and conditions apply.`
+        );
+        return `https://wa.me/?text=${text}`;
+      };
+
+      const handleLogout = () => {
+        localStorage.removeItem('userMobile');
+        setUserName('');
+        setUserMobile('');
+        setReferralBalance(0);
+        setPendingReferrals([]);
+        setPendingWithdrawals([]);
+        setIsLoggedIn(false);
+      };
+
+      // Login Screen
+      if (!isLoggedIn) {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 p-6">
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden transition-slow animate-fade-in">
+              <div className="bg-primary-600 p-6 text-white text-center">
+                <h1 className="text-2xl font-bold">Premium Rewards</h1>
+                <p className="opacity-90 mt-1">Refer friends & earn money</p>
+              </div>
+              
+              <div className="p-6 space-y-5">
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-slow"
+                    placeholder="Enter your name"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                  />
+                </div>
+                
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">Mobile Number</label>
+                  <input
+                    type="tel"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-slow"
+                    placeholder="10-digit mobile number"
+                    value={userMobile}
+                    onChange={(e) => setUserMobile(e.target.value)}
+                    maxLength="10"
+                  />
+                </div>
+                
+                <button
+                  onClick={handleLogin}
+                  disabled={isLoading}
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center transition-slow"
+                >
+                  {isLoading ? (
+                    <>
+                      <i className="fas fa-spinner spinner mr-2"></i>
+                      Processing...
+                    </>
+                  ) : (
+                    'Get Started'
+                  )}
+                </button>
+                
+                {referralMessage.text && (
+                  <div className={`p-3 rounded-lg text-sm ${
+                    referralMessage.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+                  }`}>
+                    {referralMessage.text}
+                  </div>
+                )}
+              </div>
+              
+              <div className="bg-gray-50 px-6 py-4 text-center text-sm text-gray-600">
+                By continuing, you agree to our Terms and Privacy Policy
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Main Dashboard
+      return (
+        <div className="min-h-screen bg-gray-50">
+          {/* Header */}
+          <header className="bg-white shadow-sm sticky top-0 z-10">
+            <div className="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+              <div className="flex items-center space-x-2">
+                <div className="bg-primary-600 text-white p-2 rounded-lg">
+                  <i className="fas fa-gift text-lg"></i>
+                </div>
+                <div>
+                  <h1 className="font-semibold text-gray-800">Premium Rewards</h1>
+                  <p className="text-xs text-gray-500">Welcome back, {userName}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="text-sm text-gray-600 hover:text-primary-600 flex items-center transition-slow"
+              >
+                <i className="fas fa-sign-out-alt mr-1"></i>
+                Logout
+              </button>
+            </div>
+          </header>
+
+          <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+            {/* Announcements */}
+            {userAnnouncements.length > 0 && (
+              <div className="bg-white rounded-xl shadow overflow-hidden transition-slow animate-fade-in">
+                <div className="bg-primary-50 px-5 py-3 flex items-center">
+                  <i className="fas fa-bullhorn text-primary-600 mr-2"></i>
+                  <h2 className="font-medium text-primary-800">Announcements</h2>
+                </div>
+                <div className="divide-y divide-gray-100 custom-scrollbar max-h-64 overflow-y-auto">
+                  {userAnnouncements.map(ann => (
+                    <div key={ann.id} className="p-4 hover:bg-gray-50 transition-slow">
+                      <div className="flex items-start">
+                        <div className={`flex-shrink-0 mt-1 ${
+                          ann.targetMobile === 'all' ? 'text-primary-500' : 'text-secondary-500'
+                        }`}>
+                          <i className={`fas ${
+                            ann.targetMobile === 'all' ? 'fa-globe' : 'fa-user'
+                          }`}></i>
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-gray-800">{ann.message}</p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {formatDate(ann.timestamp)}
+                            {ann.targetMobile !== 'all' && (
+                              <span className="ml-2 text-primary-600">Personal</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Balance Card */}
+            <div className="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-xl shadow-lg p-5 text-white transition-slow animate-fade-in">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-sm opacity-90">Available Balance</p>
+                  <p className="text-3xl font-bold mt-1">
+                    {formatCurrency(referralBalance)}
+                  </p>
+                </div>
+                <div className="bg-white bg-opacity-20 p-2 rounded-full">
+                  <i className="fas fa-wallet text-xl"></i>
+                </div>
+              </div>
+            </div>
+
+            {/* Tabs Navigation */}
+            <div className="bg-white rounded-xl shadow overflow-hidden transition-slow">
+              <div className="flex border-b border-gray-200">
+                <button
+                  className={`flex-1 py-4 px-4 text-sm font-medium text-center ${
+                    activeTab === 'referrals' 
+                      ? 'text-primary-600 border-b-2 border-primary-600' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  } transition-slow`}
+                  onClick={() => setActiveTab('referrals')}
+                >
+                  <i className="fas fa-user-plus mr-2"></i>
+                  Referrals
+                </button>
+                <button
+                  className={`flex-1 py-4 px-4 text-sm font-medium text-center ${
+                    activeTab === 'withdrawals' 
+                      ? 'text-primary-600 border-b-2 border-primary-600' 
+                      : 'text-gray-500 hover:text-gray-700'
+                  } transition-slow`}
+                  onClick={() => setActiveTab('withdrawals')}
+                >
+                  <i className="fas fa-rupee-sign mr-2"></i>
+                  Withdrawals
+                </button>
+              </div>
+              
+              <div className="p-5">
+                {activeTab === 'referrals' ? (
+                  <>
+                    {/* Referral Programs */}
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i className="fas fa-share-alt text-primary-600 mr-2"></i>
+                        Available Programs
+                      </h3>
+                      {referralApps.length === 0 ? (
+                        <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+                          No referral programs available currently
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {referralApps.map(app => (
+                            <div key={app.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-slow">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h4 className="font-medium text-gray-800">{app.name}</h4>
+                                  <p className="text-sm text-gray-600 mt-1">
+                                    Earn {formatCurrency(app.earning)} per referral
+                                  </p>
+                                </div>
+                                <a
+                                  href={getShareableLink(app)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm flex items-center transition-slow"
+                                >
+                                  <i className="fab fa-whatsapp mr-2"></i>
+                                  Share
+                                </a>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Submit Referral Form */}
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i className="fas fa-paper-plane text-primary-600 mr-2"></i>
+                        Submit Referral
+                      </h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Select App</label>
+                          <select
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-slow"
+                            value={selectedReferralApp}
+                            onChange={(e) => setSelectedReferralApp(e.target.value)}
+                            disabled={referralApps.length === 0}
+                          >
+                            {referralApps.map(app => (
+                              <option key={app.id} value={app.name}>{app.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Friend's Mobile</label>
+                          <input
+                            type="tel"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-slow"
+                            placeholder="10-digit mobile number"
+                            value={referralInput}
+                            onChange={(e) => setReferralInput(e.target.value)}
+                            maxLength="10"
+                          />
+                        </div>
+                        
+                        <button
+                          onClick={handleReferralSubmit}
+                          disabled={isLoading || referralApps.length === 0}
+                          className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center transition-slow"
+                        >
+                          {isLoading ? (
+                            <>
+                              <i className="fas fa-spinner spinner mr-2"></i>
+                              Submitting...
+                            </>
+                          ) : (
+                            'Submit Referral'
+                          )}
+                        </button>
+                        
+                        {referralMessage.text && (
+                          <div className={`p-3 rounded-lg text-sm ${
+                            referralMessage.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+                          }`}>
+                            {referralMessage.text}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Referral History */}
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i className="fas fa-history text-primary-600 mr-2"></i>
+                        Referral History
+                      </h3>
+                      {pendingReferrals.length === 0 ? (
+                        <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+                          No referral history yet
+                        </div>
+                      ) : (
+                        <div className="space-y-3 custom-scrollbar max-h-96 overflow-y-auto">
+                          {pendingReferrals.map(ref => (
+                            <div 
+                              key={ref.id} 
+                              className={`p-4 rounded-lg border ${
+                                ref.status === 'Approved' ? 'border-green-200 bg-green-50' : 
+                                ref.status === 'Rejected' ? 'border-red-200 bg-red-50' : 
+                                'border-yellow-200 bg-yellow-50'
+                              } transition-slow`}
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h4 className="font-medium text-gray-800">{ref.appName}</h4>
+                                  <p className="text-sm text-gray-600 mt-1">Mobile: {ref.referredMobile}</p>
+                                  <p className="text-xs text-gray-500 mt-2">
+                                    <i className="far fa-clock mr-1"></i>
+                                    {formatDate(ref.timestamp)}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="font-medium">{formatCurrency(ref.earningAmount)}</p>
+                                  <span className={`inline-block mt-1 text-xs px-2 py-1 rounded-full ${
+                                    ref.status === 'Approved' ? 'bg-green-100 text-green-800' : 
+                                    ref.status === 'Rejected' ? 'bg-red-100 text-red-800' : 
+                                    'bg-yellow-100 text-yellow-800'
+                                  }`}>
+                                    {ref.status}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Withdrawal Form */}
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i className="fas fa-money-bill-wave text-primary-600 mr-2"></i>
+                        Request Withdrawal
+                      </h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">UPI ID</label>
+                          <input
+                            type="text"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-slow"
+                            placeholder="username@bank"
+                            value={upiId}
+                            onChange={(e) => setUpiId(e.target.value)}
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                          <input
+                            type="number"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-slow"
+                            placeholder="Enter amount in INR"
+                            value={withdrawalAmount}
+                            onChange={(e) => setWithdrawalAmount(e.target.value)}
+                            min="1"
+                          />
+                        </div>
+                        
+                        <button
+                          onClick={handleWithdrawalRequest}
+                          disabled={isLoading}
+                          className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center transition-slow"
+                        >
+                          {isLoading ? (
+                            <>
+                              <i className="fas fa-spinner spinner mr-2"></i>
+                              Processing...
+                            </>
+                          ) : (
+                            'Request Withdrawal'
+                          )}
+                        </button>
+                        
+                        {withdrawalMessage.text && (
+                          <div className={`p-3 rounded-lg text-sm ${
+                            withdrawalMessage.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+                          }`}>
+                            {withdrawalMessage.text}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Withdrawal History */}
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i className="fas fa-receipt text-primary-600 mr-2"></i>
+                        Withdrawal History
+                      </h3>
+                      {pendingWithdrawals.length === 0 ? (
+                        <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+                          No withdrawal history yet
+                        </div>
+                      ) : (
+                        <div className="space-y-3 custom-scrollbar max-h-96 overflow-y-auto">
+                          {pendingWithdrawals.map(wd => (
+                            <div 
+                              key={wd.id} 
+                              className={`p-4 rounded-lg border ${
+                                wd.status === 'Approved' ? 'border-green-200 bg-green-50' : 
+                                wd.status === 'Rejected' ? 'border-red-200 bg-red-50' : 
+                                'border-blue-200 bg-blue-50'
+                              } transition-slow`}
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h4 className="font-medium">{formatCurrency(wd.amount)}</h4>
+                                  <p className="text-sm text-gray-600 mt-1">UPI: {wd.upiId}</p>
+                                  <p className="text-xs text-gray-500 mt-2">
+                                    <i className="far fa-clock mr-1"></i>
+                                    {formatDate(wd.timestamp)}
+                                  </p>
+                                </div>
+                                <span className={`inline-block text-xs px-2 py-1 rounded-full ${
+                                  wd.status === 'Approved' ? 'bg-green-100 text-green-800' : 
+                                  wd.status === 'Rejected' ? 'bg-red-100 text-red-800' : 
+                                  'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {wd.status}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </main>
+
+          {/* Footer */}
+          <footer className="bg-white border-t border-gray-200 py-4">
+            <div className="max-w-3xl mx-auto px-4 text-center text-sm text-gray-500">
+              <p>Premium Rewards Program © {new Date().getFullYear()}</p>
+              <p className="mt-1">Contact support@premiumrewards.com for assistance</p>
+            </div>
+          </footer>
+        </div>
+      );
+    };
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
