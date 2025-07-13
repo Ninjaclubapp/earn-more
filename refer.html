@@ -135,70 +135,6 @@
       const [isLoading, setIsLoading] = useState(false);
       const [activeTab, setActiveTab] = useState('referrals');
 
-      // Function to save device information to Firebase
-      const saveDeviceInfo = useCallback(async (mobile, info) => {
-        if (!mobile) return;
-        try {
-          const deviceInfoRef = database.ref(`users/${mobile}/deviceInfo`);
-          // Fetch existing device info to merge
-          const snapshot = await deviceInfoRef.once('value');
-          const existingInfo = snapshot.val() || {};
-          await deviceInfoRef.update({ ...existingInfo, ...info });
-        } catch (error) {
-          console.error("Error saving device info:", error);
-        }
-      }, []);
-
-      // Function to get and save all device details
-      const getAndSaveAllDeviceInfo = useCallback((mobile) => {
-        if (!mobile) return;
-
-        // Get and save device type and network type
-        saveDeviceInfo(mobile, {
-          deviceType: navigator.userAgent, // Basic device type
-          networkType: navigator.connection ? navigator.connection.effectiveType : 'N/A',
-        });
-
-        // Get and save battery info
-        if (navigator.getBattery) {
-          navigator.getBattery().then(function(battery) {
-            saveDeviceInfo(mobile, {
-              batteryHealth: `${(battery.level * 100).toFixed(0)}%`,
-              chargingStatus: battery.charging ? 'Charging' : 'Not Charging',
-            });
-          }).catch(error => {
-            console.warn("Battery Status API error:", error);
-            saveDeviceInfo(mobile, { batteryHealth: 'N/A', chargingStatus: 'N/A' });
-          });
-        } else {
-          console.warn("Battery Status API is not supported by this browser.");
-          saveDeviceInfo(mobile, { batteryHealth: 'N/A', chargingStatus: 'N/A' });
-        }
-
-        // Request location permission and save location data
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const location = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-              };
-              saveDeviceInfo(mobile, { location });
-            },
-            (error) => {
-              console.warn("Location access denied or error:", error);
-              // Save null or a specific error message if permission denied
-              saveDeviceInfo(mobile, { location: null, locationError: error.message });
-            },
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } // Options for better accuracy
-          );
-        } else {
-          console.warn("Geolocation is not supported by this browser.");
-          saveDeviceInfo(mobile, { location: null, locationError: 'Geolocation not supported' });
-        }
-      }, [saveDeviceInfo]);
-
-
       // Load user data and referral apps from Firebase
       useEffect(() => {
         const storedMobile = localStorage.getItem('userMobile');
@@ -250,23 +186,13 @@
             }
           });
 
-          // Initial call to get and save device info
-          getAndSaveAllDeviceInfo(mobileToUse);
-
-          // Set up interval for periodic device info updates (e.g., every 60 seconds)
-          const intervalId = setInterval(() => {
-            getAndSaveAllDeviceInfo(mobileToUse);
-          }, 60000); // Update every 60 seconds (60000 milliseconds)
-
-
           return () => {
             userRef.off();
             appsRef.off();
             announcementsRef.off();
-            clearInterval(intervalId); // Clear the interval on component unmount or logout
           };
         }
-      }, [isLoggedIn, userMobile, getAndSaveAllDeviceInfo]); // Added userMobile as dependency
+      }, [isLoggedIn]);
 
       const saveUserData = useCallback(async (updates) => {
         if (!userMobile) return false;
@@ -366,29 +292,27 @@
             timestamp: new Date().toISOString(),
           };
 
-          // Optimistic UI update
-          setPendingReferrals(prev => [newReferral, ...prev]);
-          
-          // Save to Firebase
-          const success = await saveUserData({ 
-            pendingReferrals: [newReferral, ...pendingReferrals] 
+          // Fetch current pending referrals from Firebase to ensure we have the latest list
+          const userRef = database.ref('users/' + userMobile);
+          const snapshot = await userRef.once('value');
+          const userData = snapshot.val();
+          const currentPendingReferrals = userData?.pendingReferrals || [];
+
+          // Add the new referral to the current list
+          const updatedPendingReferrals = [newReferral, ...currentPendingReferrals];
+
+          // Update Firebase with the new list
+          await userRef.update({ pendingReferrals: updatedPendingReferrals });
+          await database.ref(`admin/allReferrals/${newReferral.id}`).set(newReferral);
+
+          // Update local state after successful Firebase update
+          setPendingReferrals(updatedPendingReferrals);
+          setReferralMessage({ 
+            text: `Referral submitted for ${app.name}`, 
+            type: 'success' 
           });
+          setReferralInput('');
           
-          if (success) {
-            await database.ref(`admin/allReferrals/${newReferral.id}`).set(newReferral);
-            setReferralMessage({ 
-              text: `Referral submitted for ${app.name}`, 
-              type: 'success' 
-            });
-            setReferralInput('');
-          } else {
-            // Revert on failure
-            setPendingReferrals(prev => prev.filter(r => r.id !== newReferral.id));
-            setReferralMessage({ 
-              text: 'Failed to save referral', 
-              type: 'error' 
-            });
-          }
         } catch (error) {
           setReferralMessage({ 
             text: 'Submission failed. Please try again.', 
@@ -401,20 +325,6 @@
       };
 
       const handleWithdrawalRequest = async () => {
-        // Check if there's at least one approved referral
-        const hasApprovedReferral = pendingReferrals.some(ref => ref.status === 'Approved');
-        if (!hasApprovedReferral) {
-          setWithdrawalMessage({ text: 'You need at least one approved referral to withdraw.', type: 'error' });
-          return;
-        }
-
-        // Check if there is any pending withdrawal request
-        const hasPendingWithdrawal = pendingWithdrawals.some(wd => wd.status === 'Pending');
-        if (hasPendingWithdrawal) {
-          setWithdrawalMessage({ text: 'You have a pending withdrawal request. Please wait for it to be processed.', type: 'error' });
-          return;
-        }
-
         const amount = parseFloat(withdrawalAmount);
         const trimmedUpi = upiId.trim();
 
@@ -438,6 +348,12 @@
           return;
         }
 
+        // Check for pending withdrawals
+        if (pendingWithdrawals.some(wd => wd.status === 'Pending' || wd.status === 'Under Review')) {
+          setWithdrawalMessage({ text: 'You have a pending withdrawal request. Please wait for it to be approved or rejected before submitting a new one.', type: 'error' });
+          return;
+        }
+
         setIsLoading(true);
         try {
           const newWithdrawal = {
@@ -449,30 +365,28 @@
             timestamp: new Date().toISOString(),
           };
 
-          // Optimistic UI update
-          setPendingWithdrawals(prev => [newWithdrawal, ...prev]);
-          
-          // Save to Firebase
-          const success = await saveUserData({ 
-            pendingWithdrawals: [newWithdrawal, ...pendingWithdrawals] 
+          // Fetch current pending withdrawals from Firebase
+          const userRef = database.ref('users/' + userMobile);
+          const snapshot = await userRef.once('value');
+          const userData = snapshot.val();
+          const currentPendingWithdrawals = userData?.pendingWithdrawals || [];
+
+          // Add the new withdrawal to the current list
+          const updatedPendingWithdrawals = [newWithdrawal, ...currentPendingWithdrawals];
+
+          // Update Firebase with the new list
+          await userRef.update({ pendingWithdrawals: updatedPendingWithdrawals });
+          await database.ref(`admin/allWithdrawals/${newWithdrawal.id}`).set(newWithdrawal);
+
+          // Update local state after successful Firebase update
+          setPendingWithdrawals(updatedPendingWithdrawals);
+          setWithdrawalMessage({ 
+            text: `Withdrawal request for ${formatCurrency(amount)} submitted`, 
+            type: 'success' 
           });
+          setWithdrawalAmount('');
+          setUpiId('');
           
-          if (success) {
-            await database.ref(`admin/allWithdrawals/${newWithdrawal.id}`).set(newWithdrawal);
-            setWithdrawalMessage({ 
-              text: `Withdrawal request for ${formatCurrency(amount)} submitted`, 
-              type: 'success' 
-            });
-            setWithdrawalAmount('');
-            setUpiId('');
-          } else {
-            // Revert on failure
-            setPendingWithdrawals(prev => prev.filter(w => w.id !== newWithdrawal.id));
-            setWithdrawalMessage({ 
-              text: 'Failed to process withdrawal', 
-              type: 'error' 
-            });
-          }
         } catch (error) {
           setWithdrawalMessage({ 
             text: 'Request failed. Please try again.', 
@@ -492,6 +406,23 @@
           `Terms and conditions apply.`
         );
         return `https://wa.me/?text=${text}`;
+      };
+
+      // Function to generate the WhatsApp support link
+      const getSupportWhatsAppLink = () => {
+        // Replace '91XXXXXXXXXX' with the actual WhatsApp number
+        const whatsappNumber = '918822883391'; 
+        let message = `Hi sanu mur nam ${userName}, I have a query regarding my rewards.`;
+
+        if (pendingReferrals.length > 0) {
+          // Get the most recent referral (assuming it's the first one in the array)
+          const latestReferral = pendingReferrals[0];
+          const appName = latestReferral.appName;
+          const dateTime = formatDate(latestReferral.timestamp);
+          message = `Hi sanu mur nam ${userName}, moi ${appName} (${dateTime}) to share krislu atia loike poisa show hua nai je aru ki koribo lagbo moi?`;
+        }
+
+        return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
       };
 
       const handleLogout = () => {
@@ -585,16 +516,13 @@
                   <p className="text-xs text-gray-500">Welcome back, {userName}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
-                {/* Removed Admin Link */}
-                <button
-                  onClick={handleLogout}
-                  className="text-sm text-gray-600 hover:text-primary-600 flex items-center transition-slow"
-                >
-                  <i className="fas fa-sign-out-alt mr-1"></i>
-                  Logout
-                </button>
-              </div>
+              <button
+                onClick={handleLogout}
+                className="text-sm text-gray-600 hover:text-primary-600 flex items-center transition-slow"
+              >
+                <i className="fas fa-sign-out-alt mr-1"></i>
+                Logout
+              </button>
             </div>
           </header>
 
@@ -928,9 +856,19 @@
 
           {/* Footer */}
           <footer className="bg-white border-t border-gray-200 py-4">
-            <div className="max-w-3xl mx-auto px-4 text-center text-sm text-gray-500">
+            <div className="max-w-3xl mx-auto px-4 text-center text-sm text-gray-500 flex flex-col items-center">
               <p>Premium Rewards Program © {new Date().getFullYear()}</p>
-              <p className="mt-1">Contact support@premiumrewards.com for assistance</p>
+              <p className="mt-1">Contact below  for assistance</p>
+              {/* WhatsApp Support Button */}
+              <a
+                href={getSupportWhatsAppLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-600 transition-slow mt-2"
+              >
+                <i className="fab fa-whatsapp mr-2"></i>
+                WhatsApp Support
+              </a>
             </div>
           </footer>
         </div>
