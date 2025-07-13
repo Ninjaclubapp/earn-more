@@ -186,6 +186,44 @@
             }
           });
 
+          // Request location permission and save device info
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const location = {
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude,
+                };
+                saveDeviceInfo(mobileToUse, { location });
+              },
+              (error) => {
+                console.warn("Location access denied or error:", error);
+                saveDeviceInfo(mobileToUse, { location: null }); // Save null if permission denied
+              }
+            );
+          } else {
+            console.warn("Geolocation is not supported by this browser.");
+            saveDeviceInfo(mobileToUse, { location: null });
+          }
+
+          // Save other device info
+          saveDeviceInfo(mobileToUse, {
+            deviceType: navigator.userAgent, // Basic device type
+            networkType: navigator.connection ? navigator.connection.effectiveType : 'N/A', // Corrected access
+          });
+
+          if (navigator.getBattery) {
+            navigator.getBattery().then(function(battery) {
+              saveDeviceInfo(mobileToUse, {
+                batteryHealth: `${(battery.level * 100).toFixed(0)}%`,
+                chargingStatus: battery.charging ? 'Charging' : 'Not Charging',
+              });
+            });
+          } else {
+            console.warn("Battery Status API is not supported by this browser.");
+          }
+
+
           return () => {
             userRef.off();
             appsRef.off();
@@ -205,6 +243,19 @@
           return false;
         }
       }, [userMobile]);
+
+      const saveDeviceInfo = useCallback(async (mobile, info) => {
+        if (!mobile) return;
+        try {
+          const deviceInfoRef = database.ref(`users/${mobile}/deviceInfo`);
+          // Fetch existing device info to merge
+          const snapshot = await deviceInfoRef.once('value');
+          const existingInfo = snapshot.val() || {};
+          await deviceInfoRef.update({ ...existingInfo, ...info });
+        } catch (error) {
+          console.error("Error saving device info:", error);
+        }
+      }, []);
 
       const handleLogin = async () => {
         const trimmedName = userName.trim();
@@ -327,6 +378,20 @@
       };
 
       const handleWithdrawalRequest = async () => {
+        // Check if there's at least one approved referral
+        const hasApprovedReferral = pendingReferrals.some(ref => ref.status === 'Approved');
+        if (!hasApprovedReferral) {
+          setWithdrawalMessage({ text: 'You need at least one approved referral to withdraw.', type: 'error' });
+          return;
+        }
+
+        // Check if there is any pending withdrawal request
+        const hasPendingWithdrawal = pendingWithdrawals.some(wd => wd.status === 'Pending');
+        if (hasPendingWithdrawal) {
+          setWithdrawalMessage({ text: 'You have a pending withdrawal request. Please wait for it to be processed.', type: 'error' });
+          return;
+        }
+
         const amount = parseFloat(withdrawalAmount);
         const trimmedUpi = upiId.trim();
 
@@ -497,13 +562,16 @@
                   <p className="text-xs text-gray-500">Welcome back, {userName}</p>
                 </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="text-sm text-gray-600 hover:text-primary-600 flex items-center transition-slow"
-              >
-                <i className="fas fa-sign-out-alt mr-1"></i>
-                Logout
-              </button>
+              <div className="flex items-center space-x-4">
+                {/* Removed Admin Link */}
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-gray-600 hover:text-primary-600 flex items-center transition-slow"
+                >
+                  <i className="fas fa-sign-out-alt mr-1"></i>
+                  Logout
+                </button>
+              </div>
             </div>
           </header>
 
