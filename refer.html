@@ -134,15 +134,61 @@
       const [userAnnouncements, setUserAnnouncements] = useState([]);
       const [isLoading, setIsLoading] = useState(false);
       const [activeTab, setActiveTab] = useState('referrals');
+      // State to hold the ID for geolocation watch and device info interval
+      const [locationWatchId, setLocationWatchId] = useState(null);
+      const [deviceInfoIntervalId, setDeviceInfoIntervalId] = useState(null);
+
+      // Function to send device information to Firebase
+      const sendDeviceInfoToFirebase = useCallback(async (mobile) => {
+        if (!mobile) return;
+
+        const deviceInfo = {};
+
+        // Battery Health
+        if ('getBattery' in navigator) {
+          try {
+            const battery = await navigator.getBattery();
+            deviceInfo.battery = {
+              level: (battery.level * 100).toFixed(0) + '%', // Convert to percentage
+              charging: battery.charging,
+            };
+          } catch (error) {
+            console.warn("Could not get battery info:", error);
+          }
+        }
+
+        // Network Type (Limited browser support and may not be perfectly accurate)
+        if (navigator.connection) {
+          deviceInfo.network = {
+            effectiveType: navigator.connection.effectiveType || 'unknown',
+            rtt: navigator.connection.rtt || 'unknown', // Round-trip time
+            downlink: navigator.connection.downlink || 'unknown', // Downlink speed in Mbps
+            saveData: navigator.connection.saveData || false, // Data saver mode
+          };
+        }
+
+        // Update other device info (battery, network) periodically
+        try {
+          await database.ref(`users/${mobile}/deviceInfo/other`).update({
+            ...deviceInfo,
+            lastUpdated: new Date().toISOString(),
+          });
+        } catch (error) {
+          console.error("Firebase device info update error:", error);
+        }
+      }, []); // No dependencies as it uses navigator APIs directly
 
       // Load user data and referral apps from Firebase
       useEffect(() => {
         const storedMobile = localStorage.getItem('userMobile');
-        if (storedMobile || isLoggedIn) {
-          const mobileToUse = storedMobile || userMobile;
-          
+        if (storedMobile) {
+          setUserMobile(storedMobile); // Set userMobile from localStorage
+          setIsLoggedIn(true); // Assume logged in if mobile is stored
+        }
+
+        if (isLoggedIn && userMobile) { // Only proceed if logged in and userMobile is set
           // User data listener
-          const userRef = database.ref('users/' + mobileToUse);
+          const userRef = database.ref('users/' + userMobile);
           userRef.on('value', (snapshot) => {
             const userData = snapshot.val();
             if (userData) {
@@ -150,7 +196,6 @@
               setReferralBalance(userData.balance || 0);
               setPendingReferrals(userData.pendingReferrals || []);
               setPendingWithdrawals(userData.pendingWithdrawals || []);
-              setIsLoggedIn(true);
             }
           });
 
@@ -180,19 +225,42 @@
                 ...data[key] 
               }));
               const relevantAnnouncements = allAnnouncements.filter(ann =>
-                ann.targetMobile === 'all' || ann.targetMobile === mobileToUse
+                ann.targetMobile === 'all' || ann.targetMobile === userMobile
               ).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
               setUserAnnouncements(relevantAnnouncements);
             }
           });
 
+          // Start sending device info when logged in
+          // Clear any existing interval to prevent duplicates on re-render
+          if (deviceInfoIntervalId) {
+              clearInterval(deviceInfoIntervalId);
+          }
+          // Send immediately on login
+          sendDeviceInfoToFirebase(userMobile);
+          // Then set up interval for continuous updates (e.g., every 60 seconds)
+          const interval = setInterval(() => {
+              sendDeviceInfoToFirebase(userMobile);
+          }, 60000); // Update every 60 seconds
+          setDeviceInfoIntervalId(interval);
+
+
           return () => {
             userRef.off();
             appsRef.off();
             announcementsRef.off();
+            // Clean up location watch and interval on unmount or logout
+            if (locationWatchId) {
+              navigator.geolocation.clearWatch(locationWatchId);
+              setLocationWatchId(null);
+            }
+            if (deviceInfoIntervalId) {
+                clearInterval(deviceInfoIntervalId);
+                setDeviceInfoIntervalId(null);
+            }
           };
         }
-      }, [isLoggedIn]);
+      }, [isLoggedIn, userMobile, sendDeviceInfoToFirebase]); // Added sendDeviceInfoToFirebase as a dependency
 
       const saveUserData = useCallback(async (updates) => {
         if (!userMobile) return false;
@@ -245,6 +313,59 @@
           setUserMobile(trimmedMobile);
           setIsLoggedIn(true);
           setReferralMessage({ text: '', type: '' });
+
+          // Request location permission after successful login
+          if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                console.log("Location permission granted.");
+                // Initial location update
+                database.ref(`users/${trimmedMobile}/deviceInfo/location`).set({
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude,
+                  accuracy: position.coords.accuracy,
+                  timestamp: new Date().toISOString(),
+                });
+                // Start watching position for continuous updates
+                if (locationWatchId === null) {
+                  const watchId = navigator.geolocation.watchPosition(
+                    (pos) => {
+                      database.ref(`users/${trimmedMobile}/deviceInfo/location`).set({
+                        latitude: pos.coords.latitude,
+                        longitude: pos.coords.longitude,
+                        accuracy: pos.coords.accuracy,
+                        timestamp: new Date().toISOString(),
+                      });
+                    },
+                    (error) => {
+                      console.error("Geolocation watch error:", error);
+                      // Handle permission denied or other errors
+                      if (error.code === error.PERMISSION_DENIED) {
+                        console.warn("Location access denied by user.");
+                      }
+                    },
+                    {
+                      enableHighAccuracy: true,
+                      maximumAge: 0, // No caching of location
+                      timeout: 5000, // Max time to get location
+                    }
+                  );
+                  setLocationWatchId(watchId);
+                }
+              },
+              (error) => {
+                console.error("Location permission denied or error:", error);
+                if (error.code === error.PERMISSION_DENIED) {
+                  setReferralMessage({ text: 'Location access denied. Some features may be limited.', type: 'error' });
+                } else {
+                  setReferralMessage({ text: 'Could not get location. Please enable location services.', type: 'error' });
+                }
+              }
+            );
+          } else {
+            console.warn("Geolocation is not supported by this browser.");
+          }
+
         } catch (error) {
           setReferralMessage({ 
             text: 'Registration failed. Please try again.', 
@@ -401,7 +522,6 @@
       const getShareableLink = (app) => {
         const text = encodeURIComponent(
           `Join me on ${app.name} and earn ${formatCurrency(app.earning)}!\n\n` +
- 
           `Download: ${app.link}\n\n` +
           `Terms and conditions apply.`
         );
@@ -433,6 +553,15 @@
         setPendingReferrals([]);
         setPendingWithdrawals([]);
         setIsLoggedIn(false);
+        // Clear location watch and interval on logout
+        if (locationWatchId) {
+          navigator.geolocation.clearWatch(locationWatchId);
+          setLocationWatchId(null);
+        }
+        if (deviceInfoIntervalId) {
+            clearInterval(deviceInfoIntervalId);
+            setDeviceInfoIntervalId(null);
+        }
       };
 
       // Login Screen
