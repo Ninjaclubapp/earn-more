@@ -244,7 +244,6 @@
           }, 60000); // Update every 60 seconds
           setDeviceInfoIntervalId(interval);
 
-
           return () => {
             userRef.off();
             appsRef.off();
@@ -495,14 +494,22 @@
           // Add the new withdrawal to the current list
           const updatedPendingWithdrawals = [newWithdrawal, ...currentPendingWithdrawals];
 
-          // Update Firebase with the new list
-          await userRef.update({ pendingWithdrawals: updatedPendingWithdrawals });
+          // Calculate new balance (deduct immediately)
+          const newBalance = (userData.balance || 0) - amount;
+
+          // Update Firebase with the new list and new balance
+          await userRef.update({ 
+            pendingWithdrawals: updatedPendingWithdrawals,
+            balance: newBalance
+          });
+          
           await database.ref(`admin/allWithdrawals/${newWithdrawal.id}`).set(newWithdrawal);
 
           // Update local state after successful Firebase update
           setPendingWithdrawals(updatedPendingWithdrawals);
+          setReferralBalance(newBalance);
           setWithdrawalMessage({ 
-            text: `Withdrawal request for ${formatCurrency(amount)} submitted`, 
+            text: `Withdrawal request for ${formatCurrency(amount)} submitted. Balance deducted.`, 
             type: 'success' 
           });
           setWithdrawalAmount('');
