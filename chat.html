@@ -15,6 +15,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
         }
         .chat-container {
             max-width: 600px;
@@ -186,56 +187,6 @@
             top: -2px; /* Adjust vertical alignment for double check */
         }
 
-        /* Call UI styles */
-        #call-controls {
-            display: flex;
-            gap: 10px;
-            margin-left: auto;
-        }
-        #call-status-display {
-            font-size: 14px;
-            font-weight: bold;
-            color: #28a745; /* Green for connected, adjust as needed */
-            margin-top: 10px;
-            text-align: center;
-        }
-        .call-button {
-            background-color: #28a745; /* Green for call */
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .call-button:hover {
-            background-color: #218838;
-        }
-        .call-button.end-call {
-            background-color: #dc3545; /* Red for end call */
-        }
-        .call-button.end-call:hover {
-            background-color: #c82333;
-        }
-        .call-button.decline-call {
-            background-color: #ffc107; /* Orange for decline */
-            color: #333;
-        }
-        .call-button.decline-call:hover {
-            background-color: #e0a800;
-        }
-        .call-button.accept-call {
-            background-color: #28a745; /* Green for accept */
-        }
-        .call-button.accept-call:hover {
-            background-color: #218838;
-        }
-
         /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -263,6 +214,117 @@
             50% { transform: scale(1.02); opacity: 0.9; }
             100% { transform: scale(1); opacity: 1; }
         }
+
+        /* Game specific styles */
+        .game-area-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .game-board {
+            display: grid;
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #ccc;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+        .grid-cell {
+            width: 40px; /* Adjust cell size as needed */
+            height: 40px;
+            background-color: #eee;
+            border: 1px solid #aaa;
+            cursor: pointer;
+            transition: transform 0.1s ease-out, background-color 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: rgba(0,0,0,0.5);
+            user-select: none;
+        }
+        .grid-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 8px rgba(0,0,0,0.3);
+        }
+        .grid-cell.popped {
+            animation: popOut 0.3s forwards;
+        }
+
+        /* Color definitions */
+        .color-red { background-color: #ff6b6b; }
+        .color-blue { background-color: #6b6bff; }
+        .color-green { background-color: #6bff6b; }
+        .color-yellow { background-color: #ffff6b; }
+        .color-purple { background-color: #ff6bff; }
+        .color-orange { background-color: #ffaa6b; }
+
+        .player-info {
+            margin-top: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .player-score {
+            padding: 10px 20px;
+            border-radius: 10px;
+            background-color: #e9ecef;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .player-score.active {
+            background-color: #d1e7dd; /* Light green for active player */
+            border: 2px solid #28a745;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        }
+
+        .game-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+            text-align: center;
+            animation: fadeInScale 0.3s ease-out;
+        }
+        .message-box button {
+            margin-top: 20px;
+            padding: 10px 25px;
+            border-radius: 20px;
+            border: none;
+            background-color: #0d6efd;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .message-box button:hover {
+            background-color: #0a58ca;
+            transform: translateY(-2px);
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none; /* Hidden by default */
+        }
     </style>
 </head>
 <body>
@@ -271,6 +333,14 @@
     
     <!-- Notification Sound Element -->
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
+
+    <!-- Global Message Box -->
+    <div id="overlay" class="overlay"></div>
+    <div id="message-box" class="message-box" style="display: none;">
+        <h4 id="message-box-title"></h4>
+        <p id="message-box-text"></p>
+        <button id="message-box-button">OK</button>
+    </div>
 
     <div class="container mt-4">
         <!-- Registration Screen -->
@@ -305,6 +375,10 @@
                     <input type="text" id="contact-search" class="form-control rounded-pill" placeholder="Search contacts...">
                     <button class="btn btn-outline-secondary rounded-pill ms-2" type="button" id="search-btn">Search</button>
                 </div>
+                <div class="mb-3 d-flex justify-content-between">
+                    <button id="show-online-btn" class="btn btn-info btn-sm rounded-pill">Show Online Users</button>
+                    <button id="show-all-btn" class="btn btn-secondary btn-sm rounded-pill">Show All Registered Users</button>
+                </div>
                 <div id="contacts-list" class="list-group list-group-flush">
                     <!-- Contacts will be loaded here -->
                 </div>
@@ -319,27 +393,48 @@
                     <span id="chat-with-name" class="fw-bold">Chat with...</span>
                     <div id="chat-with-status" class="small text-white-75"></div>
                 </div>
-                <div id="call-controls">
-                    <button id="audio-call-btn" class="call-button">📞</button>
-                    <!-- Call management buttons (initially hidden) -->
-                    <button id="accept-call-btn" class="call-button accept-call" style="display: none;">✅</button>
-                    <button id="decline-call-btn" class="call-button decline-call" style="display: none;">🚫</button>
-                    <button id="end-call-btn" class="call-button end-call" style="display: none;">🛑</button>
-                </div>
-                <div class="status-info">
-                    <span id="chat-network-status">Offline</span> | 
-                    <span id="chat-battery-status">Battery: ?</span>
+                <div class="d-flex align-items-center">
+                    <button id="play-game-btn" class="btn btn-sm btn-warning rounded-pill me-2">Play Game</button>
+                    <div class="status-info">
+                        <span id="chat-network-status">Offline</span> | 
+                        <span id="chat-battery-status">Battery: ?</span>
+                    </div>
                 </div>
             </div>
-            <div id="call-status-display" style="display: none;"></div>
-            <div id="chat-messages" class="chat-messages">
-                <!-- Messages will be loaded here -->
+
+            <!-- Chat Messages Area -->
+            <div id="chat-messages-area">
+                <div id="chat-messages" class="chat-messages">
+                    <!-- Messages will be loaded here -->
+                </div>
+                <div class="p-3 border-top bg-light">
+                    <div id="typing-indicator" class="typing-indicator" style="display: none;"></div>
+                    <div class="input-group mt-2">
+                        <input type="text" id="message-input" class="form-control rounded-pill" placeholder="Type a message...">
+                        <button class="btn btn-primary rounded-pill ms-2" type="button" id="send-btn">Send</button>
+                    </div>
+                </div>
             </div>
-            <div class="p-3 border-top bg-light">
-                <div id="typing-indicator" class="typing-indicator" style="display: none;"></div>
-                <div class="input-group mt-2">
-                    <input type="text" id="message-input" class="form-control rounded-pill" placeholder="Type a message...">
-                    <button class="btn btn-primary rounded-pill ms-2" type="button" id="send-btn">Send</button>
+
+            <!-- Game Play Area (initially hidden) -->
+            <div id="game-area" class="game-area-container" style="display: none;">
+                <div id="current-game-player-display" class="badge bg-warning text-dark fs-6 mb-3"></div>
+                <div class="player-info">
+                    <div id="player1-score" class="player-score">
+                        <strong>Player 1: <span id="player1-name"></span></strong><br>
+                        Score: <span id="score1">0</span>
+                    </div>
+                    <div id="player2-score" class="player-score">
+                        <strong>Player 2: <span id="player2-name"></span></strong><br>
+                        Score: <span id="score2">0</span>
+                    </div>
+                </div>
+                <div id="game-board" class="game-board mt-4">
+                    <!-- Game cells will be rendered here -->
+                </div>
+                <div class="game-controls mt-4">
+                    <button id="reset-game-btn" class="btn btn-danger rounded-pill">Reset Game</button>
+                    <button id="back-to-chat-btn" class="btn btn-secondary rounded-pill">Back to Chat</button>
                 </div>
             </div>
         </div>
@@ -353,19 +448,20 @@
         // 1. Firebase Project Setup: You have a Firebase project created.
         // 2. Firebase Realtime Database: The Realtime Database is enabled for your project.
         // 3. Firebase Security Rules: Your Realtime Database rules allow read/write access
-        //    to the 'users', 'chats', 'typing', and 'calls' nodes.
+        //    to the 'users', 'chats', 'typing', and 'games' nodes.
         //    For development, you might use very permissive rules (NOT FOR PRODUCTION):
         /*
         {
           "rules": {
             ".read": "true",
-            ".write": "true"
+            ".write": "true",
+            "games": {
+              ".read": "true",
+              ".write": "true"
+            }
           }
         }
         */
-        // 4. Microphone Permissions: Your browser must be granted permission to access the microphone.
-        //    The app will prompt you for this when you initiate or accept a call.
-        // 5. Network Connectivity: Ensure stable internet connection for both users.
 
         // Initialize Firebase
         const firebaseConfig = {
@@ -377,11 +473,10 @@
             messagingSenderId: "936240933139", // Replace with your actual Messaging Sender ID
             appId: "1:936240933139:web:fe877e387fc82951d552e6" // Replace with your actual App ID
         };
-
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // DOM Elements
+        // DOM Elements - Chat App
         const registrationScreen = document.getElementById('registration-screen');
         const contactsScreen = document.getElementById('contacts-screen');
         const chatScreen = document.getElementById('chat-screen');
@@ -391,48 +486,74 @@
         const contactsList = document.getElementById('contacts-list');
         const contactSearch = document.getElementById('contact-search');
         const searchBtn = document.getElementById('search-btn');
+        const showOnlineBtn = document.getElementById('show-online-btn');
+        const showAllBtn = document.getElementById('show-all-btn');
         const backToContactsBtn = document.getElementById('back-to-contacts');
+        const chatMessagesArea = document.getElementById('chat-messages-area'); // New: Container for chat messages
         const chatMessages = document.getElementById('chat-messages');
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
         const chatWithName = document.getElementById('chat-with-name');
-        const chatWithStatus = document.getElementById('chat-with-status'); // New element for chat partner's status
+        const chatWithStatus = document.getElementById('chat-with-status');
         const networkStatus = document.getElementById('network-status');
         const batteryStatus = document.getElementById('battery-status');
         const chatNetworkStatus = document.getElementById('chat-network-status');
         const chatBatteryStatus = document.getElementById('chat-battery-status');
         const notificationContainer = document.getElementById('notification-container');
         const typingIndicator = document.getElementById('typing-indicator');
-        const notificationSound = document.getElementById('notification-sound'); // Notification sound element
+        const notificationSound = document.getElementById('notification-sound');
 
-        // Call UI elements
-        const audioCallBtn = document.getElementById('audio-call-btn');
-        const acceptCallBtn = document.getElementById('accept-call-btn');
-        const declineCallBtn = document.getElementById('decline-call-btn');
-        const endCallBtn = document.getElementById('end-call-btn');
-        const callStatusDisplay = document.getElementById('call-status-display');
+        // DOM Elements - Game
+        const playGameBtn = document.getElementById('play-game-btn'); // New: Button to start game
+        const gameArea = document.getElementById('game-area'); // New: Container for game UI
+        const gameBoardElement = document.getElementById('game-board');
+        const score1Display = document.getElementById('score1');
+        const score2Display = document.getElementById('score2');
+        const player1NameDisplay = document.getElementById('player1-name');
+        const player2NameDisplay = document.getElementById('player2-name');
+        const currentGameObjectPlayerDisplay = document.getElementById('current-game-player-display'); // Renamed to avoid conflict
+        const resetGameBtn = document.getElementById('reset-game-btn');
+        const backToChatBtn = document.getElementById('back-to-chat-btn'); // New: Button to go back to chat
 
-        // App State
+        // Global Message Box Elements
+        const messageBox = document.getElementById('message-box');
+        const messageBoxTitle = document.getElementById('message-box-title');
+        const messageBoxText = document.getElementById('message-box-text');
+        const messageBoxButton = document.getElementById('message-box-button');
+        const overlay = document.getElementById('overlay');
+
+        // App State - Chat
         let currentUser = null;
         let currentChatWith = null;
         let unreadCounts = {};
         let messageListeners = {};
         let typingTimeout = null;
-        let onlineStatusRef = null; // Reference to current user's online status in DB
+        let onlineStatusRef = null;
+        let currentContactFilter = 'online'; // 'online' or 'all'
 
-        // WebRTC related variables
-        let peerConnection = null;
-        let localStream = null;
-        let remoteAudio = new Audio(); // HTML Audio element to play remote audio
-        let callRef = null; // Firebase reference for the current call
+        // App State - Game
+        const BOARD_ROWS = 10;
+        const BOARD_COLS = 10;
+        const COLORS = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+        let gameRef = null; // Firebase reference to the current game
+        let currentPlayerId = null; // ID of the current player (this client)
+        let gameData = null; // Local copy of game data from Firebase
+        let currentChatGameId = null; // The game ID associated with the current chat partner
 
-        // ICE servers for WebRTC (Google's STUN server is publicly available)
-        const iceServers = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-            ]
-        };
+        // --- Utility Functions ---
+
+        // Show custom message box instead of alert
+        function showMessageBox(title, message, callback = null) {
+            messageBoxTitle.textContent = title;
+            messageBoxText.textContent = message;
+            messageBox.style.display = 'block';
+            overlay.style.display = 'block';
+            messageBoxButton.onclick = () => {
+                messageBox.style.display = 'none';
+                overlay.style.display = 'none';
+                if (callback) callback();
+            };
+        }
 
         // Helper to format timestamp to a readable last seen string
         function formatLastSeen(timestamp) {
@@ -512,14 +633,14 @@
             const userName = userNameInput.value.trim();
             
             if (!phoneNumber || !userName) {
-                showNotification('Error', 'Please enter both phone number and name', 'danger');
+                showMessageBox('Error', 'Please enter both phone number and name', 'danger');
                 return;
             }
             
             // Check if user already exists
             database.ref('users/' + phoneNumber).once('value').then(snapshot => {
                 if (snapshot.exists() && snapshot.val().name !== userName) {
-                    showNotification('Error', 'This phone number is already registered with a different name', 'danger');
+                    showMessageBox('Error', 'This phone number is already registered with a different name', 'danger');
                     return;
                 }
                 
@@ -573,8 +694,6 @@
                     });
                 }
                 clearInterval(onlineInterval); // Clear interval on unload
-                // Also end any active call
-                endCall();
             });
 
             // Handle visibility change (e.g., app in background/foreground)
@@ -656,19 +775,41 @@
                     return;
                 }
                 
+                let filteredUsers = [];
                 Object.keys(users).forEach(phoneNumber => {
-                    // Don't show current user in contacts
                     if (phoneNumber === currentUser.phoneNumber) return;
                     
                     const user = users[phoneNumber];
                     
                     // Apply search filter
-                    if (searchTerm && 
-                        !user.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
-                        !user.phoneNumber.includes(searchTerm)) {
-                        return;
+                    const matchesSearch = searchTerm && 
+                                        (user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                        user.phoneNumber.includes(searchTerm));
+
+                    if (searchTerm && !matchesSearch) {
+                        return; // Skip if search term is present and no match
+                    }
+
+                    if (currentContactFilter === 'online' && !user.online && !searchTerm) {
+                        return; // Skip offline users if filtering for online and no search term
                     }
                     
+                    filteredUsers.push(user);
+                });
+
+                // Sort online users first
+                filteredUsers.sort((a, b) => {
+                    if (a.online && !b.online) return -1;
+                    if (!a.online && b.online) return 1;
+                    return 0;
+                });
+                
+                if (filteredUsers.length === 0) {
+                    contactsList.innerHTML = '<div class="text-center p-3 text-muted">No contacts found matching your criteria.</div>';
+                    return;
+                }
+
+                filteredUsers.forEach(user => {
                     const contactItem = document.createElement('div');
                     contactItem.className = 'contact-item';
                     
@@ -682,7 +823,7 @@
                     }
                     
                     // Add unread count if exists
-                    const unreadCount = unreadCounts[phoneNumber] || 0;
+                    const unreadCount = unreadCounts[user.phoneNumber] || 0;
                     let unreadBadge = '';
                     if (unreadCount > 0) {
                         if (unreadCount === 1) {
@@ -705,18 +846,14 @@
                     
                     contactItem.addEventListener('click', () => {
                         // Reset unread count when opening chat
-                        if (unreadCounts[phoneNumber]) {
-                            delete unreadCounts[phoneNumber];
+                        if (unreadCounts[user.phoneNumber]) {
+                            delete unreadCounts[user.phoneNumber];
                         }
                         startChat(user);
                     });
                     
                     contactsList.appendChild(contactItem);
                 });
-                
-                if (contactsList.children.length === 0) {
-                    contactsList.innerHTML = '<div class="text-center p-3 text-muted">No contacts found matching your search.</div>';
-                }
             });
         }
 
@@ -727,6 +864,16 @@
         contactSearch.addEventListener('input', () => {
             // Optional: Live search as user types
             // loadContacts(contactSearch.value.trim()); 
+        });
+
+        showOnlineBtn.addEventListener('click', () => {
+            currentContactFilter = 'online';
+            loadContacts(contactSearch.value.trim());
+        });
+
+        showAllBtn.addEventListener('click', () => {
+            currentContactFilter = 'all';
+            loadContacts(contactSearch.value.trim());
         });
 
         // Chat Screen
@@ -753,7 +900,23 @@
             setupTypingListener(contact.phoneNumber);
             
             loadChatMessages();
-            setupCallListeners(); // Setup call listeners when entering chat
+            showChatMessagesArea(); // Ensure chat messages are visible by default
+            
+            // Check for an existing game with this contact
+            currentChatGameId = getGameIdForChat(currentUser.phoneNumber, currentChatWith.phoneNumber);
+            gameRef = database.ref(`games/${currentChatGameId}`);
+            gameRef.once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    // Game exists, start listening for updates
+                    listenForGameUpdates(currentChatGameId);
+                } else {
+                    // No game exists, ensure game UI is hidden and reset game state
+                    resetGamePlayState();
+                }
+            }).catch(error => {
+                console.error("Error checking for existing game:", error);
+                resetGamePlayState();
+            });
         }
 
         function setupTypingListener(contactPhoneNumber) {
@@ -775,18 +938,22 @@
             chatScreen.style.display = 'none';
             contactsScreen.style.display = 'block';
             
-            // Remove typing and call listeners
+            // Remove typing and partner status listeners
             if (currentChatWith) {
                 database.ref(`typing/${currentChatWith.phoneNumber}`).off();
                 database.ref(`users/${currentChatWith.phoneNumber}`).off(); // Remove partner status listener
-                // Clean up call listeners
-                if (callRef) {
-                    callRef.off(); // Detach all listeners from the call reference
-                }
-                endCall(); // Ensure any active call is ended
             }
             
+            // Detach game listener if active
+            if (gameRef) {
+                gameRef.off();
+                gameRef = null;
+            }
+            resetGamePlayState(); // Clear game state
             currentChatWith = null;
+            currentChatGameId = null;
+            // Reload contacts to ensure unread counts are updated
+            loadContacts(contactSearch.value.trim());
         });
 
         function loadChatMessages() {
@@ -834,9 +1001,8 @@
 
                                 showNotification(
                                     senderName, // Title is sender's name
-                                    message.text.length > 50 ? 
-                                        message.text.substring(0, 50) + '...' : 
-                                        message.text,
+                                    message.type === 'game_invite' ? 'Game Invitation!' : 
+                                    (message.text.length > 50 ? message.text.substring(0, 50) + '...' : message.text),
                                     'primary'
                                 );
                                 playNotificationSound(); // Play sound
@@ -859,6 +1025,18 @@
             
             const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
+            let messageContent = `<div>${message.text}</div>`;
+            if (message.type === 'game_invite' && message.gameId) {
+                messageContent = `
+                    <div>
+                        <strong>${message.sender === currentUser.phoneNumber ? 'You' : currentChatWith.name} sent a game invitation!</strong>
+                        <p>Game ID: <strong>${message.gameId}</strong></p>
+                        ${message.sender !== currentUser.phoneNumber ? 
+                            `<button class="btn btn-sm btn-success mt-2 accept-game-btn" data-game-id="${message.gameId}">Accept Game</button>` : ''}
+                    </div>
+                `;
+            }
+
             // Add status indicator for sent messages
             let statusIndicator = '';
             if (message.sender === currentUser.phoneNumber) {
@@ -890,7 +1068,7 @@
             }
             
             messageDiv.innerHTML = `
-                <div>${message.text}</div>
+                ${messageContent}
                 <div class="small d-flex justify-content-end align-items-center">
                     ${time}
                     ${statusIndicator}
@@ -899,6 +1077,14 @@
             
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to bottom
+
+            // Add event listener for accept game button if it exists
+            if (message.type === 'game_invite' && message.sender !== currentUser.phoneNumber) {
+                const acceptButton = messageDiv.querySelector('.accept-game-btn');
+                if (acceptButton) {
+                    acceptButton.addEventListener('click', () => acceptGameInvitation(message.gameId));
+                }
+            }
         }
 
         // Typing detection
@@ -930,10 +1116,11 @@
             }
         });
 
-        function sendMessage() {
+        function sendMessage(type = 'text', content = {}) {
             const text = messageInput.value.trim();
             
-            if (!text || !currentUser || !currentChatWith) return;
+            if (type === 'text' && (!text || !currentUser || !currentChatWith)) return;
+            if (type !== 'text' && (!currentUser || !currentChatWith)) return;
             
             // Clear typing indicator for sender immediately after sending
             if (typingTimeout) {
@@ -951,424 +1138,454 @@
             
             const newMessageRef = database.ref('chats/' + chatId).push();
             
-            newMessageRef.set({
-                text: text,
+            const messageData = {
+                text: type === 'text' ? text : content.message || '',
                 sender: currentUser.phoneNumber,
                 receiver: currentChatWith.phoneNumber,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 delivered: true,
-                read: false // Message is not read by receiver initially
-            }).then(() => {
-                messageInput.value = ''; // Clear input field
+                read: false, // Message is not read by receiver initially
+                type: type, // 'text' or 'game_invite'
+                ...content // Add additional content for specific message types (e.g., gameId)
+            };
+
+            newMessageRef.set(messageData).then(() => {
+                if (type === 'text') {
+                    messageInput.value = ''; // Clear input field only for text messages
+                }
             }).catch(error => {
                 console.error("Error sending message:", error);
                 showNotification('Error', 'Failed to send message. Please try again.', 'danger');
             });
         }
 
-        // --- WebRTC Audio Call Functionality ---
+        // --- Game Specific Functions ---
 
-        // Helper to get a unique call ID for the current chat
-        function getCallId() {
-            if (!currentUser || !currentChatWith) return null;
-            return [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_call';
+        // Generate a simple unique ID (for players)
+        function generateUniqueId() {
+            return 'player_' + Math.random().toString(36).substr(2, 9);
         }
 
-        // Setup Firebase listeners for call signaling
-        function setupCallListeners() {
-            if (!currentUser || !currentChatWith) return;
+        // Generate a random color
+        function getRandomColor() {
+            return COLORS[Math.floor(Math.random() * COLORS.length)];
+        }
 
-            const callId = getCallId();
-            if (!callId) return;
+        // Generate a new game board
+        function generateBoard() {
+            const board = [];
+            for (let r = 0; r < BOARD_ROWS; r++) {
+                board[r] = [];
+                for (let c = 0; c < BOARD_COLS; c++) {
+                    board[r][c] = getRandomColor();
+                }
+            }
+            return board;
+        }
 
-            callRef = database.ref(`calls/${callId}`);
+        // Render the game board
+        function renderBoard(board) {
+            gameBoardElement.innerHTML = '';
+            gameBoardElement.style.gridTemplateColumns = `repeat(${BOARD_COLS}, 1fr)`;
 
-            // Listen for offer/answer/candidate changes
-            callRef.on('value', async (snapshot) => {
-                const callData = snapshot.val();
-                if (!callData) {
-                    // Call ended or not initiated
-                    resetCallUI();
+            for (let r = 0; r < BOARD_ROWS; r++) {
+                for (let c = 0; c < BOARD_COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = `grid-cell color-${board[r][c]}`;
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    cell.addEventListener('click', handleCellClick);
+                    gameBoardElement.appendChild(cell);
+                }
+            }
+        }
+
+        // Check for adjacent same-colored cells (BFS)
+        function getConnectedCells(board, row, col, color) {
+            const connected = [];
+            const queue = [[row, col]];
+            const visited = new Set(); // To prevent infinite loops
+
+            while (queue.length > 0) {
+                const [r, c] = queue.shift();
+                const cellKey = `${r},${c}`;
+
+                if (r < 0 || r >= BOARD_ROWS || c < 0 || c >= BOARD_COLS || visited.has(cellKey) || board[r][c] !== color) {
+                    continue;
+                }
+
+                visited.add(cellKey);
+                connected.push([r, c]);
+
+                queue.push([r + 1, c]); // Down
+                queue.push([r - 1, c]); // Up
+                queue.push([r, c + 1]); // Right
+                queue.push([r, c - 1]); // Left
+            }
+            return connected;
+        }
+
+        // Process a move: pop cells, make cells fall, fill new cells
+        function processMove(board, clickedRow, clickedCol) {
+            const colorToPop = board[clickedRow][clickedCol];
+            if (!colorToPop) return { newBoard: board, poppedCount: 0 }; // Already popped or empty
+
+            const connectedCells = getConnectedCells(board, clickedRow, clickedCol, colorToPop);
+
+            if (connectedCells.length === 0) return { newBoard: board, poppedCount: 0 }; // No connected cells to pop
+
+            // Create a copy of the board to modify
+            let newBoard = board.map(row => [...row]);
+
+            // Mark cells for popping (e.g., set to null)
+            connectedCells.forEach(([r, c]) => {
+                newBoard[r][c] = null;
+            });
+
+            // Simulate gravity: cells fall down
+            for (let c = 0; c < BOARD_COLS; c++) {
+                let emptyCells = 0;
+                for (let r = BOARD_ROWS - 1; r >= 0; r--) {
+                    if (newBoard[r][c] === null) {
+                        emptyCells++;
+                    } else if (emptyCells > 0) {
+                        newBoard[r + emptyCells][c] = newBoard[r][c];
+                        newBoard[r][c] = null;
+                    }
+                }
+            }
+
+            // Fill empty cells at the top with new random colors
+            for (let r = 0; r < BOARD_ROWS; r++) {
+                for (let c = 0; c < BOARD_COLS; c++) {
+                    if (newBoard[r][c] === null) {
+                        newBoard[r][c] = getRandomColor();
+                    }
+                }
+            }
+
+            return { newBoard, poppedCount: connectedCells.length };
+        }
+
+        // Check if there are any valid moves left
+        function hasValidMoves(board) {
+            for (let r = 0; r < BOARD_ROWS; r++) {
+                for (let c = 0; c < BOARD_COLS; c++) {
+                    if (board[r][c] !== null) { // Check if cell is not empty
+                        const connected = getConnectedCells(board, r, c, board[r][c]);
+                        if (connected.length > 0) { // A single cell is a valid "pop" of size 1
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Get consistent game ID for a chat
+        function getGameIdForChat(phoneNumber1, phoneNumber2) {
+            return [phoneNumber1, phoneNumber2].sort().join('_') + '_game';
+        }
+
+        // Initiate a new game or join an existing one
+        playGameBtn.addEventListener('click', async () => {
+            if (!currentUser || !currentChatWith) {
+                showMessageBox('Error', 'Please select a contact to play with.');
+                return;
+            }
+
+            const gameId = getGameIdForChat(currentUser.phoneNumber, currentChatWith.phoneNumber);
+            gameRef = database.ref(`games/${gameId}`);
+
+            try {
+                const snapshot = await gameRef.once('value');
+                const existingGame = snapshot.val();
+
+                if (existingGame && existingGame.status !== 'finished') {
+                    // Game already exists and is active, just join it
+                    showMessageBox('Game in Progress', 'A game is already in progress with this contact. Joining...', () => {
+                        listenForGameUpdates(gameId);
+                        showGameArea();
+                    });
                     return;
                 }
 
-                // Check for call status
-                if (callData.status === 'ringing' && callData.caller === currentChatWith.phoneNumber && !peerConnection) {
-                    // Incoming call
-                    showIncomingCallUI(callData.callerName || callData.caller);
-                } else if (callData.status === 'accepted' && peerConnection && peerConnection.signalingState === 'have-local-offer') {
-                    // Call accepted by remote, process answer
-                    if (callData.answer && !peerConnection.remoteDescription) {
-                        try {
-                            await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.answer));
-                            console.log("Remote answer set.");
-                            updateCallStatusDisplay('Connected');
-                            // Start playing remote audio if not already
-                            if (remoteAudio.srcObject) {
-                                remoteAudio.play().catch(e => console.error("Error playing remote audio:", e));
-                            }
-                            // Hide accept/decline buttons, show end call button
-                            acceptCallBtn.style.display = 'none';
-                            declineCallBtn.style.display = 'none';
-                            endCallBtn.style.display = 'block';
-                        } catch (e) {
-                            console.error("Error setting remote answer:", e);
-                            showNotification('Call Error', 'Failed to connect call.', 'danger');
-                            endCall();
-                        }
-                    }
-                } else if (callData.status === 'ended') {
-                    // Call ended by other party
-                    showNotification('Call Ended', `${currentChatWith.name} ended the call.`, 'info');
-                    endCall();
-                } else if (callData.status === 'declined') {
-                    // Call declined by other party
-                    showNotification('Call Declined', `${currentChatWith.name} declined your call.`, 'warning');
-                    endCall();
-                }
-            });
+                // Create a new game
+                const initialBoard = generateBoard();
+                const player1Id = generateUniqueId();
+                const gameDataToSet = {
+                    players: {
+                        player1: { id: player1Id, name: currentUser.name, score: 0 },
+                        player2: null // Waiting for player 2
+                    },
+                    board: initialBoard,
+                    currentPlayer: 'player1',
+                    status: 'waiting',
+                    gameId: gameId,
+                    lastUpdated: firebase.database.ServerValue.TIMESTAMP
+                };
 
-            // Listen for ICE candidates
-            callRef.child('candidates').on('child_added', async (snapshot) => {
-                const candidateData = snapshot.val();
-                if (candidateData && peerConnection && peerConnection.remoteDescription) {
-                    try {
-                        const candidate = new RTCIceCandidate(candidateData);
-                        await peerConnection.addIceCandidate(candidate);
-                        console.log("Added ICE candidate:", candidate);
-                    } catch (e) {
-                        console.error("Error adding received ICE candidate:", e);
-                    }
-                }
-            });
-        }
-
-        // Initiate an audio call
-        audioCallBtn.addEventListener('click', async () => {
-            if (!currentUser || !currentChatWith) {
-                showNotification('Call Error', 'Please select a contact to call.', 'warning');
-                return;
-            }
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showNotification('Call Error', 'Media devices not supported in this browser.', 'danger');
-                return;
-            }
-
-            // Check if there's an active call already
-            const callId = getCallId();
-            const existingCall = await database.ref(`calls/${callId}`).once('value');
-            if (existingCall.exists() && existingCall.val().status !== 'ended' && existingCall.val().status !== 'declined') {
-                showNotification('Call in Progress', 'Another call is already active or ringing.', 'warning');
-                return;
-            }
-
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                peerConnection = new RTCPeerConnection(iceServers);
+                await gameRef.set(gameDataToSet);
+                currentPlayerId = player1Id; // This user is player1
                 
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+                // Send game invitation message
+                sendMessage('game_invite', { message: 'I\'ve invited you to a Color Pop game!', gameId: gameId });
 
-                peerConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        // Send ICE candidate to Firebase
-                        callRef.child('candidates').push(event.candidate.toJSON());
-                        console.log("Sent ICE candidate:", event.candidate);
-                    }
-                };
-
-                peerConnection.ontrack = (event) => {
-                    console.log("Remote track received:", event.streams[0]);
-                    if (remoteAudio.srcObject !== event.streams[0]) {
-                        remoteAudio.srcObject = event.streams[0];
-                        remoteAudio.play().catch(e => console.error("Error playing remote audio:", e));
-                    }
-                };
-
-                peerConnection.onconnectionstatechange = () => {
-                    console.log('Peer connection state:', peerConnection.connectionState);
-                    switch (peerConnection.connectionState) {
-                        case 'connected':
-                            updateCallStatusDisplay('Connected');
-                            // Hide accept/decline buttons, show end call button
-                            acceptCallBtn.style.display = 'none';
-                            declineCallBtn.style.display = 'none';
-                            endCallBtn.style.display = 'block';
-                            break;
-                        case 'disconnected':
-                        case 'failed':
-                            showNotification('Call Disconnected', 'Call disconnected due to network issues or peer leaving.', 'warning');
-                            endCall();
-                            break;
-                        case 'closed':
-                            updateCallStatusDisplay('');
-                            break;
-                    }
-                };
-
-                // Add this new listener for ICE connection state
-                peerConnection.oniceconnectionstatechange = () => {
-                    console.log('ICE connection state:', peerConnection.iceConnectionState);
-                    switch (peerConnection.iceConnectionState) {
-                        case 'checking':
-                            updateCallStatusDisplay('Connecting (checking network)...');
-                            break;
-                        case 'connected':
-                            updateCallStatusDisplay('Connected');
-                            break;
-                        case 'completed':
-                            updateCallStatusDisplay('Connected (ICE completed)');
-                            break;
-                        case 'disconnected':
-                            showNotification('Call Disconnected', 'ICE disconnected, attempting to reconnect.', 'warning');
-                            break;
-                        case 'failed':
-                            showNotification('Call Failed', 'ICE connection failed. Check network.', 'danger');
-                            endCall();
-                            break;
-                        case 'closed':
-                            updateCallStatusDisplay('');
-                            break;
-                    }
-                };
-
-
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-
-                // Store offer in Firebase
-                await callRef.set({
-                    caller: currentUser.phoneNumber,
-                    callerName: currentUser.name,
-                    receiver: currentChatWith.phoneNumber,
-                    offer: offer,
-                    status: 'ringing',
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                showMessageBox('Game Initiated', `Game created! Waiting for ${currentChatWith.name} to join.`, () => {
+                    listenForGameUpdates(gameId);
+                    showGameArea();
                 });
-                updateCallStatusDisplay(`Calling ${currentChatWith.name}...`);
-                showCallingUI();
-                showNotification('Calling', `Calling ${currentChatWith.name}...`, 'info');
 
             } catch (error) {
-                console.error("Error initiating call:", error);
-                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                    showNotification('Microphone Access Denied', 'Please allow microphone access to make calls.', 'danger');
-                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-                    showNotification('No Microphone Found', 'No microphone device found. Please connect one.', 'danger');
-                } else {
-                    showNotification('Call Error', `Failed to initiate call: ${error.message}.`, 'danger');
-                }
-                endCall(); // Clean up if call initiation fails
+                console.error("Error initiating game:", error);
+                showMessageBox('Error', 'Failed to start game. Please try again.');
             }
         });
 
-        // Handle incoming call UI
-        function showIncomingCallUI(callerName) {
-            if (peerConnection) { // Already in a call or setting up
-                console.log("Already in a call, ignoring new incoming call.");
-                // Optionally, send a busy signal back
-                return;
-            }
-            updateCallStatusDisplay(`Incoming call from ${callerName}...`);
-            audioCallBtn.style.display = 'none'; // Hide call button
-            acceptCallBtn.style.display = 'block';
-            declineCallBtn.style.display = 'block';
-            endCallBtn.style.display = 'none';
-        }
-
-        // Accept incoming call
-        acceptCallBtn.addEventListener('click', async () => {
-            const callId = getCallId();
-            const callData = (await callRef.once('value')).val();
-
-            if (!callData || callData.status !== 'ringing' || callData.receiver !== currentUser.phoneNumber) {
-                showNotification('Call Error', 'No active incoming call.', 'warning');
-                endCall(); // Clean up if state is inconsistent
+        // Accept game invitation
+        async function acceptGameInvitation(gameId) {
+            if (!currentUser || !currentChatWith) {
+                showMessageBox('Error', 'Invalid state to accept game.');
                 return;
             }
 
+            gameRef = database.ref(`games/${gameId}`);
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                peerConnection = new RTCPeerConnection(iceServers);
+                const snapshot = await gameRef.once('value');
+                const existingGame = snapshot.val();
 
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+                if (!existingGame || existingGame.status === 'playing' || existingGame.players.player2) {
+                    showMessageBox('Game Error', 'This game is no longer available or already started.');
+                    return;
+                }
 
-                peerConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        callRef.child('candidates').push(event.candidate.toJSON());
-                        console.log("Sent ICE candidate (answerer):", event.candidate);
-                    }
-                };
+                // Join as player 2
+                const player2Id = generateUniqueId();
+                await gameRef.child('players/player2').set({ id: player2Id, name: currentUser.name, score: 0 });
+                await gameRef.update({ status: 'playing', lastUpdated: firebase.database.ServerValue.TIMESTAMP });
+                currentPlayerId = player2Id; // This user is player2
 
-                peerConnection.ontrack = (event) => {
-                    console.log("Remote track received (answerer):", event.streams[0]);
-                    if (remoteAudio.srcObject !== event.streams[0]) {
-                        remoteAudio.srcObject = event.streams[0];
-                        remoteAudio.play().catch(e => console.error("Error playing remote audio:", e));
-                    }
-                };
-
-                peerConnection.onconnectionstatechange = () => {
-                    console.log('Peer connection state (answerer):', peerConnection.connectionState);
-                    switch (peerConnection.connectionState) {
-                        case 'connected':
-                            updateCallStatusDisplay('Connected');
-                            // Hide accept/decline buttons, show end call button
-                            acceptCallBtn.style.display = 'none';
-                            declineCallBtn.style.display = 'none';
-                            endCallBtn.style.display = 'block';
-                            break;
-                        case 'disconnected':
-                        case 'failed':
-                            showNotification('Call Disconnected', 'Call disconnected due to network issues or peer leaving.', 'warning');
-                            endCall();
-                            break;
-                        case 'closed':
-                            updateCallStatusDisplay('');
-                            break;
-                    }
-                };
-
-                // Add this new listener for ICE connection state (for answerer)
-                peerConnection.oniceconnectionstatechange = () => {
-                    console.log('ICE connection state (answerer):', peerConnection.iceConnectionState);
-                    switch (peerConnection.iceConnectionState) {
-                        case 'checking':
-                            updateCallStatusDisplay('Connecting (checking network)...');
-                            break;
-                        case 'connected':
-                            updateCallStatusDisplay('Connected');
-                            break;
-                        case 'completed':
-                            updateCallStatusDisplay('Connected (ICE completed)');
-                            break;
-                        case 'disconnected':
-                            showNotification('Call Disconnected', 'ICE disconnected, attempting to reconnect.', 'warning');
-                            break;
-                        case 'failed':
-                            showNotification('Call Failed', 'ICE connection failed. Check network.', 'danger');
-                            endCall();
-                            break;
-                        case 'closed':
-                            updateCallStatusDisplay('');
-                            break;
-                    }
-                };
-
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-
-                // Update Firebase with answer and status
-                await callRef.update({
-                    answer: answer,
-                    status: 'accepted',
-                    acceptedBy: currentUser.phoneNumber,
-                    acceptedByName: currentUser.name
+                showMessageBox('Game Joined', `You have joined the game with ${currentChatWith.name}!`, () => {
+                    listenForGameUpdates(gameId);
+                    showGameArea();
                 });
 
-                updateCallStatusDisplay('Connecting...');
-                // Hide accept/decline buttons, show end call button
-                acceptCallBtn.style.display = 'none';
-                declineCallBtn.style.display = 'none';
-                endCallBtn.style.display = 'block';
-                showNotification('Call Accepted', `You accepted the call from ${currentChatWith.name}.`, 'success');
-
             } catch (error) {
-                console.error("Error accepting call:", error);
-                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                    showNotification('Microphone Access Denied', 'Please allow microphone access to accept calls.', 'danger');
-                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-                    showNotification('No Microphone Found', 'No microphone device found. Cannot accept call.', 'danger');
+                console.error("Error accepting game:", error);
+                showMessageBox('Error', 'Failed to join game. Please try again.');
+            }
+        }
+
+        // Listen for real-time game updates from Firebase
+        function listenForGameUpdates(gameId) {
+            if (gameRef) {
+                gameRef.off(); // Detach previous listener if any
+            }
+            gameRef = database.ref(`games/${gameId}`);
+            gameRef.on('value', (snapshot) => {
+                gameData = snapshot.val();
+                if (gameData) {
+                    updateGameUI();
                 } else {
-                    showNotification('Call Error', `Failed to accept call: ${error.message}.`, 'danger');
+                    // Game might have been deleted by other player
+                    showMessageBox('Game Ended', 'The game has ended or was deleted by your opponent.', () => {
+                        resetGamePlayState();
+                        showChatMessagesArea();
+                    });
                 }
-                endCall();
+            });
+        }
+
+        // Update Game UI based on game state
+        function updateGameUI() {
+            if (!gameData) {
+                showChatMessagesArea();
+                return;
             }
+
+            player1NameDisplay.textContent = gameData.players.player1 ? gameData.players.player1.name : 'Player 1';
+            score1Display.textContent = gameData.players.player1 ? gameData.players.player1.score : 0;
+
+            player2NameDisplay.textContent = gameData.players.player2 ? gameData.players.player2.name : 'Waiting...';
+            score2Display.textContent = gameData.players.player2 ? gameData.players.player2.score : 0;
+
+            // Highlight current player
+            const player1ScoreDiv = document.getElementById('player1-score');
+            const player2ScoreDiv = document.getElementById('player2-score');
+
+            if (gameData.currentPlayer === 'player1') {
+                player1ScoreDiv.classList.add('active');
+                player2ScoreDiv.classList.remove('active');
+                currentGameObjectPlayerDisplay.textContent = `Current Turn: ${gameData.players.player1.name}`;
+            } else if (gameData.currentPlayer === 'player2') {
+                player2ScoreDiv.classList.add('active');
+                player1ScoreDiv.classList.remove('active');
+                currentGameObjectPlayerDisplay.textContent = `Current Turn: ${gameData.players.player2.name}`;
+            } else {
+                player1ScoreDiv.classList.remove('active');
+                player2ScoreDiv.classList.remove('active');
+                currentGameObjectPlayerDisplay.textContent = 'Game Ready';
+            }
+
+            renderBoard(gameData.board);
+
+            if (gameData.status === 'finished') {
+                const winnerName = gameData.winner ? (gameData.players[gameData.winner] ? gameData.players[gameData.winner].name : 'Unknown') : 'No one';
+                showMessageBox('Game Over!', `Winner: ${winnerName} with a score of ${gameData.players[gameData.winner].score}!`, () => {
+                    // Optional: Reset game or go back to lobby after message
+                    resetGamePlayState();
+                    showChatMessagesArea();
+                });
+            } else if (gameData.status === 'waiting') {
+                currentGameObjectPlayerDisplay.textContent = `Waiting for ${currentChatWith.name} to join...`;
+            }
+        }
+
+        // Handle cell click
+        async function handleCellClick(event) {
+            if (!gameData || gameData.status !== 'playing') {
+                showMessageBox('Game Not Ready', 'Please wait for another player or start a new game.');
+                return;
+            }
+
+            const clickedRow = parseInt(event.target.dataset.row);
+            const clickedCol = parseInt(event.target.dataset.col);
+
+            // Determine which player is currently making the move
+            let activePlayerKey = null;
+            if (gameData.players.player1 && gameData.players.player1.id === currentPlayerId) {
+                activePlayerKey = 'player1';
+            } else if (gameData.players.player2 && gameData.players.player2.id === currentPlayerId) {
+                activePlayerKey = 'player2';
+            }
+
+            if (!activePlayerKey || gameData.currentPlayer !== activePlayerKey) {
+                showMessageBox('Not Your Turn', 'It\'s not your turn!');
+                return;
+            }
+
+            const currentBoard = gameData.board;
+            const { newBoard, poppedCount } = processMove(currentBoard, clickedRow, clickedCol);
+
+            if (poppedCount === 0) {
+                showMessageBox('Invalid Move', 'No connected colors to pop here!');
+                return;
+            }
+
+            // Update score
+            const newScore = gameData.players[activePlayerKey].score + poppedCount;
+
+            // Determine next player
+            const nextPlayerKey = (activePlayerKey === 'player1') ? 'player2' : 'player1';
+
+            // Check for game over
+            const gameOver = !hasValidMoves(newBoard);
+            let winner = null;
+            let newStatus = 'playing';
+
+            if (gameOver) {
+                newStatus = 'finished';
+                if (gameData.players.player1.score > gameData.players.player2.score) {
+                    winner = 'player1';
+                } else if (gameData.players.player2.score > gameData.players.player1.score) {
+                    winner = 'player2';
+                } else {
+                    winner = 'tie'; // Or handle tie differently
+                }
+            }
+
+            // Update Firebase
+            try {
+                const updates = {};
+                updates[`players/${activePlayerKey}/score`] = newScore;
+                updates['board'] = newBoard;
+                updates['lastUpdated'] = firebase.database.ServerValue.TIMESTAMP;
+                updates['status'] = newStatus;
+                if (gameOver) {
+                    updates['winner'] = winner;
+                } else {
+                    updates['currentPlayer'] = nextPlayerKey;
+                }
+                
+                await gameRef.update(updates);
+            } catch (error) {
+                console.error("Error updating game state:", error);
+                showMessageBox('Error', 'Failed to make move. Please try again.');
+            }
+        }
+
+        // Reset game
+        resetGameBtn.addEventListener('click', async () => {
+            if (!gameRef || !gameData) {
+                showMessageBox('Error', 'No active game to reset.');
+                return;
+            }
+
+            showMessageBox('Confirm Reset', 'Are you sure you want to reset the game? This will start a new game.', async () => {
+                const initialBoard = generateBoard();
+                const newGameData = {
+                    players: {
+                        player1: { id: gameData.players.player1.id, name: gameData.players.player1.name, score: 0 },
+                        player2: gameData.players.player2 ? { id: gameData.players.player2.id, name: gameData.players.player2.name, score: 0 } : null
+                    },
+                    board: initialBoard,
+                    currentPlayer: 'player1',
+                    status: gameData.players.player2 ? 'playing' : 'waiting',
+                    gameId: gameData.gameId, // Keep same game ID
+                    lastUpdated: firebase.database.ServerValue.TIMESTAMP
+                };
+                try {
+                    await gameRef.set(newGameData);
+                    showMessageBox('Game Reset', 'The game has been reset!');
+                } catch (error) {
+                    console.error("Error resetting game:", error);
+                    showMessageBox('Error', 'Failed to reset game. Please try again.');
+                }
+            });
         });
 
-        // Decline incoming call
-        declineCallBtn.addEventListener('click', async () => {
-            const callId = getCallId();
-            if (callId) {
-                // Ensure callRef is still valid before updating
-                const currentCallData = (await callRef.once('value')).val();
-                if (currentCallData && currentCallData.status === 'ringing' && currentCallData.receiver === currentUser.phoneNumber) {
-                    await callRef.update({ status: 'declined', declinedBy: currentUser.phoneNumber });
-                    showNotification('Call Declined', `You declined the call from ${currentChatWith.name}.`, 'info');
-                }
+        // Function to show the chat messages area and hide the game area
+        function showChatMessagesArea() {
+            chatMessagesArea.style.display = 'block';
+            gameArea.style.display = 'none';
+        }
+
+        // Function to show the game area and hide the chat messages area
+        function showGameArea() {
+            chatMessagesArea.style.display = 'none';
+            gameArea.style.display = 'flex'; // Use flex for game-area-container
+        }
+
+        // Reset game-related state variables and UI
+        function resetGamePlayState() {
+            if (gameRef) {
+                gameRef.off(); // Detach Firebase listener
             }
-            endCall();
+            gameRef = null;
+            gameData = null;
+            currentPlayerId = null;
+            currentChatGameId = null;
+
+            // Clear game UI elements
+            gameBoardElement.innerHTML = '';
+            score1Display.textContent = '0';
+            score2Display.textContent = '0';
+            player1NameDisplay.textContent = '';
+            player2NameDisplay.textContent = '';
+            currentGameObjectPlayerDisplay.textContent = '';
+        }
+
+        backToChatBtn.addEventListener('click', () => {
+            showChatMessagesArea();
+            // Optionally, you might want to stop listening to game updates
+            // if you don't want the game to continue in the background.
+            // For now, we keep it active so users can switch back and forth.
+            // If you want to stop:
+            // if (gameRef) {
+            //     gameRef.off();
+            // }
+            // resetGamePlayState();
         });
-
-        // End active call
-        endCallBtn.addEventListener('click', async () => {
-            const callId = getCallId();
-            if (callId) {
-                // Ensure callRef is still valid before updating
-                const currentCallData = (await callRef.once('value')).val();
-                if (currentCallData && (currentCallData.caller === currentUser.phoneNumber || currentCallData.receiver === currentUser.phoneNumber)) {
-                    await callRef.update({ status: 'ended', endedBy: currentUser.phoneNumber });
-                    showNotification('Call Ended', 'You ended the call.', 'info');
-                }
-            }
-            endCall();
-        });
-
-        // Function to clean up WebRTC connection and UI
-        function endCall() {
-            console.log("Ending call and cleaning up resources.");
-            if (peerConnection) {
-                peerConnection.ontrack = null; // Remove listeners
-                peerConnection.onicecandidate = null;
-                peerConnection.onconnectionstatechange = null;
-                peerConnection.oniceconnectionstatechange = null;
-                peerConnection.close();
-                peerConnection = null;
-            }
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            if (remoteAudio.srcObject) {
-                remoteAudio.pause();
-                remoteAudio.srcObject = null;
-            }
-            // Only remove call data if this user was the caller or the last one to end it
-            // This prevents race conditions if both users try to end the call simultaneously
-            if (callRef) {
-                callRef.off(); // Detach all Firebase listeners
-                // Consider adding a check here if you want only the caller to remove the node
-                // For simplicity, we'll let the last one to end remove it.
-                callRef.remove().catch(e => console.warn("Error removing call data from Firebase:", e));
-                callRef = null;
-            }
-            resetCallUI();
-        }
-
-        // Reset call UI to initial state
-        function resetCallUI() {
-            callStatusDisplay.style.display = 'none';
-            callStatusDisplay.textContent = '';
-            audioCallBtn.style.display = 'block'; // Show call button
-            acceptCallBtn.style.display = 'none';
-            declineCallBtn.style.display = 'none';
-            endCallBtn.style.display = 'none';
-        }
-
-        // Show UI when calling
-        function showCallingUI() {
-            callStatusDisplay.style.display = 'block';
-            audioCallBtn.style.display = 'none'; // Hide call button
-            acceptCallBtn.style.display = 'none';
-            declineCallBtn.style.display = 'none';
-            endCallBtn.style.display = 'block'; // Allow user to end call while ringing
-        }
-
-        // Update call status text
-        function updateCallStatusDisplay(statusText) {
-            callStatusDisplay.textContent = statusText;
-            callStatusDisplay.style.display = 'block';
-        }
 
         // Check if user is already registered on page load
         window.addEventListener('load', () => {
