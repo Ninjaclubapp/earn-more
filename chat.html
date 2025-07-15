@@ -43,7 +43,7 @@
             background-color: #f8f9fa;
             display: flex;
             flex-direction: column;
-            gap: 10px; /* Space between messages */
+            gap: 10px;
         }
         .message {
             margin-bottom: 5px;
@@ -62,13 +62,13 @@
             background-color: #0d6efd;
             color: white;
             margin-left: auto;
-            border-bottom-right-radius: 5px; /* Flat edge to the side */
+            border-bottom-right-radius: 5px;
         }
         .received {
             background-color: #e9ecef;
             color: #333;
             margin-right: auto;
-            border-bottom-left-radius: 5px; /* Flat edge to the side */
+            border-bottom-left-radius: 5px;
         }
         .status-info {
             font-size: 12px;
@@ -88,20 +88,16 @@
             background-color: #f0f2f5;
             transform: translateX(5px);
         }
-        
-        /* New style for the small dot */
         .unread-dot {
             background-color: #dc3545;
             border-radius: 50%;
-            width: 10px; /* Small fixed width */
-            height: 10px; /* Small fixed height */
+            width: 10px;
+            height: 10px;
             display: inline-block;
             margin-left: 10px;
-            vertical-align: middle; /* Align with text */
+            vertical-align: middle;
             animation: popIn 0.3s ease-out;
         }
-
-        /* Existing style for the numbered badge */
         .unread-count {
             background-color: #dc3545;
             color: white;
@@ -109,17 +105,15 @@
             padding: 4px 8px;
             font-size: 11px;
             margin-left: 10px;
-            min-width: 25px; /* Ensure it's wide enough for numbers */
+            min-width: 25px;
             text-align: center;
             animation: popIn 0.3s ease-out;
         }
-        
-        /* Notification toast styles */
         #notification-container {
             position: fixed;
             top: 20px;
             right: 20px;
-            z-index: 1050; /* Above Bootstrap modals */
+            z-index: 1050;
             width: 320px;
         }
         .notification-toast {
@@ -150,14 +144,12 @@
         }
         .notification-toast .btn-close {
             color: white;
-            filter: invert(1); /* Make close button white */
+            filter: invert(1);
             opacity: 0.8;
         }
         .notification-toast .btn-close:hover {
             opacity: 1;
         }
-
-        /* Typing indicator */
         .typing-indicator {
             display: inline-block;
             padding: 5px 12px;
@@ -168,75 +160,107 @@
             margin-top: 5px;
             animation: pulse 1.5s infinite ease-in-out;
         }
-        
-        /* Message status indicators */
         .message-status {
             font-size: 11px;
             margin-left: 8px;
             opacity: 0.8;
         }
         .message-status.delivered {
-            color: #ccc; /* Light grey for delivered */
+            color: #ccc;
         }
         .message-status.read {
-            color: #00e676; /* Green for read */
+            color: #00e676;
         }
         .message-status.double-check {
             position: relative;
-            top: -2px; /* Adjust vertical alignment for double check */
+            top: -2px;
         }
-
-        /* Call UI styles */
-        #call-controls {
-            display: flex;
-            gap: 10px;
-            margin-left: auto;
-        }
-        #call-status-display {
-            font-size: 14px;
-            font-weight: bold;
-            color: #28a745; /* Green for connected, adjust as needed */
-            margin-top: 10px;
-            text-align: center;
-        }
-        .call-button {
-            background-color: #28a745; /* Green for call */
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
+        #game-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1000;
             justify-content: center;
             align-items: center;
+        }
+        #game-board {
+            width: 350px;
+            height: 500px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        #game-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        #game-players {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .player-info {
+            text-align: center;
+            padding: 5px;
+            border-radius: 5px;
+            width: 48%;
+        }
+        .player-info.you {
+            background-color: #e3f2fd;
+        }
+        .player-info.opponent {
+            background-color: #f3e5f5;
+        }
+        .player-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .player-score {
             font-size: 18px;
+            color: #0d6efd;
+        }
+        .player-battery {
+            font-size: 12px;
+            color: #666;
+        }
+        #game-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 5px;
+            flex-grow: 1;
+        }
+        .game-cell {
+            background-color: #ddd;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: transform 0.2s;
+            position: relative;
         }
-        .call-button:hover {
-            background-color: #218838;
+        .game-cell:hover {
+            transform: scale(1.05);
         }
-        .call-button.end-call {
-            background-color: #dc3545; /* Red for end call */
+        .cell-popped {
+            animation: pop 0.3s;
         }
-        .call-button.end-call:hover {
-            background-color: #c82333;
+        #game-timer {
+            font-weight: bold;
+            font-size: 18px;
+            color: #dc3545;
+            text-align: center;
+            margin: 10px 0;
         }
-        .call-button.decline-call {
-            background-color: #ffc107; /* Orange for decline */
-            color: #333;
+        #game-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
         }
-        .call-button.decline-call:hover {
-            background-color: #e0a800;
-        }
-        .call-button.accept-call {
-            background-color: #28a745; /* Green for accept */
-        }
-        .call-button.accept-call:hover {
-            background-color: #218838;
-        }
-
-        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -263,11 +287,43 @@
             50% { transform: scale(1.02); opacity: 0.9; }
             100% { transform: scale(1); opacity: 1; }
         }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.8); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <!-- Notification Container -->
     <div id="notification-container"></div>
+    
+    <!-- Game Container -->
+    <div id="game-container">
+        <div id="game-board">
+            <div id="game-header">
+                <h5>Color Pop Battle</h5>
+            </div>
+            <div id="game-players">
+                <div class="player-info you">
+                    <div class="player-name" id="player-you-name">You</div>
+                    <div class="player-score" id="player-you-score">0</div>
+                    <div class="player-battery" id="player-you-battery">Battery: ?</div>
+                </div>
+                <div class="player-info opponent">
+                    <div class="player-name" id="player-opponent-name">Opponent</div>
+                    <div class="player-score" id="player-opponent-score">0</div>
+                    <div class="player-battery" id="player-opponent-battery">Battery: ?</div>
+                </div>
+            </div>
+            <div id="game-timer">Time: 60</div>
+            <div id="game-grid"></div>
+            <div id="game-controls">
+                <button id="new-game-btn" class="btn btn-primary">New Game</button>
+                <button id="close-game-btn" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
     
     <!-- Notification Sound Element -->
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
@@ -308,6 +364,7 @@
                 <div id="contacts-list" class="list-group list-group-flush">
                     <!-- Contacts will be loaded here -->
                 </div>
+                <button id="play-game-btn" class="btn btn-success w-100 mt-3 rounded-pill">Play Color Pop Battle</button>
             </div>
         </div>
 
@@ -319,19 +376,11 @@
                     <span id="chat-with-name" class="fw-bold">Chat with...</span>
                     <div id="chat-with-status" class="small text-white-75"></div>
                 </div>
-                <div id="call-controls">
-                    <button id="audio-call-btn" class="call-button">📞</button>
-                    <!-- Call management buttons (initially hidden) -->
-                    <button id="accept-call-btn" class="call-button accept-call" style="display: none;">✅</button>
-                    <button id="decline-call-btn" class="call-button decline-call" style="display: none;">🚫</button>
-                    <button id="end-call-btn" class="call-button end-call" style="display: none;">🛑</button>
-                </div>
                 <div class="status-info">
                     <span id="chat-network-status">Offline</span> | 
                     <span id="chat-battery-status">Battery: ?</span>
                 </div>
             </div>
-            <div id="call-status-display" style="display: none;"></div>
             <div id="chat-messages" class="chat-messages">
                 <!-- Messages will be loaded here -->
             </div>
@@ -341,6 +390,7 @@
                     <input type="text" id="message-input" class="form-control rounded-pill" placeholder="Type a message...">
                     <button class="btn btn-primary rounded-pill ms-2" type="button" id="send-btn">Send</button>
                 </div>
+                <button id="play-game-in-chat-btn" class="btn btn-success w-100 mt-3 rounded-pill">Play Color Pop Battle</button>
             </div>
         </div>
     </div>
@@ -386,13 +436,20 @@
         const notificationContainer = document.getElementById('notification-container');
         const typingIndicator = document.getElementById('typing-indicator');
         const notificationSound = document.getElementById('notification-sound');
-
-        // Call UI elements
-        const audioCallBtn = document.getElementById('audio-call-btn');
-        const acceptCallBtn = document.getElementById('accept-call-btn');
-        const declineCallBtn = document.getElementById('decline-call-btn');
-        const endCallBtn = document.getElementById('end-call-btn');
-        const callStatusDisplay = document.getElementById('call-status-display');
+        const playGameBtn = document.getElementById('play-game-btn');
+        const playGameInChatBtn = document.getElementById('play-game-in-chat-btn');
+        const gameContainer = document.getElementById('game-container');
+        const gameBoard = document.getElementById('game-board');
+        const gameGrid = document.getElementById('game-grid');
+        const playerYouName = document.getElementById('player-you-name');
+        const playerYouScore = document.getElementById('player-you-score');
+        const playerYouBattery = document.getElementById('player-you-battery');
+        const playerOpponentName = document.getElementById('player-opponent-name');
+        const playerOpponentScore = document.getElementById('player-opponent-score');
+        const playerOpponentBattery = document.getElementById('player-opponent-battery');
+        const gameTimer = document.getElementById('game-timer');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const closeGameBtn = document.getElementById('close-game-btn');
 
         // App State
         let currentUser = null;
@@ -401,24 +458,16 @@
         let messageListeners = {};
         let typingTimeout = null;
         let onlineStatusRef = null;
+        let batteryMonitor = null;
 
-        // WebRTC related variables
-        let peerConnection = null;
-        let localStream = null;
-        let remoteAudio = new Audio();
-        let callRef = null;
-        let callId = null;
-
-        // ICE servers configuration (using free STUN servers)
-        const iceServers = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun3.l.google.com:19302' },
-                { urls: 'stun:stun4.l.google.com:19302' }
-            ]
-        };
+        // Game State
+        let gameActive = false;
+        let gameRef = null;
+        let gameId = null;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let gameInterval = null;
+        const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F3'];
 
         // Helper to format timestamp to a readable last seen string
         function formatLastSeen(timestamp) {
@@ -445,19 +494,27 @@
             // Battery status
             if ('getBattery' in navigator) {
                 navigator.getBattery().then(battery => {
+                    batteryMonitor = battery;
                     updateBatteryStatus(battery);
                     
                     battery.addEventListener('levelchange', () => {
                         updateBatteryStatus(battery);
+                        if (currentUser) {
+                            updateUserBatteryStatus(battery);
+                        }
                     });
                     
                     battery.addEventListener('chargingchange', () => {
                         updateBatteryStatus(battery);
+                        if (currentUser) {
+                            updateUserBatteryStatus(battery);
+                        }
                     });
                 });
             } else {
                 batteryStatus.textContent = "Battery: API not supported";
                 chatBatteryStatus.textContent = "Battery: API not supported";
+                playerYouBattery.textContent = "Battery: API not supported";
             }
             
             // Network status
@@ -490,6 +547,20 @@
             const text = `Battery: ${level}% ${charging}`;
             batteryStatus.textContent = text;
             chatBatteryStatus.textContent = text;
+            playerYouBattery.textContent = text;
+        }
+
+        function updateUserBatteryStatus(battery) {
+            if (!currentUser) return;
+            
+            const level = Math.round(battery.level * 100);
+            const charging = battery.charging ? "⚡" : "";
+            
+            database.ref('users/' + currentUser.phoneNumber).update({
+                batteryLevel: level,
+                batteryCharging: battery.charging,
+                lastSeen: firebase.database.ServerValue.TIMESTAMP
+            });
         }
 
         // Registration
@@ -514,7 +585,9 @@
                     name: userName,
                     phoneNumber: phoneNumber,
                     lastSeen: firebase.database.ServerValue.TIMESTAMP,
-                    online: true
+                    online: true,
+                    batteryLevel: 0,
+                    batteryCharging: false
                 });
             }).then(() => {
                 currentUser = { phoneNumber, name: userName };
@@ -522,6 +595,11 @@
                 showContactsScreen();
                 monitorOnlineStatus();
                 showNotification('Welcome', `Hi ${userName}! You're now registered.`, 'success');
+                
+                // Update battery status if available
+                if (batteryMonitor) {
+                    updateUserBatteryStatus(batteryMonitor);
+                }
             }).catch(error => {
                 console.error("Error saving user:", error);
                 showNotification('Error', 'Failed to register. Please try again.', 'danger');
@@ -559,7 +637,7 @@
                     });
                 }
                 clearInterval(onlineInterval);
-                endCall();
+                endGame();
             });
 
             // Handle visibility change
@@ -711,7 +789,7 @@
             currentChatWith = contact;
             chatWithName.textContent = `${contact.name}`;
             
-            // Set up listener for chat partner's online status
+            // Set up listener for chat partner's online status and battery
             database.ref(`users/${contact.phoneNumber}`).on('value', (snapshot) => {
                 const partner = snapshot.val();
                 if (partner) {
@@ -719,6 +797,14 @@
                         chatWithStatus.textContent = 'Online';
                     } else {
                         chatWithStatus.textContent = `Last seen: ${formatLastSeen(partner.lastSeen)}`;
+                    }
+                    
+                    // Update opponent battery status in game if playing
+                    if (gameActive && gameId) {
+                        const batteryText = partner.batteryLevel ? 
+                            `Battery: ${partner.batteryLevel}% ${partner.batteryCharging ? '⚡' : ''}` : 
+                            'Battery: Unknown';
+                        playerOpponentBattery.textContent = batteryText;
                     }
                 }
             });
@@ -728,7 +814,6 @@
             
             setupTypingListener(contact.phoneNumber);
             loadChatMessages();
-            setupCallListeners();
         }
 
         function setupTypingListener(contactPhoneNumber) {
@@ -751,10 +836,10 @@
             if (currentChatWith) {
                 database.ref(`typing/${currentChatWith.phoneNumber}`).off();
                 database.ref(`users/${currentChatWith.phoneNumber}`).off();
-                if (callRef) {
-                    callRef.off();
+                if (gameRef) {
+                    gameRef.off();
                 }
-                endCall();
+                endGame();
             }
             
             currentChatWith = null;
@@ -915,429 +1000,236 @@
             });
         }
 
-        // --- WebRTC Audio Call Functionality ---
+        // --- Multiplayer Color Pop Game ---
 
-        // Get a unique call ID for the current chat
-        function getCallId() {
-            if (!currentUser || !currentChatWith) return null;
-            return [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_call';
+        // Initialize the game grid
+        function initGameGrid() {
+            gameGrid.innerHTML = '';
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'game-cell';
+                cell.dataset.index = i;
+                cell.addEventListener('click', handleCellClick);
+                gameGrid.appendChild(cell);
+            }
         }
 
-        // Setup Firebase listeners for call signaling
-        function setupCallListeners() {
-            if (!currentUser || !currentChatWith) return;
-
-            callId = getCallId();
-            if (!callId) return;
-
-            callRef = database.ref(`calls/${callId}`);
-
-            // Listen for call state changes
-            callRef.on('value', async (snapshot) => {
-                const callData = snapshot.val();
-                if (!callData) {
-                    resetCallUI();
-                    return;
-                }
-
-                // Handle different call states
-                if (callData.status === 'ringing' && callData.caller === currentChatWith.phoneNumber && !peerConnection) {
-                    // Incoming call
-                    showIncomingCallUI(callData.callerName || callData.caller);
-                } else if (callData.status === 'accepted' && peerConnection && peerConnection.signalingState === 'have-local-offer') {
-                    // Call accepted by remote, process answer
-                    if (callData.answer && !peerConnection.remoteDescription) {
-                        try {
-                            await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.answer));
-                            console.log("Remote answer set successfully");
-                            updateCallStatusDisplay('Connected');
-                            if (remoteAudio.srcObject) {
-                                remoteAudio.play().catch(e => console.error("Error playing remote audio:", e));
-                            }
-                            hideCallControls();
-                            endCallBtn.style.display = 'block';
-                        } catch (e) {
-                            console.error("Error setting remote answer:", e);
-                            showNotification('Call Error', 'Failed to connect call.', 'danger');
-                            endCall();
-                        }
+        // Handle cell clicks in the game
+        function handleCellClick(e) {
+            if (!gameActive || !gameRef || !currentUser || !currentChatWith) return;
+            
+            const cell = e.target;
+            const cellIndex = cell.dataset.index;
+            
+            if (cell.style.backgroundColor) {
+                // Cell has color - try to pop it!
+                gameRef.child('cells').child(cellIndex).once('value').then(snapshot => {
+                    const cellData = snapshot.val();
+                    if (cellData && cellData.color && !cellData.poppedBy) {
+                        // Mark the cell as popped by current user
+                        gameRef.child('cells').child(cellIndex).update({
+                            poppedBy: currentUser.phoneNumber,
+                            poppedAt: firebase.database.ServerValue.TIMESTAMP
+                        });
+                        
+                        // Add animation
+                        cell.classList.add('cell-popped');
+                        setTimeout(() => {
+                            cell.classList.remove('cell-popped');
+                        }, 300);
                     }
-                } else if (callData.status === 'ended') {
-                    showNotification('Call Ended', `${currentChatWith.name} ended the call.`, 'info');
-                    endCall();
-                } else if (callData.status === 'declined') {
-                    showNotification('Call Declined', `${currentChatWith.name} declined your call.`, 'warning');
-                    endCall();
-                }
-            });
-
-            // Listen for ICE candidates
-            callRef.child('candidates').on('child_added', async (snapshot) => {
-                const candidateData = snapshot.val();
-                if (candidateData && peerConnection && peerConnection.remoteDescription) {
-                    try {
-                        const candidate = new RTCIceCandidate(candidateData);
-                        await peerConnection.addIceCandidate(candidate);
-                        console.log("Added ICE candidate:", candidate);
-                    } catch (e) {
-                        console.error("Error adding received ICE candidate:", e);
-                    }
-                }
-            });
+                });
+            }
         }
 
-        // Initiate an audio call
-        audioCallBtn.addEventListener('click', async () => {
+        // Start the game
+        function startGame() {
             if (!currentUser || !currentChatWith) {
-                showNotification('Call Error', 'Please select a contact to call.', 'warning');
+                showNotification('Game Error', 'Please select a contact to play with', 'warning');
                 return;
             }
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showNotification('Call Error', 'Media devices not supported in this browser.', 'danger');
-                return;
-            }
-
-            // Check if there's an active call already
-            callId = getCallId();
-            const existingCall = await database.ref(`calls/${callId}`).once('value');
-            if (existingCall.exists() && existingCall.val().status !== 'ended' && existingCall.val().status !== 'declined') {
-                showNotification('Call in Progress', 'Another call is already active or ringing.', 'warning');
-                return;
-            }
-
-            try {
-                // Get local audio stream
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // Create peer connection
-                peerConnection = new RTCPeerConnection(iceServers);
-                
-                // Add local tracks to connection
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-                // ICE candidate handler
-                peerConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        callRef.child('candidates').push(event.candidate.toJSON());
-                        console.log("Sent ICE candidate:", event.candidate);
-                    }
-                };
-
-                // Remote stream handler
-                peerConnection.ontrack = (event) => {
-                    console.log("Remote track received:", event.streams[0]);
-                    if (remoteAudio.srcObject !== event.streams[0]) {
-                        remoteAudio.srcObject = event.streams[0];
-                        remoteAudio.play().catch(e => console.error("Error playing remote audio:", e));
-                    }
-                };
-
-                // Connection state change handler
-                peerConnection.onconnectionstatechange = () => {
-                    console.log('Peer connection state:', peerConnection.connectionState);
-                    switch (peerConnection.connectionState) {
-                        case 'connected':
-                            updateCallStatusDisplay('Connected');
-                            hideCallControls();
-                            endCallBtn.style.display = 'block';
-                            break;
-                        case 'disconnected':
-                        case 'failed':
-                            showNotification('Call Disconnected', 'Call disconnected due to network issues or peer leaving.', 'warning');
-                            endCall();
-                            break;
-                        case 'closed':
-                            updateCallStatusDisplay('');
-                            break;
-                    }
-                };
-
-                // ICE connection state change handler
-                peerConnection.oniceconnectionstatechange = () => {
-                    console.log('ICE connection state:', peerConnection.iceConnectionState);
-                    switch (peerConnection.iceConnectionState) {
-                        case 'checking':
-                            updateCallStatusDisplay('Connecting...');
-                            break;
-                        case 'connected':
-                        case 'completed':
-                            updateCallStatusDisplay('Connected');
-                            break;
-                        case 'disconnected':
-                            showNotification('Call Disconnected', 'Network issues detected. Trying to reconnect...', 'warning');
-                            break;
-                        case 'failed':
-                            showNotification('Call Failed', 'Connection failed. Please check your network.', 'danger');
-                            endCall();
-                            break;
-                        case 'closed':
-                            updateCallStatusDisplay('');
-                            break;
-                    }
-                };
-
-                // Create and set local offer
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-
-                // Store offer in Firebase
-                await callRef.set({
-                    caller: currentUser.phoneNumber,
-                    callerName: currentUser.name,
-                    receiver: currentChatWith.phoneNumber,
-                    offer: offer,
-                    status: 'ringing',
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-
-                updateCallStatusDisplay(`Calling ${currentChatWith.name}...`);
-                showCallingUI();
-                showNotification('Calling', `Calling ${currentChatWith.name}...`, 'info');
-
-            } catch (error) {
-                console.error("Error initiating call:", error);
-                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                    showNotification('Microphone Access Denied', 'Please allow microphone access to make calls.', 'danger');
-                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-                    showNotification('No Microphone Found', 'No microphone device found. Please connect one.', 'danger');
-                } else {
-                    showNotification('Call Error', `Failed to initiate call: ${error.message}.`, 'danger');
-                }
-                endCall();
-            }
-        });
-
-        // Handle incoming call UI
-        function showIncomingCallUI(callerName) {
-            if (peerConnection) {
-                console.log("Already in a call, ignoring new incoming call.");
-                return;
-            }
-            updateCallStatusDisplay(`Incoming call from ${callerName}...`);
-            audioCallBtn.style.display = 'none';
-            acceptCallBtn.style.display = 'block';
-            declineCallBtn.style.display = 'block';
-            endCallBtn.style.display = 'none';
             
-            // Play ringtone or notification
-            playNotificationSound();
-        }
-
-        // Accept incoming call
-        acceptCallBtn.addEventListener('click', async () => {
-            const callData = (await callRef.once('value')).val();
-
-            if (!callData || callData.status !== 'ringing' || callData.receiver !== currentUser.phoneNumber) {
-                showNotification('Call Error', 'No active incoming call.', 'warning');
-                endCall();
-                return;
-            }
-
-            try {
-                // Get local audio stream
-                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // Create peer connection
-                peerConnection = new RTCPeerConnection(iceServers);
-
-                // Add local tracks to connection
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-                // ICE candidate handler
-                peerConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        callRef.child('candidates').push(event.candidate.toJSON());
-                        console.log("Sent ICE candidate (answerer):", event.candidate);
-                    }
-                };
-
-                // Remote stream handler
-                peerConnection.ontrack = (event) => {
-                    console.log("Remote track received (answerer):", event.streams[0]);
-                    if (remoteAudio.srcObject !== event.streams[0]) {
-                        remoteAudio.srcObject = event.streams[0];
-                        remoteAudio.play().catch(e => console.error("Error playing remote audio:", e));
-                    }
-                };
-
-                // Connection state change handler
-                peerConnection.onconnectionstatechange = () => {
-                    console.log('Peer connection state (answerer):', peerConnection.connectionState);
-                    switch (peerConnection.connectionState) {
-                        case 'connected':
-                            updateCallStatusDisplay('Connected');
-                            hideCallControls();
-                            endCallBtn.style.display = 'block';
-                            break;
-                        case 'disconnected':
-                        case 'failed':
-                            showNotification('Call Disconnected', 'Call disconnected due to network issues or peer leaving.', 'warning');
-                            endCall();
-                            break;
-                        case 'closed':
-                            updateCallStatusDisplay('');
-                            break;
-                    }
-                };
-
-                // ICE connection state change handler
-                peerConnection.oniceconnectionstatechange = () => {
-                    console.log('ICE connection state (answerer):', peerConnection.iceConnectionState);
-                    switch (peerConnection.iceConnectionState) {
-                        case 'checking':
-                            updateCallStatusDisplay('Connecting...');
-                            break;
-                        case 'connected':
-                        case 'completed':
-                            updateCallStatusDisplay('Connected');
-                            break;
-                        case 'disconnected':
-                            showNotification('Call Disconnected', 'Network issues detected. Trying to reconnect...', 'warning');
-                            break;
-                        case 'failed':
-                            showNotification('Call Failed', 'Connection failed. Please check your network.', 'danger');
-                            endCall();
-                            break;
-                        case 'closed':
-                            updateCallStatusDisplay('');
-                            break;
-                    }
-                };
-
-                // Set remote offer
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
-                
-                // Create and set local answer
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-
-                // Update Firebase with answer and status
-                await callRef.update({
-                    answer: answer,
-                    status: 'accepted',
-                    acceptedBy: currentUser.phoneNumber,
-                    acceptedByName: currentUser.name
-                });
-
-                updateCallStatusDisplay('Connecting...');
-                hideCallControls();
-                endCallBtn.style.display = 'block';
-                showNotification('Call Accepted', `You accepted the call from ${currentChatWith.name}.`, 'success');
-
-            } catch (error) {
-                console.error("Error accepting call:", error);
-                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                    showNotification('Microphone Access Denied', 'Please allow microphone access to accept calls.', 'danger');
-                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-                    showNotification('No Microphone Found', 'No microphone device found. Cannot accept call.', 'danger');
-                } else {
-                    showNotification('Call Error', `Failed to accept call: ${error.message}.`, 'danger');
+            gameActive = true;
+            gameId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_game';
+            gameRef = database.ref(`games/${gameId}`);
+            
+            // Set up game players
+            playerYouName.textContent = currentUser.name;
+            playerOpponentName.textContent = currentChatWith.name;
+            playerYouScore.textContent = '0';
+            playerOpponentScore.textContent = '0';
+            
+            // Get opponent battery status
+            database.ref(`users/${currentChatWith.phoneNumber}`).once('value').then(snapshot => {
+                const opponent = snapshot.val();
+                if (opponent) {
+                    const batteryText = opponent.batteryLevel ? 
+                        `Battery: ${opponent.batteryLevel}% ${opponent.batteryCharging ? '⚡' : ''}` : 
+                        'Battery: Unknown';
+                    playerOpponentBattery.textContent = batteryText;
                 }
-                endCall();
-            }
-        });
-
-        // Decline incoming call
-        declineCallBtn.addEventListener('click', async () => {
-            if (callId) {
-                const currentCallData = (await callRef.once('value')).val();
-                if (currentCallData && currentCallData.status === 'ringing' && currentCallData.receiver === currentUser.phoneNumber) {
-                    await callRef.update({ 
-                        status: 'declined', 
-                        declinedBy: currentUser.phoneNumber,
-                        declinedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            // Initialize game state
+            gameRef.set({
+                player1: currentUser.phoneNumber,
+                player1Name: currentUser.name,
+                player2: currentChatWith.phoneNumber,
+                player2Name: currentChatWith.name,
+                status: 'playing',
+                startedAt: firebase.database.ServerValue.TIMESTAMP,
+                scores: {
+                    [currentUser.phoneNumber]: 0,
+                    [currentChatWith.phoneNumber]: 0
+                }
+            });
+            
+            // Initialize grid
+            initGameGrid();
+            
+            // Start timer
+            timeLeft = 60;
+            gameTimer.textContent = `Time: ${timeLeft}`;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                gameTimer.textContent = `Time: ${timeLeft}`;
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+            
+            // Listen for game state changes
+            gameRef.on('value', (snapshot) => {
+                const gameData = snapshot.val();
+                if (!gameData) return;
+                
+                // Update scores
+                if (gameData.scores) {
+                    playerYouScore.textContent = gameData.scores[currentUser.phoneNumber] || '0';
+                    playerOpponentScore.textContent = gameData.scores[currentChatWith.phoneNumber] || '0';
+                }
+                
+                // Check if game ended
+                if (gameData.status === 'ended') {
+                    endGame();
+                }
+            });
+            
+            // Listen for cell changes
+            gameRef.child('cells').on('child_changed', (snapshot) => {
+                const cellData = snapshot.val();
+                const cellIndex = snapshot.key;
+                const cell = document.querySelector(`.game-cell[data-index="${cellIndex}"]`);
+                
+                if (cellData && cell) {
+                    if (cellData.poppedBy) {
+                        // Cell was popped by someone
+                        cell.style.backgroundColor = '';
+                        
+                        // Update score display
+                        if (cellData.poppedBy === currentUser.phoneNumber) {
+                            cell.classList.add('cell-popped');
+                            setTimeout(() => {
+                                cell.classList.remove('cell-popped');
+                            }, 300);
+                        }
+                    } else if (cellData.color) {
+                        // New color appeared
+                        cell.style.backgroundColor = cellData.color;
+                    }
+                }
+            });
+            
+            // Start adding colors to cells
+            gameInterval = setInterval(() => {
+                if (!gameActive) return;
+                
+                const cells = document.querySelectorAll('.game-cell');
+                const emptyCells = Array.from(cells).filter(cell => !cell.style.backgroundColor);
+                
+                if (emptyCells.length > 0) {
+                    const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    const cellIndex = randomCell.dataset.index;
+                    
+                    // Add color to the cell in Firebase
+                    gameRef.child('cells').child(cellIndex).set({
+                        color: randomColor,
+                        appearedAt: firebase.database.ServerValue.TIMESTAMP
                     });
-                    showNotification('Call Declined', `You declined the call from ${currentChatWith.name}.`, 'info');
                 }
-            }
-            endCall();
-        });
+            }, 1000);
+            
+            gameContainer.style.display = 'flex';
+            showNotification('Game Started', `Playing Color Pop with ${currentChatWith.name}!`, 'success');
+        }
 
-        // End active call
-        endCallBtn.addEventListener('click', async () => {
-            if (callId) {
-                const currentCallData = (await callRef.once('value')).val();
-                if (currentCallData && (currentCallData.caller === currentUser.phoneNumber || currentCallData.receiver === currentUser.phoneNumber)) {
-                    await callRef.update({ 
-                        status: 'ended', 
-                        endedBy: currentUser.phoneNumber,
-                        endedAt: firebase.database.ServerValue.TIMESTAMP
+        // End the game
+        function endGame() {
+            if (!gameActive) return;
+            
+            gameActive = false;
+            clearInterval(gameInterval);
+            clearInterval(timerInterval);
+            
+            if (gameRef) {
+                // Update game status to ended
+                gameRef.update({
+                    status: 'ended',
+                    endedAt: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    // Get final scores
+                    gameRef.child('scores').once('value').then(snapshot => {
+                        const scores = snapshot.val();
+                        if (scores) {
+                            const yourScore = scores[currentUser.phoneNumber] || 0;
+                            const opponentScore = scores[currentChatWith.phoneNumber] || 0;
+                            
+                            let message = `Game over! Final score - You: ${yourScore}, ${currentChatWith.name}: ${opponentScore}`;
+                            if (yourScore > opponentScore) {
+                                message += " - You win! 🎉";
+                            } else if (yourScore < opponentScore) {
+                                message += " - You lose! 😢";
+                            } else {
+                                message += " - It's a tie!";
+                            }
+                            
+                            showNotification('Game Over', message, 'info');
+                        }
                     });
-                    showNotification('Call Ended', 'You ended the call.', 'info');
-                }
+                    
+                    // Clean up listeners
+                    gameRef.off();
+                    gameRef.child('cells').off();
+                    gameRef = null;
+                    gameId = null;
+                });
             }
-            endCall();
+        }
+
+        // New game button
+        newGameBtn.addEventListener('click', () => {
+            endGame();
+            startGame();
         });
 
-        // Function to clean up WebRTC connection and UI
-        function endCall() {
-            console.log("Ending call and cleaning up resources");
-            
-            // Close peer connection if exists
-            if (peerConnection) {
-                peerConnection.ontrack = null;
-                peerConnection.onicecandidate = null;
-                peerConnection.onconnectionstatechange = null;
-                peerConnection.oniceconnectionstatechange = null;
-                peerConnection.close();
-                peerConnection = null;
-            }
-            
-            // Stop local stream if exists
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            
-            // Stop remote audio if playing
-            if (remoteAudio.srcObject) {
-                remoteAudio.pause();
-                remoteAudio.srcObject = null;
-            }
-            
-            // Remove call data from Firebase if we're the last one to end
-            if (callRef) {
-                callRef.off(); // Detach all Firebase listeners
-                callRef.remove().catch(e => console.warn("Error removing call data from Firebase:", e));
-                callRef = null;
-            }
-            
-            callId = null;
-            resetCallUI();
-        }
+        // Close game button
+        closeGameBtn.addEventListener('click', () => {
+            endGame();
+            gameContainer.style.display = 'none';
+        });
 
-        // Reset call UI to initial state
-        function resetCallUI() {
-            callStatusDisplay.style.display = 'none';
-            callStatusDisplay.textContent = '';
-            audioCallBtn.style.display = 'block';
-            acceptCallBtn.style.display = 'none';
-            declineCallBtn.style.display = 'none';
-            endCallBtn.style.display = 'none';
-        }
+        // Play game buttons
+        playGameBtn.addEventListener('click', () => {
+            gameContainer.style.display = 'flex';
+            startGame();
+        });
 
-        // Show UI when calling
-        function showCallingUI() {
-            callStatusDisplay.style.display = 'block';
-            audioCallBtn.style.display = 'none';
-            acceptCallBtn.style.display = 'none';
-            declineCallBtn.style.display = 'none';
-            endCallBtn.style.display = 'block';
-        }
-
-        // Update call status text
-        function updateCallStatusDisplay(statusText) {
-            callStatusDisplay.textContent = statusText;
-            callStatusDisplay.style.display = 'block';
-        }
-
-        // Hide call controls except end call
-        function hideCallControls() {
-            audioCallBtn.style.display = 'none';
-            acceptCallBtn.style.display = 'none';
-            declineCallBtn.style.display = 'none';
-            endCallBtn.style.display = 'block';
-        }
+        playGameInChatBtn.addEventListener('click', () => {
+            gameContainer.style.display = 'flex';
+            startGame();
+        });
 
         // Check if user is already registered on page load
         window.addEventListener('load', () => {
