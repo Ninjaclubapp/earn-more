@@ -349,15 +349,33 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <script>
+        // IMPORTANT: Before running this code, ensure the following:
+        // 1. Firebase Project Setup: You have a Firebase project created.
+        // 2. Firebase Realtime Database: The Realtime Database is enabled for your project.
+        // 3. Firebase Security Rules: Your Realtime Database rules allow read/write access
+        //    to the 'users', 'chats', 'typing', and 'calls' nodes.
+        //    For development, you might use very permissive rules (NOT FOR PRODUCTION):
+        /*
+        {
+          "rules": {
+            ".read": "true",
+            ".write": "true"
+          }
+        }
+        */
+        // 4. Microphone Permissions: Your browser must be granted permission to access the microphone.
+        //    The app will prompt you for this when you initiate or accept a call.
+        // 5. Network Connectivity: Ensure stable internet connection for both users.
+
         // Initialize Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyClBohbm2-pReGrbNMsm7ttDvwM2wEIfEo",
-            authDomain: "miner-5939b.firebaseapp.com",
-            databaseURL: "https://miner-5939b-default-rtdb.firebaseio.com",
-            projectId: "miner-5939b",
-            storageBucket: "miner-5939b.firebasestorage.app",
-            messagingSenderId: "936240933139",
-            appId: "1:936240933139:web:fe877e387fc82951d552e6"
+            apiKey: "AIzaSyClBohbm2-pReGrbNMsm7ttDvwM2wEIfEo", // Replace with your actual API Key
+            authDomain: "miner-5939b.firebaseapp.com", // Replace with your actual Auth Domain
+            databaseURL: "https://miner-5939b-default-rtdb.firebaseio.com", // Replace with your actual Database URL
+            projectId: "miner-5939b", // Replace with your actual Project ID
+            storageBucket: "miner-5939b.firebasestorage.app", // Replace with your actual Storage Bucket
+            messagingSenderId: "936240933139", // Replace with your actual Messaging Sender ID
+            appId: "1:936240933139:web:fe877e387fc82951d552e6" // Replace with your actual App ID
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -989,8 +1007,10 @@
                             if (remoteAudio.srcObject) {
                                 remoteAudio.play().catch(e => console.error("Error playing remote audio:", e));
                             }
-                            hideCallControls();
-                            endCallBtn.style.display = 'block'; // Show end call button
+                            // Hide accept/decline buttons, show end call button
+                            acceptCallBtn.style.display = 'none';
+                            declineCallBtn.style.display = 'none';
+                            endCallBtn.style.display = 'block';
                         } catch (e) {
                             console.error("Error setting remote answer:", e);
                             showNotification('Call Error', 'Failed to connect call.', 'danger');
@@ -1069,7 +1089,9 @@
                     switch (peerConnection.connectionState) {
                         case 'connected':
                             updateCallStatusDisplay('Connected');
-                            hideCallControls();
+                            // Hide accept/decline buttons, show end call button
+                            acceptCallBtn.style.display = 'none';
+                            declineCallBtn.style.display = 'none';
                             endCallBtn.style.display = 'block';
                             break;
                         case 'disconnected':
@@ -1190,7 +1212,9 @@
                     switch (peerConnection.connectionState) {
                         case 'connected':
                             updateCallStatusDisplay('Connected');
-                            hideCallControls();
+                            // Hide accept/decline buttons, show end call button
+                            acceptCallBtn.style.display = 'none';
+                            declineCallBtn.style.display = 'none';
                             endCallBtn.style.display = 'block';
                             break;
                         case 'disconnected':
@@ -1207,7 +1231,7 @@
                 // Add this new listener for ICE connection state (for answerer)
                 peerConnection.oniceconnectionstatechange = () => {
                     console.log('ICE connection state (answerer):', peerConnection.iceConnectionState);
-                    switch (peerConnection.iceConnectionstate) {
+                    switch (peerConnection.iceConnectionState) {
                         case 'checking':
                             updateCallStatusDisplay('Connecting (checking network)...');
                             break;
@@ -1243,8 +1267,10 @@
                 });
 
                 updateCallStatusDisplay('Connecting...');
-                hideCallControls();
-                endCallBtn.style.display = 'block'; // Show end call button
+                // Hide accept/decline buttons, show end call button
+                acceptCallBtn.style.display = 'none';
+                declineCallBtn.style.display = 'none';
+                endCallBtn.style.display = 'block';
                 showNotification('Call Accepted', `You accepted the call from ${currentChatWith.name}.`, 'success');
 
             } catch (error) {
