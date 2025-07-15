@@ -605,7 +605,7 @@
             
             const bsToast = new bootstrap.Toast(toastWrapper, {
                 autohide: true,
-                delay: 5000
+                delay: 3000 // Changed from 5000 to 3000 milliseconds
             });
             bsToast.show();
 
@@ -1083,6 +1083,33 @@
                     }
                 };
 
+                // Add this new listener for ICE connection state
+                peerConnection.oniceconnectionstatechange = () => {
+                    console.log('ICE connection state:', peerConnection.iceConnectionState);
+                    switch (peerConnection.iceConnectionState) {
+                        case 'checking':
+                            updateCallStatusDisplay('Connecting (checking network)...');
+                            break;
+                        case 'connected':
+                            updateCallStatusDisplay('Connected');
+                            break;
+                        case 'completed':
+                            updateCallStatusDisplay('Connected (ICE completed)');
+                            break;
+                        case 'disconnected':
+                            showNotification('Call Disconnected', 'ICE disconnected, attempting to reconnect.', 'warning');
+                            break;
+                        case 'failed':
+                            showNotification('Call Failed', 'ICE connection failed. Check network.', 'danger');
+                            endCall();
+                            break;
+                        case 'closed':
+                            updateCallStatusDisplay('');
+                            break;
+                    }
+                };
+
+
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
 
@@ -1101,7 +1128,13 @@
 
             } catch (error) {
                 console.error("Error initiating call:", error);
-                showNotification('Call Error', 'Failed to initiate call. Please check microphone permissions.', 'danger');
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    showNotification('Microphone Access Denied', 'Please allow microphone access to make calls.', 'danger');
+                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                    showNotification('No Microphone Found', 'No microphone device found. Please connect one.', 'danger');
+                } else {
+                    showNotification('Call Error', `Failed to initiate call: ${error.message}.`, 'danger');
+                }
                 endCall(); // Clean up if call initiation fails
             }
         });
@@ -1171,6 +1204,32 @@
                     }
                 };
 
+                // Add this new listener for ICE connection state (for answerer)
+                peerConnection.oniceconnectionstatechange = () => {
+                    console.log('ICE connection state (answerer):', peerConnection.iceConnectionState);
+                    switch (peerConnection.iceConnectionstate) {
+                        case 'checking':
+                            updateCallStatusDisplay('Connecting (checking network)...');
+                            break;
+                        case 'connected':
+                            updateCallStatusDisplay('Connected');
+                            break;
+                        case 'completed':
+                            updateCallStatusDisplay('Connected (ICE completed)');
+                            break;
+                        case 'disconnected':
+                            showNotification('Call Disconnected', 'ICE disconnected, attempting to reconnect.', 'warning');
+                            break;
+                        case 'failed':
+                            showNotification('Call Failed', 'ICE connection failed. Check network.', 'danger');
+                            endCall();
+                            break;
+                        case 'closed':
+                            updateCallStatusDisplay('');
+                            break;
+                    }
+                };
+
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
@@ -1190,7 +1249,13 @@
 
             } catch (error) {
                 console.error("Error accepting call:", error);
-                showNotification('Call Error', 'Failed to accept call. Please check microphone permissions.', 'danger');
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    showNotification('Microphone Access Denied', 'Please allow microphone access to accept calls.', 'danger');
+                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                    showNotification('No Microphone Found', 'No microphone device found. Cannot accept call.', 'danger');
+                } else {
+                    showNotification('Call Error', `Failed to accept call: ${error.message}.`, 'danger');
+                }
                 endCall();
             }
         });
@@ -1199,8 +1264,12 @@
         declineCallBtn.addEventListener('click', async () => {
             const callId = getCallId();
             if (callId) {
-                await callRef.update({ status: 'declined', declinedBy: currentUser.phoneNumber });
-                showNotification('Call Declined', `You declined the call from ${currentChatWith.name}.`, 'info');
+                // Ensure callRef is still valid before updating
+                const currentCallData = (await callRef.once('value')).val();
+                if (currentCallData && currentCallData.status === 'ringing' && currentCallData.receiver === currentUser.phoneNumber) {
+                    await callRef.update({ status: 'declined', declinedBy: currentUser.phoneNumber });
+                    showNotification('Call Declined', `You declined the call from ${currentChatWith.name}.`, 'info');
+                }
             }
             endCall();
         });
@@ -1209,15 +1278,24 @@
         endCallBtn.addEventListener('click', async () => {
             const callId = getCallId();
             if (callId) {
-                await callRef.update({ status: 'ended', endedBy: currentUser.phoneNumber });
-                showNotification('Call Ended', 'You ended the call.', 'info');
+                // Ensure callRef is still valid before updating
+                const currentCallData = (await callRef.once('value')).val();
+                if (currentCallData && (currentCallData.caller === currentUser.phoneNumber || currentCallData.receiver === currentUser.phoneNumber)) {
+                    await callRef.update({ status: 'ended', endedBy: currentUser.phoneNumber });
+                    showNotification('Call Ended', 'You ended the call.', 'info');
+                }
             }
             endCall();
         });
 
         // Function to clean up WebRTC connection and UI
         function endCall() {
+            console.log("Ending call and cleaning up resources.");
             if (peerConnection) {
+                peerConnection.ontrack = null; // Remove listeners
+                peerConnection.onicecandidate = null;
+                peerConnection.onconnectionstatechange = null;
+                peerConnection.oniceconnectionstatechange = null;
                 peerConnection.close();
                 peerConnection = null;
             }
@@ -1226,13 +1304,16 @@
                 localStream = null;
             }
             if (remoteAudio.srcObject) {
+                remoteAudio.pause();
                 remoteAudio.srcObject = null;
             }
+            // Only remove call data if this user was the caller or the last one to end it
+            // This prevents race conditions if both users try to end the call simultaneously
             if (callRef) {
-                // Only remove call data if it was initiated by this user or explicitly ended
-                // This prevents issues if the other party is still trying to connect
-                // For simplicity, we'll clear it here. In a robust app, you might use a transaction.
-                callRef.remove().catch(e => console.warn("Error removing call data:", e));
+                callRef.off(); // Detach all Firebase listeners
+                // Consider adding a check here if you want only the caller to remove the node
+                // For simplicity, we'll let the last one to end remove it.
+                callRef.remove().catch(e => console.warn("Error removing call data from Firebase:", e));
                 callRef = null;
             }
             resetCallUI();
