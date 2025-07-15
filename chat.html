@@ -48,10 +48,9 @@
         .message {
             margin-bottom: 5px;
             padding: 10px 15px;
-            border-radius: 12px;
+            border-radius: 20px;
             max-width: 80%;
             word-wrap: break-word;
-            position: relative;
             animation: messageFadeIn 0.3s ease-out;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             transition: transform 0.2s ease-out;
@@ -63,25 +62,13 @@
             background-color: #0d6efd;
             color: white;
             margin-left: auto;
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 12px;
+            border-bottom-right-radius: 5px;
         }
         .received {
             background-color: #e9ecef;
             color: #333;
             margin-right: auto;
-            border-top-left-radius: 4px;
-            border-bottom-left-radius: 12px;
-        }
-        .message-reply {
-            font-size: 0.8em;
-            opacity: 0.8;
-            padding: 5px;
-            border-left: 2px solid rgba(0,0,0,0.1);
-            margin-bottom: 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            border-bottom-left-radius: 5px;
         }
         .status-info {
             font-size: 12px;
@@ -321,6 +308,7 @@
                 <div class="player-info you">
                     <div class="player-name" id="player-you-name">You</div>
                     <div class="player-score" id="player-you-score">0</div>
+                    <div class="player-battery" id="player-you-battery">Battery: ?</div>
                 </div>
                 <div class="player-info opponent">
                     <div class="player-name" id="player-opponent-name">Opponent</div>
@@ -364,7 +352,8 @@
             <div class="chat-header d-flex justify-content-between align-items-center">
                 <h5>Contacts</h5>
                 <div class="status-info">
-                    <span id="network-status">Offline</span>
+                    <span id="network-status">Offline</span> | 
+                    <span id="battery-status">Battery: ?</span>
                 </div>
             </div>
             <div class="p-3">
@@ -388,7 +377,8 @@
                     <div id="chat-with-status" class="small text-white-75"></div>
                 </div>
                 <div class="status-info">
-                    <span id="chat-network-status">Offline</span>
+                    <span id="chat-network-status">Offline</span> | 
+                    <span id="chat-battery-status">Battery: ?</span>
                 </div>
             </div>
             <div id="chat-messages" class="chat-messages">
@@ -440,7 +430,9 @@
         const chatWithName = document.getElementById('chat-with-name');
         const chatWithStatus = document.getElementById('chat-with-status');
         const networkStatus = document.getElementById('network-status');
+        const batteryStatus = document.getElementById('battery-status');
         const chatNetworkStatus = document.getElementById('chat-network-status');
+        const chatBatteryStatus = document.getElementById('chat-battery-status');
         const notificationContainer = document.getElementById('notification-container');
         const typingIndicator = document.getElementById('typing-indicator');
         const notificationSound = document.getElementById('notification-sound');
@@ -451,6 +443,7 @@
         const gameGrid = document.getElementById('game-grid');
         const playerYouName = document.getElementById('player-you-name');
         const playerYouScore = document.getElementById('player-you-score');
+        const playerYouBattery = document.getElementById('player-you-battery');
         const playerOpponentName = document.getElementById('player-opponent-name');
         const playerOpponentScore = document.getElementById('player-opponent-score');
         const playerOpponentBattery = document.getElementById('player-opponent-battery');
@@ -496,8 +489,34 @@
             }
         }
 
-        // Initialize network monitoring
+        // Initialize battery and network monitoring
         function initDeviceStatus() {
+            // Battery status
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(battery => {
+                    batteryMonitor = battery;
+                    updateBatteryStatus(battery);
+                    
+                    battery.addEventListener('levelchange', () => {
+                        updateBatteryStatus(battery);
+                        if (currentUser) {
+                            updateUserBatteryStatus(battery);
+                        }
+                    });
+                    
+                    battery.addEventListener('chargingchange', () => {
+                        updateBatteryStatus(battery);
+                        if (currentUser) {
+                            updateUserBatteryStatus(battery);
+                        }
+                    });
+                });
+            } else {
+                batteryStatus.textContent = "Battery: API not supported";
+                chatBatteryStatus.textContent = "Battery: API not supported";
+                playerYouBattery.textContent = "Battery: API not supported";
+            }
+            
             // Network status
             function updateNetworkStatus() {
                 const status = navigator.onLine ? "Online" : "Offline";
@@ -522,6 +541,28 @@
             updateNetworkStatus();
         }
 
+        function updateBatteryStatus(battery) {
+            const level = Math.round(battery.level * 100);
+            const charging = battery.charging ? "⚡" : "";
+            const text = `Battery: ${level}% ${charging}`;
+            batteryStatus.textContent = text;
+            chatBatteryStatus.textContent = text;
+            playerYouBattery.textContent = text;
+        }
+
+        function updateUserBatteryStatus(battery) {
+            if (!currentUser) return;
+            
+            const level = Math.round(battery.level * 100);
+            const charging = battery.charging ? "⚡" : "";
+            
+            database.ref('users/' + currentUser.phoneNumber).update({
+                batteryLevel: level,
+                batteryCharging: battery.charging,
+                lastSeen: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
         // Registration
         registerBtn.addEventListener('click', () => {
             const phoneNumber = phoneNumberInput.value.trim();
@@ -544,15 +585,21 @@
                     name: userName,
                     phoneNumber: phoneNumber,
                     lastSeen: firebase.database.ServerValue.TIMESTAMP,
-                    online: true
+                    online: true,
+                    batteryLevel: 0,
+                    batteryCharging: false
                 });
             }).then(() => {
                 currentUser = { phoneNumber, name: userName };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 showContactsScreen();
                 monitorOnlineStatus();
-                listenForGameRequests();
                 showNotification('Welcome', `Hi ${userName}! You're now registered.`, 'success');
+                
+                // Update battery status if available
+                if (batteryMonitor) {
+                    updateUserBatteryStatus(batteryMonitor);
+                }
             }).catch(error => {
                 console.error("Error saving user:", error);
                 showNotification('Error', 'Failed to register. Please try again.', 'danger');
@@ -855,14 +902,8 @@
         function addMessageToChat(message, messageKey) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
-            messageDiv.dataset.messageId = messageKey;
             
             const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            let replyContent = '';
-            if (message.replyTo) {
-                replyContent = `<div class="message-reply">Replying to: ${message.replyText || ''}</div>`;
-            }
             
             let statusIndicator = '';
             if (message.sender === currentUser.phoneNumber) {
@@ -888,22 +929,12 @@
             }
             
             messageDiv.innerHTML = `
-                ${replyContent}
                 <div>${message.text}</div>
                 <div class="small d-flex justify-content-end align-items-center">
                     ${time}
                     ${statusIndicator}
                 </div>
             `;
-            
-            // Add click handler for reply
-            messageDiv.addEventListener('click', () => {
-                if (message.sender !== currentUser.phoneNumber) {
-                    messageInput.value = `Replying to "${message.text.substring(0, 30)}...": `;
-                    messageInput.focus();
-                    messageInput.dataset.replyTo = messageKey;
-                }
-            });
             
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -937,8 +968,6 @@
 
         function sendMessage() {
             const text = messageInput.value.trim();
-            const replyTo = messageInput.dataset.replyTo;
-            const replyText = replyTo ? chatMessages.querySelector(`[data-message-id="${replyTo}"]`)?.textContent : null;
             
             if (!text || !currentUser || !currentChatWith) return;
             
@@ -962,12 +991,9 @@
                 receiver: currentChatWith.phoneNumber,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 delivered: true,
-                read: false,
-                replyTo: replyTo || null,
-                replyText: replyText || null
+                read: false
             }).then(() => {
                 messageInput.value = '';
-                delete messageInput.dataset.replyTo;
             }).catch(error => {
                 console.error("Error sending message:", error);
                 showNotification('Error', 'Failed to send message. Please try again.', 'danger');
@@ -1182,79 +1208,6 @@
             }
         }
 
-        // Game Request System
-        function sendGameRequest() {
-            if (!currentUser || !currentChatWith) return;
-            
-            const requestId = database.ref('gameRequests').push().key;
-            
-            database.ref(`gameRequests/${requestId}`).set({
-                from: currentUser.phoneNumber,
-                fromName: currentUser.name,
-                to: currentChatWith.phoneNumber,
-                status: 'pending',
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                showNotification('Request Sent', `Game request sent to ${currentChatWith.name}`, 'success');
-            });
-        }
-
-        function listenForGameRequests() {
-            if (!currentUser) return;
-            
-            database.ref('gameRequests').orderByChild('to').equalTo(currentUser.phoneNumber)
-                .on('child_added', (snapshot) => {
-                    const request = snapshot.val();
-                    if (request.status === 'pending') {
-                        showGameRequestNotification(request, snapshot.key);
-                    }
-                });
-        }
-
-        function showGameRequestNotification(request, requestId) {
-            const toastWrapper = document.createElement('div');
-            toastWrapper.className = 'notification-toast';
-            toastWrapper.innerHTML = `
-                <div class="toast-header">
-                    <strong class="me-auto">Game Request</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    <p>${request.fromName} wants to play Color Pop Battle!</p>
-                    <div class="d-flex justify-content-between mt-2">
-                        <button class="btn btn-sm btn-success accept-request">Accept</button>
-                        <button class="btn btn-sm btn-danger decline-request">Decline</button>
-                    </div>
-                </div>
-            `;
-            
-            notificationContainer.appendChild(toastWrapper);
-            const bsToast = new bootstrap.Toast(toastWrapper, { autohide: false });
-            bsToast.show();
-            
-            toastWrapper.querySelector('.accept-request').addEventListener('click', () => {
-                database.ref(`gameRequests/${requestId}`).update({
-                    status: 'accepted',
-                    respondedAt: firebase.database.ServerValue.TIMESTAMP
-                });
-                bsToast.hide();
-                gameContainer.style.display = 'flex';
-                startGame();
-            });
-            
-            toastWrapper.querySelector('.decline-request').addEventListener('click', () => {
-                database.ref(`gameRequests/${requestId}`).update({
-                    status: 'declined',
-                    respondedAt: firebase.database.ServerValue.TIMESTAMP
-                });
-                bsToast.hide();
-            });
-            
-            toastWrapper.addEventListener('hidden.bs.toast', () => {
-                toastWrapper.remove();
-            });
-        }
-
         // New game button
         newGameBtn.addEventListener('click', () => {
             endGame();
@@ -1267,9 +1220,16 @@
             gameContainer.style.display = 'none';
         });
 
-        // Play game buttons - now send requests instead
-        playGameBtn.addEventListener('click', sendGameRequest);
-        playGameInChatBtn.addEventListener('click', sendGameRequest);
+        // Play game buttons
+        playGameBtn.addEventListener('click', () => {
+            gameContainer.style.display = 'flex';
+            startGame();
+        });
+
+        playGameInChatBtn.addEventListener('click', () => {
+            gameContainer.style.display = 'flex';
+            startGame();
+        });
 
         // Check if user is already registered on page load
         window.addEventListener('load', () => {
@@ -1278,7 +1238,6 @@
                 currentUser = JSON.parse(savedUser);
                 showContactsScreen();
                 monitorOnlineStatus();
-                listenForGameRequests();
             } else {
                 registrationScreen.style.display = 'block';
             }
