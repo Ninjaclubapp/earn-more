@@ -261,6 +261,87 @@
             justify-content: space-between;
             margin-top: 10px;
         }
+        .profile-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #fff;
+            color: #0d6efd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        .contact-item .profile-logo {
+            width: 35px;
+            height: 35px;
+            font-size: 1em;
+        }
+        .chat-header .profile-logo {
+            width: 35px;
+            height: 35px;
+            font-size: 1em;
+            margin-right: 10px; /* Adjust margin as needed */
+        }
+        .chat-header .d-flex {
+            align-items: center;
+        }
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1060; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: space-around;
+        }
+        .close-modal-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-modal-btn:hover,
+        .close-modal-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -287,10 +368,24 @@
             50% { transform: scale(1.02); opacity: 0.9; }
             100% { transform: scale(1); opacity: 1; }
         }
-        @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.8); }
-            100% { transform: scale(1); }
+        @keyframes fadeInAnimation { /* New animation for phone number feedback */
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-animation {
+            animation: fadeInAnimation 0.3s ease-out forwards;
+        }
+        @keyframes connectingPulse { /* New animation for connecting message */
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        .connecting-message {
+            text-align: center;
+            color: #0d6efd;
+            font-weight: 500;
+            margin-top: 15px;
+            animation: connectingPulse 1.5s infinite ease-in-out;
         }
     </style>
 </head>
@@ -308,7 +403,7 @@
                 <div class="player-info you">
                     <div class="player-name" id="player-you-name">You</div>
                     <div class="player-score" id="player-you-score">0</div>
-                    <div class="player-battery" id="player-you-battery">Battery: ?</div>
+                    <!-- Removed playerYouBattery from here -->
                 </div>
                 <div class="player-info opponent">
                     <div class="player-name" id="player-opponent-name">Opponent</div>
@@ -324,6 +419,23 @@
             </div>
         </div>
     </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Confirm Action</span>
+                <span class="close-modal-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to quit the game? Your current progress will be lost.
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-yes-btn" class="btn btn-danger">Yes, Quit</button>
+                <button id="confirm-no-btn" class="btn btn-secondary">No, Continue</button>
+            </div>
+        </div>
+    </div>
     
     <!-- Notification Sound Element -->
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
@@ -332,18 +444,22 @@
         <!-- Registration Screen -->
         <div id="registration-screen" class="chat-container">
             <div class="chat-header">
-                <h5>Register</h5>
+                <h5>Welcome to your Kotha Botora App</h5>
             </div>
             <div class="p-4">
                 <div class="mb-3">
                     <label for="phone-number" class="form-label">Phone Number</label>
-                    <input type="text" class="form-control rounded-pill" id="phone-number" placeholder="Enter your phone number">
+                    <input type="text" class="form-control rounded-pill" id="phone-number" placeholder="Enter your 10-digit phone number" maxlength="10">
+                    <div id="phone-number-feedback" class="text-danger small mt-1" style="display: none;"></div>
                 </div>
                 <div class="mb-3">
                     <label for="user-name" class="form-label">Your Name</label>
                     <input type="text" class="form-control rounded-pill" id="user-name" placeholder="Enter your name">
                 </div>
                 <button id="register-btn" class="btn btn-primary w-100 rounded-pill">Register</button>
+                <div id="connecting-message" class="connecting-message" style="display: none;">
+                    Wait, connecting to Sanu's server...
+                </div>
             </div>
         </div>
 
@@ -364,21 +480,24 @@
                 <div id="contacts-list" class="list-group list-group-flush">
                     <!-- Contacts will be loaded here -->
                 </div>
-                <button id="play-game-btn" class="btn btn-success w-100 mt-3 rounded-pill">Play Color Pop Battle</button>
+                <!-- Removed the "Play Color Pop Battle" button from here -->
             </div>
         </div>
 
         <!-- Chat Screen -->
         <div id="chat-screen" class="chat-container" style="display: none;">
             <div class="chat-header d-flex justify-content-between align-items-center">
-                <div>
+                <div class="d-flex align-items-center">
                     <button id="back-to-contacts" class="btn btn-sm btn-light rounded-pill me-2">← Back</button>
-                    <span id="chat-with-name" class="fw-bold">Chat with...</span>
-                    <div id="chat-with-status" class="small text-white-75"></div>
+                    <div class="profile-logo" id="chat-profile-logo"></div>
+                    <div>
+                        <span id="chat-with-name" class="fw-bold">Chat with...</span>
+                        <div id="chat-with-status" class="small text-white-75"></div>
+                    </div>
                 </div>
                 <div class="status-info">
                     <span id="chat-network-status">Offline</span> | 
-                    <span id="chat-battery-status">Battery: ?</span>
+                    <span id="opponent-battery-status">Battery: ?</span>
                 </div>
             </div>
             <div id="chat-messages" class="chat-messages">
@@ -430,26 +549,34 @@
         const chatWithName = document.getElementById('chat-with-name');
         const chatWithStatus = document.getElementById('chat-with-status');
         const networkStatus = document.getElementById('network-status');
-        const batteryStatus = document.getElementById('battery-status');
+        const batteryStatus = document.getElementById('battery-status'); 
         const chatNetworkStatus = document.getElementById('chat-network-status');
-        const chatBatteryStatus = document.getElementById('chat-battery-status');
-        const notificationContainer = document.getElementById('notification-container');
-        const typingIndicator = document.getElementById('typing-indicator');
-        const notificationSound = document.getElementById('notification-sound');
-        const playGameBtn = document.getElementById('play-game-btn');
+        const opponentBatteryStatus = document.getElementById('opponent-battery-status');
+        const phoneNumberFeedback = document.getElementById('phone-number-feedback'); 
+        const connectingMessage = document.getElementById('connecting-message'); 
+
+        // Modal Elements
+        const confirmationModal = document.getElementById('confirmation-modal');
+        const closeModalBtn = document.querySelector('#confirmation-modal .close-modal-btn');
+        const confirmYesBtn = document.getElementById('confirm-yes-btn');
+        const confirmNoBtn = document.getElementById('confirm-no-btn');
+
+        // Game specific DOM elements
+        const playGameBtn = document.getElementById('play-game-btn'); // This button is no longer in contacts-screen
         const playGameInChatBtn = document.getElementById('play-game-in-chat-btn');
         const gameContainer = document.getElementById('game-container');
         const gameBoard = document.getElementById('game-board');
         const gameGrid = document.getElementById('game-grid');
         const playerYouName = document.getElementById('player-you-name');
         const playerYouScore = document.getElementById('player-you-score');
-        const playerYouBattery = document.getElementById('player-you-battery');
         const playerOpponentName = document.getElementById('player-opponent-name');
         const playerOpponentScore = document.getElementById('player-opponent-score');
         const playerOpponentBattery = document.getElementById('player-opponent-battery');
         const gameTimer = document.getElementById('game-timer');
         const newGameBtn = document.getElementById('new-game-btn');
         const closeGameBtn = document.getElementById('close-game-btn');
+        const chatProfileLogo = document.getElementById('chat-profile-logo');
+
 
         // App State
         let currentUser = null;
@@ -467,6 +594,7 @@
         let timeLeft = 60;
         let timerInterval = null;
         let gameInterval = null;
+        let gameInvitationRef = null; // Reference to the current game invitation
         const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F3'];
 
         // Helper to format timestamp to a readable last seen string
@@ -495,26 +623,25 @@
             if ('getBattery' in navigator) {
                 navigator.getBattery().then(battery => {
                     batteryMonitor = battery;
-                    updateBatteryStatus(battery);
                     
+                    // Initial update
+                    updateUserBatteryStatus(battery);
+                    updateBatteryDisplay(battery);
+
                     battery.addEventListener('levelchange', () => {
-                        updateBatteryStatus(battery);
                         if (currentUser) {
                             updateUserBatteryStatus(battery);
+                            updateBatteryDisplay(battery);
                         }
                     });
                     
                     battery.addEventListener('chargingchange', () => {
-                        updateBatteryStatus(battery);
                         if (currentUser) {
                             updateUserBatteryStatus(battery);
+                            updateBatteryDisplay(battery);
                         }
                     });
                 });
-            } else {
-                batteryStatus.textContent = "Battery: API not supported";
-                chatBatteryStatus.textContent = "Battery: API not supported";
-                playerYouBattery.textContent = "Battery: API not supported";
             }
             
             // Network status
@@ -538,16 +665,13 @@
                 navigator.connection.addEventListener('change', updateNetworkStatus);
             }
             
-            updateNetworkStatus();
+            updateNetworkStatus(); // Initial call
         }
 
-        function updateBatteryStatus(battery) {
+        function updateBatteryDisplay(battery) {
             const level = Math.round(battery.level * 100);
             const charging = battery.charging ? "⚡" : "";
-            const text = `Battery: ${level}% ${charging}`;
-            batteryStatus.textContent = text;
-            chatBatteryStatus.textContent = text;
-            playerYouBattery.textContent = text;
+            batteryStatus.textContent = `Battery: ${level}% ${charging} ${getBatteryEmoji(level)}`;
         }
 
         function updateUserBatteryStatus(battery) {
@@ -564,24 +688,32 @@
         }
 
         // Registration
-        registerBtn.addEventListener('click', () => {
+        registerBtn.addEventListener('click', async () => { // Made async
             const phoneNumber = phoneNumberInput.value.trim();
             const userName = userNameInput.value.trim();
             
-            if (!phoneNumber || !userName) {
-                showNotification('Error', 'Please enter both phone number and name', 'danger');
+            if (!phoneNumber || !userName || phoneNumber.length !== 10 || !/^\d+$/.test(phoneNumber)) {
+                console.error('Error: Please ensure both phone number (10 digits) and name are entered correctly.');
                 return;
             }
-            
-            // Check if user already exists
-            database.ref('users/' + phoneNumber).once('value').then(snapshot => {
+
+            // Show connecting message and disable button
+            connectingMessage.style.display = 'block';
+            registerBtn.disabled = true;
+
+            try {
+                // Check if user already exists
+                const snapshot = await database.ref('users/' + phoneNumber).once('value');
                 if (snapshot.exists() && snapshot.val().name !== userName) {
-                    showNotification('Error', 'This phone number is already registered with a different name', 'danger');
+                    console.error('Error: This phone number is already registered with a different name');
+                    // Hide connecting message and re-enable button on error
+                    connectingMessage.style.display = 'none';
+                    registerBtn.disabled = false;
                     return;
                 }
                 
                 // Save user to Firebase
-                return database.ref('users/' + phoneNumber).set({
+                await database.ref('users/' + phoneNumber).set({
                     name: userName,
                     phoneNumber: phoneNumber,
                     lastSeen: firebase.database.ServerValue.TIMESTAMP,
@@ -589,44 +721,65 @@
                     batteryLevel: 0,
                     batteryCharging: false
                 });
-            }).then(() => {
+
                 currentUser = { phoneNumber, name: userName };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 showContactsScreen();
                 monitorOnlineStatus();
-                showNotification('Welcome', `Hi ${userName}! You're now registered.`, 'success');
+                listenForGameInvitations();
+                console.log(`Welcome: Hi ${userName}! You're now registered.`);
                 
-                // Update battery status if available
                 if (batteryMonitor) {
                     updateUserBatteryStatus(batteryMonitor);
                 }
-            }).catch(error => {
+            } catch (error) {
                 console.error("Error saving user:", error);
-                showNotification('Error', 'Failed to register. Please try again.', 'danger');
-            });
+                console.error('Error: Failed to register. Please try again.');
+            } finally {
+                // Always hide connecting message and re-enable button
+                connectingMessage.style.display = 'none';
+                registerBtn.disabled = false;
+            }
         });
 
         function monitorOnlineStatus() {
-            if (!currentUser) return;
+            // Ensure currentUser is available before proceeding
+            if (!currentUser) {
+                console.warn("monitorOnlineStatus: currentUser is null. Cannot monitor online status.");
+                return;
+            }
             
             onlineStatusRef = database.ref('users/' + currentUser.phoneNumber);
             
-            // Set user to online when they're active
-            onlineStatusRef.update({
-                online: true,
+            // Set up onDisconnect to set offline status if the client disconnects unexpectedly
+            onlineStatusRef.onDisconnect().update({
+                online: false,
                 lastSeen: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                // Set user to online when they're active
+                onlineStatusRef.update({
+                    online: true,
+                    lastSeen: firebase.database.ServerValue.TIMESTAMP
+                });
+                console.log(`monitorOnlineStatus: User ${currentUser.phoneNumber} set to online with onDisconnect handler.`);
+            }).catch(error => {
+                console.error("monitorOnlineStatus: Error setting onDisconnect or initial online status:", error);
             });
-            
-            // Set up interval to update lastSeen timestamp every 30 seconds
-            const onlineInterval = setInterval(() => {
-                if (currentUser) {
-                    onlineStatusRef.update({
-                        lastSeen: firebase.database.ServerValue.TIMESTAMP
-                    });
+
+            // Listen for Firebase connection status changes
+            database.ref('.info/connected').on('value', (snapshot) => {
+                if (snapshot.val() === true) {
+                    console.log("Firebase .info/connected: Connected. Attempting to set user online.");
+                    if (currentUser) { // Double check currentUser here too
+                        onlineStatusRef.update({
+                            online: true,
+                            lastSeen: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    }
                 } else {
-                    clearInterval(onlineInterval);
+                    console.log("Firebase .info/connected: Disconnected. User might be offline.");
                 }
-            }, 30000);
+            });
             
             // Set user to offline when they close the app or navigate away
             window.addEventListener('beforeunload', () => {
@@ -634,10 +787,12 @@
                     onlineStatusRef.update({
                         online: false,
                         lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        console.log(`beforeunload: User ${currentUser.phoneNumber} explicitly set offline.`);
+                    }).catch(error => {
+                        console.error("beforeunload: Error setting user offline:", error);
                     });
                 }
-                clearInterval(onlineInterval);
-                endGame();
             });
 
             // Handle visibility change
@@ -647,29 +802,48 @@
                     onlineStatusRef.update({
                         online: false,
                         lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        console.log(`visibilitychange: User ${currentUser.phoneNumber} set offline (hidden).`);
+                    }).catch(error => {
+                        console.error("visibilitychange: Error setting user offline (hidden):", error);
                     });
                 } else {
                     onlineStatusRef.update({
                         online: true,
                         lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        console.log(`visibilitychange: User ${currentUser.phoneNumber} set online (visible).`);
+                    }).catch(error => {
+                        console.error("visibilitychange: Error setting user online (visible):", error);
                     });
                 }
             });
         }
 
-        // Function to play notification sound
+        // Function to play notification sound - kept for potential future use, but not called
         function playNotificationSound() {
-            if (notificationSound && notificationSound.src) {
-                notificationSound.play().catch(e => console.error("Error playing sound:", e));
-            } else {
-                console.warn("Notification sound source not set. Cannot play sound.");
-            }
+            // Removed for now as per previous instructions, can be re-enabled if needed.
+            // if (notificationSound && notificationSound.src) {
+            //     notificationSound.play().catch(e => console.error("Error playing sound:", e));
+            // } else {
+            //     console.warn("Notification sound source not set. Cannot play sound.");
+            // }
         }
 
-        // Notification system
-        function showNotification(title, message, type = 'info') {
+        // Notification system - kept for potential future use, but not called
+        function showNotification(title, message, type = 'info', actions = []) {
             const toastWrapper = document.createElement('div');
             toastWrapper.className = 'notification-toast';
+            
+            let actionButtonsHtml = '';
+            if (actions.length > 0) {
+                actionButtonsHtml = '<div class="d-flex justify-content-end mt-2">';
+                actions.forEach(action => {
+                    actionButtonsHtml += `<button class="btn btn-sm btn-${action.type || 'primary'} me-2" id="toast-action-${action.id}">${action.text}</button>`;
+                });
+                actionButtonsHtml += '</div>';
+            }
+
             toastWrapper.innerHTML = `
                 <div class="toast-header">
                     <strong class="me-auto">${title}</strong>
@@ -677,16 +851,27 @@
                 </div>
                 <div class="toast-body">
                     ${message}
+                    ${actionButtonsHtml}
                 </div>
             `;
             
             notificationContainer.appendChild(toastWrapper);
             
             const bsToast = new bootstrap.Toast(toastWrapper, {
-                autohide: true,
-                delay: 3000
+                autohide: actions.length === 0, // Autohide only if no actions
+                delay: actions.length === 0 ? 3000 : false // No delay if actions are present
             });
             bsToast.show();
+
+            actions.forEach(action => {
+                const actionButton = toastWrapper.querySelector(`#toast-action-${action.id}`);
+                if (actionButton) {
+                    actionButton.addEventListener('click', () => {
+                        action.handler();
+                        bsToast.hide(); // Hide toast after action
+                    });
+                }
+            });
 
             toastWrapper.addEventListener('hidden.bs.toast', () => {
                 toastWrapper.remove();
@@ -700,12 +885,24 @@
             contactsScreen.style.display = 'block';
             
             loadContacts();
-            initDeviceStatus();
+            initDeviceStatus(); // Ensure device status (including battery) is initialized and displayed
+        }
+
+        function getProfileInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function getBatteryEmoji(level) {
+            if (level < 10) return '😭';
+            if (level < 40) return '🙁';
+            return '🙂';
         }
 
         function loadContacts(searchTerm = '') {
             const contactsRef = database.ref('users');
             
+            // This listener ensures real-time updates for the contacts list
             contactsRef.on('value', (snapshot) => {
                 contactsList.innerHTML = '';
                 const users = snapshot.val();
@@ -716,7 +913,7 @@
                 }
                 
                 Object.keys(users).forEach(phoneNumber => {
-                    if (phoneNumber === currentUser.phoneNumber) return;
+                    if (phoneNumber === currentUser.phoneNumber) return; // Don't list self
                     
                     const user = users[phoneNumber];
                     
@@ -737,6 +934,8 @@
                     } else {
                         statusText = `Last seen: ${formatLastSeen(user.lastSeen)}`;
                     }
+
+                    const profileInitials = getProfileInitials(user.name);
                     
                     const unreadCount = unreadCounts[phoneNumber] || 0;
                     let unreadBadge = '';
@@ -749,9 +948,12 @@
                     }
                     
                     contactItem.innerHTML = `
-                        <div>
-                            <strong>${user.name}</strong>
-                            <div class="text-muted small">${user.phoneNumber}</div>
+                        <div class="d-flex align-items-center">
+                            <div class="profile-logo">${profileInitials}</div>
+                            <div>
+                                <strong>${user.name}</strong>
+                                <div class="text-muted small">${user.phoneNumber}</div>
+                            </div>
                         </div>
                         <div class="text-end">
                             <span class="badge ${statusBadgeClass}">${statusText}</span>
@@ -787,9 +989,11 @@
         // Chat Screen
         function startChat(contact) {
             currentChatWith = contact;
+            console.log("startChat: Chat initiated with contact:", currentChatWith); 
             chatWithName.textContent = `${contact.name}`;
+            chatProfileLogo.textContent = getProfileInitials(contact.name);
             
-            // Set up listener for chat partner's online status and battery
+            // Set up listener for chat partner's online status and battery - this is real-time
             database.ref(`users/${contact.phoneNumber}`).on('value', (snapshot) => {
                 const partner = snapshot.val();
                 if (partner) {
@@ -799,9 +1003,18 @@
                         chatWithStatus.textContent = `Last seen: ${formatLastSeen(partner.lastSeen)}`;
                     }
                     
+                    // Update opponent battery status in chat header
+                    const batteryLevel = partner.batteryLevel;
+                    const batteryCharging = partner.batteryCharging;
+                    if (batteryLevel !== undefined) {
+                        opponentBatteryStatus.textContent = ` ${batteryLevel}% ${batteryCharging ? '⚡' : ''} ${getBatteryEmoji(batteryLevel)}`;
+                    } else {
+                        opponentBatteryStatus.textContent = ` Battery: ?`;
+                    }
+
                     // Update opponent battery status in game if playing
                     if (gameActive && gameId) {
-                        const batteryText = partner.batteryLevel ? 
+                        const batteryText = partner.batteryLevel !== undefined ? 
                             `Battery: ${partner.batteryLevel}% ${partner.batteryCharging ? '⚡' : ''}` : 
                             'Battery: Unknown';
                         playerOpponentBattery.textContent = batteryText;
@@ -817,6 +1030,13 @@
         }
 
         function setupTypingListener(contactPhoneNumber) {
+            // Retrieve typingIndicator here to ensure it's defined in this scope
+            const typingIndicator = document.getElementById('typing-indicator'); 
+            if (!typingIndicator) {
+                console.error("setupTypingListener: typingIndicator DOM element not found!");
+                return;
+            }
+
             typingIndicator.style.display = 'none';
             
             database.ref(`typing/${contactPhoneNumber}`).on('value', (snapshot) => {
@@ -834,102 +1054,176 @@
             contactsScreen.style.display = 'block';
             
             if (currentChatWith) {
+                // Detach listeners when leaving chat to prevent memory leaks and incorrect updates
                 database.ref(`typing/${currentChatWith.phoneNumber}`).off();
                 database.ref(`users/${currentChatWith.phoneNumber}`).off();
+                
+                // Detach message listener for the current chat
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                if (messageListeners[chatId]) {
+                    database.ref('chats/' + chatId).off('child_added', messageListeners[chatId]);
+                    delete messageListeners[chatId]; // Remove from tracking object
+                    console.log(`backToContacts: Detached message listener for chatId: ${chatId}`);
+                }
+
                 if (gameRef) {
                     gameRef.off();
                 }
-                endGame();
+                endGame(); // Ensure any active game is ended
             }
             
             currentChatWith = null;
+            chatMessages.innerHTML = ''; // Clear messages when leaving chat
         });
 
         function loadChatMessages() {
-            chatMessages.innerHTML = '';
+            chatMessages.innerHTML = ''; // Clear messages on load to prevent duplicates
             
-            if (!currentUser || !currentChatWith) return;
+            if (!currentUser || !currentChatWith) {
+                console.warn("loadChatMessages: currentUser or currentChatWith is null. Cannot load messages.");
+                return;
+            }
             
             const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber]
                 .sort()
                 .join('_');
             
+            console.log("loadChatMessages: Setting up listener for chatId:", chatId);
+
+            // Detach previous listener if it exists to prevent duplicate messages
             if (messageListeners[chatId]) {
+                console.log("loadChatMessages: Detaching existing listener for chatId:", chatId);
                 database.ref('chats/' + chatId).off('child_added', messageListeners[chatId]);
             }
             
-            messageListeners[chatId] = database.ref('chats/' + chatId)
+            // Fetch existing messages first, then listen for new ones
+            database.ref('chats/' + chatId)
                 .orderByChild('timestamp')
-                .on('child_added', (snapshot) => {
-                    const message = snapshot.val();
-                    const messageKey = snapshot.key;
-                    addMessageToChat(message, messageKey);
-                    
-                    if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'block') {
-                        database.ref(`chats/${chatId}/${messageKey}`).update({
-                            read: true
+                .once('value', (snapshot) => {
+                    console.log("loadChatMessages: Initial message load snapshot received. Has data:", snapshot.exists());
+                    if (snapshot.exists()) {
+                        snapshot.forEach((childSnapshot) => {
+                            const message = childSnapshot.val();
+                            const messageKey = childSnapshot.key;
+                            console.log("loadChatMessages: Processing historical message:", message, "key:", messageKey); // Added log
+                            addMessageToChat(message, messageKey);
+                            // Mark messages as read if they are from the other user and chat screen is active
+                            if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'block') {
+                                database.ref(`chats/${chatId}/${messageKey}`).update({
+                                    read: true
+                                });
+                            }
                         });
+                        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom after loading existing messages
+                    } else {
+                        console.log("loadChatMessages: No historical messages found for chatId:", chatId);
                     }
-                    
-                    if (message.sender !== currentUser.phoneNumber) {
-                        if (chatScreen.style.display === 'none' || (currentChatWith && currentChatWith.phoneNumber !== message.sender)) {
-                            unreadCounts[message.sender] = (unreadCounts[message.sender] || 0) + 1;
+                }, (error) => {
+                    console.error("Firebase 'once' listener error for initial messages:", error);
+                }).then(() => {
+                    // After initial load, set up the 'child_added' listener for real-time updates
+                    messageListeners[chatId] = database.ref('chats/' + chatId)
+                        .orderByChild('timestamp')
+                        .on('child_added', (snapshot) => {
+                            const message = snapshot.val();
+                            const messageKey = snapshot.key;
+                            console.log("loadChatMessages: Received new message via child_added:", message, "key:", messageKey);
                             
-                            database.ref('users/' + message.sender).once('value').then(senderSnapshot => {
-                                const senderUser = senderSnapshot.val();
-                                const senderName = senderUser ? senderUser.name : message.sender;
+                            // Only add if it's a truly new message (not one already loaded by 'once')
+                            // This check is a bit tricky with 'child_added' after 'once', but for simplicity,
+                            // we'll rely on clearing chatMessages.innerHTML and then adding.
+                            // A more robust solution might involve tracking last loaded message timestamp.
+                            
+                            // Check if the message is already in the DOM to avoid duplicates
+                            // (This is a basic check, a unique ID on messageDiv would be better)
+                            const existingMessageDiv = chatMessages.querySelector(`[data-message-key="${messageKey}"]`);
+                            if (!existingMessageDiv) {
+                                addMessageToChat(message, messageKey);
+                            } else {
+                                console.log("loadChatMessages: Message already exists in DOM, skipping:", messageKey);
+                            }
 
-                                showNotification(
-                                    senderName,
-                                    message.text.length > 50 ? 
-                                        message.text.substring(0, 50) + '...' : 
-                                        message.text,
-                                    'primary'
-                                );
-                                playNotificationSound();
-                                loadContacts(contactSearch.value.trim());
-                            }).catch(error => {
-                                console.error("Error fetching sender name for notification:", error);
-                                showNotification('New Message', message.text.length > 50 ? message.text.substring(0, 50) + '...' : message.text, 'primary');
-                                playNotificationSound();
-                                loadContacts(contactSearch.value.trim());
-                            });
-                        }
-                    }
+                            // Mark message as read if it's from the other user and chat screen is active
+                            if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'block') {
+                                console.log("loadChatMessages: Marking message as read:", messageKey);
+                                database.ref(`chats/${chatId}/${messageKey}`).update({
+                                    read: true
+                                });
+                            }
+                            
+                            // Handle unread counts and notifications for messages not from current user
+                            if (message.sender !== currentUser.phoneNumber) {
+                                if (chatScreen.style.display === 'none' || (currentChatWith && currentChatWith.phoneNumber !== message.sender)) {
+                                    unreadCounts[message.sender] = (unreadCounts[message.sender] || 0) + 1;
+                                    console.log("loadChatMessages: Unread count for", message.sender, ":", unreadCounts[message.sender]);
+                                    
+                                    database.ref('users/' + message.sender).once('value').then(senderSnapshot => {
+                                        const senderUser = senderSnapshot.val();
+                                        const senderName = senderUser ? senderUser.name : message.sender;
+                                        loadContacts(contactSearch.value.trim()); // Refresh contacts list to show unread badge
+                                    }).catch(error => {
+                                        console.error("Error fetching sender name for notification:", error);
+                                        loadContacts(contactSearch.value.trim());
+                                    });
+                                }
+                            }
+                        }, (error) => {
+                            console.error("Firebase 'child_added' listener error:", error);
+                        });
                 });
         }
 
         function addMessageToChat(message, messageKey) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
+            messageDiv.dataset.messageKey = messageKey; // Add data attribute for easier lookup
             
             const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
+            let messageContentHtml = `<div>${message.text}</div>`;
             let statusIndicator = '';
+
             if (message.sender === currentUser.phoneNumber) {
-                database.ref(`chats/${[currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_')}/${messageKey}`).on('value', (snapshot) => {
+                // Listen for read/delivered status updates for sent messages
+                // Use a specific reference to avoid re-attaching listeners on the same message
+                const messageStatusRef = database.ref(`chats/${[currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_')}/${messageKey}`);
+                messageStatusRef.on('value', (snapshot) => {
                     const updatedMessage = snapshot.val();
                     if (updatedMessage) {
                         const statusClass = updatedMessage.read ? 'read' : 'delivered';
                         const checkmark = updatedMessage.read ? '✓✓' : '✓';
                         
-                        const existingStatusSpan = messageDiv.querySelector('.message-status');
-                        if (existingStatusSpan) {
-                            existingStatusSpan.className = `message-status ${statusClass}`;
-                            existingStatusSpan.textContent = checkmark;
-                        } else {
-                            const newStatusSpan = document.createElement('span');
-                            newStatusSpan.className = `message-status ${statusClass}`;
-                            newStatusSpan.textContent = checkmark;
-                            messageDiv.querySelector('.small').appendChild(newStatusSpan);
+                        let existingStatusSpan = messageDiv.querySelector('.message-status');
+                        if (!existingStatusSpan) {
+                            existingStatusSpan = document.createElement('span');
+                            existingStatusSpan.className = `message-status`; // Initial class, will be updated
+                            const smallTag = messageDiv.querySelector('.small');
+                            if (smallTag) {
+                                smallTag.appendChild(existingStatusSpan);
+                            } else {
+                                console.warn("addMessageToChat: .small element not found for status indicator. Message key:", messageKey);
+                            }
                         }
+                        existingStatusSpan.className = `message-status ${statusClass}`;
+                        existingStatusSpan.textContent = checkmark;
+                        console.log(`addMessageToChat: Updated status for message ${messageKey}: ${checkmark}`);
                     }
                 });
-                statusIndicator = `<span class="message-status delivered">✓</span>`;
+                statusIndicator = `<span class="message-status delivered">✓</span>`; // Initial status
+            }
+
+            if (message.type === 'gameInvitation') {
+                // Simplified display for game invitations - no buttons
+                messageContentHtml = `
+                    <div>
+                        <strong>Game Invitation from ${message.inviterName || 'Unknown'}</strong>
+                        <p>${message.text}</p>
+                    </div>
+                `;
             }
             
             messageDiv.innerHTML = `
-                <div>${message.text}</div>
+                ${messageContentHtml}
                 <div class="small d-flex justify-content-end align-items-center">
                     ${time}
                     ${statusIndicator}
@@ -938,6 +1232,7 @@
             
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            console.log("addMessageToChat: Message appended to DOM. Scrolling to bottom. Message:", message); 
         }
 
         // Typing detection
@@ -969,7 +1264,15 @@
         function sendMessage() {
             const text = messageInput.value.trim();
             
-            if (!text || !currentUser || !currentChatWith) return;
+            console.log("sendMessage: Attempting to send message...");
+            console.log("sendMessage: currentUser:", currentUser);
+            console.log("sendMessage: currentChatWith:", currentChatWith);
+            console.log("sendMessage: Message text:", text);
+
+            if (!text || !currentUser || !currentChatWith) {
+                console.error('sendMessage: Error: Message not sent. Missing text, current user, or chat partner. Text:', text, 'CurrentUser:', currentUser, 'CurrentChatWith:', currentChatWith);
+                return;
+            }
             
             if (typingTimeout) {
                 clearTimeout(typingTimeout);
@@ -983,6 +1286,7 @@
                 .sort()
                 .join('_');
             
+            console.log("sendMessage: Generated chatId:", chatId);
             const newMessageRef = database.ref('chats/' + chatId).push();
             
             newMessageRef.set({
@@ -994,9 +1298,10 @@
                 read: false
             }).then(() => {
                 messageInput.value = '';
+                console.log("sendMessage: Message sent successfully to Firebase!");
             }).catch(error => {
-                console.error("Error sending message:", error);
-                showNotification('Error', 'Failed to send message. Please try again.', 'danger');
+                console.error("sendMessage: Error sending message to Firebase:", error);
+                console.error('sendMessage: Error: Failed to send message. Please try again. Error details:', error);
             });
         }
 
@@ -1021,75 +1326,233 @@
             const cell = e.target;
             const cellIndex = cell.dataset.index;
             
-            if (cell.style.backgroundColor) {
-                // Cell has color - try to pop it!
-                gameRef.child('cells').child(cellIndex).once('value').then(snapshot => {
-                    const cellData = snapshot.val();
-                    if (cellData && cellData.color && !cellData.poppedBy) {
-                        // Mark the cell as popped by current user
-                        gameRef.child('cells').child(cellIndex).update({
-                            poppedBy: currentUser.phoneNumber,
-                            poppedAt: firebase.database.ServerValue.TIMESTAMP
-                        });
-                        
-                        // Add animation
-                        cell.classList.add('cell-popped');
-                        setTimeout(() => {
-                            cell.classList.remove('cell-popped');
-                        }, 300);
-                    }
-                });
-            }
+            gameRef.child('cells').child(cellIndex).once('value').then(snapshot => {
+                const cellData = snapshot.val();
+                if (cellData && cellData.color && !cellData.poppedBy) {
+                    // Atomically update cell to prevent race conditions
+                    gameRef.child('cells').child(cellIndex).transaction((currentCell) => {
+                        if (currentCell && currentCell.color && !currentCell.poppedBy) {
+                            return {
+                                color: null, // Remove color
+                                poppedBy: currentUser.phoneNumber,
+                                poppedAt: firebase.database.ServerValue.TIMESTAMP
+                            };
+                        }
+                        return undefined; // Abort the transaction if cell already popped or no color
+                    }).then((result) => {
+                        if (result.committed) {
+                            // Update score for the player who successfully popped the cell
+                            gameRef.child(`scores/${currentUser.phoneNumber}`).transaction((currentScore) => {
+                                return (currentScore || 0) + 1;
+                            });
+
+                            // Add animation
+                            cell.classList.add('cell-popped');
+                            setTimeout(() => {
+                                cell.classList.remove('cell-popped');
+                            }, 300);
+                        }
+                    });
+                }
+            });
         }
 
-        // Start the game
-        function startGame() {
+        // Function to initiate a game invitation
+        function initiateGame() {
             if (!currentUser || !currentChatWith) {
-                showNotification('Game Error', 'Please select a contact to play with', 'warning');
+                console.error('Game Error: Please select a contact to play with');
+                return;
+            }
+
+            const potentialGameId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_game';
+            
+            // Create a unique invitation ID
+            const invitationId = `${currentUser.phoneNumber}_${currentChatWith.phoneNumber}_${Date.now()}`;
+            gameInvitationRef = database.ref(`gameInvitations/${invitationId}`);
+
+            // Send a regular chat message to the opponent about the invitation
+            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+            database.ref('chats/' + chatId).push().set({
+                text: `${currentUser.name} invites you to play Color Pop Battle! Tap the 'Play Color Pop Battle' button to join.`,
+                sender: currentUser.phoneNumber,
+                receiver: currentChatWith.phoneNumber,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                delivered: true,
+                read: false,
+                type: 'text' // Regular text message
+            }).then(() => {
+                // Now set the invitation status in the gameInvitations node
+                return gameInvitationRef.set({
+                    inviter: currentUser.phoneNumber,
+                    inviterName: currentUser.name,
+                    invitee: currentChatWith.phoneNumber,
+                    inviteeName: currentChatWith.name,
+                    status: 'pending',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    gameId: potentialGameId,
+                    chatMessageKey: null // No specific chat message key for this type of invitation now
+                });
+            }).then(() => {
+                console.log(`Game Invitation Sent: Waiting for ${currentChatWith.name} to accept the game invitation...`);
+                
+                // Listen for changes in this specific invitation (for the inviter)
+                gameInvitationRef.on('value', (snapshot) => {
+                    const invitation = snapshot.val();
+                    if (invitation) {
+                        if (invitation.status === 'accepted') {
+                            console.log(`Invitation Accepted: ${currentChatWith.name} accepted your game invitation! Starting game...`);
+                            gameInvitationRef.off(); // Stop listening
+                            startGame(invitation.gameId);
+                        } else if (invitation.status === 'declined') {
+                            console.log(`Invitation Declined: ${currentChatWith.name} declined your game invitation.`);
+                            gameInvitationRef.off(); // Stop listening
+                            gameInvitationRef.remove(); // Clean up the invitation
+                        }
+                    }
+                });
+            }).catch(error => {
+                console.error("Error sending game invitation:", error);
+                console.error('Error: Failed to send game invitation. Please try again.');
+            });
+        }
+
+        // Function to listen for incoming game invitations (no direct UI reaction here)
+        function listenForGameInvitations() {
+            if (!currentUser) return;
+
+            database.ref('gameInvitations').orderByChild('invitee').equalTo(currentUser.phoneNumber).on('child_added', (snapshot) => {
+                const invitation = snapshot.val();
+                const invitationKey = snapshot.key;
+
+                if (invitation.status === 'pending' && invitation.inviter !== currentUser.phoneNumber) {
+                    // This listener ensures the invitation exists in Firebase for the invitee to discover via the button
+                    console.log(`Incoming pending game invitation from ${invitation.inviterName}.`);
+                }
+            });
+        }
+
+        // Function to accept a game invitation (called internally by handlePlayGameButtonClick)
+        async function acceptGameInvitation(invitationKey, gameIdToStart, chatMessageKey, chatId, inviterPhoneNumber) {
+            // First, ensure currentChatWith is set to the inviter
+            const inviterUserSnapshot = await database.ref(`users/${inviterPhoneNumber}`).once('value');
+            const inviterUser = inviterUserSnapshot.val();
+            if (inviterUser) {
+                currentChatWith = inviterUser;
+            } else {
+                console.error("Error: Inviter user data not found for acceptance.");
+                return;
+            }
+
+            database.ref(`gameInvitations/${invitationKey}`).update({
+                status: 'accepted',
+                acceptedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                // Send a chat message to the inviter confirming acceptance
+                database.ref('chats/' + chatId).push().set({
+                    text: `${currentUser.name} accepted your game invitation! Starting game.`,
+                    sender: currentUser.phoneNumber,
+                    receiver: inviterPhoneNumber,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    delivered: true,
+                    read: false,
+                    type: 'text' // Regular text message
+                });
+                startGame(gameIdToStart);
+            }).catch(error => {
+                console.error("Error accepting game invitation:", error);
+                console.error('Error: Failed to accept game invitation. Please try again.');
+            });
+        }
+
+        // Function to decline a game invitation (can be called if we re-introduce a decline mechanism)
+        function declineGameInvitation(invitationKey, chatMessageKey, chatId, inviterPhoneNumber) {
+            database.ref(`gameInvitations/${invitationKey}`).update({
+                status: 'declined',
+                declinedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                // Send a chat message to the inviter confirming decline
+                database.ref('chats/' + chatId).push().set({
+                    text: `${currentUser.name} declined your game invitation.`,
+                    sender: currentUser.phoneNumber,
+                    receiver: inviterPhoneNumber,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    delivered: true,
+                    read: false,
+                    type: 'text' // Regular text message
+                });
+                // Also remove the invitation from the invitations node for cleanup
+                database.ref(`gameInvitations/${invitationKey}`).remove();
+            }).catch(error => {
+                console.error("Error declining game invitation:", error);
+                console.error('Error: Failed to decline game invitation. Please try again.');
+            });
+        }
+
+        // Start the game (now called after invitation acceptance)
+        function startGame(idOfGame) {
+            if (!currentUser || !currentChatWith) {
+                console.error('Game Error: User or opponent not set for game.');
                 return;
             }
             
             gameActive = true;
-            gameId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_game';
+            gameId = idOfGame; // Use the gameId passed from the invitation
             gameRef = database.ref(`games/${gameId}`);
             
             // Set up game players
             playerYouName.textContent = currentUser.name;
             playerOpponentName.textContent = currentChatWith.name;
+            
+            // Explicitly reset scores for the new game
             playerYouScore.textContent = '0';
             playerOpponentScore.textContent = '0';
+
+            // Update scores in Firebase to 0 for a fresh start
+            gameRef.child('scores').set({
+                [currentUser.phoneNumber]: 0,
+                [currentChatWith.phoneNumber]: 0
+            });
             
             // Get opponent battery status
             database.ref(`users/${currentChatWith.phoneNumber}`).once('value').then(snapshot => {
                 const opponent = snapshot.val();
                 if (opponent) {
-                    const batteryText = opponent.batteryLevel ? 
+                    const batteryText = opponent.batteryLevel !== undefined ? 
                         `Battery: ${opponent.batteryLevel}% ${opponent.batteryCharging ? '⚡' : ''}` : 
                         'Battery: Unknown';
                     playerOpponentBattery.textContent = batteryText;
                 }
             });
             
-            // Initialize game state
-            gameRef.set({
-                player1: currentUser.phoneNumber,
-                player1Name: currentUser.name,
-                player2: currentChatWith.phoneNumber,
-                player2Name: currentChatWith.name,
-                status: 'playing',
-                startedAt: firebase.database.ServerValue.TIMESTAMP,
-                scores: {
-                    [currentUser.phoneNumber]: 0,
-                    [currentChatWith.phoneNumber]: 0
+            // Initialize game state (only if it's a new game or if it was ended)
+            gameRef.once('value').then(snapshot => {
+                const existingGame = snapshot.val();
+                if (!existingGame || existingGame.status === 'ended') {
+                    gameRef.set({
+                        player1: currentUser.phoneNumber,
+                        player1Name: currentUser.name,
+                        player2: currentChatWith.phoneNumber,
+                        player2Name: currentChatWith.name,
+                        status: 'playing',
+                        startedAt: firebase.database.ServerValue.TIMESTAMP,
+                        // Scores are already reset above, no need to re-initialize here
+                        cells: {} // Initialize cells for the new game
+                    });
+                } else {
+                    // If game already exists and is playing, just join and update UI
+                    gameRef.update({
+                        status: 'playing' // Ensure status is playing
+                    });
                 }
             });
-            
+
             // Initialize grid
             initGameGrid();
             
             // Start timer
             timeLeft = 60;
             gameTimer.textContent = `Time: ${timeLeft}`;
+            clearInterval(timerInterval); // Clear any existing timer
             timerInterval = setInterval(() => {
                 timeLeft--;
                 gameTimer.textContent = `Time: ${timeLeft}`;
@@ -1110,9 +1573,9 @@
                     playerOpponentScore.textContent = gameData.scores[currentChatWith.phoneNumber] || '0';
                 }
                 
-                // Check if game ended
-                if (gameData.status === 'ended') {
-                    endGame();
+                // Check if game ended (if opponent ended it)
+                if (gameData.status === 'ended' && gameActive) {
+                    endGame(true); // Pass true to indicate it was ended by another player or timer
                 }
             });
             
@@ -1124,29 +1587,36 @@
                 
                 if (cellData && cell) {
                     if (cellData.poppedBy) {
-                        // Cell was popped by someone
+                        // Cell was popped by someone, remove color
                         cell.style.backgroundColor = '';
-                        
-                        // Update score display
-                        if (cellData.poppedBy === currentUser.phoneNumber) {
-                            cell.classList.add('cell-popped');
-                            setTimeout(() => {
-                                cell.classList.remove('cell-popped');
-                            }, 300);
-                        }
+                        cell.classList.add('cell-popped');
+                        setTimeout(() => {
+                            cell.classList.remove('cell-popped');
+                        }, 300);
                     } else if (cellData.color) {
                         // New color appeared
                         cell.style.backgroundColor = cellData.color;
                     }
                 }
             });
+
+            gameRef.child('cells').on('child_added', (snapshot) => {
+                const cellData = snapshot.val();
+                const cellIndex = snapshot.key;
+                const cell = document.querySelector(`.game-cell[data-index="${cellIndex}"]`);
+                if (cellData && cell && cellData.color) {
+                    cell.style.backgroundColor = cellData.color;
+                }
+            });
             
             // Start adding colors to cells
+            clearInterval(gameInterval); // Clear any existing game interval
             gameInterval = setInterval(() => {
                 if (!gameActive) return;
                 
-                const cells = document.querySelectorAll('.game-cell');
-                const emptyCells = Array.from(cells).filter(cell => !cell.style.backgroundColor);
+                const cellsOnScreen = Array.from(document.querySelectorAll('.game-cell'));
+                // Filter cells that don't have a color (i.e., not yet appeared or have been popped)
+                const emptyCells = cellsOnScreen.filter(cell => !cell.style.backgroundColor);
                 
                 if (emptyCells.length > 0) {
                     const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
@@ -1162,74 +1632,206 @@
             }, 1000);
             
             gameContainer.style.display = 'flex';
-            showNotification('Game Started', `Playing Color Pop with ${currentChatWith.name}!`, 'success');
+            console.log('Game Started: Playing Color Pop with ' + currentChatWith.name + '!');
         }
 
         // End the game
-        function endGame() {
-            if (!gameActive) return;
-            
+        function endGame(fromFirebase = false) {
+            if (!gameActive && !fromFirebase) return; // Prevent double ending if already ended by Firebase listener
+
             gameActive = false;
             clearInterval(gameInterval);
             clearInterval(timerInterval);
             
-            if (gameRef) {
+            if (gameRef && !fromFirebase) { // Only update status if ending from client side
                 // Update game status to ended
                 gameRef.update({
                     status: 'ended',
                     endedAt: firebase.database.ServerValue.TIMESTAMP
-                }).then(() => {
-                    // Get final scores
-                    gameRef.child('scores').once('value').then(snapshot => {
-                        const scores = snapshot.val();
-                        if (scores) {
-                            const yourScore = scores[currentUser.phoneNumber] || 0;
-                            const opponentScore = scores[currentChatWith.phoneNumber] || 0;
-                            
-                            let message = `Game over! Final score - You: ${yourScore}, ${currentChatWith.name}: ${opponentScore}`;
-                            if (yourScore > opponentScore) {
-                                message += " - You win! 🎉";
-                            } else if (yourScore < opponentScore) {
-                                message += " - You lose! 😢";
-                            } else {
-                                message += " - It's a tie!";
-                            }
-                            
-                            showNotification('Game Over', message, 'info');
-                        }
-                    });
-                    
-                    // Clean up listeners
-                    gameRef.off();
-                    gameRef.child('cells').off();
-                    gameRef = null;
-                    gameId = null;
                 });
+            }
+
+            if (gameRef) {
+                // Get final scores
+                gameRef.child('scores').once('value').then(snapshot => {
+                    const scores = snapshot.val();
+                    if (scores) {
+                        const yourScore = scores[currentUser.phoneNumber] || 0;
+                        const opponentScore = scores[currentChatWith.phoneNumber] || 0;
+                        
+                        let message = `Game over! Final score - You: ${yourScore}, ${currentChatWith.name}: ${opponentScore}`;
+                        if (yourScore > opponentScore) {
+                            message += " - You win! 🎉";
+                        } else if (yourScore < opponentScore) {
+                            message += " - You lose! 😢";
+                        } else {
+                            message += " - It's a tie!";
+                        }
+                        
+                        console.log('Game Over: ' + message);
+                    }
+                });
+                
+                // Clean up listeners
+                gameRef.off();
+                gameRef.child('cells').off();
+                
+                // Explicitly remove entire game data from Firebase when game ends
+                if (gameId) {
+                    database.ref(`games/${gameId}`).remove().catch(error => { 
+                        console.error("Error removing game data:", error);
+                    });
+                }
+
+                gameRef = null;
+                gameId = null;
+            }
+            gameContainer.style.display = 'none'; // Ensure game container is hidden
+        }
+
+        // Unified handler for play game buttons
+        async function handlePlayGameButtonClick() {
+            if (!currentUser || !currentChatWith) {
+                console.error('Game Error: Please select a contact to play with first!');
+                return;
+            }
+
+            const invitationsRef = database.ref('gameInvitations');
+            const gameIdForThisPair = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_game';
+
+            // Check if there's a pending invitation *from* currentChatWith *to* currentUser
+            const incomingInvitationQuery = invitationsRef
+                .orderByChild('invitee')
+                .equalTo(currentUser.phoneNumber);
+
+            const incomingSnapshot = await incomingInvitationQuery.once('value');
+            let pendingIncomingInvitation = null;
+
+            incomingSnapshot.forEach(childSnapshot => {
+                const invitation = childSnapshot.val();
+                if (invitation.inviter === currentChatWith.phoneNumber && invitation.status === 'pending') {
+                    pendingIncomingInvitation = { key: childSnapshot.key, ...invitation };
+                    return true; // Stop iterating
+                }
+            });
+
+            if (pendingIncomingInvitation) {
+                // Scenario 1: Current user is the invitee and there's a pending invitation from the chat partner
+                console.log(`Game Invitation: Accepting game invitation from ${currentChatWith.name}...`);
+                
+                // Update the invitation status in Firebase
+                await database.ref(`gameInvitations/${pendingIncomingInvitation.key}`).update({
+                    status: 'accepted',
+                    acceptedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // Send a chat message to the inviter confirming acceptance
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                database.ref('chats/' + chatId).push().set({
+                    text: `${currentUser.name} accepted your game invitation! Starting game.`,
+                    sender: currentUser.phoneNumber,
+                    receiver: currentChatWith.phoneNumber,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    delivered: true,
+                    read: false,
+                    type: 'text' // Regular text message
+                });
+
+                startGame(pendingIncomingInvitation.gameId);
+
+            } else {
+                // Scenario 2: No pending invitation from this partner, so initiate a new one
+                // This also covers the case where the current user is the inviter
+                
+                // Check if there's an existing game or invitation initiated by current user
+                const existingGameSnapshot = await database.ref(`games/${gameIdForThisPair}`).once('value');
+                const existingGame = existingGameSnapshot.val();
+
+                if (existingGame && existingGame.status === 'playing') {
+                    console.log(`Game in Progress: ${currentChatWith.name} is already in a game with you. Joining...`);
+                    startGame(gameIdForThisPair);
+                    return;
+                }
+
+                // Initiate a new game invitation and send a text message
+                initiateGame();
             }
         }
 
         // New game button
         newGameBtn.addEventListener('click', () => {
-            endGame();
-            startGame();
+            endGame(); // End current game properly
+            initiateGame(); // Initiate a new game invitation
         });
 
-        // Close game button
+        // Close game button - now shows confirmation modal
         closeGameBtn.addEventListener('click', () => {
-            endGame();
-            gameContainer.style.display = 'none';
+            // Check if game is active before showing modal
+            if (gameActive) {
+                confirmationModal.style.display = 'flex'; // Show the modal
+            } else {
+                endGame(); // If game is not active, just end it (e.g., if it was already ended by timer/opponent)
+                gameContainer.style.display = 'none';
+            }
         });
 
-        // Play game buttons
-        playGameBtn.addEventListener('click', () => {
-            gameContainer.style.display = 'flex';
-            startGame();
+        // Event listeners for the confirmation modal buttons
+        closeModalBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'none'; // Hide the modal
         });
 
-        playGameInChatBtn.addEventListener('click', () => {
-            gameContainer.style.display = 'flex';
-            startGame();
+        confirmYesBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'none'; // Hide the modal
+            endGame(); // Proceed to end the game
         });
+
+        confirmNoBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'none'; // Hide the modal
+        });
+
+        // Close the modal if the user clicks outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target == confirmationModal) {
+                confirmationModal.style.display = 'none';
+            }
+        });
+
+
+        // Play game buttons now use the unified handler
+        // playGameBtn.addEventListener('click', handlePlayGameButtonClick); // Removed from contacts screen
+        playGameInChatBtn.addEventListener('click', handlePlayGameButtonClick);
+
+        // Function to update the state of the Register button
+        function updateRegisterButtonState() {
+            const phoneNumber = phoneNumberInput.value.trim();
+            const userName = userNameInput.value.trim();
+            const isValidPhoneNumber = phoneNumber.length === 10 && /^\d+$/.test(phoneNumber);
+            const isValidUserName = userName.length > 0;
+
+            // Only enable if both are valid AND the connecting message is NOT visible
+            registerBtn.disabled = !(isValidPhoneNumber && isValidUserName) || connectingMessage.style.display === 'block';
+        }
+
+        // Add event listener for phone number input for live feedback
+        phoneNumberInput.addEventListener('input', () => {
+            const phoneNumber = phoneNumberInput.value.trim();
+            const isValidLength = phoneNumber.length === 10;
+            const isNumeric = /^\d+$/.test(phoneNumber);
+
+            if (phoneNumber.length > 0 && (!isValidLength || !isNumeric)) {
+                phoneNumberFeedback.textContent = "Number 2 valke likha bhul nkrba dei 🙂"; // Updated message
+                phoneNumberFeedback.style.display = 'block';
+                phoneNumberFeedback.classList.add('fade-in-animation');
+            } else {
+                phoneNumberFeedback.style.display = 'none';
+                phoneNumberFeedback.classList.remove('fade-in-animation');
+            }
+            updateRegisterButtonState(); // Update button state on every input
+        });
+
+        // Add event listener for user name input to enable/disable button
+        userNameInput.addEventListener('input', updateRegisterButtonState);
+
 
         // Check if user is already registered on page load
         window.addEventListener('load', () => {
@@ -1238,9 +1840,11 @@
                 currentUser = JSON.parse(savedUser);
                 showContactsScreen();
                 monitorOnlineStatus();
+                listenForGameInvitations(); // Start listening for game invitations on load
             } else {
                 registrationScreen.style.display = 'block';
             }
+            updateRegisterButtonState(); // Set initial state of the register button on load
         });
     </script>
 </body>
