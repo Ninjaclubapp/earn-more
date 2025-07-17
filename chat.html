@@ -1691,7 +1691,7 @@
                         if (yourScore > opponentScore) {
                             // Current user wins
                             database.ref('chats/' + chatId).push().set({
-                                text: `I won! 🎉 ${randomQuote}`,
+                                text: ` ${randomQuote}`,
                                 sender: currentUser.phoneNumber,
                                 receiver: currentChatWith.phoneNumber,
                                 timestamp: firebase.database.ServerValue.TIMESTAMP,
