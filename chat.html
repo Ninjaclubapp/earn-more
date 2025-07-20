@@ -54,6 +54,7 @@
             animation: messageFadeIn 0.3s ease-out;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             transition: transform 0.2s ease-out;
+            position: relative; /* Needed for context menu positioning */
         }
         .message:hover {
             transform: translateY(-2px);
@@ -370,6 +371,126 @@
             display: block; /* Ensure name is on its own line */
         }
 
+        /* Context Menu Styles */
+        .context-menu {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+            min-width: 120px;
+            overflow: hidden;
+            top: 100%; /* Position below the message */
+            left: 0; /* Align with the message start */
+            transform: translateY(5px); /* Small offset */
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .message.sent .context-menu {
+            left: auto;
+            right: 0; /* Align with the message end for sent messages */
+        }
+
+        .context-menu.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .context-menu button {
+            background: none;
+            border: none;
+            padding: 10px 15px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.95em;
+            color: #333;
+            transition: background-color 0.2s ease;
+        }
+
+        .context-menu button:hover {
+            background-color: #f0f2f5;
+        }
+
+        .context-menu button:not(:last-child) {
+            border-bottom: 1px solid #eee;
+        }
+
+        .edited-tag {
+            font-size: 0.8em;
+            color: #888;
+            margin-left: 5px;
+        }
+
+        .deleted-message {
+            font-style: italic;
+            color: #888;
+            background-color: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 80%;
+            word-wrap: break-word;
+            margin-bottom: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        /* Emoji Reactions Styles */
+        .reactions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        .reaction-bubble {
+            display: inline-flex;
+            align-items: center;
+            background-color: rgba(0,0,0,0.05);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        .reaction-bubble:hover {
+            background-color: rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+        .reaction-bubble.reacted-by-me {
+            background-color: #0d6efd;
+            color: white;
+            border: 1px solid #0a58ca;
+        }
+        .reaction-bubble span {
+            margin-right: 3px;
+        }
+        .emoji-picker-modal .modal-content {
+            max-width: 320px;
+        }
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 5px;
+            padding: 10px;
+        }
+        .emoji-grid button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+        .emoji-grid button:hover {
+            background-color: #eee;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -529,6 +650,38 @@
             </div>
         </div>
     </div>
+
+    <!-- Edit Message Modal -->
+    <div id="edit-message-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Edit Message</span>
+                <span class="close-modal-btn" id="close-edit-modal-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <textarea id="edit-message-input" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="save-edit-btn" class="btn btn-primary">Save Changes</button>
+                <button id="cancel-edit-btn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emoji Picker Modal -->
+    <div id="emoji-picker-modal" class="modal emoji-picker-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>React with Emoji</span>
+                <span class="close-modal-btn" id="close-emoji-picker-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="emoji-grid" id="emoji-grid">
+                    <!-- Emojis will be dynamically loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
     
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
 
@@ -649,6 +802,20 @@
         const confirmYesBtn = document.getElementById('confirm-yes-btn');
         const confirmNoBtn = document.getElementById('confirm-no-btn');
 
+        // Edit Message Modal Elements
+        const editMessageModal = document.getElementById('edit-message-modal');
+        const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
+        const editMessageInput = document.getElementById('edit-message-input');
+        const saveEditBtn = document.getElementById('save-edit-btn');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        let currentMessageToEdit = null; // Stores the Firebase reference of the message being edited
+
+        // Emoji Picker Modal Elements
+        const emojiPickerModal = document.getElementById('emoji-picker-modal');
+        const closeEmojiPickerBtn = document.getElementById('close-emoji-picker-btn');
+        const emojiGrid = document.getElementById('emoji-grid');
+        let currentMessageKeyForReaction = null; // Stores the key of the message to react to
+
         // Game specific DOM elements
         const playGameBtn = document.getElementById('play-game-btn'); // This button is no longer in contacts-screen
         const playGameInChatBtn = document.getElementById('play-game-in-chat-btn');
@@ -662,15 +829,15 @@
         const playerOpponentBattery = document.getElementById('player-opponent-battery');
         const gameTimer = document.getElementById('game-timer');
         const newGameBtn = document.getElementById('new-game-btn');
-        const closeGameBtn = document.getElementById('close-game-btn');
+        const closeGameBtn = document = document.getElementById('close-game-btn');
         const chatProfileLogo = document.getElementById('chat-profile-logo');
 
 
         // App State
         let currentUser = null;
         let currentChatWith = null;
-        let unreadCounts = {};
-        let messageListeners = {};
+        let unreadCounts = {}; // Object to store unread message counts per contact
+        let messageListeners = {}; // Stores references to Firebase listeners for messages
         let typingTimeout = null;
         let onlineStatusRef = null;
         let batteryMonitor = null;
@@ -684,6 +851,9 @@
         let gameInterval = null;
         let gameInvitationRef = null; // Reference to the current game invitation
         const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F3'];
+
+        // Common Emojis for the picker
+        const commonEmojis = ['👍', '❤️', '😂', '😢', '😡', '👏', '🔥', '💯'];
 
         // Helper to format timestamp to a readable last seen string
         function formatLastSeen(timestamp) {
@@ -809,61 +979,90 @@
             registerBtn.disabled = true;
 
             try {
-                // Check if user already exists
+                // Get the current device's UUID from localStorage
+                let localDeviceUUID = localStorage.getItem('deviceUUID');
+
+                // Check if user already exists in Firebase
                 const snapshot = await database.ref('users/' + phoneNumber).once('value');
+
                 if (snapshot.exists()) {
+                    // User exists, now check device UUID and name
                     const existingUser = snapshot.val();
+                    const firebaseDeviceUUID = existingUser.deviceUUID;
+
                     if (existingUser.name !== userName) {
                         // Phone number exists but with a different name
-                        registrationErrorFeedback.textContent = 'Access Denied: This phone number is already registered.';
+                        registrationErrorFeedback.textContent = 'Access Denied: This phone number is already registered with a different name.';
                         registrationErrorFeedback.style.display = 'block';
                         registrationErrorFeedback.classList.add('fade-in-animation');
                         console.error('Error: This phone number is already registered with a different name');
-                        // Hide connecting message and re-enable button on error
-                        connectingMessage.style.display = 'none';
-                        registerBtn.disabled = false;
-                        return;
-                    } else {
-                        // Phone number exists with the same name, user is already registered
-                        currentUser = { phoneNumber, name: userName };
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                        showContactsScreen();
-                        monitorOnlineStatus();
-                        listenForGameInvitations();
-                        console.log(`Welcome back, ${userName}! You're already registered.`);
-                        if (batteryMonitor) {
-                            updateUserBatteryStatus(batteryMonitor);
-                        }
-                        // Hide connecting message and re-enable button
                         connectingMessage.style.display = 'none';
                         registerBtn.disabled = false;
                         return;
                     }
-                }
-                
-                // If user does not exist, proceed with new registration
-                await database.ref('users/' + phoneNumber).set({
-                    name: userName,
-                    phoneNumber: phoneNumber,
-                    lastSeen: firebase.database.ServerValue.TIMESTAMP,
-                    online: true,
-                    batteryLevel: 0,
-                    batteryCharging: false
-                });
 
-                currentUser = { phoneNumber, name: userName };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showContactsScreen();
-                monitorOnlineStatus();
-                listenForGameInvitations();
-                console.log(`Welcome: Hi ${userName}! You're now registered.`);
-                
-                if (batteryMonitor) {
-                    updateUserBatteryStatus(batteryMonitor);
+                    // Handle device UUID check
+                    if (firebaseDeviceUUID) {
+                        // Firebase has a device ID for this user
+                        if (!localDeviceUUID || localDeviceUUID !== firebaseDeviceUUID) {
+                            // Local device ID is missing or doesn't match Firebase's registered device ID
+                            registrationErrorFeedback.textContent = 'You can only log in from the device you registered with.';
+                            registrationErrorFeedback.style.display = 'block';
+                            registrationErrorFeedback.classList.add('fade-in-animation');
+                            console.error('Error: Device ID mismatch. Cannot log in from this device.');
+                            connectingMessage.style.display = 'none';
+                            registerBtn.disabled = false;
+                            return;
+                        }
+                        // Device IDs match, proceed with login
+                        console.log(`Welcome back, ${userName}! Logged in from registered device.`);
+                    } else {
+                        // Firebase does NOT have a device ID for this user (legacy user or first login with device tracking)
+                        // Assign the current device as the registered device
+                        localDeviceUUID = crypto.randomUUID(); // Generate a new UUID for this device
+                        await database.ref('users/' + phoneNumber).update({ deviceUUID: localDeviceUUID });
+                        localStorage.setItem('deviceUUID', localDeviceUUID); // Store locally
+                        console.log(`Welcome back, ${userName}! Registered current device as primary.`);
+                    }
+
+                    // Finalize login for existing user
+                    currentUser = { phoneNumber, name: userName };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showContactsScreen();
+                    monitorOnlineStatus();
+                    listenForGameInvitations();
+                    if (batteryMonitor) {
+                        updateUserBatteryStatus(batteryMonitor);
+                    }
+
+                } else {
+                    // User does not exist, proceed with new registration
+                    const newDeviceUUID = crypto.randomUUID();
+                    await database.ref('users/' + phoneNumber).set({
+                        name: userName,
+                        phoneNumber: phoneNumber,
+                        deviceUUID: newDeviceUUID, // Store new device UUID
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP,
+                        online: true,
+                        batteryLevel: 0,
+                        batteryCharging: false
+                    });
+
+                    currentUser = { phoneNumber, name: userName };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    localStorage.setItem('deviceUUID', newDeviceUUID); // Store device UUID locally
+                    showContactsScreen();
+                    monitorOnlineStatus();
+                    listenForGameInvitations();
+                    console.log(`Welcome: Hi ${userName}! You're now registered with this device.`);
+                    
+                    if (batteryMonitor) {
+                        updateUserBatteryStatus(batteryMonitor);
+                    }
                 }
             } catch (error) {
-                console.error("Error saving user:", error);
-                registrationErrorFeedback.textContent = 'Registration failed. Please try again.';
+                console.error("Error during registration/login:", error);
+                registrationErrorFeedback.textContent = 'Registration/Login failed. Please try again.';
                 registrationErrorFeedback.style.display = 'block';
                 registrationErrorFeedback.classList.add('fade-in-animation');
             } finally {
@@ -1011,6 +1210,7 @@
 
         // Contacts Screen
         function showContactsScreen() {
+            console.log('[SCREEN] Showing contacts screen.');
             registrationScreen.style.display = 'none';
             chatScreen.style.display = 'none';
             contactsScreen.style.display = 'block';
@@ -1044,6 +1244,7 @@
         }
 
         function loadContacts(searchTerm = '') {
+            console.log('[CONTACTS] Loading contacts. Current unreadCounts:', JSON.stringify(unreadCounts));
             const contactsRef = database.ref('users');
             
             // This listener ensures real-time updates for the contacts list
@@ -1089,6 +1290,9 @@
                         } else {
                             unreadBadge = `<span class="unread-count">${unreadCount}</span>`;
                         }
+                        console.log(`[CONTACTS] User ${phoneNumber}: Unread count is ${unreadCount}, adding badge: ${unreadBadge}`);
+                    } else {
+                        console.log(`[CONTACTS] User ${phoneNumber}: No unread messages.`);
                     }
                     
                     // Modified structure to place status below phone number
@@ -1107,8 +1311,12 @@
                     `;
                     
                     contactItem.addEventListener('click', () => {
+                        console.log(`[CHAT] Contact ${phoneNumber} clicked. Previous unread count: ${unreadCounts[phoneNumber]}`);
+                        // When a contact is clicked, clear their unread count and start chat
                         if (unreadCounts[phoneNumber]) {
-                            delete unreadCounts[phoneNumber];
+                            unreadCounts[phoneNumber] = 0; // Reset unread count
+                            console.log(`[CHAT] Reset unread count for ${phoneNumber} to 0.`);
+                            loadContacts(contactSearch.value.trim()); // Refresh contacts list to remove badge
                         }
                         startChat(user);
                     });
@@ -1123,6 +1331,7 @@
         }
 
         searchBtn.addEventListener('click', () => {
+            console.log('[SEARCH] Search button clicked. Term:', contactSearch.value.trim());
             loadContacts(contactSearch.value.trim());
         });
         
@@ -1134,10 +1343,17 @@
         // Chat Screen
         function startChat(contact) {
             currentChatWith = contact;
-            console.log("startChat: Chat initiated with contact:", currentChatWith); 
+            console.log(`[CHAT] Chat initiated with contact: ${contact.name} (${contact.phoneNumber})`); 
             chatWithName.textContent = `${contact.name}`;
             chatProfileLogo.textContent = getProfileIcon(contact.name); // Use getProfileIcon
             
+            // Clear unread count for this contact when entering the chat
+            if (unreadCounts[contact.phoneNumber]) {
+                unreadCounts[contact.phoneNumber] = 0;
+                console.log(`[CHAT] Reset unread count for ${contact.phoneNumber} to 0 on chat entry.`);
+                loadContacts(contactSearch.value.trim()); // Refresh contacts list to remove unread badge
+            }
+
             // Set up listener for chat partner's online status and battery - this is real-time
             database.ref(`users/${contact.phoneNumber}`).on('value', (snapshot) => {
                 const partner = snapshot.val();
@@ -1196,6 +1412,7 @@
         }
 
         backToContactsBtn.addEventListener('click', () => {
+            console.log('[SCREEN] Returning to contacts screen.');
             chatScreen.style.display = 'none';
             contactsScreen.style.display = 'block';
             
@@ -1204,12 +1421,14 @@
                 database.ref(`typing/${currentChatWith.phoneNumber}`).off();
                 database.ref(`users/${currentChatWith.phoneNumber}`).off();
                 
-                // Detach message listener for the current chat
+                // Detach all message listeners for the current chat
                 const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
                 if (messageListeners[chatId]) {
-                    database.ref('chats/' + chatId).off('child_added', messageListeners[chatId]);
+                    database.ref('chats/' + chatId).off('child_added', messageListeners[chatId].added);
+                    database.ref('chats/' + chatId).off('child_changed', messageListeners[chatId].changed);
+                    database.ref('chats/' + chatId).off('child_removed', messageListeners[chatId].removed);
                     delete messageListeners[chatId]; // Remove from tracking object
-                    console.log(`backToContacts: Detached message listener for chatId: ${chatId}`);
+                    console.log(`[CHAT] Detached all message listeners for chatId: ${chatId}`);
                 }
 
                 if (gameRef) {
@@ -1220,13 +1439,14 @@
             
             currentChatWith = null;
             chatMessages.innerHTML = ''; // Clear messages when leaving chat
+            loadContacts(contactSearch.value.trim()); // Refresh contacts list to ensure unread counts are updated if any
         });
 
         function loadChatMessages() {
             chatMessages.innerHTML = ''; // Clear messages on load to prevent duplicates
             
             if (!currentUser || !currentChatWith) {
-                console.warn("loadChatMessages: currentUser or currentChatWith is null. Cannot load messages.");
+                console.warn("[MESSAGES] currentUser or currentChatWith is null. Cannot load messages.");
                 return;
             }
             
@@ -1234,27 +1454,30 @@
                 .sort()
                 .join('_');
             
-            console.log("loadChatMessages: Setting up listener for chatId:", chatId);
+            console.log("[MESSAGES] Setting up listeners for chatId:", chatId);
 
-            // Detach previous listener if it exists to prevent duplicate messages
+            // Detach previous listeners if they exist to prevent duplicates
             if (messageListeners[chatId]) {
-                console.log("loadChatMessages: Detaching existing listener for chatId:", chatId);
-                database.ref('chats/' + chatId).off('child_added', messageListeners[chatId]);
+                console.log("[MESSAGES] Detaching existing listeners for chatId:", chatId);
+                database.ref('chats/' + chatId).off('child_added', messageListeners[chatId].added);
+                database.ref('chats/' + chatId).off('child_changed', messageListeners[chatId].changed);
+                database.ref('chats/' + chatId).off('child_removed', messageListeners[chatId].removed);
             }
             
             // Fetch existing messages first, then listen for new ones
             database.ref('chats/' + chatId)
                 .orderByChild('timestamp')
                 .once('value', (snapshot) => {
-                    console.log("loadChatMessages: Initial message load snapshot received. Has data:", snapshot.exists());
+                    console.log("[MESSAGES] Initial message load snapshot received. Has data:", snapshot.exists());
                     if (snapshot.exists()) {
                         snapshot.forEach((childSnapshot) => {
                             const message = childSnapshot.val();
                             const messageKey = childSnapshot.key;
-                            console.log("loadChatMessages: Processing historical message:", message, "key:", messageKey); // Added log
+                            console.log("[MESSAGES] Processing historical message:", message, "key:", messageKey); // Added log
                             addMessageToChat(message, messageKey);
                             // Mark messages as read if they are from the other user and chat screen is active
                             if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'block') {
+                                console.log(`[MESSAGES] Marking historical message ${messageKey} as read.`);
                                 database.ref(`chats/${chatId}/${messageKey}`).update({
                                     read: true
                                 });
@@ -1262,36 +1485,31 @@
                         });
                         chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom after loading existing messages
                     } else {
-                        console.log("loadChatMessages: No historical messages found for chatId:", chatId);
+                        console.log("[MESSAGES] No historical messages found for chatId:", chatId);
                     }
                 }, (error) => {
-                    console.error("Firebase 'once' listener error for initial messages:", error);
+                    console.error("[MESSAGES] Firebase 'once' listener error for initial messages:", error);
                 }).then(() => {
-                    // After initial load, set up the 'child_added' listener for real-time updates
-                    messageListeners[chatId] = database.ref('chats/' + chatId)
-                        .orderByChild('timestamp')
-                        .on('child_added', (snapshot) => {
+                    // After initial load, set up the 'child_added', 'child_changed', and 'child_removed' listeners for real-time updates
+                    const chatRef = database.ref('chats/' + chatId);
+
+                    messageListeners[chatId] = {
+                        added: chatRef.orderByChild('timestamp').on('child_added', (snapshot) => {
                             const message = snapshot.val();
                             const messageKey = snapshot.key;
-                            console.log("loadChatMessages: Received new message via child_added:", message, "key:", messageKey);
+                            console.log("[MESSAGES] Received new message via child_added:", message, "key:", messageKey);
                             
                             // Only add if it's a truly new message (not one already loaded by 'once')
-                            // This check is a bit tricky with 'child_added' after 'once', but for simplicity,
-                            // we'll rely on clearing chatMessages.innerHTML and then adding.
-                            // A more robust solution might involve tracking last loaded message timestamp.
-                            
-                            // Check if the message is already in the DOM to avoid duplicates
-                            // (This is a basic check, a unique ID on messageDiv would be better)
                             const existingMessageDiv = chatMessages.querySelector(`[data-message-key="${messageKey}"]`);
                             if (!existingMessageDiv) {
                                 addMessageToChat(message, messageKey);
                             } else {
-                                console.log("loadChatMessages: Message already exists in DOM, skipping:", messageKey);
+                                console.log("[MESSAGES] Message already exists in DOM, skipping add:", messageKey);
                             }
 
-                            // Mark message as read if it's from the other user and chat screen is active
+                            // Mark message as read if it's from the other user AND the chat screen is active AND it's the current chat
                             if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'block') {
-                                console.log("loadChatMessages: Marking message as read:", messageKey);
+                                console.log("[MESSAGES] Marking new message as read:", messageKey);
                                 database.ref(`chats/${chatId}/${messageKey}`).update({
                                     read: true
                                 });
@@ -1299,23 +1517,35 @@
                             
                             // Handle unread counts and notifications for messages not from current user
                             if (message.sender !== currentUser.phoneNumber) {
+                                // Only increment unread count if the user is NOT currently in the chat with the sender
                                 if (chatScreen.style.display === 'none' || (currentChatWith && currentChatWith.phoneNumber !== message.sender)) {
                                     unreadCounts[message.sender] = (unreadCounts[message.sender] || 0) + 1;
-                                    console.log("loadChatMessages: Unread count for", message.sender, ":", unreadCounts[message.sender]);
+                                    console.log(`[UNREAD] Incremented unread count for ${message.sender}: ${unreadCounts[message.sender]}`);
                                     
-                                    database.ref('users/' + message.sender).once('value').then(senderSnapshot => {
-                                        const senderUser = senderSnapshot.val();
-                                        const senderName = senderUser ? senderUser.name : message.sender;
-                                        loadContacts(contactSearch.value.trim()); // Refresh contacts list to show unread badge
-                                    }).catch(error => {
-                                        console.error("Error fetching sender name for notification:", error);
-                                        loadContacts(contactSearch.value.trim());
-                                    });
+                                    // Refresh contacts list to show the badge
+                                    loadContacts(contactSearch.value.trim()); 
+                                    console.log('[UNREAD] Called loadContacts to refresh UI after new message.');
                                 }
                             }
                         }, (error) => {
-                            console.error("Firebase 'child_added' listener error:", error);
-                        });
+                            console.error("[MESSAGES] Firebase 'child_added' listener error:", error);
+                        }),
+                        changed: chatRef.on('child_changed', (snapshot) => {
+                            const message = snapshot.val();
+                            const messageKey = snapshot.key;
+                            console.log("[MESSAGES] Message changed via child_changed:", message, "key:", messageKey);
+                            updateMessageInChat(message, messageKey);
+                        }, (error) => {
+                            console.error("[MESSAGES] Firebase 'child_changed' listener error:", error);
+                        }),
+                        removed: chatRef.on('child_removed', (snapshot) => {
+                            const messageKey = snapshot.key;
+                            console.log("[MESSAGES] Message removed via child_removed:", messageKey);
+                            removeMessageFromChat(messageKey);
+                        }, (error) => {
+                            console.error("[MESSAGES] Firebase 'child_removed' listener error:", error);
+                        })
+                    };
                 });
         }
 
@@ -1328,6 +1558,47 @@
             
             let messageContentHtml = `<div>${message.text}</div>`;
             let statusIndicator = '';
+            let editedTag = '';
+            let reactionsHtml = '';
+
+            // Handle deleted messages
+            if (message.deleted) {
+                messageDiv.className = `deleted-message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
+                messageDiv.innerHTML = `
+                    <div><em>This message was deleted.</em></div>
+                    <div class="small d-flex justify-content-end align-items-center">
+                        ${time}
+                    </div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                console.log("[MESSAGES] Deleted message appended to DOM. Message key:", messageKey);
+                // Attach double-click listener for deleted messages too, in case we want to re-introduce a "restore" option later
+                attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber);
+                return; // Stop processing further for deleted messages
+            }
+
+            // Handle edited messages
+            if (message.edited) {
+                editedTag = `<span class="edited-tag">(Edited)</span>`;
+            }
+
+            // Handle reactions
+            if (message.reactions) {
+                reactionsHtml = '<div class="reactions-container">';
+                for (const emoji in message.reactions) {
+                    const users = message.reactions[emoji];
+                    const count = users.length;
+                    const reactedByMe = users.includes(currentUser.phoneNumber) ? ' reacted-by-me' : '';
+                    reactionsHtml += `
+                        <div class="reaction-bubble${reactedByMe}" data-emoji="${emoji}" data-message-key="${messageKey}">
+                            <span>${emoji}</span>${count}
+                        </div>
+                    `;
+                }
+                reactionsHtml += '</div>';
+            }
+
 
             if (message.sender === currentUser.phoneNumber) {
                 // Listen for read/delivered status updates for sent messages
@@ -1352,7 +1623,7 @@
                         }
                         existingStatusSpan.className = `message-status ${statusClass}`;
                         existingStatusSpan.textContent = checkmark;
-                        console.log(`addMessageToChat: Updated status for message ${messageKey}: ${checkmark}`);
+                        console.log(`[MESSAGE_STATUS] Updated status for message ${messageKey}: ${checkmark} (read: ${updatedMessage.read})`);
                     }
                 });
                 statusIndicator = `<span class="message-status delivered">✓</span>`; // Initial status
@@ -1369,17 +1640,328 @@
             }
             
             messageDiv.innerHTML = `
-                ${messageContentHtml}
+                <div>${message.text}${editedTag}</div>
                 <div class="small d-flex justify-content-end align-items-center">
                     ${time}
                     ${statusIndicator}
                 </div>
+                ${reactionsHtml}
             `;
             
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            console.log("addMessageToChat: Message appended to DOM. Scrolling to bottom. Message:", message); 
+            console.log("[MESSAGES] Message appended to DOM. Scrolling to bottom. Message:", message); 
+
+            // Attach double-click listener for all messages
+            attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber);
+
+            // Add click listener to reaction bubbles for toggling reactions
+            messageDiv.querySelectorAll('.reaction-bubble').forEach(bubble => {
+                bubble.addEventListener('click', (e) => {
+                    const emoji = e.currentTarget.dataset.emoji;
+                    toggleReaction(messageKey, emoji);
+                });
+            });
         }
+
+        // Function to update an existing message in the chat UI
+        function updateMessageInChat(message, messageKey) {
+            const messageDiv = chatMessages.querySelector(`[data-message-key="${messageKey}"]`);
+            if (!messageDiv) {
+                console.warn(`[UPDATE] Message div not found for key: ${messageKey}. Re-adding.`);
+                // If the message was not found (e.g., it was a historical message that wasn't initially loaded
+                // or a race condition), add it.
+                addMessageToChat(message, messageKey);
+                return;
+            }
+
+            const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            let statusIndicator = '';
+            let editedTag = '';
+            let reactionsHtml = '';
+
+            // Handle deleted messages
+            if (message.deleted) {
+                messageDiv.className = `deleted-message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
+                messageDiv.innerHTML = `
+                    <div><em>This message was deleted.</em></div>
+                    <div class="small d-flex justify-content-end align-items-center">
+                        ${time}
+                    </div>
+                `;
+                console.log(`[UPDATE] Message ${messageKey} updated to deleted state.`);
+                return;
+            }
+
+            // Reapply original classes if it was previously deleted
+            messageDiv.className = `message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
+
+            // Handle edited messages
+            if (message.edited) {
+                editedTag = `<span class="edited-tag">(Edited)</span>`;
+            }
+
+            // Handle reactions
+            if (message.reactions) {
+                reactionsHtml = '<div class="reactions-container">';
+                for (const emoji in message.reactions) {
+                    const users = message.reactions[emoji];
+                    const count = users.length;
+                    const reactedByMe = users.includes(currentUser.phoneNumber) ? ' reacted-by-me' : '';
+                    reactionsHtml += `
+                        <div class="reaction-bubble${reactedByMe}" data-emoji="${emoji}" data-message-key="${messageKey}">
+                            <span>${emoji}</span>${count}
+                        </div>
+                    `;
+                }
+                reactionsHtml += '</div>';
+            }
+
+            if (message.sender === currentUser.phoneNumber) {
+                const statusClass = message.read ? 'read' : 'delivered';
+                const checkmark = message.read ? '✓✓' : '✓';
+                statusIndicator = `<span class="message-status ${statusClass}">${checkmark}</span>`;
+            }
+
+            messageDiv.innerHTML = `
+                <div>${message.text}${editedTag}</div>
+                <div class="small d-flex justify-content-end align-items-center">
+                    ${time}
+                    ${statusIndicator}
+                </div>
+                ${reactionsHtml}
+            `;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            console.log(`[UPDATE] Message ${messageKey} updated in DOM.`);
+
+            // Re-attach click listener to reaction bubbles for toggling reactions
+            messageDiv.querySelectorAll('.reaction-bubble').forEach(bubble => {
+                bubble.addEventListener('click', (e) => {
+                    const emoji = e.currentTarget.dataset.emoji;
+                    toggleReaction(messageKey, emoji);
+                });
+            });
+        }
+
+        // Function to remove a message from the chat UI
+        function removeMessageFromChat(messageKey) {
+            const messageDiv = chatMessages.querySelector(`[data-message-key="${messageKey}"]`);
+            if (messageDiv) {
+                messageDiv.remove();
+                console.log(`[REMOVE] Message ${messageKey} removed from DOM.`);
+            } else {
+                console.warn(`[REMOVE] Message div not found for key: ${messageKey}. Cannot remove.`);
+            }
+        }
+
+        // Function to attach double-click listener to a message element
+        function attachMessageDoubleClickListener(messageDiv, messageKey, messageText, isMyMessage) {
+            messageDiv.addEventListener('dblclick', (e) => {
+                // Prevent default browser double-click behavior (e.g., text selection)
+                e.preventDefault();
+                showContextMenu(e, messageKey, messageText, isMyMessage);
+            });
+        }
+
+        // Function to show the context menu for messages
+        function showContextMenu(event, messageKey, messageText, isMyMessage) {
+            // Remove any existing context menus first
+            document.querySelectorAll('.context-menu').forEach(menu => menu.remove());
+
+            const messageElement = event.currentTarget;
+            const contextMenu = document.createElement('div');
+            contextMenu.className = 'context-menu';
+            
+            let menuHtml = `
+                <button id="react-message-btn">React</button>
+            `;
+            // Only show edit/delete if it's the current user's message AND not already deleted
+            if (isMyMessage && !messageElement.classList.contains('deleted-message')) {
+                menuHtml += `
+                    <button id="edit-message-btn">Edit</button>
+                    <button id="delete-message-btn">Delete</button>
+                `;
+            }
+            contextMenu.innerHTML = menuHtml;
+            messageElement.appendChild(contextMenu);
+
+            // Position the context menu
+            const rect = messageElement.getBoundingClientRect();
+            contextMenu.style.top = `${rect.height + 5}px`; // Below the message
+            contextMenu.style.left = `0px`; // Aligned with left edge for received, right for sent
+            if (messageElement.classList.contains('sent')) {
+                contextMenu.style.left = 'auto';
+                contextMenu.style.right = '0px';
+            }
+
+            // Show the menu with a slight delay for animation
+            setTimeout(() => {
+                contextMenu.classList.add('show');
+            }, 10);
+
+            // Set up event listeners for menu buttons
+            contextMenu.querySelector('#react-message-btn').addEventListener('click', () => {
+                showEmojiPicker(messageKey);
+                contextMenu.remove();
+            });
+
+            if (isMyMessage && !messageElement.classList.contains('deleted-message')) {
+                contextMenu.querySelector('#edit-message-btn').addEventListener('click', () => {
+                    editMessage(messageKey, messageText);
+                    contextMenu.remove();
+                });
+
+                contextMenu.querySelector('#delete-message-btn').addEventListener('click', () => {
+                    deleteMessage(messageKey);
+                    contextMenu.remove();
+                });
+            }
+
+            // Hide menu when clicking anywhere else
+            const hideMenu = (e) => {
+                // Check if the click was outside the context menu and not on the message element itself
+                // Also ensure it's not a double click that just triggered the menu
+                if (!contextMenu.contains(e.target) && e.target !== messageElement && !messageElement.contains(e.target)) {
+                    contextMenu.remove();
+                    document.removeEventListener('click', hideMenu);
+                    document.removeEventListener('touchstart', hideMenu); // For mobile
+                }
+            };
+            document.addEventListener('click', hideMenu);
+            document.addEventListener('touchstart', hideMenu); // For mobile
+        }
+
+        // Function to show the emoji picker modal
+        function showEmojiPicker(messageKey) {
+            currentMessageKeyForReaction = messageKey;
+            emojiGrid.innerHTML = ''; // Clear previous emojis
+
+            commonEmojis.forEach(emoji => {
+                const button = document.createElement('button');
+                button.textContent = emoji;
+                button.addEventListener('click', () => {
+                    toggleReaction(currentMessageKeyForReaction, emoji);
+                    emojiPickerModal.style.display = 'none'; // Hide picker after selection
+                });
+                emojiGrid.appendChild(button);
+            });
+
+            emojiPickerModal.style.display = 'flex';
+        }
+
+        // Event listener for closing emoji picker modal
+        closeEmojiPickerBtn.addEventListener('click', () => {
+            emojiPickerModal.style.display = 'none';
+            currentMessageKeyForReaction = null;
+        });
+
+        // Function to toggle (add/remove) an emoji reaction
+        function toggleReaction(messageKey, emoji) {
+            if (!currentUser || !currentChatWith) {
+                console.error("Cannot toggle reaction: currentUser or currentChatWith is null.");
+                return;
+            }
+
+            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+            const messageRef = database.ref(`chats/${chatId}/${messageKey}/reactions`);
+
+            messageRef.transaction((currentReactions) => {
+                // Initialize reactions if null
+                if (currentReactions === null) {
+                    currentReactions = {};
+                }
+
+                // Initialize emoji's user list if null
+                if (currentReactions[emoji] === undefined) {
+                    currentReactions[emoji] = [];
+                }
+
+                const users = currentReactions[emoji];
+                const userIndex = users.indexOf(currentUser.phoneNumber);
+
+                if (userIndex > -1) {
+                    // User already reacted with this emoji, so remove it
+                    users.splice(userIndex, 1);
+                    if (users.length === 0) {
+                        // If no more users for this emoji, delete the emoji key
+                        delete currentReactions[emoji];
+                    }
+                } else {
+                    // User has not reacted with this emoji, so add it
+                    users.push(currentUser.phoneNumber);
+                }
+
+                // If the entire reactions object becomes empty, return null to delete it
+                if (Object.keys(currentReactions).length === 0) {
+                    return null;
+                } else {
+                    return currentReactions;
+                }
+            }).then(() => {
+                console.log(`Reaction "${emoji}" toggled for message ${messageKey}.`);
+            }).catch(error => {
+                console.error("Error toggling reaction:", error);
+            });
+        }
+
+
+        // Function to handle message editing
+        function editMessage(messageKey, currentText) {
+            currentMessageToEdit = database.ref(`chats/${[currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_')}/${messageKey}`);
+            editMessageInput.value = currentText;
+            editMessageModal.style.display = 'flex'; // Show the edit modal
+        }
+
+        // Function to handle message deletion
+        function deleteMessage(messageKey) {
+            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+            const messageRef = database.ref(`chats/${chatId}/${messageKey}`);
+            
+            // Update message to mark as deleted
+            messageRef.update({
+                text: '', // Clear text content
+                deleted: true,
+                edited: false, // Ensure edited flag is false
+                reactions: null, // Clear reactions on deletion
+                deletedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                console.log(`Message ${messageKey} marked as deleted.`);
+                // The updateMessageInChat listener will handle updating the UI
+            }).catch(error => {
+                console.error("Error deleting message:", error);
+            });
+        }
+
+        // Event listeners for Edit Message Modal
+        closeEditModalBtn.addEventListener('click', () => {
+            editMessageModal.style.display = 'none';
+            currentMessageToEdit = null;
+        });
+
+        cancelEditBtn.addEventListener('click', () => {
+            editMessageModal.style.display = 'none';
+            currentMessageToEdit = null;
+        });
+
+        saveEditBtn.addEventListener('click', () => {
+            const newText = editMessageInput.value.trim();
+            if (currentMessageToEdit && newText) {
+                currentMessageToEdit.update({
+                    text: newText,
+                    edited: true,
+                    editedAt: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    console.log("Message edited successfully!");
+                    editMessageModal.style.display = 'none';
+                    currentMessageToEdit = null;
+                }).catch(error => {
+                    console.error("Error saving edited message:", error);
+                });
+            } else {
+                console.warn("No message to edit or new text is empty.");
+            }
+        });
+
 
         // Typing detection
         messageInput.addEventListener('input', () => {
@@ -1410,13 +1992,13 @@
         function sendMessage() {
             const text = messageInput.value.trim();
             
-            console.log("sendMessage: Attempting to send message...");
-            console.log("sendMessage: currentUser:", currentUser);
-            console.log("sendMessage: currentChatWith:", currentChatWith);
-            console.log("sendMessage: Message text:", text);
+            console.log("[SEND] Attempting to send message...");
+            console.log("[SEND] currentUser:", currentUser);
+            console.log("[SEND] currentChatWith:", currentChatWith);
+            console.log("[SEND] Message text:", text);
 
             if (!text || !currentUser || !currentChatWith) {
-                console.error('sendMessage: Error: Message not sent. Missing text, current user, or chat partner. Text:', text, 'CurrentUser:', currentUser, 'CurrentChatWith:', currentChatWith);
+                console.error('[SEND] Error: Message not sent. Missing text, current user, or chat partner. Text:', text, 'CurrentUser:', currentUser, 'CurrentChatWith:', currentChatWith);
                 return;
             }
             
@@ -1432,7 +2014,7 @@
                 .sort()
                 .join('_');
             
-            console.log("sendMessage: Generated chatId:", chatId);
+            console.log("[SEND] Generated chatId:", chatId);
             const newMessageRef = database.ref('chats/' + chatId).push();
             
             newMessageRef.set({
@@ -1441,13 +2023,16 @@
                 receiver: currentChatWith.phoneNumber,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 delivered: true,
-                read: false
+                read: false,
+                edited: false, // New: Add edited flag
+                deleted: false, // New: Add deleted flag
+                reactions: null // New: Initialize reactions as null
             }).then(() => {
                 messageInput.value = '';
-                console.log("sendMessage: Message sent successfully to Firebase!");
+                console.log("[SEND] Message sent successfully to Firebase!");
             }).catch(error => {
-                console.error("sendMessage: Error sending message to Firebase:", error);
-                console.error('sendMessage: Error: Failed to send message. Please try again. Error details:', error);
+                console.error("Error sending message to Firebase:", error);
+                console.error('[SEND] Error: Failed to send message. Please try again. Error details:', error);
             });
         }
 
@@ -1937,8 +2522,10 @@
 
         // Close the modal if the user clicks outside of it
         window.addEventListener('click', (event) => {
-            if (event.target == confirmationModal) {
+            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal) {
                 confirmationModal.style.display = 'none';
+                emojiPickerModal.style.display = 'none';
+                editMessageModal.style.display = 'none';
             }
         });
 
@@ -1990,6 +2577,10 @@
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
+                // On load, if a user is saved, we don't re-check deviceUUID here,
+                // as the check happens during the explicit 'Register' button click.
+                // The assumption is if they are already "logged in" via localStorage,
+                // they are on the correct device.
                 showContactsScreen();
                 monitorOnlineStatus();
                 listenForGameInvitations(); // Start listening for game invitations on load
