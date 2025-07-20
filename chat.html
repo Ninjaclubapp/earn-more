@@ -1006,7 +1006,7 @@
                         // Firebase has a device ID for this user
                         if (!localDeviceUUID || localDeviceUUID !== firebaseDeviceUUID) {
                             // Local device ID is missing or doesn't match Firebase's registered device ID
-                            registrationErrorFeedback.textContent = 'You can only log in from the device you registered with.';
+                            registrationErrorFeedback.textContent = 'We’ve noticed a login attempt from a device that is not recognized.📞 Contact admin for further assistance Your account security is important to us.';
                             registrationErrorFeedback.style.display = 'block';
                             registrationErrorFeedback.classList.add('fade-in-animation');
                             console.error('Error: Device ID mismatch. Cannot log in from this device.');
