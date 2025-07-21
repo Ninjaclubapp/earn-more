@@ -558,6 +558,28 @@
             overflow-y: auto;
         }
 
+        /* New message indicator styling */
+        #new-message-indicator {
+            border-radius: 10px;
+            font-weight: 500;
+            animation: pulse 1.5s infinite ease-in-out;
+            margin-bottom: 15px; /* Space below the indicator */
+            display: none; /* Hidden by default */
+            /* Custom styles for a subtle look */
+            background-color: #e0f7fa; /* Light blue background */
+            color: #007bff; /* Primary blue text */
+            border: 1px solid #b2ebf2; /* Light border */
+            padding: 8px 15px; /* Adjust padding */
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow */
+            transition: all 0.2s ease-in-out;
+        }
+        #new-message-indicator:hover {
+            background-color: #b2ebf2;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -785,6 +807,10 @@
                 </div>
             </div>
             <div class="p-3">
+                <!-- New Message Indicator -->
+                <button id="new-message-indicator" class="btn btn-link text-primary d-block w-100 py-2" style="display: none; font-size: 0.9em; text-decoration: none;">
+                    You have <span id="new-message-count">0</span> new message(s). Click to view.
+                </button>
                 <div class="input-group mb-3">
                     <input type="text" id="contact-search" class="form-control rounded-pill" placeholder="Search contacts...">
                     <button class="btn btn-outline-secondary rounded-pill ms-2" type="button" id="search-btn">Search</button>
@@ -900,7 +926,7 @@
         const playerYouName = document.getElementById('player-you-name');
         const playerYouScore = document = document.getElementById('player-you-score');
         const playerOpponentName = document.getElementById('player-opponent-name');
-        const playerOpponentScore = document.getElementById('player-opponent-score');
+        const playerOpponentScore = document = document.getElementById('player-opponent-score');
         const playerOpponentBattery = document.getElementById('player-opponent-battery');
         const gameTimer = document.getElementById('game-timer');
         const newGameBtn = document.getElementById('new-game-btn');
@@ -913,16 +939,23 @@
         const replyMessageText = document.getElementById('reply-message-text');
         const clearReplyBtn = document.getElementById('clear-reply-btn');
 
+        // New Message Indicator DOM Elements
+        const newMessageIndicator = document.getElementById('new-message-indicator');
+        const newMessageCountSpan = document.getElementById('new-message-count');
+
 
         // App State
         let currentUser = null;
         let currentChatWith = null;
-        let unreadCounts = {}; // Object to store unread message counts per contact
+        let unreadCounts = {}; // Object to store unread message counts per contact (just count)
+        let latestUnreadMessageTimestamps = {}; // Stores latest unread timestamp per contact
         let messageListeners = {}; // Stores references to Firebase listeners for messages
+        let globalUnreadListeners = {}; // Stores references to global unread listeners for cleanup
         let typingTimeout = null;
         let onlineStatusRef = null;
         let batteryMonitor = null;
         let repliedToMessage = null; // Stores the message object being replied to
+        let totalUnreadMessages = 0; // New: Total unread messages across all contacts
 
         // Game State
         let gameActive = false;
@@ -1088,7 +1121,7 @@
                         // Firebase has a device ID for this user
                         if (!localDeviceUUID || localDeviceUUID !== firebaseDeviceUUID) {
                             // Local device ID is missing or doesn't match Firebase's registered device ID
-                            registrationErrorFeedback.textContent = 'You can only log in from the device you registered with.';
+                            registrationErrorFeedback.textContent = '🚨 Warning: Login attempt from another device or app data cleared. 🔐 Your privacy matters! 📞 Contact admin immediately for a quick solution. ✅';
                             registrationErrorFeedback.style.display = 'block';
                             registrationErrorFeedback.classList.add('fade-in-animation');
                             console.error('Error: Device ID mismatch. Cannot log in from this device.');
@@ -1113,6 +1146,7 @@
                     showContactsScreen();
                     monitorOnlineStatus();
                     listenForGameInvitations();
+                    setupGlobalUnreadListener(); // Setup global unread listener on login
                     if (batteryMonitor) {
                         updateUserBatteryStatus(batteryMonitor);
                     }
@@ -1136,6 +1170,7 @@
                     showContactsScreen();
                     monitorOnlineStatus();
                     listenForGameInvitations();
+                    setupGlobalUnreadListener(); // Setup global unread listener on registration
                     console.log(`Welcome: Hi ${userName}! You're now registered with this device.`);
                     
                     if (batteryMonitor) {
@@ -1297,7 +1332,7 @@
             chatScreen.style.display = 'none';
             contactsScreen.style.display = 'block';
             
-            loadContacts();
+            refreshUIForUnreadMessages(); // Use the unified refresh
             initDeviceStatus(); // Ensure device status (including battery) is initialized and displayed
         }
 
@@ -1307,7 +1342,7 @@
          * For accurate gender representation, consider adding a gender field during registration
          * or using a more sophisticated external API.
          * @param {string} name - The user's name.
-         * @returns {string} Unicode gender symbol (♂, ♀) or a default user icon (�).
+         * @returns {string} Unicode gender symbol (♂, ♀) or a default user icon (👤).
          */
         function getProfileIcon(name) {
             if (!name) return '👤'; // Default user icon
@@ -1325,6 +1360,41 @@
             return '♂'; // Default to male symbol for other names
         }
 
+        async function updateNewMessageIndicator() {
+            totalUnreadMessages = 0;
+            let latestUnreadSenderPhoneNumber = null;
+            let latestUnreadTimestamp = 0;
+
+            for (const phoneNumber in unreadCounts) {
+                if (unreadCounts[phoneNumber] > 0) {
+                    totalUnreadMessages += unreadCounts[phoneNumber];
+                    // Find the latest timestamp among all unread messages
+                    if (latestUnreadMessageTimestamps[phoneNumber] && latestUnreadMessageTimestamps[phoneNumber] > latestUnreadTimestamp) {
+                        latestUnreadTimestamp = latestUnreadMessageTimestamps[phoneNumber];
+                        latestUnreadSenderPhoneNumber = phoneNumber;
+                    }
+                }
+            }
+
+            if (totalUnreadMessages > 0) {
+                let indicatorText = '';
+                if (totalUnreadMessages === 1 && latestUnreadSenderPhoneNumber) {
+                    // Fetch sender's name for single unread message
+                    const userSnapshot = await database.ref(`users/${latestUnreadSenderPhoneNumber}`).once('value');
+                    const userData = userSnapshot.val();
+                    const senderName = userData ? userData.name : 'Someone';
+                    indicatorText = `New message from ${senderName}. Click to view.`;
+                } else {
+                    indicatorText = `You have ${totalUnreadMessages} new message${totalUnreadMessages > 1 ? 's' : ''}. Click to view.`;
+                }
+                
+                newMessageIndicator.textContent = indicatorText;
+                newMessageIndicator.style.display = 'block';
+            } else {
+                newMessageIndicator.style.display = 'none';
+            }
+        }
+
         function loadContacts(searchTerm = '') {
             console.log('[CONTACTS] Loading contacts. Current unreadCounts:', JSON.stringify(unreadCounts));
             const contactsRef = database.ref('users');
@@ -1336,6 +1406,7 @@
                 
                 if (!users) {
                     contactsList.innerHTML = '<div class="text-center p-3 text-muted">No contacts found</div>';
+                    updateNewMessageIndicator(); // Update indicator even if no contacts
                     return;
                 }
                 
@@ -1394,21 +1465,12 @@
                     
                     contactItem.addEventListener('click', () => {
                         console.log(`[CHAT] Contact ${phoneNumber} clicked. Previous unread count: ${unreadCounts[phoneNumber]}`);
-                        // When a contact is clicked, clear their unread count and start chat
-                        if (unreadCounts[phoneNumber]) {
-                            unreadCounts[phoneNumber] = 0; // Reset unread count
-                            console.log(`[CHAT] Reset unread count for ${phoneNumber} to 0.`);
-                            loadContacts(contactSearch.value.trim()); // Refresh contacts list to remove badge
-                        }
                         startChat(user);
                     });
                     
                     contactsList.appendChild(contactItem);
                 });
-                
-                if (contactsList.children.length === 0) {
-                    contactsList.innerHTML = '<div class="text-center p-3 text-muted">No contacts found matching your search.</div>';
-                }
+                updateNewMessageIndicator(); // Update indicator after all contacts are loaded
             });
         }
 
@@ -1423,17 +1485,38 @@
         });
 
         // Chat Screen
-        function startChat(contact) {
+        async function startChat(contact) { // Make it async
             currentChatWith = contact;
             console.log(`[CHAT] Chat initiated with contact: ${contact.name} (${contact.phoneNumber})`); 
             chatWithName.textContent = `${contact.name}`;
-            chatProfileLogo.textContent = getProfileIcon(contact.name); // Use getProfileIcon
+            chatProfileLogo.textContent = getProfileIcon(contact.name);
             
-            // Clear unread count for this contact when entering the chat
-            if (unreadCounts[contact.phoneNumber]) {
-                unreadCounts[contact.phoneNumber] = 0;
-                console.log(`[CHAT] Reset unread count for ${contact.phoneNumber} to 0 on chat entry.`);
-                loadContacts(contactSearch.value.trim()); // Refresh contacts list to remove unread badge
+            // Mark all unread messages from this contact as read in Firebase
+            const myPhoneNumber = currentUser.phoneNumber;
+            const theirPhoneNumber = contact.phoneNumber;
+            const chatId = [myPhoneNumber, theirPhoneNumber].sort().join('_');
+            const chatRef = database.ref(`chats/${chatId}`);
+
+            // Query for unread messages from this contact to the current user
+            const unreadMessagesQuery = chatRef
+                .orderByChild('receiver')
+                .equalTo(myPhoneNumber)
+                .once('value'); // Use once to get current state
+
+            const snapshot = await unreadMessagesQuery;
+            const updates = {};
+            snapshot.forEach(childSnapshot => {
+                const message = childSnapshot.val();
+                if (message.sender === theirPhoneNumber && !message.read) {
+                    updates[`${childSnapshot.key}/read`] = true;
+                }
+            });
+
+            if (Object.keys(updates).length > 0) {
+                console.log(`[CHAT] Marking ${Object.keys(updates).length} messages from ${theirPhoneNumber} as read.`);
+                await chatRef.update(updates);
+            } else {
+                console.log(`[CHAT] No unread messages from ${theirPhoneNumber} to mark as read.`);
             }
 
             // Set up listener for chat partner's online status and battery - this is real-time
@@ -1448,7 +1531,7 @@
                     
                     // Update opponent battery status in chat header
                     const batteryLevel = partner.batteryLevel;
-                    const batteryCharging = partner.batteryCharging;
+                    const batteryCharging = partner.charging; // Corrected to 'charging' from 'batteryCharging'
                     if (batteryLevel !== undefined) {
                         // Updated to include battery emoji for opponent
                         opponentBatteryStatus.textContent = `Battery: ${batteryLevel}% ${batteryCharging ? '⚡' : ''} ${getBatteryEmoji(batteryLevel)}`;
@@ -1459,7 +1542,7 @@
                     // Update opponent battery status in game if playing
                     if (gameActive && gameId) {
                         const batteryText = partner.batteryLevel !== undefined ? 
-                            `Battery: ${partner.batteryLevel}% ${partner.batteryCharging ? '⚡' : ''} ${getBatteryEmoji(partner.batteryLevel)}` : 
+                            `Battery: ${partner.batteryLevel}% ${partner.charging ? '⚡' : ''} ${getBatteryEmoji(partner.batteryLevel)}` : // Corrected to 'charging'
                             'Battery: Unknown';
                         playerOpponentBattery.textContent = batteryText;
                     }
@@ -1521,7 +1604,7 @@
             
             currentChatWith = null;
             chatMessages.innerHTML = ''; // Clear messages when leaving chat
-            loadContacts(contactSearch.value.trim()); // Refresh contacts list to ensure unread counts are updated if any
+            refreshUIForUnreadMessages(); // Refresh contacts list to ensure unread counts are updated if any
             clearReply(); // Clear any pending reply when leaving chat
         });
 
@@ -1596,19 +1679,8 @@
                                 database.ref(`chats/${chatId}/${messageKey}`).update({
                                     read: true
                                 });
-                            }
-                            
-                            // Handle unread counts and notifications for messages not from current user
-                            if (message.sender !== currentUser.phoneNumber) {
-                                // Only increment unread count if the user is NOT currently in the chat with the sender
-                                if (chatScreen.style.display === 'none' || (currentChatWith && currentChatWith.phoneNumber !== message.sender)) {
-                                    unreadCounts[message.sender] = (unreadCounts[message.sender] || 0) + 1;
-                                    console.log(`[UNREAD] Incremented unread count for ${message.sender}: ${unreadCounts[message.sender]}`);
-                                    
-                                    // Refresh contacts list to show the badge
-                                    loadContacts(contactSearch.value.trim()); 
-                                    console.log('[UNREAD] Called loadContacts to refresh UI after new message.');
-                                }
+                                // The global listener will handle decrementing the unread count for this sender
+                                // when the message's 'read' status changes in Firebase.
                             }
                         }, (error) => {
                             console.error("[MESSAGES] Firebase 'child_added' listener error:", error);
@@ -2437,7 +2509,7 @@
                 const opponent = snapshot.val();
                 if (opponent) {
                     const batteryText = opponent.batteryLevel !== undefined ? 
-                        `Battery: ${opponent.batteryLevel}% ${opponent.batteryCharging ? '⚡' : ''} ${getBatteryEmoji(opponent.batteryLevel)}` : 
+                        `Battery: ${opponent.batteryLevel}% ${opponent.charging ? '⚡' : ''} ${getBatteryEmoji(opponent.batteryLevel)}` : // Corrected to 'charging'
                         'Battery: Unknown';
                     playerOpponentBattery.textContent = batteryText;
                 }
@@ -2759,6 +2831,192 @@
             updateRegisterButtonState();
         });
 
+        // New function to refresh UI related to unread messages
+        function refreshUIForUnreadMessages() {
+            updateNewMessageIndicator();
+            loadContacts(contactSearch.value.trim()); // Re-render contacts to update badges
+        }
+
+        // --- Global Unread Message Listener ---
+        // Global map to store references to listeners for cleanup
+        // (Moved from global scope to inside setupGlobalUnreadListener for better encapsulation)
+        // let globalUnreadListeners = {};
+
+        async function setupGlobalUnreadListener() {
+            if (!currentUser) {
+                console.warn("setupGlobalUnreadListener: currentUser is null. Cannot set up global listener.");
+                return;
+            }
+
+            const myPhoneNumber = currentUser.phoneNumber;
+
+            // First, clear any existing global listeners to prevent duplicates on re-login
+            for (const chatId in globalUnreadListeners) {
+                if (globalUnreadListeners[chatId]) {
+                    // Turn off all listeners for this chat ID
+                    database.ref('chats/' + chatId).off('child_added', globalUnreadListeners[chatId].added);
+                    database.ref('chats/' + chatId).off('child_changed', globalUnreadListeners[chatId].changed);
+                    database.ref('chats/' + chatId).off('child_removed', globalUnreadListeners[chatId].removed);
+                    delete globalUnreadListeners[chatId];
+                }
+            }
+            console.log("[GLOBAL_UNREAD] Cleared existing global unread listeners.");
+
+            // Fetch all users to set up listeners for potential chat partners
+            const usersSnapshot = await database.ref('users').once('value');
+            const usersData = usersSnapshot.val();
+
+            if (!usersData) {
+                console.log("[GLOBAL_UNREAD] No other users found to set up chat listeners.");
+                return;
+            }
+
+            // Initialize unread counts and timestamps from existing unread messages
+            // This will be populated by the 'child_added' event for existing messages.
+            unreadCounts = {};
+            latestUnreadMessageTimestamps = {};
+
+            for (const otherPhoneNumber in usersData) {
+                if (otherPhoneNumber === myPhoneNumber) continue; // Skip self
+
+                const chatId = [myPhoneNumber, otherPhoneNumber].sort().join('_');
+                const chatRef = database.ref(`chats/${chatId}`);
+
+                // Listener for new messages (child_added)
+                const addedListener = chatRef.orderByChild('timestamp').on('child_added', (snapshot) => {
+                    const message = snapshot.val();
+                    // Check if the message is for the current user, is unread, and is from the other person
+                    // This listener will also fire for existing messages on initial setup.
+                    if (message.receiver === myPhoneNumber && !message.read && message.sender === otherPhoneNumber) {
+                        // Only increment if the user is not currently in this specific chat
+                        if (!currentChatWith || currentChatWith.phoneNumber !== otherPhoneNumber) {
+                            unreadCounts[otherPhoneNumber] = (unreadCounts[otherPhoneNumber] || 0) + 1;
+                            if (!latestUnreadMessageTimestamps[otherPhoneNumber] || message.timestamp > latestUnreadMessageTimestamps[otherPhoneNumber]) {
+                                latestUnreadMessageTimestamps[otherPhoneNumber] = message.timestamp;
+                            }
+                            console.log(`[GLOBAL_UNREAD] New unread message for ${myPhoneNumber} from ${otherPhoneNumber}. Count: ${unreadCounts[otherPhoneNumber]}`);
+                            refreshUIForUnreadMessages(); // Call unified refresh
+                        } else {
+                            // If we are in the chat with this sender, mark the message as read immediately
+                            if (!message.read) {
+                                database.ref(`chats/${chatId}/${snapshot.key}`).update({ read: true });
+                                console.log(`[GLOBAL_UNREAD] Message from ${otherPhoneNumber} marked as read because in chat.`);
+                                // This update will trigger 'child_changed', which will then call refreshUIForUnreadMessages
+                            }
+                        }
+                    }
+                }, (error) => {
+                    console.error(`[GLOBAL_UNREAD] Error listening to chat ${chatId} (child_added):`, error);
+                });
+
+                // Listener for message changes (child_changed)
+                const changedListener = chatRef.on('child_changed', (snapshot) => {
+                    const message = snapshot.val();
+                    const messageKey = snapshot.key;
+
+                    if (message.receiver === myPhoneNumber && message.read && message.sender === otherPhoneNumber) {
+                        if (unreadCounts[otherPhoneNumber] > 0) {
+                            unreadCounts[otherPhoneNumber]--;
+                            console.log(`[GLOBAL_UNREAD] Message from ${otherPhoneNumber} marked read. Count: ${unreadCounts[otherPhoneNumber]}`);
+                            // Re-evaluate latest timestamp if the one that became read was the latest
+                            if (latestUnreadMessageTimestamps[otherPhoneNumber] && message.timestamp === latestUnreadMessageTimestamps[otherPhoneNumber]) {
+                                recalculateUnreadCountForSender(otherPhoneNumber); // This already calls refreshUIForUnreadMessages
+                            } else {
+                                refreshUIForUnreadMessages(); // Call unified refresh
+                            }
+                        }
+                    } else if (message.deleted && message.receiver === myPhoneNumber) {
+                        recalculateUnreadCountForSender(otherPhoneNumber); // This already calls refreshUIForUnreadMessages
+                    }
+                }, (error) => {
+                    console.error(`[GLOBAL_UNREAD] Error listening to chat ${chatId} (child_changed):`, error);
+                });
+
+                // Listener for message removals (child_removed)
+                const removedListener = chatRef.on('child_removed', (snapshot) => {
+                    const message = snapshot.val();
+                    // If the removed message was an unread message for currentUser from this sender
+                    if (message.receiver === myPhoneNumber && !message.read && message.sender === otherPhoneNumber) {
+                        recalculateUnreadCountForSender(otherPhoneNumber); // This already calls refreshUIForUnreadMessages
+                    }
+                }, (error) => {
+                    console.error(`[GLOBAL_UNREAD] Error listening to chat ${chatId} (child_removed):`, error);
+                });
+
+                // Store listener references for cleanup
+                globalUnreadListeners[chatId] = {
+                    added: addedListener,
+                    changed: changedListener,
+                    removed: removedListener
+                };
+            }
+            console.log("[GLOBAL_UNREAD] Global unread listeners set up for all contacts.");
+        }
+
+        // Helper function to recalculate unread count and latest timestamp for a specific sender
+        async function recalculateUnreadCountForSender(senderPhoneNumber) {
+            if (!currentUser) return;
+            const myPhoneNumber = currentUser.phoneNumber;
+            const chatId = [myPhoneNumber, senderPhoneNumber].sort().join('_');
+            const chatRef = database.ref(`chats/${chatId}`);
+
+            let count = 0;
+            let latestTimestamp = 0;
+
+            const snapshot = await chatRef.orderByChild('timestamp').once('value');
+            snapshot.forEach(messageSnapshot => {
+                const message = messageSnapshot.val();
+                if (message.receiver === myPhoneNumber && !message.read && message.sender === senderPhoneNumber) {
+                    count++;
+                    if (message.timestamp > latestTimestamp) {
+                        latestTimestamp = message.timestamp;
+                    }
+                }
+            });
+
+            unreadCounts[senderPhoneNumber] = count;
+            if (count > 0) {
+                latestUnreadMessageTimestamps[senderPhoneNumber] = latestTimestamp;
+            } else {
+                delete latestUnreadMessageTimestamps[senderPhoneNumber];
+            }
+            refreshUIForUnreadMessages(); // Call unified refresh
+            console.log(`[GLOBAL_UNREAD] Recalculated unread count for ${senderPhoneNumber}: ${count}`);
+        }
+
+        // Click listener for the new message indicator
+        newMessageIndicator.addEventListener('click', async () => {
+            // Find the contact with the most recent unread message
+            let latestUnreadContact = null;
+            let latestUnreadTimestamp = 0;
+            let latestUnreadSenderPhoneNumber = null;
+
+            // Iterate through latestUnreadMessageTimestamps to find the overall latest
+            for (const phoneNumber in latestUnreadMessageTimestamps) {
+                if (latestUnreadMessageTimestamps[phoneNumber] > latestUnreadTimestamp) {
+                    latestUnreadTimestamp = latestUnreadMessageTimestamps[phoneNumber];
+                    latestUnreadSenderPhoneNumber = phoneNumber;
+                }
+            }
+
+            if (latestUnreadSenderPhoneNumber) {
+                // Fetch full user data for this phone number
+                const userSnapshot = await database.ref(`users/${latestUnreadSenderPhoneNumber}`).once('value');
+                if (userSnapshot.exists()) {
+                    latestUnreadContact = userSnapshot.val();
+                    startChat(latestUnreadContact); // This will handle marking messages as read and triggering UI refresh
+                } else {
+                    console.warn(`User data not found for ${latestUnreadSenderPhoneNumber}. Cannot start chat.`);
+                    // If contact invalid, force a UI refresh to hide the indicator if no other unread messages exist
+                    refreshUIForUnreadMessages();
+                }
+            } else {
+                // If no unread messages found, hide the indicator
+                refreshUIForUnreadMessages();
+                console.warn("New message indicator clicked but no unread messages found.");
+            }
+        });
+
 
         // Check if user is already registered on page load
         window.addEventListener('load', () => {
@@ -2771,7 +3029,8 @@
                 // they are on the correct device.
                 showContactsScreen();
                 monitorOnlineStatus();
-                listenForGameInvitations(); // Start listening for game invitations on load
+                listenForGameInvitations();
+                setupGlobalUnreadListener(); // Setup global unread listener on load
             } else {
                 registrationScreen.style.display = 'block';
             }
