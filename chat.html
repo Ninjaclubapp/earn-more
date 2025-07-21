@@ -667,6 +667,48 @@
             from { transform: translateY(50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        /* Mobile-specific styles */
+        @media (max-width: 576px) {
+            .chat-container {
+                margin: 0;
+                border-radius: 0;
+                height: 100vh;
+                max-width: 100%;
+            }
+            
+            .chat-messages {
+                height: calc(100vh - 200px);
+            }
+            
+            .context-menu {
+                min-width: 140px;
+                font-size: 0.9em;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            /* Adjust context menu position for mobile */
+            .message.received .context-menu {
+                left: 0;
+                right: auto;
+            }
+            
+            .message.sent .context-menu {
+                left: auto;
+                right: 0;
+            }
+            
+            /* Ensure context menu stays on screen */
+            .context-menu {
+                max-width: 180px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1898,37 +1940,35 @@
                 `;
             }
             contextMenu.innerHTML = menuHtml;
-            messageElement.appendChild(contextMenu);
+            
+            // Append to body instead of message element to avoid overflow issues
+            document.body.appendChild(contextMenu);
 
             // Position the context menu
-            const rect = messageElement.getBoundingClientRect();
-            // Calculate position to ensure it's within viewport and doesn't hide
-            let topPosition = rect.height + 5; // Default below message
-            let leftPosition = 0; // Default left aligned
-
+            const messageRect = messageElement.getBoundingClientRect();
+            const menuRect = contextMenu.getBoundingClientRect();
+            
+            // Calculate position to ensure it's within viewport
+            let topPosition = messageRect.bottom + window.scrollY;
+            let leftPosition = messageRect.left + window.scrollX;
+            
             // Check if menu would go off screen to the bottom
-            const menuHeightEstimate = 150; // Approximate height of the menu
-            if (rect.bottom + menuHeightEstimate > window.innerHeight) {
-                topPosition = -(menuHeightEstimate + 5); // Position above the message
+            if (topPosition + menuRect.height > window.innerHeight + window.scrollY) {
+                topPosition = messageRect.top + window.scrollY - menuRect.height - 5; // Position above the message
             }
-
+            
             // Check if menu would go off screen to the right (for received messages)
-            if (!messageElement.classList.contains('sent') && rect.left + contextMenu.offsetWidth > window.innerWidth) {
-                leftPosition = rect.width - contextMenu.offsetWidth; // Align to the right of the message
+            if (!messageElement.classList.contains('sent') && leftPosition + menuRect.width > window.innerWidth) {
+                leftPosition = window.innerWidth - menuRect.width - 5;
             }
+            
             // Check if menu would go off screen to the left (for sent messages)
-            if (messageElement.classList.contains('sent') && rect.right - contextMenu.offsetWidth < 0) {
-                leftPosition = -(rect.width - contextMenu.offsetWidth); // Align to the left of the message
+            if (messageElement.classList.contains('sent') && leftPosition < 0) {
+                leftPosition = 5;
             }
-
 
             contextMenu.style.top = `${topPosition}px`;
             contextMenu.style.left = `${leftPosition}px`;
-
-            if (messageElement.classList.contains('sent')) {
-                contextMenu.style.left = 'auto';
-                contextMenu.style.right = `${leftPosition}px`; // Adjust right for sent messages
-            }
 
             // Show the menu with a slight delay for animation
             setTimeout(() => {
@@ -1937,7 +1977,8 @@
 
             // Set up event listeners for menu buttons
             contextMenu.querySelector('#reply-message-btn').addEventListener('click', () => {
-                setReply(messageKey, messageText, messageElement.classList.contains('sent') ? currentUser.name : currentChatWith.name);
+                const senderName = messageElement.classList.contains('sent') ? currentUser.name : currentChatWith.name;
+                setReply(messageKey, messageText, senderName);
                 contextMenu.remove();
             });
 
@@ -1960,9 +2001,8 @@
 
             // Hide menu when clicking anywhere else
             const hideMenu = (e) => {
-                // Check if the click was outside the context menu and not on the message element itself
-                // Also ensure it's not a double click that just triggered the menu
-                if (!contextMenu.contains(e.target) && e.target !== messageElement && !messageElement.contains(e.target)) {
+                // Check if the click was outside the context menu
+                if (!contextMenu.contains(e.target)) {
                     contextMenu.remove();
                     document.removeEventListener('click', hideMenu);
                     document.removeEventListener('touchstart', hideMenu); // For mobile
@@ -2108,7 +2148,7 @@
             repliedToMessage = {
                 key: messageKey,
                 text: messageText,
-                senderName: senderName // Store sender name for display
+                senderName: senderName
             };
             replySenderName.textContent = senderName;
             replyMessageText.textContent = messageText;
@@ -2194,17 +2234,14 @@
 
             // Add repliedTo data if a message is being replied to
             if (repliedToMessage) {
-                // Fetch the actual sender's name of the replied-to message from Firebase
-                // This ensures we get the correct name even if it's the current user's own message
-                const senderSnapshot = await database.ref(`users/${repliedToMessage.sender === currentUser.phoneNumber ? currentUser.phoneNumber : currentChatWith.phoneNumber}`).once('value');
-                const senderData = senderSnapshot.val();
-                const actualSenderName = senderData ? senderData.name : 'Unknown';
-
+                // Determine the sender of the original message
+                const repliedToSender = repliedToMessage.senderName === currentUser.name ? currentUser.phoneNumber : currentChatWith.phoneNumber;
+                
                 messageData.repliedTo = {
                     key: repliedToMessage.key,
                     text: repliedToMessage.text,
-                    sender: repliedToMessage.sender, // Store sender phone number
-                    senderName: actualSenderName // Store sender name
+                    sender: repliedToSender,
+                    senderName: repliedToMessage.senderName
                 };
             }
 
