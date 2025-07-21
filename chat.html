@@ -373,31 +373,24 @@
 
         /* Context Menu Styles */
         .context-menu {
+            /* Removed top, left, transform properties as they are set by JS now */
             display: none;
-            position: absolute;
+            position: fixed; /* Changed to fixed for viewport positioning */
             background-color: #fff;
             border: 1px solid #ddd;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1001; /* Increased z-index to ensure visibility */
+            z-index: 1001; /* High z-index to ensure visibility */
             min-width: 120px;
             overflow: hidden;
-            top: 100%; /* Position below the message */
-            left: 0; /* Align with the message start */
-            transform: translateY(5px); /* Small offset */
             opacity: 0;
             transition: opacity 0.2s ease, transform 0.2s ease;
-        }
-
-        .message.sent .context-menu {
-            left: auto;
-            right: 0; /* Align with the message end for sent messages */
         }
 
         .context-menu.show {
             display: block;
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0); /* Keep this for the fade-in effect */
         }
 
         .context-menu button {
@@ -1121,7 +1114,7 @@
                         // Firebase has a device ID for this user
                         if (!localDeviceUUID || localDeviceUUID !== firebaseDeviceUUID) {
                             // Local device ID is missing or doesn't match Firebase's registered device ID
-                            registrationErrorFeedback.textContent = '🚨 Warning: Login attempt from another device or app data cleared. 🔐 Your privacy matters! 📞 Contact admin immediately for a quick solution. ✅';
+                            registrationErrorFeedback.textContent = '🚫 Login blocked! It seems you're using a new device or cleared app data. 🛡️ Your privacy comes first — contact admin immediately for quick help. 📞 Your chat is safe. ✅';
                             registrationErrorFeedback.style.display = 'block';
                             registrationErrorFeedback.classList.add('fade-in-animation');
                             console.error('Error: Device ID mismatch. Cannot log in from this device.');
@@ -1963,7 +1956,8 @@
             const messageElement = event.currentTarget;
             const contextMenu = document.createElement('div');
             contextMenu.className = 'context-menu';
-            
+            contextMenu.style.position = 'fixed'; // Ensure fixed positioning
+
             let menuHtml = `
                 <button id="reply-message-btn">Reply</button>
                 <button id="react-message-btn">React</button>
@@ -1976,42 +1970,39 @@
                 `;
             }
             contextMenu.innerHTML = menuHtml;
-            messageElement.appendChild(contextMenu);
+            document.body.appendChild(contextMenu); // Append to body
 
-            // Position the context menu
-            const rect = messageElement.getBoundingClientRect();
-            // Calculate position to ensure it's within viewport and doesn't hide
-            let topPosition = rect.height + 5; // Default below message
-            let leftPosition = 0; // Default left aligned
+            // Position the context menu based on click event
+            let x = event.clientX;
+            let y = event.clientY;
 
-            // Check if menu would go off screen to the bottom
-            const menuHeightEstimate = 150; // Approximate height of the menu
-            if (rect.bottom + menuHeightEstimate > window.innerHeight) {
-                topPosition = -(menuHeightEstimate + 5); // Position above the message
-            }
-
-            // Check if menu would go off screen to the right (for received messages)
-            if (!messageElement.classList.contains('sent') && rect.left + contextMenu.offsetWidth > window.innerWidth) {
-                leftPosition = rect.width - contextMenu.offsetWidth; // Align to the right of the message
-            }
-            // Check if menu would go off screen to the left (for sent messages)
-            if (messageElement.classList.contains('sent') && rect.right - contextMenu.offsetWidth < 0) {
-                leftPosition = -(rect.width - contextMenu.offsetWidth); // Align to the left of the message
-            }
-
-
-            contextMenu.style.top = `${topPosition}px`;
-            contextMenu.style.left = `${leftPosition}px`;
-
-            if (messageElement.classList.contains('sent')) {
-                contextMenu.style.left = 'auto';
-                contextMenu.style.right = `${leftPosition}px`; // Adjust right for sent messages
-            }
-
-            // Show the menu with a slight delay for animation
+            // Give the browser a moment to render the menu to get its dimensions
             setTimeout(() => {
+                const menuWidth = contextMenu.offsetWidth;
+                const menuHeight = contextMenu.offsetHeight;
+
+                // Adjust X position if it goes off the right edge
+                if (x + menuWidth > window.innerWidth) {
+                    x = window.innerWidth - menuWidth - 10; // 10px padding from right edge
+                }
+                // Adjust X position if it goes off the left edge (shouldn't happen with right-click but good for robustness)
+                if (x < 10) {
+                    x = 10; // 10px padding from left edge
+                }
+
+                // Adjust Y position if it goes off the bottom edge
+                if (y + menuHeight > window.innerHeight) {
+                    y = window.innerHeight - menuHeight - 10; // 10px padding from bottom edge
+                }
+                // Adjust Y position if it goes off the top edge
+                if (y < 10) {
+                    y = 10; // 10px padding from top edge
+                }
+
+                contextMenu.style.left = `${x}px`;
+                contextMenu.style.top = `${y}px`;
                 contextMenu.classList.add('show');
-            }, 10);
+            }, 10); // Small delay to allow menu dimensions to be calculated
 
             // Set up event listeners for menu buttons
             contextMenu.querySelector('#reply-message-btn').addEventListener('click', () => {
@@ -2038,9 +2029,8 @@
 
             // Hide menu when clicking anywhere else
             const hideMenu = (e) => {
-                // Check if the click was outside the context menu and not on the message element itself
-                // Also ensure it's not a double click that just triggered the menu
-                if (!contextMenu.contains(e.target) && e.target !== messageElement && !messageElement.contains(e.target)) {
+                // Check if the click was outside the context menu
+                if (!contextMenu.contains(e.target)) {
                     contextMenu.remove();
                     document.removeEventListener('click', hideMenu);
                     document.removeEventListener('touchstart', hideMenu); // For mobile
