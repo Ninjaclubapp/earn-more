@@ -15,11 +15,12 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            padding-top: 20px; /* Added padding to the body for overall spacing from top */
         }
         .chat-container {
             max-width: 600px;
             width: 100%;
-            margin: 20px auto;
+            margin: 0 auto; /* Changed top margin to 0 */
             border: 1px solid #ddd;
             border-radius: 15px;
             overflow: hidden;
@@ -1114,7 +1115,7 @@
                         // Firebase has a device ID for this user
                         if (!localDeviceUUID || localDeviceUUID !== firebaseDeviceUUID) {
                             // Local device ID is missing or doesn't match Firebase's registered device ID
-                            registrationErrorFeedback.textContent = 'You can only log in from the device you registered with.';
+                            registrationErrorFeedback.textContent = '🚫 Login blocked! It seems you're using a new device or cleared app data. 🛡️ Your privacy comes first — contact admin immediately at 📞 8486105725 for quick help. Your chat is safe. ✅';
                             registrationErrorFeedback.style.display = 'block';
                             registrationErrorFeedback.classList.add('fade-in-animation');
                             console.error('Error: Device ID mismatch. Cannot log in from this device.');
