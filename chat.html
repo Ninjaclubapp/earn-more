@@ -9,13 +9,13 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
+            /* Enhanced background for aesthetic appeal */
+            background: radial-gradient(circle at top left, #e0eafc, #cfdef3);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            /* Removed padding-top to prevent gap on mobile and ensure full screen fit */
         }
         .chat-container {
             max-width: 600px;
@@ -299,6 +299,7 @@
             height: 35px;
             font-size: 1em;
             margin-right: 10px; /* Adjust margin as needed */
+            cursor: pointer; /* Make it clickable */
         }
         .chat-header .d-flex {
             align-items: center;
@@ -623,10 +624,14 @@
 
         /* Professional Registration Page Styles */
         #registration-screen {
-            background: linear-gradient(135deg, #f0f2f5 0%, #e0e6ed 100%);
+            /* Enhanced background for the card itself */
+            background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            /* Increased shadow for more depth */
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            /* Added a subtle border */
+            border: 1px solid #e0e0e0;
             animation: slideInUp 0.6s ease-out;
         }
         #registration-screen .chat-header {
@@ -652,26 +657,27 @@
             border: 1px solid #ced4da;
             padding: 12px 18px;
             font-size: 1.05em;
-            border-radius: 10px; /* More rounded than default pills */
+            border-radius: 12px; /* Slightly more rounded inputs */
             transition: all 0.3s ease;
         }
         #registration-screen .form-control:focus {
             border-color: #0d6efd;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25), 0 2px 8px rgba(0, 123, 255, 0.1); /* Added subtle shadow on focus */
         }
         #registration-screen .btn-primary {
-            background: linear-gradient(90deg, #0d6efd, #00aaff);
+            /* More vibrant gradient for the button */
+            background: linear-gradient(90deg, #007bff, #00c6ff);
             border: none;
             padding: 12px 25px;
             font-size: 1.1em;
             font-weight: 600;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+            border-radius: 12px; /* Consistent rounded corners */
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3); /* Stronger initial shadow */
             transition: all 0.3s ease;
         }
         #registration-screen .btn-primary:hover {
-            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
-            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4); /* Enhanced hover shadow */
+            transform: translateY(-3px); /* More pronounced lift on hover */
         }
         #registration-screen .text-danger {
             font-size: 0.9em;
@@ -688,6 +694,54 @@
         @keyframes slideInUp {
             from { transform: translateY(50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Settings button in contacts screen */
+        #contacts-screen .chat-header .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        #contacts-screen .chat-header .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        /* Bio Modal specific styles */
+        #bio-modal .modal-content {
+            text-align: left;
+            padding: 25px;
+        }
+        #bio-modal .modal-header {
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        #bio-modal .modal-body {
+            font-size: 1em;
+            line-height: 1.5;
+            color: #444;
+            text-align: left;
+            word-wrap: break-word; /* Ensure long bios wrap */
+            white-space: pre-wrap; /* Preserve formatting like newlines */
+            max-height: 300px; /* Limit height for long bios */
+            overflow-y: auto; /* Add scroll if bio is too long */
+        }
+        #bio-modal .modal-body.no-bio {
+            font-style: italic;
+            color: #888;
+        }
+        #bio-modal .modal-footer {
+            justify-content: flex-end;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -766,6 +820,43 @@
             </div>
         </div>
     </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Settings</span>
+                <span class="close-modal-btn" id="close-settings-modal-btn">&times;</span>
+            </div>
+            <div class="modal-body text-start">
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="hide-number-switch">
+                    <label class="form-check-label" for="hide-number-switch">Hide My Phone Number</label>
+                </div>
+                <div class="mb-3">
+                    <label for="user-bio-settings" class="form-label">Your Bio</label>
+                    <textarea class="form-control" id="user-bio-settings" rows="3" placeholder="Tell others about yourself..."></textarea>
+                </div>
+                <button id="save-settings-btn" class="btn btn-primary w-100">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bio Display Modal -->
+    <div id="bio-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="bio-modal-user-name"></span>
+                <span class="close-modal-btn" id="close-bio-modal-btn">&times;</span>
+            </div>
+            <div class="modal-body" id="bio-modal-content">
+                <!-- Bio content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="close-bio-modal-footer-btn">Close</button>
+            </div>
+        </div>
+    </div>
     
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
 
@@ -784,6 +875,10 @@
                     <label for="user-name" class="form-label">Your Name</label>
                     <input type="text" class="form-control rounded-pill" id="user-name" placeholder="Enter your name">
                 </div>
+                <div class="mb-3">
+                    <label for="user-bio" class="form-label">Your Bio (Optional)</label>
+                    <textarea class="form-control rounded-pill" id="user-bio" rows="2" placeholder="Tell others about yourself..."></textarea>
+                </div>
                 <button id="register-btn" class="btn btn-primary w-100 rounded-pill">Register</button>
                 <div id="connecting-message" class="connecting-message" style="display: none;">
                     Connecting... Please wait.
@@ -795,10 +890,7 @@
         <div id="contacts-screen" class="chat-container" style="display: none;">
             <div class="chat-header d-flex justify-content-between align-items-center">
                 <h5>Contacts</h5>
-                <div class="status-info">
-                    <!-- Removed current user's network status -->
-                    <span id="battery-status">Battery: ?</span>
-                </div>
+                <button id="settings-btn" class="btn btn-secondary">Settings</button>
             </div>
             <div class="p-3">
                 <!-- New Message Indicator -->
@@ -874,6 +966,7 @@
         const registerBtn = document.getElementById('register-btn');
         const phoneNumberInput = document.getElementById('phone-number');
         const userNameInput = document.getElementById('user-name');
+        const userBioInput = document.getElementById('user-bio'); // New: Bio input on registration
         const contactsList = document.getElementById('contacts-list');
         const contactSearch = document.getElementById('contact-search');
         const searchBtn = document.getElementById('search-btn');
@@ -911,6 +1004,22 @@
         const emojiGrid = document.getElementById('emoji-grid');
         let currentMessageKeyForReaction = null; // Stores the key of the message to react to
 
+        // Settings Modal Elements
+        const settingsBtn = document.getElementById('settings-btn'); // New: Settings button
+        const settingsModal = document.getElementById('settings-modal'); // New: Settings modal
+        const closeSettingsModalBtn = document.getElementById('close-settings-modal-btn'); // New: Close settings modal button
+        const hideNumberSwitch = document.getElementById('hide-number-switch'); // New: Hide number switch
+        const userBioSettings = document.getElementById('user-bio-settings'); // New: Bio input in settings
+        const saveSettingsBtn = document.getElementById('save-settings-btn'); // New: Save settings button
+
+        // Bio Display Modal Elements
+        const bioModal = document.getElementById('bio-modal'); // New: Bio display modal
+        const closeBioModalBtn = document.getElementById('close-bio-modal-btn'); // New: Close bio modal button
+        const bioModalUserName = document.getElementById('bio-modal-user-name'); // New: User name in bio modal
+        const bioModalContent = document.getElementById('bio-modal-content'); // New: Bio content in bio modal
+        const closeBioModalFooterBtn = document.getElementById('close-bio-modal-footer-btn'); // New: Close bio modal button in footer
+
+
         // Game specific DOM elements
         const playGameBtn = document.getElementById('play-game-btn'); // This button is no longer in contacts-screen
         const playGameInChatBtn = document.getElementById('play-game-in-chat-btn');
@@ -940,7 +1049,7 @@
 
         // App State
         let currentUser = null;
-        let currentChatWith = null;
+        let currentChatWith = null; // Stores the full user object of the current chat partner
         let unreadCounts = {}; // Object to store unread message counts per contact (just count)
         let latestUnreadMessageTimestamps = {}; // Stores latest unread timestamp per contact
         let messageListeners = {}; // Stores references to Firebase listeners for messages
@@ -962,7 +1071,7 @@
         const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F3'];
 
         // Common Emojis for the picker
-        const commonEmojis = ['👍', '❤️', '😂', '😢', '😡', '👏', '🔥', '💯'];
+        const commonEmojis = ['👍', '❤️', '😂', '😢', '😡', '👏', '�', '💯'];
 
         // Helper to format timestamp to a readable last seen string
         function formatLastSeen(timestamp) {
@@ -1071,6 +1180,7 @@
         registerBtn.addEventListener('click', async () => { // Made async
             const phoneNumber = phoneNumberInput.value.trim();
             const userName = userNameInput.value.trim();
+            const userBio = userBioInput.value.trim(); // Get bio from input
             
             // Clear previous error messages
             phoneNumberFeedback.style.display = 'none';
@@ -1144,6 +1254,11 @@
                     if (batteryMonitor) {
                         updateUserBatteryStatus(batteryMonitor);
                     }
+                    // Update bio if provided during login, and hidePhoneNumber if it's missing or needs default
+                    database.ref('users/' + phoneNumber).update({
+                        bio: userBio || existingUser.bio || '', // Keep existing bio if not provided, else empty string
+                        hidePhoneNumber: existingUser.hidePhoneNumber !== undefined ? existingUser.hidePhoneNumber : false // Default to false if not set
+                    });
 
                 } else {
                     // User does not exist, proceed with new registration
@@ -1155,7 +1270,9 @@
                         lastSeen: firebase.database.ServerValue.TIMESTAMP,
                         online: true,
                         batteryLevel: 0,
-                        batteryCharging: false
+                        batteryCharging: false,
+                        hidePhoneNumber: false, // Default to false for new users
+                        bio: userBio || '' // Save bio for new users
                     });
 
                     currentUser = { phoneNumber, name: userName };
@@ -1441,6 +1558,9 @@
                     } else {
                         console.log(`[CONTACTS] User ${phoneNumber}: No unread messages.`);
                     }
+
+                    // Determine if phone number should be hidden
+                    const displayPhoneNumber = user.hidePhoneNumber ? 'Number Hidden' : user.phoneNumber;
                     
                     // Modified structure to place status below phone number
                     contactItem.innerHTML = `
@@ -1448,7 +1568,7 @@
                             <div class="profile-logo">${profileIcon}</div>
                             <div>
                                 <strong>${user.name}</strong>
-                                <div class="text-muted small">${user.phoneNumber}</div>
+                                <div class="text-muted small">${displayPhoneNumber}</div>
                                 <div class="text-end">
                                     <span class="badge ${statusBadgeClass}">${statusText}</span>
                                     ${unreadBadge}
@@ -2642,7 +2762,7 @@
                         
                         let message = `Game over! Final score - You: ${yourScore}, ${currentChatWith.name}: ${opponentScore}`;
                         if (yourScore > opponentScore) {
-                            message += " - You win! �";
+                            message += " - You win! 🎉";
                         } else if (yourScore < opponentScore) {
                             message += " - You lose! 😢";
                         } else {
@@ -2772,10 +2892,12 @@
 
         // Close the modal if the user clicks outside of it
         window.addEventListener('click', (event) => {
-            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal) {
+            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal || event.target == settingsModal || event.target == bioModal) {
                 confirmationModal.style.display = 'none';
                 emojiPickerModal.style.display = 'none';
                 editMessageModal.style.display = 'none';
+                settingsModal.style.display = 'none';
+                bioModal.style.display = 'none';
             }
         });
 
@@ -3007,20 +3129,98 @@
             }
         });
 
+        // --- Settings Modal Logic ---
+        settingsBtn.addEventListener('click', async () => {
+            if (!currentUser) {
+                console.warn("Cannot open settings: currentUser is null.");
+                return;
+            }
+            // Fetch current user's settings to populate the modal
+            const userSnapshot = await database.ref(`users/${currentUser.phoneNumber}`).once('value');
+            const userData = userSnapshot.val();
+            if (userData) {
+                hideNumberSwitch.checked = userData.hidePhoneNumber || false;
+                userBioSettings.value = userData.bio || '';
+            }
+            settingsModal.style.display = 'flex';
+        });
+
+        closeSettingsModalBtn.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+        });
+
+        saveSettingsBtn.addEventListener('click', async () => {
+            if (!currentUser) {
+                console.warn("Cannot save settings: currentUser is null.");
+                return;
+            }
+            const newHidePhoneNumber = hideNumberSwitch.checked;
+            const newBio = userBioSettings.value.trim();
+
+            try {
+                await database.ref(`users/${currentUser.phoneNumber}`).update({
+                    hidePhoneNumber: newHidePhoneNumber,
+                    bio: newBio
+                });
+                console.log("Settings saved successfully!");
+                settingsModal.style.display = 'none';
+                // Update current user object in local storage and memory
+                currentUser.hidePhoneNumber = newHidePhoneNumber;
+                currentUser.bio = newBio;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                refreshUIForUnreadMessages(); // Re-load contacts to reflect phone number visibility change
+            } catch (error) {
+                console.error("Error saving settings:", error);
+            }
+        });
+
+        // --- Bio Display Modal Logic ---
+        chatProfileLogo.addEventListener('click', () => {
+            if (!currentChatWith) {
+                console.warn("No chat partner selected to display bio.");
+                return;
+            }
+            bioModalUserName.textContent = currentChatWith.name;
+            if (currentChatWith.bio) {
+                bioModalContent.textContent = currentChatWith.bio;
+                bioModalContent.classList.remove('no-bio');
+            } else {
+                bioModalContent.textContent = `${currentChatWith.name} has not set a bio yet.`;
+                bioModalContent.classList.add('no-bio');
+            }
+            bioModal.style.display = 'flex';
+        });
+
+        closeBioModalBtn.addEventListener('click', () => {
+            bioModal.style.display = 'none';
+        });
+
+        closeBioModalFooterBtn.addEventListener('click', () => {
+            bioModal.style.display = 'none';
+        });
+
 
         // Check if user is already registered on page load
         window.addEventListener('load', () => {
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
-                // On load, if a user is saved, we don't re-check deviceUUID here,
-                // as the check happens during the explicit 'Register' button click.
-                // The assumption is if they are already "logged in" via localStorage,
-                // they are on the correct device.
-                showContactsScreen();
-                monitorOnlineStatus();
-                listenForGameInvitations();
-                setupGlobalUnreadListener(); // Setup global unread listener on load
+                // On load, fetch the full user data to get hidePhoneNumber and bio
+                database.ref('users/' + currentUser.phoneNumber).once('value').then(snapshot => {
+                    const userData = snapshot.val();
+                    if (userData) {
+                        currentUser = { ...currentUser, ...userData }; // Merge with existing data
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Update local storage
+                    }
+                    showContactsScreen();
+                    monitorOnlineStatus();
+                    listenForGameInvitations();
+                    setupGlobalUnreadListener(); // Setup global unread listener on load
+                }).catch(error => {
+                    console.error("Error fetching user data on load:", error);
+                    // Fallback to showing registration if data fetch fails
+                    registrationScreen.style.display = 'block';
+                });
             } else {
                 registrationScreen.style.display = 'block';
             }
