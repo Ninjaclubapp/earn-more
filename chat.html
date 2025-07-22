@@ -1040,17 +1040,17 @@
 
         // Function to determine battery emoji and status text
         function getBatteryEmoji(level) {
-            if (level >= 90) return 'Full 🔋';
-            if (level >= 60) return 'Charging 🔋';
-            if (level >= 30) return 'Half 🔋';
-            if (level >= 10) return 'Low 🔋';
-            return 'Empty 🔋';
+            if (level >= 90) return '🔋';
+            if (level >= 60) return '🔋';
+            if (level >= 30) return '🔋';
+            if (level >= 10) return '🔋';
+            return '�';
         }
 
         function updateBatteryDisplay(battery) {
             const level = Math.round(battery.level * 100);
             const charging = battery.charging ? "⚡" : "";
-            // Updated to include battery emoji
+            // Updated to include battery emoji, removed "Charging" word
             batteryStatus.textContent = `Battery: ${level}% ${charging} ${getBatteryEmoji(level)}`;
         }
 
@@ -1115,7 +1115,7 @@
                         // Firebase has a device ID for this user
                         if (!localDeviceUUID || localDeviceUUID !== firebaseDeviceUUID) {
                             // Local device ID is missing or doesn't match Firebase's registered device ID
-                            registrationErrorFeedback.textContent = 'You can only log in from the device you registered with.';
+                            registrationErrorFeedback.textContent = '🚫 Login blocked! It seems you\'re using a new device or cleared app data. 🛡️ Your privacy comes first — contact admin immediately at 📞 8486105725 for quick help. Your chat is safe. ✅';
                             registrationErrorFeedback.style.display = 'block';
                             registrationErrorFeedback.classList.add('fade-in-animation');
                             console.error('Error: Device ID mismatch. Cannot log in from this device.');
