@@ -15,12 +15,12 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding-top: 20px; /* Added padding to the body for overall spacing from top */
+            /* Removed padding-top to prevent gap on mobile and ensure full screen fit */
         }
         .chat-container {
             max-width: 600px;
-            width: 100%;
-            margin: 0 auto; /* Changed top margin to 0 */
+            width: 100%; /* Ensure it takes full width on smaller screens */
+            margin: 0 auto;
             border: 1px solid #ddd;
             border-radius: 15px;
             overflow: hidden;
@@ -1044,7 +1044,7 @@
             if (level >= 60) return '🔋';
             if (level >= 30) return '🔋';
             if (level >= 10) return '🔋';
-            return '�';
+            return '🔋';
         }
 
         function updateBatteryDisplay(battery) {
@@ -2007,7 +2007,9 @@
 
             // Set up event listeners for menu buttons
             contextMenu.querySelector('#reply-message-btn').addEventListener('click', () => {
-                setReply(messageKey, messageText, messageElement.classList.contains('sent') ? currentUser.name : currentChatWith.name);
+                // Determine the actual sender's phone number for the message being replied to
+                const originalMessageSenderPhoneNumber = isMyMessage ? currentUser.phoneNumber : currentChatWith.phoneNumber;
+                setReply(messageKey, messageText, originalMessageSenderPhoneNumber, messageElement.classList.contains('sent') ? currentUser.name : currentChatWith.name);
                 contextMenu.remove();
             });
 
@@ -2173,13 +2175,15 @@
         });
 
         // --- Reply Feature Functions ---
-        function setReply(messageKey, messageText, senderName) {
+        // Modified setReply to store sender's phone number as well
+        function setReply(messageKey, messageText, senderPhoneNumber, senderDisplayName) {
             repliedToMessage = {
                 key: messageKey,
                 text: messageText,
-                senderName: senderName // Store sender name for display
+                sender: senderPhoneNumber, // Store the sender's phone number
+                senderName: senderDisplayName // Store sender name for display
             };
-            replySenderName.textContent = senderName;
+            replySenderName.textContent = senderDisplayName;
             replyMessageText.textContent = messageText;
             replyPreview.style.display = 'flex';
             messageInput.focus(); // Focus input for user to type reply
@@ -2263,17 +2267,12 @@
 
             // Add repliedTo data if a message is being replied to
             if (repliedToMessage) {
-                // Fetch the actual sender's name of the replied-to message from Firebase
-                // This ensures we get the correct name even if it's the current user's own message
-                const senderSnapshot = await database.ref(`users/${repliedToMessage.sender === currentUser.phoneNumber ? currentUser.phoneNumber : currentChatWith.phoneNumber}`).once('value');
-                const senderData = senderSnapshot.val();
-                const actualSenderName = senderData ? senderData.name : 'Unknown';
-
+                // Use the information already stored in repliedToMessage
                 messageData.repliedTo = {
                     key: repliedToMessage.key,
                     text: repliedToMessage.text,
-                    sender: repliedToMessage.sender, // Store sender phone number
-                    senderName: actualSenderName // Store sender name
+                    sender: repliedToMessage.sender, // This is the phone number
+                    senderName: repliedToMessage.senderName // This is the display name
                 };
             }
 
@@ -2643,7 +2642,7 @@
                         
                         let message = `Game over! Final score - You: ${yourScore}, ${currentChatWith.name}: ${opponentScore}`;
                         if (yourScore > opponentScore) {
-                            message += " - You win! 🎉";
+                            message += " - You win! �";
                         } else if (yourScore < opponentScore) {
                             message += " - You lose! 😢";
                         } else {
