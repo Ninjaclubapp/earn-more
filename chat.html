@@ -1601,87 +1601,104 @@
             }
         }
 
+        // MODIFIED: This function now sorts contacts with unread messages to the top.
         function loadContacts(searchTerm = '') {
-            console.log('[CONTACTS] Loading contacts. Current unreadCounts:', JSON.stringify(unreadCounts));
+            console.log('[CONTACTS] Loading contacts. Unread counts:', JSON.stringify(unreadCounts), 'Timestamps:', JSON.stringify(latestUnreadMessageTimestamps));
             const contactsRef = database.ref('users');
-            
-            // This listener ensures real-time updates for the contacts list
+
             contactsRef.on('value', (snapshot) => {
                 contactsList.innerHTML = '';
                 const users = snapshot.val();
-                
+
                 if (!users) {
                     contactsList.innerHTML = '<div class="text-center p-3 text-muted">No contacts found</div>';
-                    updateNewMessageIndicator(); // Update indicator even if no contacts
+                    updateNewMessageIndicator();
                     return;
                 }
-                
-                Object.keys(users).forEach(phoneNumber => {
-                    if (phoneNumber === currentUser.phoneNumber) return; // Don't list self
-                    
-                    const user = users[phoneNumber];
-                    
-                    if (searchTerm && 
-                        !user.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
-                        !user.phoneNumber.includes(searchTerm)) {
-                        return;
-                    }
-                    
-                    const contactItem = document.createElement('div');
-                    contactItem.className = 'contact-item';
-                    
-                    let statusText = '';
-                    let statusBadgeClass = 'bg-secondary';
-                    if (user.online) {
-                        statusText = 'Online';
-                        statusBadgeClass = 'bg-success';
-                    } else {
-                        statusText = `Last seen: ${formatLastSeen(user.lastSeen)}`;
-                    }
 
-                    const profileIcon = getProfileIcon(user.name); // Use getProfileIcon
-                    
-                    const unreadCount = unreadCounts[phoneNumber] || 0;
-                    let unreadBadge = '';
-                    if (unreadCount > 0) {
-                        if (unreadCount === 1) {
-                            unreadBadge = `<span class="unread-dot"></span>`;
-                        } else {
-                            unreadBadge = `<span class="unread-count">${unreadCount}</span>`;
+                // Convert users object to an array and filter out the current user
+                const userArray = Object.values(users).filter(user => user.phoneNumber !== currentUser.phoneNumber);
+
+                // Sort the array based on unread status and message timestamp
+                userArray.sort((a, b) => {
+                    const unreadA = unreadCounts[a.phoneNumber] || 0;
+                    const unreadB = unreadCounts[b.phoneNumber] || 0;
+                    const timestampA = latestUnreadMessageTimestamps[a.phoneNumber] || 0;
+                    const timestampB = latestUnreadMessageTimestamps[b.phoneNumber] || 0;
+
+                    // Prioritize users with unread messages
+                    if (unreadA > 0 && unreadB === 0) return -1;
+                    if (unreadB > 0 && unreadA === 0) return 1;
+
+                    // If both have unread messages, sort by the latest message timestamp (descending)
+                    if (unreadA > 0 && unreadB > 0) {
+                        if (timestampA !== timestampB) {
+                            return timestampB - timestampA;
                         }
-                        console.log(`[CONTACTS] User ${phoneNumber}: Unread count is ${unreadCount}, adding badge: ${unreadBadge}`);
-                    } else {
-                        console.log(`[CONTACTS] User ${phoneNumber}: No unread messages.`);
                     }
-
-                    // Determine if phone number should be hidden
-                    const displayPhoneNumber = user.hidePhoneNumber ? 'Number Hidden' : user.phoneNumber;
                     
-                    // Modified structure to place status below phone number
-                    contactItem.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <div class="profile-logo">${profileIcon}</div>
-                            <div>
-                                <strong>${user.name}</strong>
-                                <div class="text-muted small">${displayPhoneNumber}</div>
-                                <div class="text-end">
-                                    <span class="badge ${statusBadgeClass}">${statusText}</span>
-                                    ${unreadBadge}
+                    // If neither has unread messages, or timestamps are the same, sort by name (ascending)
+                    return a.name.localeCompare(b.name);
+                });
+
+                // Filter based on search term after sorting
+                const filteredAndSortedUsers = userArray.filter(user => {
+                    if (!searchTerm) return true;
+                    return user.name.toLowerCase().includes(searchTerm.toLowerCase()) || user.phoneNumber.includes(searchTerm);
+                });
+
+                if (filteredAndSortedUsers.length === 0) {
+                    contactsList.innerHTML = '<div class="text-center p-3 text-muted">No contacts match your search</div>';
+                } else {
+                    filteredAndSortedUsers.forEach(user => {
+                        const contactItem = document.createElement('div');
+                        contactItem.className = 'contact-item';
+
+                        let statusText = '';
+                        let statusBadgeClass = 'bg-secondary';
+                        if (user.online) {
+                            statusText = 'Online';
+                            statusBadgeClass = 'bg-success';
+                        } else {
+                            statusText = `Last seen: ${formatLastSeen(user.lastSeen)}`;
+                        }
+
+                        const profileIcon = getProfileIcon(user.name);
+                        
+                        const unreadCount = unreadCounts[user.phoneNumber] || 0;
+                        let unreadBadge = '';
+                        if (unreadCount > 0) {
+                             unreadBadge = `<span class="unread-count">${unreadCount}</span>`;
+                        }
+
+                        const displayPhoneNumber = user.hidePhoneNumber ? 'Number Hidden' : user.phoneNumber;
+                        
+                        // Using a clearer flexbox layout for the contact item
+                        contactItem.innerHTML = `
+                            <div class="d-flex align-items-center">
+                                <div class="profile-logo">${profileIcon}</div>
+                                <div class="ms-3">
+                                    <strong class="d-block">${user.name}</strong>
+                                    <small class="text-muted">${displayPhoneNumber}</small>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                    
-                    contactItem.addEventListener('click', () => {
-                        console.log(`[CHAT] Contact ${phoneNumber} clicked. Previous unread count: ${unreadCounts[phoneNumber]}`);
-                        startChat(user);
+                            <div class="text-end">
+                                <small class="badge ${statusBadgeClass}">${statusText}</small>
+                                ${unreadBadge ? `<div class="mt-1">${unreadBadge}</div>` : ''}
+                            </div>
+                        `;
+                        
+                        contactItem.addEventListener('click', () => {
+                            startChat(user);
+                        });
+                        
+                        contactsList.appendChild(contactItem);
                     });
-                    
-                    contactsList.appendChild(contactItem);
-                });
-                updateNewMessageIndicator(); // Update indicator after all contacts are loaded
+                }
+                updateNewMessageIndicator();
             });
         }
+
 
         searchBtn.addEventListener('click', () => {
             console.log('[SEARCH] Search button clicked. Term:', contactSearch.value.trim());
@@ -1690,7 +1707,7 @@
         
         contactSearch.addEventListener('input', () => {
             // Optional: Live search as user types
-            // loadContacts(contactSearch.value.trim()); 
+            loadContacts(contactSearch.value.trim()); 
         });
 
         // Chat Screen
