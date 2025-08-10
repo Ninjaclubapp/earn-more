@@ -586,6 +586,26 @@
             border-radius: 10px;
         }
 
+        /* Charging Alert Style */
+        .charging-alert {
+            background-color: #fff3cd;
+            color: #664d03;
+            padding: 10px 15px;
+            border: 1px solid #ffecb5;
+            border-radius: 8px;
+            margin: 0 0 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+        .charging-alert .btn-close {
+            padding: 0;
+            width: 1em;
+            height: 1em;
+            font-size: 1em;
+        }
+
         /* Removed all @keyframes and animation properties for performance */
         @keyframes pop {
             0% { transform: scale(0); opacity: 0; }
@@ -957,8 +977,7 @@
                     <button id="report-user-btn" class="btn btn-sm btn-danger rounded-pill ms-2">Report</button>
                 </div>
                 <div class="status-info">
-                    <!-- Removed current user's network status from chat header -->
-                    <span id="opponent-battery-status">Battery: ?</span>
+                    <span id="opponent-battery-status"></span>
                 </div>
             </div>
             <div id="chat-messages" class="chat-messages">
@@ -1233,7 +1252,7 @@
         function getBatteryEmoji(level) {
             if (level >= 90) return '🔋';
             if (level >= 60) return '🔋';
-            if (level >= 30) return '�';
+            if (level >= 30) return '🔋';
             if (level >= 10) return '🔋';
             return '🪫';
         }
@@ -1719,19 +1738,47 @@
                         chatWithStatus.textContent = `Last seen: ${formatLastSeen(partner.lastSeen)}`;
                     }
                     
-                    // Update opponent battery status in chat header
-                    let batteryText = 'Battery: ?';
-                    if (partner.batteryCharging) {
-                        batteryText = 'Charging. Avoid using phone.';
-                    } else if (partner.batteryLevel !== undefined) {
-                        batteryText = `Battery: ${partner.batteryLevel}% ${getBatteryEmoji(partner.batteryLevel)}`;
+                    // 1. Always display battery level and icon in the header
+                    let batteryHeaderText = '?';
+                    if (partner.batteryLevel !== undefined) {
+                        batteryHeaderText = `${getBatteryEmoji(partner.batteryLevel)} ${partner.batteryLevel}%`;
                     }
-                    opponentBatteryStatus.textContent = batteryText;
+                    opponentBatteryStatus.textContent = batteryHeaderText;
 
+                    // 2. Manage the dismissible charging alert inside the chat messages area
+                    const existingAlert = document.getElementById('charging-alert-banner');
+                    if (partner.batteryCharging) {
+                        // If the alert doesn't exist, create and prepend it
+                        if (!existingAlert) {
+                            const alertDiv = document.createElement('div');
+                            alertDiv.id = 'charging-alert-banner';
+                            alertDiv.className = 'charging-alert';
+                            alertDiv.innerHTML = `
+                                <span>${contact.name} is charging their phone. Avoid using phone for safety.</span>
+                                <button type="button" class="btn-close" aria-label="Close"></button>
+                            `;
+                            chatMessages.prepend(alertDiv);
+                            
+                            alertDiv.querySelector('.btn-close').addEventListener('click', (e) => {
+                                e.currentTarget.parentElement.remove();
+                            });
+                        }
+                    } else {
+                        // If the user is not charging, remove any existing alert
+                        if (existingAlert) {
+                            existingAlert.remove();
+                        }
+                    }
 
-                    // Update opponent battery status in game if playing
+                    // 3. Update opponent battery status in game if playing
                     if (gameActive && gameId) {
-                        playerOpponentBattery.textContent = batteryText;
+                        let gameBatteryText = 'Battery: Unknown';
+                        if (partner.batteryLevel !== undefined) {
+                            gameBatteryText = `Battery: ${partner.batteryLevel}% ${partner.batteryCharging ? '⚡' : ''}`;
+                        } else if (partner.batteryCharging) {
+                            gameBatteryText = 'Charging...';
+                        }
+                        playerOpponentBattery.textContent = gameBatteryText;
                     }
                 }
             });
@@ -2708,13 +2755,13 @@
             database.ref(`users/${currentChatWith.phoneNumber}`).once('value').then(snapshot => {
                 const opponent = snapshot.val();
                 if (opponent) {
-                    let batteryText = 'Battery: Unknown';
-                    if(opponent.batteryCharging) {
-                        batteryText = 'Charging. Avoid using phone.';
-                    } else if (opponent.batteryLevel !== undefined) {
-                        batteryText = `Battery: ${opponent.batteryLevel}% ${getBatteryEmoji(opponent.batteryLevel)}`;
+                    let gameBatteryText = 'Battery: Unknown';
+                    if (opponent.batteryLevel !== undefined) {
+                        gameBatteryText = `Battery: ${opponent.batteryLevel}% ${opponent.batteryCharging ? '⚡' : ''}`;
+                    } else if (opponent.batteryCharging) {
+                        gameBatteryText = 'Charging...';
                     }
-                    playerOpponentBattery.textContent = batteryText;
+                    playerOpponentBattery.textContent = gameBatteryText;
                 }
             });
             
