@@ -35,7 +35,6 @@
             overflow: hidden;
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
             background-color: white;
-            animation: fadeIn 0.5s ease-out;
         }
         .chat-header {
             background-color: var(--primary-color);
@@ -61,7 +60,6 @@
             border-radius: 20px;
             max-width: 80%;
             word-wrap: break-word;
-            animation: messageFadeIn 0.3s ease-out;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             transition: transform 0.2s ease-out;
             position: relative; /* Needed for context menu positioning */
@@ -107,7 +105,6 @@
             display: inline-block;
             margin-left: 10px;
             vertical-align: middle;
-            animation: popIn 0.3s ease-out;
         }
         .unread-count {
             background-color: #dc3545;
@@ -118,7 +115,6 @@
             margin-left: 10px;
             min-width: 25px;
             text-align: center;
-            animation: popIn 0.3s ease-out;
         }
         #notification-container {
             position: fixed;
@@ -135,10 +131,6 @@
             overflow: hidden;
             background-color: white;
             border: none;
-            animation: slideInRight 0.5s ease-out forwards;
-        }
-        .notification-toast.hide {
-            animation: slideOutRight 0.5s ease-in forwards;
         }
         .notification-toast .toast-header {
             background-color: var(--primary-color);
@@ -169,7 +161,6 @@
             font-size: 13px;
             color: #6c757d;
             margin-top: 5px;
-            animation: pulse 1.5s infinite ease-in-out;
         }
         .message-status {
             font-size: 11px;
@@ -566,7 +557,6 @@
         #new-message-indicator {
             border-radius: 10px;
             font-weight: 500;
-            animation: pulse 1.5s infinite ease-in-out;
             margin-bottom: 15px; /* Space below the indicator */
             display: none; /* Hidden by default */
             /* Custom styles for a subtle look */
@@ -596,51 +586,18 @@
             border-radius: 10px;
         }
 
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes messageFadeIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes popIn {
+        /* Removed all @keyframes and animation properties for performance */
+        @keyframes pop {
             0% { transform: scale(0); opacity: 0; }
             80% { transform: scale(1.1); opacity: 1; }
             100% { transform: scale(1); }
         }
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.02); opacity: 0.9; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes fadeInAnimation { /* New animation for phone number feedback */
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .fade-in-animation {
-            animation: fadeInAnimation 0.3s ease-out forwards;
-        }
-        @keyframes connectingPulse { /* New animation for connecting message */
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
-        }
+
         .connecting-message {
             text-align: center;
             color: var(--primary-color);
             font-weight: 500;
             margin-top: 15px;
-            animation: connectingPulse 1.5s infinite ease-in-out;
         }
 
         /* Professional Registration Page Styles */
@@ -653,7 +610,6 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.15);
             /* Added a subtle border */
             border: 1px solid #e0e0e0;
-            animation: slideInUp 0.6s ease-out;
         }
         #registration-screen .chat-header {
             border-radius: 15px 15px 0 0;
@@ -704,7 +660,6 @@
             font-size: 0.9em;
             color: #dc3545;
             margin-top: 5px;
-            animation: fadeInAnimation 0.3s ease-out forwards;
         }
         #registration-screen .connecting-message {
             color: var(--primary-color);
@@ -712,11 +667,7 @@
             margin-top: 15px;
             font-weight: 500;
         }
-        @keyframes slideInUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
+        
         /* Settings button in contacts screen */
         #contacts-screen .chat-header .btn-secondary {
             background-color: #6c757d;
@@ -1067,9 +1018,6 @@
         const sendBtn = document.getElementById('send-btn');
         const chatWithName = document.getElementById('chat-with-name');
         const chatWithStatus = document.getElementById('chat-with-status');
-        const networkStatus = document.getElementById('network-status'); // Still referenced for init, but not displayed
-        const batteryStatus = document.getElementById('battery-status'); 
-        const chatNetworkStatus = document.getElementById('chat-network-status'); // Still referenced for init, but not displayed
         const opponentBatteryStatus = document.getElementById('opponent-battery-status');
         const phoneNumberFeedback = document.getElementById('phone-number-feedback'); 
         const connectingMessage = document.getElementById('connecting-message'); 
@@ -1123,19 +1071,18 @@
 
 
         // Game specific DOM elements
-        const playGameBtn = document.getElementById('play-game-btn'); // This button is no longer in contacts-screen
         const playGameInChatBtn = document.getElementById('play-game-in-chat-btn');
         const gameContainer = document.getElementById('game-container');
         const gameBoard = document.getElementById('game-board');
         const gameGrid = document.getElementById('game-grid');
         const playerYouName = document.getElementById('player-you-name');
-        const playerYouScore = document = document.getElementById('player-you-score');
+        const playerYouScore = document.getElementById('player-you-score');
         const playerOpponentName = document.getElementById('player-opponent-name');
-        const playerOpponentScore = document = document.getElementById('player-opponent-score');
+        const playerOpponentScore = document.getElementById('player-opponent-score');
         const playerOpponentBattery = document.getElementById('player-opponent-battery');
         const gameTimer = document.getElementById('game-timer');
         const newGameBtn = document.getElementById('new-game-btn');
-        const closeGameBtn = document = document.getElementById('close-game-btn');
+        const closeGameBtn = document.getElementById('close-game-btn');
         const chatProfileLogo = document.getElementById('chat-profile-logo');
 
         // Reply feature DOM elements
@@ -1266,38 +1213,20 @@
                     
                     // Initial update
                     updateUserBatteryStatus(battery);
-                    updateBatteryDisplay(battery);
 
                     battery.addEventListener('levelchange', () => {
                         if (currentUser) {
                             updateUserBatteryStatus(battery);
-                            updateBatteryDisplay(battery);
                         }
                     });
                     
                     battery.addEventListener('chargingchange', () => {
                         if (currentUser) {
                             updateUserBatteryStatus(battery);
-                            updateBatteryDisplay(battery);
                         }
                     });
                 });
             }
-            
-            // Network status - This function is now only responsible for updating Firebase, not UI elements
-            function updateNetworkStatus() {
-                // The networkStatus and chatNetworkStatus elements are no longer in the HTML,
-                // so we remove the lines that attempt to update them.
-            }
-            
-            window.addEventListener('online', updateNetworkStatus);
-            window.addEventListener('offline', updateNetworkStatus);
-            
-            if (navigator.connection) {
-                navigator.connection.addEventListener('change', updateNetworkStatus);
-            }
-            
-            updateNetworkStatus(); // Initial call
         }
 
         // Function to determine battery emoji and status text
@@ -1309,18 +1238,10 @@
             return '🪫';
         }
 
-        function updateBatteryDisplay(battery) {
-            const level = Math.round(battery.level * 100);
-            const charging = battery.charging ? "⚡" : "";
-            // Updated to include battery emoji, removed "Charging" word
-            // batteryStatus.textContent = `Battery: ${level}% ${charging} ${getBatteryEmoji(level)}`;
-        }
-
         function updateUserBatteryStatus(battery) {
             if (!currentUser) return;
             
             const level = Math.round(battery.level * 100);
-            const charging = battery.charging ? "⚡" : "";
             
             database.ref('users/' + currentUser.phoneNumber).update({
                 batteryLevel: level,
@@ -1345,14 +1266,12 @@
             if (!phoneNumber || !userName || phoneNumber.length !== 10 || !/^\d+$/.test(phoneNumber)) {
                 registrationErrorFeedback.textContent = 'Please ensure a valid 10-digit phone number and your name are entered.';
                 registrationErrorFeedback.style.display = 'block';
-                registrationErrorFeedback.classList.add('fade-in-animation');
                 return;
             }
 
             if (isInvalidStart || hasRepeatingDigits) {
                 registrationErrorFeedback.textContent = 'Do not try to spam, otherwise your account will be blocked';
                 registrationErrorFeedback.style.display = 'block';
-                registrationErrorFeedback.classList.add('fade-in-animation');
                 return;
             }
 
@@ -1387,7 +1306,6 @@
                         // Phone number exists but with a different name
                         registrationErrorFeedback.textContent = 'Access Denied: This phone number is already registered with a different name.';
                         registrationErrorFeedback.style.display = 'block';
-                        registrationErrorFeedback.classList.add('fade-in-animation');
                         console.error('Error: This phone number is already registered with a different name');
                         connectingMessage.style.display = 'none';
                         registerBtn.disabled = false;
@@ -1401,7 +1319,6 @@
                             // Local device ID is missing or doesn't match Firebase's registered device ID
                             registrationErrorFeedback.textContent = '🚫 Login blocked! It seems you\'re using a new device or cleared app data. 🛡️ Your privacy comes first — contact admin immediately at 📞 8486105725 for quick help. Your chat is safe. ✅';
                             registrationErrorFeedback.style.display = 'block';
-                            registrationErrorFeedback.classList.add('fade-in-animation');
                             console.error('Error: Device ID mismatch. Cannot log in from this device.');
                             connectingMessage.style.display = 'none';
                             registerBtn.disabled = false;
@@ -1467,7 +1384,6 @@
                 console.error("Error during registration/login:", error);
                 registrationErrorFeedback.textContent = 'Registration/Login failed. Please try again.';
                 registrationErrorFeedback.style.display = 'block';
-                registrationErrorFeedback.classList.add('fade-in-animation');
             } finally {
                 // Always hide connecting message and re-enable button
                 connectingMessage.style.display = 'none';
@@ -1804,20 +1720,17 @@
                     }
                     
                     // Update opponent battery status in chat header
-                    const batteryLevel = partner.batteryLevel;
-                    const batteryCharging = partner.charging; // Corrected to 'charging' from 'batteryCharging'
-                    if (batteryLevel !== undefined) {
-                        // Updated to include battery emoji for opponent
-                        opponentBatteryStatus.textContent = `Battery: ${batteryLevel}% ${batteryCharging ? '⚡' : ''} ${getBatteryEmoji(batteryLevel)}`;
-                    } else {
-                        opponentBatteryStatus.textContent = ` Battery: ?`;
+                    let batteryText = 'Battery: ?';
+                    if (partner.batteryCharging) {
+                        batteryText = 'Charging. Avoid using phone.';
+                    } else if (partner.batteryLevel !== undefined) {
+                        batteryText = `Battery: ${partner.batteryLevel}% ${getBatteryEmoji(partner.batteryLevel)}`;
                     }
+                    opponentBatteryStatus.textContent = batteryText;
+
 
                     // Update opponent battery status in game if playing
                     if (gameActive && gameId) {
-                        const batteryText = partner.batteryLevel !== undefined ? 
-                            `Battery: ${partner.batteryLevel}% ${partner.charging ? '⚡' : ''} ${getBatteryEmoji(partner.batteryLevel)}` : // Corrected to 'charging'
-                            'Battery: Unknown';
                         playerOpponentBattery.textContent = batteryText;
                     }
                 }
@@ -2795,9 +2708,12 @@
             database.ref(`users/${currentChatWith.phoneNumber}`).once('value').then(snapshot => {
                 const opponent = snapshot.val();
                 if (opponent) {
-                    const batteryText = opponent.batteryLevel !== undefined ? 
-                        `Battery: ${opponent.batteryLevel}% ${opponent.charging ? '⚡' : ''} ${getBatteryEmoji(opponent.batteryLevel)}` : // Corrected to 'charging'
-                        'Battery: Unknown';
+                    let batteryText = 'Battery: Unknown';
+                    if(opponent.batteryCharging) {
+                        batteryText = 'Charging. Avoid using phone.';
+                    } else if (opponent.batteryLevel !== undefined) {
+                        batteryText = `Battery: ${opponent.batteryLevel}% ${getBatteryEmoji(opponent.batteryLevel)}`;
+                    }
                     playerOpponentBattery.textContent = batteryText;
                 }
             });
@@ -3087,7 +3003,6 @@
 
 
         // Play game buttons now use the unified handler
-        // playGameBtn.addEventListener('click', handlePlayGameButtonClick); // Removed from contacts screen
         playGameInChatBtn.addEventListener('click', handlePlayGameButtonClick);
 
         // Function to update the state of the Register button
