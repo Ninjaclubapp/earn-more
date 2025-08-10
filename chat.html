@@ -9,11 +9,16 @@
     <style>
         :root {
             --primary-color: #0d6efd;
-            --primary-dark-color: #0a58ca;
+            --primary-color-dark: #0a58ca;
+            --primary-color-text: #007bff;
+            --reply-border-color: #0d6efd;
+            --sent-message-bg: var(--primary-color);
+            --sent-message-text: white;
         }
 
         body {
             font-family: 'Inter', sans-serif;
+            /* Enhanced background for aesthetic appeal */
             background: radial-gradient(circle at top left, #e0eafc, #cfdef3);
             display: flex;
             justify-content: center;
@@ -23,7 +28,7 @@
         }
         .chat-container {
             max-width: 600px;
-            width: 100%;
+            width: 100%; /* Ensure it takes full width on smaller screens */
             margin: 0 auto;
             border: 1px solid #ddd;
             border-radius: 15px;
@@ -39,7 +44,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--primary-dark-color);
+            border-bottom: 1px solid var(--primary-color-dark);
         }
         .chat-messages {
             height: 400px;
@@ -59,14 +64,14 @@
             animation: messageFadeIn 0.3s ease-out;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             transition: transform 0.2s ease-out;
-            position: relative;
+            position: relative; /* Needed for context menu positioning */
         }
         .message:hover {
             transform: translateY(-2px);
         }
         .sent {
-            background-color: var(--primary-color);
-            color: white;
+            background-color: var(--sent-message-bg);
+            color: var(--sent-message-text);
             margin-left: auto;
             border-bottom-right-radius: 5px;
         }
@@ -75,18 +80,6 @@
             color: #333;
             margin-right: auto;
             border-bottom-left-radius: 5px;
-        }
-        .system-message {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            margin: 10px auto;
-            padding: 8px 15px;
-            border-radius: 15px;
-            max-width: 90%;
-            text-align: center;
-            font-size: 0.9em;
-            font-style: italic;
-            box-shadow: none;
         }
         .status-info {
             font-size: 12px;
@@ -150,7 +143,7 @@
         .notification-toast .toast-header {
             background-color: var(--primary-color);
             color: white;
-            border-bottom: 1px solid var(--primary-dark-color);
+            border-bottom: 1px solid var(--primary-color-dark);
             padding: 10px 15px;
             display: flex;
             justify-content: space-between;
@@ -292,6 +285,7 @@
             font-weight: bold;
             margin-right: 10px;
             flex-shrink: 0;
+            /* Added styles for logo - NOT using CSS variables as requested */
             background-image: linear-gradient(45deg, #0d6efd, #00aaff);
             color: white;
             border: 2px solid #ffffff;
@@ -313,22 +307,23 @@
             width: 35px;
             height: 35px;
             font-size: 1em;
-            margin-right: 10px;
-            cursor: pointer;
+            margin-right: 10px; /* Adjust margin as needed */
+            cursor: pointer; /* Make it clickable */
         }
         .chat-header .d-flex {
             align-items: center;
         }
+        /* Modal styles */
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 1060;
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1060; /* Sit on top */
             left: 0;
             top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
             justify-content: center;
             align-items: center;
         }
@@ -370,36 +365,45 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        /* Adjustments for status below number */
         .contact-item .text-end {
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
+            align-items: flex-end; /* Align items to the right */
         }
+
         .contact-item .text-muted.small {
-            display: block;
-            margin-bottom: 5px;
+            display: block; /* Ensure phone number is on its own line */
+            margin-bottom: 5px; /* Space between number and status */
         }
+
         .contact-item strong {
-            display: block;
+            display: block; /* Ensure name is on its own line */
         }
+
+        /* Context Menu Styles */
         .context-menu {
+            /* Removed top, left, transform properties as they are set by JS now */
             display: none;
-            position: fixed;
+            position: fixed; /* Changed to fixed for viewport positioning */
             background-color: #fff;
             border: 1px solid #ddd;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1001;
+            z-index: 1001; /* High z-index to ensure visibility */
             min-width: 120px;
             overflow: hidden;
             opacity: 0;
             transition: opacity 0.2s ease, transform 0.2s ease;
         }
+
         .context-menu.show {
             display: block;
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0); /* Keep this for the fade-in effect */
         }
+
         .context-menu button {
             background: none;
             border: none;
@@ -411,17 +415,21 @@
             color: #333;
             transition: background-color 0.2s ease;
         }
+
         .context-menu button:hover {
             background-color: #f0f2f5;
         }
+
         .context-menu button:not(:last-child) {
             border-bottom: 1px solid #eee;
         }
+
         .edited-tag {
             font-size: 0.8em;
             color: #888;
             margin-left: 5px;
         }
+
         .deleted-message {
             font-style: italic;
             color: #888;
@@ -433,6 +441,8 @@
             margin-bottom: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.03);
         }
+
+        /* Emoji Reactions Styles */
         .reactions-container {
             display: flex;
             flex-wrap: wrap;
@@ -458,7 +468,7 @@
         .reaction-bubble.reacted-by-me {
             background-color: var(--primary-color);
             color: white;
-            border: 1px solid var(--primary-dark-color);
+            border: 1px solid var(--primary-color-dark);
         }
         .reaction-bubble span {
             margin-right: 3px;
@@ -484,9 +494,11 @@
         .emoji-grid button:hover {
             background-color: #eee;
         }
+
+        /* Reply Message Styles */
         .replied-message-preview {
             background-color: rgba(0,0,0,0.05);
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid var(--reply-border-color);
             padding: 8px;
             margin-bottom: 8px;
             border-radius: 5px;
@@ -504,13 +516,15 @@
             display: block;
         }
         .message.sent .replied-message-preview {
-            background-color: rgba(255,255,255,0.2);
+            background-color: rgba(255,255,255,0.2); /* Lighter for sent messages */
             border-left-color: white;
             color: rgba(255,255,255,0.8);
         }
         .message.sent .replied-message-preview strong {
             color: white;
         }
+
+        /* Reply input styling */
         .reply-input-wrapper {
             background-color: #e9ecef;
             border-radius: 8px;
@@ -521,7 +535,7 @@
             align-items: center;
             font-size: 0.9em;
             color: #333;
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid var(--reply-border-color);
         }
         .reply-input-wrapper .reply-content {
             flex-grow: 1;
@@ -541,29 +555,48 @@
         .reply-input-wrapper .clear-reply-btn:hover {
             color: #dc3545;
         }
+
+        /* Updated style for scrollable contacts list */
         #contacts-list {
-            max-height: calc(100vh - 200px);
+            max-height: calc(100vh - 200px); /* Adjusts height based on viewport, leaving space for header/search */
             overflow-y: auto;
         }
+
+        /* New message indicator styling */
         #new-message-indicator {
             border-radius: 10px;
             font-weight: 500;
             animation: pulse 1.5s infinite ease-in-out;
-            margin-bottom: 15px;
-            display: none;
-            background-color: #e0f7fa;
-            color: #007bff;
-            border: 1px solid #b2ebf2;
-            padding: 8px 15px;
+            margin-bottom: 15px; /* Space below the indicator */
+            display: none; /* Hidden by default */
+            /* Custom styles for a subtle look */
+            background-color: #e0f7fa; /* Light blue background */
+            color: var(--primary-color-text); /* Primary blue text */
+            border: 1px solid #b2ebf2; /* Light border */
+            padding: 8px 15px; /* Adjust padding */
             text-align: center;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow */
             transition: all 0.2s ease-in-out;
         }
         #new-message-indicator:hover {
             background-color: #b2ebf2;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
+
+        /* Game Result Message Style */
+        .game-result-message {
+            background-color: #e3f2fd;
+            color: #0d6efd;
+            font-weight: 500;
+            text-align: center;
+            margin: 10px auto;
+            max-width: 90%;
+            border: 1px solid #bde0fe;
+            border-radius: 10px;
+        }
+
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -590,14 +623,14 @@
             50% { transform: scale(1.02); opacity: 0.9; }
             100% { transform: scale(1); opacity: 1; }
         }
-        @keyframes fadeInAnimation {
+        @keyframes fadeInAnimation { /* New animation for phone number feedback */
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .fade-in-animation {
             animation: fadeInAnimation 0.3s ease-out forwards;
         }
-        @keyframes connectingPulse {
+        @keyframes connectingPulse { /* New animation for connecting message */
             0% { opacity: 0.7; }
             50% { opacity: 1; }
             100% { opacity: 0.7; }
@@ -609,11 +642,16 @@
             margin-top: 15px;
             animation: connectingPulse 1.5s infinite ease-in-out;
         }
+
+        /* Professional Registration Page Styles */
         #registration-screen {
+            /* Enhanced background for the card itself */
             background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
             border-radius: 20px;
             padding: 30px;
+            /* Increased shadow for more depth */
             box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            /* Added a subtle border */
             border: 1px solid #e0e0e0;
             animation: slideInUp 0.6s ease-out;
         }
@@ -624,7 +662,7 @@
             font-size: 1.5em;
             text-align: center;
             justify-content: center;
-            margin: -30px -30px 20px -30px;
+            margin: -30px -30px 20px -30px; /* Adjust to cover padding */
         }
         #registration-screen .chat-header h5 {
             margin: 0;
@@ -640,26 +678,27 @@
             border: 1px solid #ced4da;
             padding: 12px 18px;
             font-size: 1.05em;
-            border-radius: 12px;
+            border-radius: 12px; /* Slightly more rounded inputs */
             transition: all 0.3s ease;
         }
         #registration-screen .form-control:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25), 0 2px 8px rgba(0, 123, 255, 0.1);
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25), 0 2px 8px rgba(0, 123, 255, 0.1); /* Added subtle shadow on focus */
         }
         #registration-screen .btn-primary {
-            background: linear-gradient(90deg, #007bff, #00c6ff);
+            /* More vibrant gradient for the button */
+            background: linear-gradient(90deg, var(--primary-color-text), #00c6ff);
             border: none;
             padding: 12px 25px;
             font-size: 1.1em;
             font-weight: 600;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+            border-radius: 12px; /* Consistent rounded corners */
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3); /* Stronger initial shadow */
             transition: all 0.3s ease;
         }
         #registration-screen .btn-primary:hover {
-            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
-            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4); /* Enhanced hover shadow */
+            transform: translateY(-3px); /* More pronounced lift on hover */
         }
         #registration-screen .text-danger {
             font-size: 0.9em;
@@ -677,6 +716,8 @@
             from { transform: translateY(50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        /* Settings button in contacts screen */
         #contacts-screen .chat-header .btn-secondary {
             background-color: #6c757d;
             border-color: #6c757d;
@@ -690,6 +731,8 @@
             background-color: #5a6268;
             border-color: #545b62;
         }
+
+        /* Bio Modal specific styles */
         #bio-modal .modal-content {
             text-align: left;
             padding: 25px;
@@ -706,10 +749,10 @@
             line-height: 1.5;
             color: #444;
             text-align: left;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            max-height: 300px;
-            overflow-y: auto;
+            word-wrap: break-word; /* Ensure long bios wrap */
+            white-space: pre-wrap; /* Preserve formatting like newlines */
+            max-height: 300px; /* Limit height for long bios */
+            overflow-y: auto; /* Add scroll if bio is too long */
         }
         #bio-modal .modal-body.no-bio {
             font-style: italic;
@@ -721,20 +764,31 @@
             padding-top: 15px;
             margin-top: 15px;
         }
-        .theme-color-dot {
-            width: 25px;
-            height: 25px;
+
+        /* Theme Swatch Styles */
+        .theme-swatch {
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid #fff;
+            border: 2px solid white;
             box-shadow: 0 0 5px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
         }
-        .theme-color-dot:hover {
+        .theme-swatch:hover {
             transform: scale(1.1);
         }
-        .theme-color-dot.selected {
+        .theme-swatch.active {
             border-color: #333;
+            box-shadow: 0 0 8px rgba(0,0,0,0.4);
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-color-dark);
+            border-color: var(--primary-color-dark);
         }
     </style>
 </head>
@@ -782,6 +836,7 @@
         </div>
     </div>
 
+    <!-- Edit Message Modal -->
     <div id="edit-message-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -798,6 +853,7 @@
         </div>
     </div>
 
+    <!-- Emoji Picker Modal -->
     <div id="emoji-picker-modal" class="modal emoji-picker-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -805,11 +861,14 @@
                 <span class="close-modal-btn" id="close-emoji-picker-btn">&times;</span>
             </div>
             <div class="modal-body">
-                <div class="emoji-grid" id="emoji-grid"></div>
+                <div class="emoji-grid" id="emoji-grid">
+                    <!-- Emojis will be dynamically loaded here -->
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Settings Modal -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -817,6 +876,17 @@
                 <span class="close-modal-btn" id="close-settings-modal-btn">&times;</span>
             </div>
             <div class="modal-body text-start">
+                <div class="mb-3">
+                    <label class="form-label">Theme Color</label>
+                    <div id="theme-color-swatches" class="d-flex gap-2">
+                        <button class="theme-swatch" data-color="#0d6efd" style="background-color: #0d6efd;"></button>
+                        <button class="theme-swatch" data-color="#dc3545" style="background-color: #dc3545;"></button>
+                        <button class="theme-swatch" data-color="#198754" style="background-color: #198754;"></button>
+                        <button class="theme-swatch" data-color="#ffc107" style="background-color: #ffc107;"></button>
+                        <button class="theme-swatch" data-color="#6f42c1" style="background-color: #6f42c1;"></button>
+                    </div>
+                </div>
+                <hr>
                 <div class="form-check form-switch mb-3">
                     <input class="form-check-input" type="checkbox" id="hide-number-switch">
                     <label class="form-check-label" for="hide-number-switch">Hide My Phone Number</label>
@@ -825,34 +895,28 @@
                     <label for="user-bio-settings" class="form-label">Your Bio</label>
                     <textarea class="form-control" id="user-bio-settings" rows="3" placeholder="Tell others about yourself..."></textarea>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Theme Color</label>
-                    <div id="theme-color-options" class="d-flex gap-2">
-                        <span class="theme-color-dot" style="background-color: #0d6efd;" data-color="#0d6efd"></span>
-                        <span class="theme-color-dot" style="background-color: #dc3545;" data-color="#dc3545"></span>
-                        <span class="theme-color-dot" style="background-color: #198754;" data-color="#198754"></span>
-                        <span class="theme-color-dot" style="background-color: #ffc107;" data-color="#ffc107"></span>
-                        <span class="theme-color-dot" style="background-color: #6f42c1;" data-color="#6f42c1"></span>
-                    </div>
-                </div>
                 <button id="save-settings-btn" class="btn btn-primary w-100">Save Settings</button>
             </div>
         </div>
     </div>
 
+    <!-- Bio Display Modal -->
     <div id="bio-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <span id="bio-modal-user-name"></span>
                 <span class="close-modal-btn" id="close-bio-modal-btn">&times;</span>
             </div>
-            <div class="modal-body" id="bio-modal-content"></div>
+            <div class="modal-body" id="bio-modal-content">
+                <!-- Bio content will be loaded here -->
+            </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="close-bio-modal-footer-btn">Close</button>
             </div>
         </div>
     </div>
 
+    <!-- Report User Modal -->
     <div id="report-user-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -875,6 +939,7 @@
 
     <div class="container mt-4">
         <div id="registration-screen" class="chat-container">
+            <!-- Account Suspended View -->
             <div id="account-suspended-view" style="display: none; text-align: center; padding: 40px;">
                 <h1 style="font-size: 3em;">🚫</h1>
                 <h2>Account Suspended</h2>
@@ -882,6 +947,7 @@
                 <p>For more details or to appeal, please contact customer support.</p>
             </div>
 
+            <!-- Registration Form View -->
             <div id="registration-form-view">
                 <div class="chat-header">
                     <h5>Welcome to the Chat App</h5>
@@ -915,6 +981,7 @@
                 <button id="settings-btn" class="btn btn-secondary">Settings</button>
             </div>
             <div class="p-3">
+                <!-- New Message Indicator -->
                 <button id="new-message-indicator" class="btn btn-link text-primary d-block w-100 py-2" style="display: none; font-size: 0.9em; text-decoration: none;">
                     You have <span id="new-message-count">0</span> new message(s). Click to view.
                 </button>
@@ -939,12 +1006,14 @@
                     <button id="report-user-btn" class="btn btn-sm btn-danger rounded-pill ms-2">Report</button>
                 </div>
                 <div class="status-info">
+                    <!-- Removed current user's network status from chat header -->
                     <span id="opponent-battery-status">Battery: ?</span>
                 </div>
             </div>
             <div id="chat-messages" class="chat-messages">
                 </div>
             <div class="p-3 border-top bg-light">
+                <!-- Reply preview area -->
                 <div id="reply-preview" class="reply-input-wrapper" style="display: none;">
                     <div class="reply-content">
                         Replying to <strong><span id="reply-sender-name"></span></strong>: <span id="reply-message-text"></span>
@@ -965,7 +1034,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <script>
-        // Firebase Configuration
+        // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyClBohbm2-pReGrbNMsm7ttDvwM2wEIfEo",
             authDomain: "miner-5939b.firebaseapp.com",
@@ -976,20 +1045,19 @@
             appId: "1:936240933139:web:fe877e3877fc82951d552e6"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
         // DOM Elements
         const registrationScreen = document.getElementById('registration-screen');
-        const registrationFormView = document.getElementById('registration-form-view');
-        const accountSuspendedView = document.getElementById('account-suspended-view');
+        const registrationFormView = document.getElementById('registration-form-view'); // New: Form container
+        const accountSuspendedView = document.getElementById('account-suspended-view'); // New: Suspension message container
         const contactsScreen = document.getElementById('contacts-screen');
         const chatScreen = document.getElementById('chat-screen');
         const registerBtn = document.getElementById('register-btn');
         const phoneNumberInput = document.getElementById('phone-number');
         const userNameInput = document.getElementById('user-name');
-        const userBioInput = document.getElementById('user-bio');
+        const userBioInput = document.getElementById('user-bio'); // New: Bio input on registration
         const contactsList = document.getElementById('contacts-list');
         const contactSearch = document.getElementById('contact-search');
         const searchBtn = document.getElementById('search-btn');
@@ -999,35 +1067,51 @@
         const sendBtn = document.getElementById('send-btn');
         const chatWithName = document.getElementById('chat-with-name');
         const chatWithStatus = document.getElementById('chat-with-status');
+        const networkStatus = document.getElementById('network-status'); // Still referenced for init, but not displayed
+        const batteryStatus = document.getElementById('battery-status'); 
+        const chatNetworkStatus = document.getElementById('chat-network-status'); // Still referenced for init, but not displayed
         const opponentBatteryStatus = document.getElementById('opponent-battery-status');
         const phoneNumberFeedback = document.getElementById('phone-number-feedback'); 
         const connectingMessage = document.getElementById('connecting-message'); 
-        const registrationErrorFeedback = document.getElementById('registration-error-feedback');
+        const registrationErrorFeedback = document.getElementById('registration-error-feedback'); // New element for general registration errors
 
         // Modal Elements
         const confirmationModal = document.getElementById('confirmation-modal');
         const closeModalBtn = document.querySelector('#confirmation-modal .close-modal-btn');
         const confirmYesBtn = document.getElementById('confirm-yes-btn');
         const confirmNoBtn = document.getElementById('confirm-no-btn');
+
+        // Edit Message Modal Elements
         const editMessageModal = document.getElementById('edit-message-modal');
         const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
         const editMessageInput = document.getElementById('edit-message-input');
         const saveEditBtn = document.getElementById('save-edit-btn');
         const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        let currentMessageToEdit = null; // Stores the Firebase reference of the message being edited
+
+        // Emoji Picker Modal Elements
         const emojiPickerModal = document.getElementById('emoji-picker-modal');
         const closeEmojiPickerBtn = document.getElementById('close-emoji-picker-btn');
         const emojiGrid = document.getElementById('emoji-grid');
-        const settingsBtn = document.getElementById('settings-btn');
-        const settingsModal = document.getElementById('settings-modal');
-        const closeSettingsModalBtn = document.getElementById('close-settings-modal-btn');
-        const hideNumberSwitch = document.getElementById('hide-number-switch');
-        const userBioSettings = document.getElementById('user-bio-settings');
-        const saveSettingsBtn = document.getElementById('save-settings-btn');
-        const bioModal = document.getElementById('bio-modal');
-        const closeBioModalBtn = document.getElementById('close-bio-modal-btn');
-        const bioModalUserName = document.getElementById('bio-modal-user-name');
-        const bioModalContent = document.getElementById('bio-modal-content');
-        const closeBioModalFooterBtn = document.getElementById('close-bio-modal-footer-btn');
+        let currentMessageKeyForReaction = null; // Stores the key of the message to react to
+
+        // Settings Modal Elements
+        const settingsBtn = document.getElementById('settings-btn'); // New: Settings button
+        const settingsModal = document.getElementById('settings-modal'); // New: Settings modal
+        const closeSettingsModalBtn = document.getElementById('close-settings-modal-btn'); // New: Close settings modal button
+        const hideNumberSwitch = document.getElementById('hide-number-switch'); // New: Hide number switch
+        const userBioSettings = document.getElementById('user-bio-settings'); // New: Bio input in settings
+        const saveSettingsBtn = document.getElementById('save-settings-btn'); // New: Save settings button
+        const themeSwatchesContainer = document.getElementById('theme-color-swatches'); // New: Theme color swatches
+
+        // Bio Display Modal Elements
+        const bioModal = document.getElementById('bio-modal'); // New: Bio display modal
+        const closeBioModalBtn = document.getElementById('close-bio-modal-btn'); // New: Close bio modal button
+        const bioModalUserName = document.getElementById('bio-modal-user-name'); // New: User name in bio modal
+        const bioModalContent = document.getElementById('bio-modal-content'); // New: Bio content in bio modal
+        const closeBioModalFooterBtn = document.getElementById('close-bio-modal-footer-btn'); // New: Close bio modal button in footer
+
+        // Report User Modal Elements
         const reportUserBtn = document.getElementById('report-user-btn');
         const reportUserModal = document.getElementById('report-user-modal');
         const closeReportModalBtn = document.getElementById('close-report-modal-btn');
@@ -1037,18 +1121,21 @@
         const submitReportBtn = document.getElementById('submit-report-btn');
         const cancelReportBtn = document.getElementById('cancel-report-btn');
 
+
         // Game specific DOM elements
+        const playGameBtn = document.getElementById('play-game-btn'); // This button is no longer in contacts-screen
         const playGameInChatBtn = document.getElementById('play-game-in-chat-btn');
         const gameContainer = document.getElementById('game-container');
+        const gameBoard = document.getElementById('game-board');
         const gameGrid = document.getElementById('game-grid');
         const playerYouName = document.getElementById('player-you-name');
-        const playerYouScore = document.getElementById('player-you-score');
+        const playerYouScore = document = document.getElementById('player-you-score');
         const playerOpponentName = document.getElementById('player-opponent-name');
-        const playerOpponentScore = document.getElementById('player-opponent-score');
+        const playerOpponentScore = document = document.getElementById('player-opponent-score');
         const playerOpponentBattery = document.getElementById('player-opponent-battery');
         const gameTimer = document.getElementById('game-timer');
         const newGameBtn = document.getElementById('new-game-btn');
-        const closeGameBtn = document.getElementById('close-game-btn');
+        const closeGameBtn = document = document.getElementById('close-game-btn');
         const chatProfileLogo = document.getElementById('chat-profile-logo');
 
         // Reply feature DOM elements
@@ -1059,24 +1146,21 @@
 
         // New Message Indicator DOM Elements
         const newMessageIndicator = document.getElementById('new-message-indicator');
+        const newMessageCountSpan = document.getElementById('new-message-count');
 
-        // Theme Customization Elements
-        const themeColorOptions = document.getElementById('theme-color-options');
 
         // App State
         let currentUser = null;
-        let currentChatWith = null;
-        let unreadCounts = {};
-        let latestUnreadMessageTimestamps = {};
-        let messageListeners = {};
-        let globalUnreadListeners = {};
+        let currentChatWith = null; // Stores the full user object of the current chat partner
+        let unreadCounts = {}; // Object to store unread message counts per contact (just count)
+        let latestUnreadMessageTimestamps = {}; // Stores latest unread timestamp per contact
+        let messageListeners = {}; // Stores references to Firebase listeners for messages
+        let globalUnreadListeners = {}; // Stores references to global unread listeners for cleanup
         let typingTimeout = null;
         let onlineStatusRef = null;
         let batteryMonitor = null;
-        let repliedToMessage = null;
-        let totalUnreadMessages = 0;
-        let currentMessageToEdit = null;
-        let currentMessageKeyForReaction = null;
+        let repliedToMessage = null; // Stores the message object being replied to
+        let totalUnreadMessages = 0; // New: Total unread messages across all contacts
 
         // Game State
         let gameActive = false;
@@ -1085,45 +1169,159 @@
         let timeLeft = 60;
         let timerInterval = null;
         let gameInterval = null;
-        let gameInvitationRef = null;
+        let gameInvitationRef = null; // Reference to the current game invitation
         const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F3'];
 
+        // Common Emojis for the picker
         const commonEmojis = ['👍', '❤️', '😂', '😢', '😡', '👏', '🎉', '💯'];
 
+        // --- Theme Color Logic ---
+        const themes = {
+            '#0d6efd': { // Blue (Default)
+                '--primary-color': '#0d6efd',
+                '--primary-color-dark': '#0a58ca',
+                '--primary-color-text': '#007bff',
+                '--reply-border-color': '#0d6efd',
+                '--sent-message-bg': '#0d6efd',
+            },
+            '#dc3545': { // Red
+                '--primary-color': '#dc3545',
+                '--primary-color-dark': '#b02a37',
+                '--primary-color-text': '#dc3545',
+                '--reply-border-color': '#dc3545',
+                '--sent-message-bg': '#dc3545',
+            },
+            '#198754': { // Green
+                '--primary-color': '#198754',
+                '--primary-color-dark': '#146c43',
+                '--primary-color-text': '#198754',
+                '--reply-border-color': '#198754',
+                '--sent-message-bg': '#198754',
+            },
+            '#ffc107': { // Yellow
+                '--primary-color': '#ffc107',
+                '--primary-color-dark': '#d39e00',
+                '--primary-color-text': '#ffc107',
+                '--reply-border-color': '#ffc107',
+                '--sent-message-bg': '#ffc107',
+            },
+            '#6f42c1': { // Purple
+                '--primary-color': '#6f42c1',
+                '--primary-color-dark': '#59359a',
+                '--primary-color-text': '#6f42c1',
+                '--reply-border-color': '#6f42c1',
+                '--sent-message-bg': '#6f42c1',
+            }
+        };
+
+        function applyTheme(color) {
+            if (!color) return;
+            const theme = themes[color];
+            if (theme) {
+                for (const [key, value] of Object.entries(theme)) {
+                    document.documentElement.style.setProperty(key, value);
+                }
+                localStorage.setItem('chatThemeColor', color);
+                // Update active swatch
+                document.querySelectorAll('.theme-swatch').forEach(sw => {
+                    sw.classList.toggle('active', sw.dataset.color === color);
+                });
+            }
+        }
+
+        themeSwatchesContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('theme-swatch')) {
+                const color = e.target.dataset.color;
+                applyTheme(color);
+            }
+        });
+
+
+        // Helper to format timestamp to a readable last seen string
         function formatLastSeen(timestamp) {
             if (!timestamp) return 'Unknown';
             const date = new Date(timestamp);
             const now = new Date();
             const diffSeconds = Math.floor((now - date) / 1000);
 
-            if (diffSeconds < 60) return 'just now';
-            if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)} min ago`;
-            if (diffSeconds < 86400) return `${Math.floor(diffSeconds / 3600)} hr ago`;
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function initDeviceStatus() {
-            if ('getBattery' in navigator) {
-                navigator.getBattery().then(battery => {
-                    batteryMonitor = battery;
-                    updateUserBatteryStatus(battery);
-                    battery.addEventListener('levelchange', () => updateUserBatteryStatus(battery));
-                    battery.addEventListener('chargingchange', () => updateUserBatteryStatus(battery));
-                });
+            if (diffSeconds < 60) {
+                return 'just now';
+            } else if (diffSeconds < 3600) {
+                const minutes = Math.floor(diffSeconds / 60);
+                return `${minutes} min ago`;
+            } else if (diffSeconds < 86400) {
+                const hours = Math.floor(diffSeconds / 3600);
+                return `${hours} hr ago`;
+            } else {
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
         }
 
+        // Initialize battery and network monitoring
+        function initDeviceStatus() {
+            // Battery status
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(battery => {
+                    batteryMonitor = battery;
+                    
+                    // Initial update
+                    updateUserBatteryStatus(battery);
+                    updateBatteryDisplay(battery);
+
+                    battery.addEventListener('levelchange', () => {
+                        if (currentUser) {
+                            updateUserBatteryStatus(battery);
+                            updateBatteryDisplay(battery);
+                        }
+                    });
+                    
+                    battery.addEventListener('chargingchange', () => {
+                        if (currentUser) {
+                            updateUserBatteryStatus(battery);
+                            updateBatteryDisplay(battery);
+                        }
+                    });
+                });
+            }
+            
+            // Network status - This function is now only responsible for updating Firebase, not UI elements
+            function updateNetworkStatus() {
+                // The networkStatus and chatNetworkStatus elements are no longer in the HTML,
+                // so we remove the lines that attempt to update them.
+            }
+            
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+            
+            if (navigator.connection) {
+                navigator.connection.addEventListener('change', updateNetworkStatus);
+            }
+            
+            updateNetworkStatus(); // Initial call
+        }
+
+        // Function to determine battery emoji and status text
         function getBatteryEmoji(level) {
             if (level >= 90) return '🔋';
             if (level >= 60) return '🔋';
-            if (level >= 30) return '🔋';
+            if (level >= 30) return '�';
             if (level >= 10) return '🔋';
             return '🪫';
         }
 
-        function updateUserBatteryStatus(battery) {
-            if (!currentUser || !battery) return;
+        function updateBatteryDisplay(battery) {
             const level = Math.round(battery.level * 100);
+            const charging = battery.charging ? "⚡" : "";
+            // Updated to include battery emoji, removed "Charging" word
+            // batteryStatus.textContent = `Battery: ${level}% ${charging} ${getBatteryEmoji(level)}`;
+        }
+
+        function updateUserBatteryStatus(battery) {
+            if (!currentUser) return;
+            
+            const level = Math.round(battery.level * 100);
+            const charging = battery.charging ? "⚡" : "";
+            
             database.ref('users/' + currentUser.phoneNumber).update({
                 batteryLevel: level,
                 batteryCharging: battery.charging,
@@ -1131,11 +1329,13 @@
             });
         }
 
-        registerBtn.addEventListener('click', async () => {
+        // Registration
+        registerBtn.addEventListener('click', async () => { // Made async
             const phoneNumber = phoneNumberInput.value.trim();
             const userName = userNameInput.value.trim();
-            const userBio = userBioInput.value.trim();
+            const userBio = userBioInput.value.trim(); // Get bio from input
             
+            // Clear previous error messages
             phoneNumberFeedback.style.display = 'none';
             registrationErrorFeedback.style.display = 'none';
 
@@ -1145,165 +1345,320 @@
             if (!phoneNumber || !userName || phoneNumber.length !== 10 || !/^\d+$/.test(phoneNumber)) {
                 registrationErrorFeedback.textContent = 'Please ensure a valid 10-digit phone number and your name are entered.';
                 registrationErrorFeedback.style.display = 'block';
+                registrationErrorFeedback.classList.add('fade-in-animation');
                 return;
             }
 
             if (isInvalidStart || hasRepeatingDigits) {
                 registrationErrorFeedback.textContent = 'Do not try to spam, otherwise your account will be blocked';
                 registrationErrorFeedback.style.display = 'block';
+                registrationErrorFeedback.classList.add('fade-in-animation');
                 return;
             }
 
+            // Show connecting message and disable button
             connectingMessage.style.display = 'block';
             registerBtn.disabled = true;
 
             try {
+                // Get the current device's UUID from localStorage
                 let localDeviceUUID = localStorage.getItem('deviceUUID');
+
+                // Check if user already exists in Firebase
                 const snapshot = await database.ref('users/' + phoneNumber).once('value');
 
                 if (snapshot.exists()) {
+                    // User exists, now check device UUID and name
                     const existingUser = snapshot.val();
+
+                    // --- NEW: Check for suspension ---
                     if (existingUser.suspended) {
+                        console.log(`Login blocked for ${phoneNumber}: Account is suspended.`);
                         registrationFormView.style.display = 'none';
                         accountSuspendedView.style.display = 'block';
-                        return;
-                    }
-                    if (existingUser.name !== userName) {
-                        registrationErrorFeedback.textContent = 'Access Denied: This phone number is already registered with a different name.';
-                        registrationErrorFeedback.style.display = 'block';
-                        return;
-                    }
-                    const firebaseDeviceUUID = existingUser.deviceUUID;
-                    if (firebaseDeviceUUID && (!localDeviceUUID || localDeviceUUID !== firebaseDeviceUUID)) {
-                        registrationErrorFeedback.textContent = '🚫 Login blocked! It seems you\'re using a new device or cleared app data. 🛡️ Your privacy comes first — contact admin immediately at 📞 8486105725 for quick help. Your chat is safe. ✅';
-                        registrationErrorFeedback.style.display = 'block';
-                        return;
-                    } else if (!firebaseDeviceUUID) {
-                        localDeviceUUID = crypto.randomUUID();
-                        await database.ref('users/' + phoneNumber).update({ deviceUUID: localDeviceUUID });
-                        localStorage.setItem('deviceUUID', localDeviceUUID);
+                        connectingMessage.style.display = 'none';
+                        registerBtn.disabled = false;
+                        return; // Stop the login process
                     }
 
+                    const firebaseDeviceUUID = existingUser.deviceUUID;
+
+                    if (existingUser.name !== userName) {
+                        // Phone number exists but with a different name
+                        registrationErrorFeedback.textContent = 'Access Denied: This phone number is already registered with a different name.';
+                        registrationErrorFeedback.style.display = 'block';
+                        registrationErrorFeedback.classList.add('fade-in-animation');
+                        console.error('Error: This phone number is already registered with a different name');
+                        connectingMessage.style.display = 'none';
+                        registerBtn.disabled = false;
+                        return;
+                    }
+
+                    // Handle device UUID check
+                    if (firebaseDeviceUUID) {
+                        // Firebase has a device ID for this user
+                        if (!localDeviceUUID || localDeviceUUID !== firebaseDeviceUUID) {
+                            // Local device ID is missing or doesn't match Firebase's registered device ID
+                            registrationErrorFeedback.textContent = '🚫 Login blocked! It seems you\'re using a new device or cleared app data. 🛡️ Your privacy comes first — contact admin immediately at 📞 8486105725 for quick help. Your chat is safe. ✅';
+                            registrationErrorFeedback.style.display = 'block';
+                            registrationErrorFeedback.classList.add('fade-in-animation');
+                            console.error('Error: Device ID mismatch. Cannot log in from this device.');
+                            connectingMessage.style.display = 'none';
+                            registerBtn.disabled = false;
+                            return;
+                        }
+                        // Device IDs match, proceed with login
+                        console.log(`Welcome back, ${userName}! Logged in from registered device.`);
+                    } else {
+                        // Firebase does NOT have a device ID for this user (legacy user or first login with device tracking)
+                        // Assign the current device as the registered device
+                        localDeviceUUID = crypto.randomUUID(); // Generate a new UUID for this device
+                        await database.ref('users/' + phoneNumber).update({ deviceUUID: localDeviceUUID });
+                        localStorage.setItem('deviceUUID', localDeviceUUID); // Store locally
+                        console.log(`Welcome back, ${userName}! Registered current device as primary.`);
+                    }
+
+                    // Finalize login for existing user
                     currentUser = { phoneNumber, name: userName };
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     showContactsScreen();
                     monitorOnlineStatus();
                     listenForGameInvitations();
-                    setupGlobalUnreadListener();
-                    updateUserBatteryStatus(batteryMonitor);
+                    setupGlobalUnreadListener(); // Setup global unread listener on login
+                    if (batteryMonitor) {
+                        updateUserBatteryStatus(batteryMonitor);
+                    }
+                    // Update bio if provided during login, and hidePhoneNumber if it's missing or needs default
                     database.ref('users/' + phoneNumber).update({
-                        bio: userBio || existingUser.bio || '',
-                        hidePhoneNumber: existingUser.hidePhoneNumber !== undefined ? existingUser.hidePhoneNumber : false
+                        bio: userBio || existingUser.bio || '', // Keep existing bio if not provided, else empty string
+                        hidePhoneNumber: existingUser.hidePhoneNumber !== undefined ? existingUser.hidePhoneNumber : false // Default to false if not set
                     });
+
                 } else {
+                    // User does not exist, proceed with new registration
                     const newDeviceUUID = crypto.randomUUID();
                     await database.ref('users/' + phoneNumber).set({
                         name: userName,
                         phoneNumber: phoneNumber,
-                        deviceUUID: newDeviceUUID,
+                        deviceUUID: newDeviceUUID, // Store new device UUID
                         lastSeen: firebase.database.ServerValue.TIMESTAMP,
                         online: true,
                         batteryLevel: 0,
                         batteryCharging: false,
-                        hidePhoneNumber: false,
-                        bio: userBio || '',
-                        suspended: false
+                        hidePhoneNumber: false, // Default to false for new users
+                        bio: userBio || '', // Save bio for new users
+                        suspended: false // Default to not suspended
                     });
 
                     currentUser = { phoneNumber, name: userName };
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    localStorage.setItem('deviceUUID', newDeviceUUID);
+                    localStorage.setItem('deviceUUID', newDeviceUUID); // Store device UUID locally
                     showContactsScreen();
                     monitorOnlineStatus();
                     listenForGameInvitations();
-                    setupGlobalUnreadListener();
-                    updateUserBatteryStatus(batteryMonitor);
+                    setupGlobalUnreadListener(); // Setup global unread listener on registration
+                    console.log(`Welcome: Hi ${userName}! You're now registered with this device.`);
+                    
+                    if (batteryMonitor) {
+                        updateUserBatteryStatus(batteryMonitor);
+                    }
                 }
             } catch (error) {
                 console.error("Error during registration/login:", error);
                 registrationErrorFeedback.textContent = 'Registration/Login failed. Please try again.';
                 registrationErrorFeedback.style.display = 'block';
+                registrationErrorFeedback.classList.add('fade-in-animation');
             } finally {
+                // Always hide connecting message and re-enable button
                 connectingMessage.style.display = 'none';
                 registerBtn.disabled = false;
             }
         });
 
         function monitorOnlineStatus() {
-            if (!currentUser) return;
+            // Ensure currentUser is available before proceeding
+            if (!currentUser) {
+                console.warn("monitorOnlineStatus: currentUser is null. Cannot monitor online status.");
+                return;
+            }
+            
             onlineStatusRef = database.ref('users/' + currentUser.phoneNumber);
-            const presenceRef = database.ref('.info/connected');
-
-            presenceRef.on('value', (snapshot) => {
-                if (snapshot.val() === false) return;
-                onlineStatusRef.onDisconnect().update({
-                    online: false,
+            
+            // Set up onDisconnect to set offline status if the client disconnects unexpectedly
+            onlineStatusRef.onDisconnect().update({
+                online: false,
+                lastSeen: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                // Set user to online when they're active
+                onlineStatusRef.update({
+                    online: true,
                     lastSeen: firebase.database.ServerValue.TIMESTAMP
-                }).then(() => {
+                });
+                console.log(`monitorOnlineStatus: User ${currentUser.phoneNumber} set to online with onDisconnect handler.`);
+            }).catch(error => {
+                console.error("monitorOnlineStatus: Error setting onDisconnect or initial online status:", error);
+            });
+
+            // Listen for Firebase connection status changes
+            database.ref('.info/connected').on('value', (snapshot) => {
+                if (snapshot.val() === true) {
+                    console.log("Firebase .info/connected: Connected. Attempting to set user online.");
+                    if (currentUser) { // Double check currentUser here too
+                        onlineStatusRef.update({
+                            online: true,
+                            lastSeen: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    }
+                } else {
+                    console.log("Firebase .info/connected: Disconnected. User might be offline.");
+                }
+            });
+            
+            // Set user to offline when they close the app or navigate away
+            window.addEventListener('beforeunload', () => {
+                if (currentUser) {
+                    onlineStatusRef.update({
+                        online: false,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        console.log(`beforeunload: User ${currentUser.phoneNumber} explicitly set offline.`);
+                    }).catch(error => {
+                        console.error("beforeunload: Error setting user offline:", error);
+                    });
+                }
+            });
+
+            // Handle visibility change
+            document.addEventListener('visibilitychange', () => {
+                if (!currentUser) return;
+                if (document.hidden) {
+                    onlineStatusRef.update({
+                        online: false,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        console.log(`visibilitychange: User ${currentUser.phoneNumber} set offline (hidden).`);
+                    }).catch(error => {
+                        console.error("visibilitychange: Error setting user offline (hidden):", error);
+                    });
+                } else {
                     onlineStatusRef.update({
                         online: true,
                         lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        console.log(`visibilitychange: User ${currentUser.phoneNumber} set online (visible).`);
+                    }).catch(error => {
+                        console.error("visibilitychange: Error setting user online (visible):", error);
                     });
-                });
-            });
-
-            document.addEventListener('visibilitychange', () => {
-                if (!currentUser) return;
-                onlineStatusRef.update({
-                    online: !document.hidden,
-                    lastSeen: firebase.database.ServerValue.TIMESTAMP
-                });
+                }
             });
         }
 
-        function showNotification(title, message) {
+        // Function to play notification sound - kept for potential future use, but not called
+        function playNotificationSound() {
+            // Removed for now as per previous instructions, can be re-enabled if needed.
+        }
+
+        // Notification system - kept for potential future use, but not called
+        function showNotification(title, message, type = 'info', actions = []) {
             const toastWrapper = document.createElement('div');
             toastWrapper.className = 'notification-toast';
+            
+            let actionButtonsHtml = '';
+            if (actions.length > 0) {
+                actionButtonsHtml = '<div class="d-flex justify-content-end mt-2">';
+                actions.forEach(action => {
+                    actionButtonsHtml += `<button class="btn btn-sm btn-${action.type || 'primary'} me-2" id="toast-action-${action.id}">${action.text}</button>`;
+                });
+                actionButtonsHtml += '</div>';
+            }
+
             toastWrapper.innerHTML = `
                 <div class="toast-header">
                     <strong class="me-auto">${title}</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
-                <div class="toast-body">${message}</div>
+                <div class="toast-body">
+                    ${message}
+                    ${actionButtonsHtml}
+                </div>
             `;
-            document.getElementById('notification-container').appendChild(toastWrapper);
-            const bsToast = new bootstrap.Toast(toastWrapper, { autohide: true, delay: 3000 });
+            
+            notificationContainer.appendChild(toastWrapper);
+            
+            const bsToast = new bootstrap.Toast(toastWrapper, {
+                autohide: actions.length === 0, // Autohide only if no actions
+                delay: actions.length === 0 ? 3000 : false // No delay if actions are present
+            });
             bsToast.show();
-            toastWrapper.addEventListener('hidden.bs.toast', () => toastWrapper.remove());
+
+            actions.forEach(action => {
+                const actionButton = toastWrapper.querySelector(`#toast-action-${action.id}`);
+                if (actionButton) {
+                    actionButton.addEventListener('click', () => {
+                        action.handler();
+                        bsToast.hide(); // Hide toast after action
+                    });
+                }
+            });
+
+            toastWrapper.addEventListener('hidden.bs.toast', () => {
+                toastWrapper.remove();
+            });
         }
 
+        // Contacts Screen
         function showContactsScreen() {
+            console.log('[SCREEN] Showing contacts screen.');
             registrationScreen.style.display = 'none';
             chatScreen.style.display = 'none';
             contactsScreen.style.display = 'block';
-            refreshUIForUnreadMessages();
-            initDeviceStatus();
+            
+            refreshUIForUnreadMessages(); // Use the unified refresh
+            initDeviceStatus(); // Ensure device status (including battery) is initialized and displayed
         }
 
+        /**
+         * Determines a simple gender icon based on the name.
+         */
         function getProfileIcon(name) {
-            if (!name) return '👤';
+            if (!name) return '👤'; // Default user icon
+
             const lowerCaseName = name.toLowerCase();
-            if (lowerCaseName.endsWith('a') || lowerCaseName.endsWith('i') || lowerCaseName.endsWith('e')) return '♀️';
-            return '♂️';
+            // Very simple heuristic: check for common female name endings
+            if (lowerCaseName.endsWith('a') || lowerCaseName.endsWith('i') || lowerCaseName.endsWith('e')) {
+                return '♀️'; // Female symbol
+            }
+            return '♂️'; // Default to male symbol for other names
         }
 
         async function updateNewMessageIndicator() {
-            totalUnreadMessages = Object.values(unreadCounts).reduce((sum, count) => sum + count, 0);
-            if (totalUnreadMessages > 0) {
-                let latestTimestamp = 0;
-                let latestSender = null;
-                for (const phone in latestUnreadMessageTimestamps) {
-                    if (latestUnreadMessageTimestamps[phone] > latestTimestamp) {
-                        latestTimestamp = latestUnreadMessageTimestamps[phone];
-                        latestSender = phone;
+            totalUnreadMessages = 0;
+            let latestUnreadSenderPhoneNumber = null;
+            let latestUnreadTimestamp = 0;
+
+            for (const phoneNumber in unreadCounts) {
+                if (unreadCounts[phoneNumber] > 0) {
+                    totalUnreadMessages += unreadCounts[phoneNumber];
+                    // Find the latest timestamp among all unread messages
+                    if (latestUnreadMessageTimestamps[phoneNumber] && latestUnreadMessageTimestamps[phoneNumber] > latestUnreadTimestamp) {
+                        latestUnreadTimestamp = latestUnreadMessageTimestamps[phoneNumber];
+                        latestUnreadSenderPhoneNumber = phoneNumber;
                     }
                 }
-                let indicatorText = `You have ${totalUnreadMessages} new message${totalUnreadMessages > 1 ? 's' : ''}. Click to view.`;
-                if (totalUnreadMessages === 1 && latestSender) {
-                    const userSnapshot = await database.ref(`users/${latestSender}`).once('value');
-                    const senderName = userSnapshot.val()?.name || 'Someone';
+            }
+
+            if (totalUnreadMessages > 0) {
+                let indicatorText = '';
+                if (totalUnreadMessages === 1 && latestUnreadSenderPhoneNumber) {
+                    // Fetch sender's name for single unread message
+                    const userSnapshot = await database.ref(`users/${latestUnreadSenderPhoneNumber}`).once('value');
+                    const userData = userSnapshot.val();
+                    const senderName = userData ? userData.name : 'Someone';
                     indicatorText = `New message from ${senderName}. Click to view.`;
+                } else {
+                    indicatorText = `You have ${totalUnreadMessages} new message${totalUnreadMessages > 1 ? 's' : ''}. Click to view.`;
                 }
+                
                 newMessageIndicator.textContent = indicatorText;
                 newMessageIndicator.style.display = 'block';
             } else {
@@ -1312,83 +1667,179 @@
         }
 
         function loadContacts(searchTerm = '') {
+            console.log('[CONTACTS] Loading contacts. Current unreadCounts:', JSON.stringify(unreadCounts));
             const contactsRef = database.ref('users');
+            
+            // This listener ensures real-time updates for the contacts list
             contactsRef.on('value', (snapshot) => {
                 contactsList.innerHTML = '';
                 const users = snapshot.val();
-                if (!users) return;
+                
+                if (!users) {
+                    contactsList.innerHTML = '<div class="text-center p-3 text-muted">No contacts found</div>';
+                    updateNewMessageIndicator(); // Update indicator even if no contacts
+                    return;
+                }
                 
                 Object.keys(users).forEach(phoneNumber => {
-                    if (phoneNumber === currentUser.phoneNumber) return;
+                    if (phoneNumber === currentUser.phoneNumber) return; // Don't list self
+                    
                     const user = users[phoneNumber];
-                    if (searchTerm && !user.name.toLowerCase().includes(searchTerm.toLowerCase()) && !user.phoneNumber.includes(searchTerm)) return;
-
+                    
+                    if (searchTerm && 
+                        !user.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
+                        !user.phoneNumber.includes(searchTerm)) {
+                        return;
+                    }
+                    
                     const contactItem = document.createElement('div');
                     contactItem.className = 'contact-item';
-                    const statusText = user.online ? 'Online' : `Last seen: ${formatLastSeen(user.lastSeen)}`;
-                    const statusBadgeClass = user.online ? 'bg-success' : 'bg-secondary';
-                    const unreadCount = unreadCounts[phoneNumber] || 0;
-                    const unreadBadge = unreadCount > 0 ? `<span class="unread-count">${unreadCount}</span>` : '';
-                    const displayPhoneNumber = user.hidePhoneNumber ? 'Number Hidden' : user.phoneNumber;
+                    
+                    let statusText = '';
+                    let statusBadgeClass = 'bg-secondary';
+                    if (user.online) {
+                        statusText = 'Online';
+                        statusBadgeClass = 'bg-success';
+                    } else {
+                        statusText = `Last seen: ${formatLastSeen(user.lastSeen)}`;
+                    }
 
+                    const profileIcon = getProfileIcon(user.name); // Use getProfileIcon
+                    
+                    const unreadCount = unreadCounts[phoneNumber] || 0;
+                    let unreadBadge = '';
+                    if (unreadCount > 0) {
+                        if (unreadCount === 1) {
+                            unreadBadge = `<span class="unread-dot"></span>`;
+                        } else {
+                            unreadBadge = `<span class="unread-count">${unreadCount}</span>`;
+                        }
+                        console.log(`[CONTACTS] User ${phoneNumber}: Unread count is ${unreadCount}, adding badge: ${unreadBadge}`);
+                    } else {
+                        console.log(`[CONTACTS] User ${phoneNumber}: No unread messages.`);
+                    }
+
+                    // Determine if phone number should be hidden
+                    const displayPhoneNumber = user.hidePhoneNumber ? 'Number Hidden' : user.phoneNumber;
+                    
+                    // Modified structure to place status below phone number
                     contactItem.innerHTML = `
                         <div class="d-flex align-items-center">
-                            <div class="profile-logo">${getProfileIcon(user.name)}</div>
+                            <div class="profile-logo">${profileIcon}</div>
                             <div>
                                 <strong>${user.name}</strong>
                                 <div class="text-muted small">${displayPhoneNumber}</div>
+                                <div class="text-end">
+                                    <span class="badge ${statusBadgeClass}">${statusText}</span>
+                                    ${unreadBadge}
+                                </div>
                             </div>
                         </div>
-                        <div class="text-end">
-                            <span class="badge ${statusBadgeClass} mb-1">${statusText}</span>
-                            ${unreadBadge}
-                        </div>`;
-                    contactItem.addEventListener('click', () => startChat(user));
+                    `;
+                    
+                    contactItem.addEventListener('click', () => {
+                        console.log(`[CHAT] Contact ${phoneNumber} clicked. Previous unread count: ${unreadCounts[phoneNumber]}`);
+                        startChat(user);
+                    });
+                    
                     contactsList.appendChild(contactItem);
                 });
-                updateNewMessageIndicator();
+                updateNewMessageIndicator(); // Update indicator after all contacts are loaded
             });
         }
 
-        searchBtn.addEventListener('click', () => loadContacts(contactSearch.value.trim()));
-        contactSearch.addEventListener('input', () => loadContacts(contactSearch.value.trim()));
+        searchBtn.addEventListener('click', () => {
+            console.log('[SEARCH] Search button clicked. Term:', contactSearch.value.trim());
+            loadContacts(contactSearch.value.trim());
+        });
+        
+        contactSearch.addEventListener('input', () => {
+            // Optional: Live search as user types
+            // loadContacts(contactSearch.value.trim()); 
+        });
 
-        async function startChat(contact) {
+        // Chat Screen
+        async function startChat(contact) { // Make it async
             currentChatWith = contact;
+            console.log(`[CHAT] Chat initiated with contact: ${contact.name} (${contact.phoneNumber})`); 
             chatWithName.textContent = `${contact.name}`;
             chatProfileLogo.textContent = getProfileIcon(contact.name);
             
-            const chatId = [currentUser.phoneNumber, contact.phoneNumber].sort().join('_');
+            // Mark all unread messages from this contact as read in Firebase
+            const myPhoneNumber = currentUser.phoneNumber;
+            const theirPhoneNumber = contact.phoneNumber;
+            const chatId = [myPhoneNumber, theirPhoneNumber].sort().join('_');
             const chatRef = database.ref(`chats/${chatId}`);
-            const unreadSnapshot = await chatRef.orderByChild('receiver').equalTo(currentUser.phoneNumber).once('value');
+
+            // Query for unread messages from this contact to the current user
+            const unreadMessagesQuery = chatRef
+                .orderByChild('receiver')
+                .equalTo(myPhoneNumber)
+                .once('value'); // Use once to get current state
+
+            const snapshot = await unreadMessagesQuery;
             const updates = {};
-            unreadSnapshot.forEach(child => {
-                if (child.val().sender === contact.phoneNumber && !child.val().read) {
-                    updates[`${child.key}/read`] = true;
+            snapshot.forEach(childSnapshot => {
+                const message = childSnapshot.val();
+                if (message.sender === theirPhoneNumber && !message.read) {
+                    updates[`${childSnapshot.key}/read`] = true;
                 }
             });
-            if (Object.keys(updates).length > 0) await chatRef.update(updates);
 
+            if (Object.keys(updates).length > 0) {
+                console.log(`[CHAT] Marking ${Object.keys(updates).length} messages from ${theirPhoneNumber} as read.`);
+                await chatRef.update(updates);
+            } else {
+                console.log(`[CHAT] No unread messages from ${theirPhoneNumber} to mark as read.`);
+            }
+
+            // Set up listener for chat partner's online status and battery - this is real-time
             database.ref(`users/${contact.phoneNumber}`).on('value', (snapshot) => {
                 const partner = snapshot.val();
-                if (!partner) return;
-                chatWithStatus.textContent = partner.online ? 'Online' : `Last seen: ${formatLastSeen(partner.lastSeen)}`;
-                const batteryLevel = partner.batteryLevel;
-                if (batteryLevel !== undefined) {
-                    opponentBatteryStatus.textContent = `Battery: ${batteryLevel}% ${partner.batteryCharging ? '⚡' : ''} ${getBatteryEmoji(batteryLevel)}`;
-                } else {
-                    opponentBatteryStatus.textContent = `Battery: ?`;
+                if (partner) {
+                    if (partner.online) {
+                        chatWithStatus.textContent = 'Online';
+                    } else {
+                        chatWithStatus.textContent = `Last seen: ${formatLastSeen(partner.lastSeen)}`;
+                    }
+                    
+                    // Update opponent battery status in chat header
+                    const batteryLevel = partner.batteryLevel;
+                    const batteryCharging = partner.charging; // Corrected to 'charging' from 'batteryCharging'
+                    if (batteryLevel !== undefined) {
+                        // Updated to include battery emoji for opponent
+                        opponentBatteryStatus.textContent = `Battery: ${batteryLevel}% ${batteryCharging ? '⚡' : ''} ${getBatteryEmoji(batteryLevel)}`;
+                    } else {
+                        opponentBatteryStatus.textContent = ` Battery: ?`;
+                    }
+
+                    // Update opponent battery status in game if playing
+                    if (gameActive && gameId) {
+                        const batteryText = partner.batteryLevel !== undefined ? 
+                            `Battery: ${partner.batteryLevel}% ${partner.charging ? '⚡' : ''} ${getBatteryEmoji(partner.batteryLevel)}` : // Corrected to 'charging'
+                            'Battery: Unknown';
+                        playerOpponentBattery.textContent = batteryText;
+                    }
                 }
             });
 
             contactsScreen.style.display = 'none';
             chatScreen.style.display = 'block';
+            
             setupTypingListener(contact.phoneNumber);
             loadChatMessages();
         }
 
         function setupTypingListener(contactPhoneNumber) {
-            const typingIndicator = document.getElementById('typing-indicator');
+            // Retrieve typingIndicator here to ensure it's defined in this scope
+            const typingIndicator = document.getElementById('typing-indicator'); 
+            if (!typingIndicator) {
+                console.error("setupTypingListener: typingIndicator DOM element not found!");
+                return;
+            }
+
+            typingIndicator.style.display = 'none';
+            
             database.ref(`typing/${contactPhoneNumber}`).on('value', (snapshot) => {
                 if (snapshot.exists() && snapshot.val().isTyping) {
                     typingIndicator.textContent = `${currentChatWith.name} is typing...`;
@@ -1400,195 +1851,607 @@
         }
 
         backToContactsBtn.addEventListener('click', () => {
+            console.log('[SCREEN] Returning to contacts screen.');
             chatScreen.style.display = 'none';
             contactsScreen.style.display = 'block';
+            
             if (currentChatWith) {
+                // Detach listeners when leaving chat to prevent memory leaks and incorrect updates
                 database.ref(`typing/${currentChatWith.phoneNumber}`).off();
                 database.ref(`users/${currentChatWith.phoneNumber}`).off();
+                
+                // Detach all message listeners for the current chat
                 const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
                 if (messageListeners[chatId]) {
-                    database.ref('chats/' + chatId).off();
-                    delete messageListeners[chatId];
+                    database.ref('chats/' + chatId).off('child_added', messageListeners[chatId].added);
+                    database.ref('chats/' + chatId).off('child_changed', messageListeners[chatId].changed);
+                    database.ref('chats/' + chatId).off('child_removed', messageListeners[chatId].removed);
+                    delete messageListeners[chatId]; // Remove from tracking object
+                    console.log(`[CHAT] Detached all message listeners for chatId: ${chatId}`);
                 }
-                if (gameRef) gameRef.off();
-                endGame();
+
+                if (gameRef) {
+                    gameRef.off();
+                }
+                endGame(); // Ensure any active game is ended
             }
+            
             currentChatWith = null;
-            chatMessages.innerHTML = '';
-            refreshUIForUnreadMessages();
-            clearReply();
+            chatMessages.innerHTML = ''; // Clear messages when leaving chat
+            refreshUIForUnreadMessages(); // Refresh contacts list to ensure unread counts are updated if any
+            clearReply(); // Clear any pending reply when leaving chat
         });
 
         function loadChatMessages() {
-            chatMessages.innerHTML = '';
-            if (!currentUser || !currentChatWith) return;
-            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+            chatMessages.innerHTML = ''; // Clear messages on load to prevent duplicates
             
-            if (messageListeners[chatId]) database.ref('chats/' + chatId).off();
+            if (!currentUser || !currentChatWith) {
+                console.warn("[MESSAGES] currentUser or currentChatWith is null. Cannot load messages.");
+                return;
+            }
+            
+            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber]
+                .sort()
+                .join('_');
+            
+            console.log("[MESSAGES] Setting up listeners for chatId:", chatId);
 
-            const chatRef = database.ref('chats/' + chatId);
-            messageListeners[chatId] = {
-                added: chatRef.orderByChild('timestamp').on('child_added', (snapshot) => {
-                    if (!chatMessages.querySelector(`[data-message-key="${snapshot.key}"]`)) {
-                        addMessageToChat(snapshot.val(), snapshot.key);
+            // Detach previous listeners if they exist to prevent duplicates
+            if (messageListeners[chatId]) {
+                console.log("[MESSAGES] Detaching existing listeners for chatId:", chatId);
+                database.ref('chats/' + chatId).off('child_added', messageListeners[chatId].added);
+                database.ref('chats/' + chatId).off('child_changed', messageListeners[chatId].changed);
+                database.ref('chats/' + chatId).off('child_removed', messageListeners[chatId].removed);
+            }
+            
+            // Fetch existing messages first, then listen for new ones
+            database.ref('chats/' + chatId)
+                .orderByChild('timestamp')
+                .once('value', (snapshot) => {
+                    console.log("[MESSAGES] Initial message load snapshot received. Has data:", snapshot.exists());
+                    if (snapshot.exists()) {
+                        snapshot.forEach((childSnapshot) => {
+                            const message = childSnapshot.val();
+                            const messageKey = childSnapshot.key;
+                            console.log("[MESSAGES] Processing historical message:", message, "key:", messageKey); // Added log
+                            addMessageToChat(message, messageKey);
+                            // Mark messages as read if they are from the other user and chat screen is active
+                            if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'block') {
+                                console.log(`[MESSAGES] Marking historical message ${messageKey} as read.`);
+                                database.ref(`chats/${chatId}/${messageKey}`).update({
+                                    read: true
+                                });
+                            }
+                        });
+                        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom after loading existing messages
+                    } else {
+                        console.log("[MESSAGES] No historical messages found for chatId:", chatId);
                     }
-                }),
-                changed: chatRef.on('child_changed', (snapshot) => updateMessageInChat(snapshot.val(), snapshot.key)),
-                removed: chatRef.on('child_removed', (snapshot) => removeMessageFromChat(snapshot.key))
-            };
+                }, (error) => {
+                    console.error("[MESSAGES] Firebase 'once' listener error for initial messages:", error);
+                }).then(() => {
+                    // After initial load, set up the 'child_added', 'child_changed', and 'child_removed' listeners for real-time updates
+                    const chatRef = database.ref('chats/' + chatId);
+
+                    messageListeners[chatId] = {
+                        added: chatRef.orderByChild('timestamp').on('child_added', (snapshot) => {
+                            const message = snapshot.val();
+                            const messageKey = snapshot.key;
+                            console.log("[MESSAGES] Received new message via child_added:", message, "key:", messageKey);
+                            
+                            // Only add if it's a truly new message (not one already loaded by 'once')
+                            const existingMessageDiv = chatMessages.querySelector(`[data-message-key="${messageKey}"]`);
+                            if (!existingMessageDiv) {
+                                addMessageToChat(message, messageKey);
+                            } else {
+                                console.log("[MESSAGES] Message already exists in DOM, skipping add:", messageKey);
+                            }
+
+                            // Mark message as read if it's from the other user AND the chat screen is active AND it's the current chat
+                            if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'block') {
+                                console.log("[MESSAGES] Marking new message as read:", messageKey);
+                                database.ref(`chats/${chatId}/${messageKey}`).update({
+                                    read: true
+                                });
+                                // The global listener will handle decrementing the unread count for this sender
+                                // when the message's 'read' status changes in Firebase.
+                            }
+                        }, (error) => {
+                            console.error("[MESSAGES] Firebase 'child_added' listener error:", error);
+                        }),
+                        changed: chatRef.on('child_changed', (snapshot) => {
+                            const message = snapshot.val();
+                            const messageKey = snapshot.key;
+                            console.log("[MESSAGES] Message changed via child_changed:", message, "key:", messageKey);
+                            updateMessageInChat(message, messageKey);
+                        }, (error) => {
+                            console.error("[MESSAGES] Firebase 'child_changed' listener error:", error);
+                        }),
+                        removed: chatRef.on('child_removed', (snapshot) => {
+                            const messageKey = snapshot.key;
+                            console.log("[MESSAGES] Message removed via child_removed:", messageKey);
+                            removeMessageFromChat(messageKey);
+                        }, (error) => {
+                            console.error("[MESSAGES] Firebase 'child_removed' listener error:", error);
+                        })
+                    };
+                });
         }
 
         function addMessageToChat(message, messageKey) {
-            if (!message) return;
-            const messageDiv = document.createElement('div');
-            const isMyMessage = message.sender === currentUser.phoneNumber;
-
+            // Handle game result messages first
             if (message.type === 'game_result') {
-                messageDiv.className = 'system-message';
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message game-result-message'; // Special class for styling
+                messageDiv.dataset.messageKey = messageKey;
                 messageDiv.innerHTML = `<div>${message.text}</div>`;
-            } else {
-                messageDiv.className = `message ${isMyMessage ? 'sent' : 'received'}`;
-                const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                let contentHtml = '';
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return; // Exit here for system messages, no further processing needed
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
+            messageDiv.dataset.messageKey = messageKey; // Add data attribute for easier lookup
+            
+            const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            let messageContentHtml = `<div>${message.text}</div>`;
+            let statusIndicator = '';
+            let editedTag = '';
+            let reactionsHtml = '';
+            let repliedToHtml = '';
 
-                if (message.deleted) {
-                    messageDiv.className = `deleted-message ${isMyMessage ? 'sent' : 'received'}`;
-                    contentHtml = `<div><em>This message was deleted.</em></div><div class="small d-flex justify-content-end align-items-center">${time}</div>`;
-                } else {
-                    const editedTag = message.edited ? `<span class="edited-tag">(Edited)</span>` : '';
-                    let reactionsHtml = '';
-                    if (message.reactions) {
-                        reactionsHtml = '<div class="reactions-container">';
-                        for (const emoji in message.reactions) {
-                            const users = message.reactions[emoji];
-                            const reactedByMe = users.includes(currentUser.phoneNumber) ? ' reacted-by-me' : '';
-                            reactionsHtml += `<div class="reaction-bubble${reactedByMe}" data-emoji="${emoji}"><span>${emoji}</span>${users.length}</div>`;
-                        }
-                        reactionsHtml += '</div>';
-                    }
-                    let repliedToHtml = '';
-                    if (message.repliedTo) {
-                        let repliedToSenderName = message.repliedTo.sender === currentUser.phoneNumber ? "You" : currentChatWith.name;
-                        repliedToHtml = `<div class="replied-message-preview">Replying to <strong>${repliedToSenderName}</strong>: <span class="original-text">${message.repliedTo.text}</span></div>`;
-                    }
-                    const statusIndicator = isMyMessage ? `<span class="message-status ${message.read ? 'read' : 'delivered'}">${message.read ? '✓✓' : '✓'}</span>` : '';
-                    contentHtml = `${repliedToHtml}<div>${message.text}${editedTag}</div><div class="small d-flex justify-content-end align-items-center">${time}${statusIndicator}</div>${reactionsHtml}`;
-                }
-                messageDiv.innerHTML = contentHtml;
+            // Handle deleted messages
+            if (message.deleted) {
+                messageDiv.className = `deleted-message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
+                messageDiv.innerHTML = `
+                    <div><em>This message was deleted.</em></div>
+                    <div class="small d-flex justify-content-end align-items-center">
+                        ${time}
+                    </div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                console.log("[MESSAGES] Deleted message appended to DOM. Message key:", messageKey);
+                // Attach double-click listener for deleted messages too, in case we want to re-introduce a "restore" option later
+                attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber);
+                return; // Stop processing further for deleted messages
             }
 
-            messageDiv.dataset.messageKey = messageKey;
+            // Handle edited messages
+            if (message.edited) {
+                editedTag = `<span class="edited-tag">(Edited)</span>`;
+            }
+
+            // Handle reactions
+            if (message.reactions) {
+                reactionsHtml = '<div class="reactions-container">';
+                for (const emoji in message.reactions) {
+                    const users = message.reactions[emoji];
+                    const count = users.length;
+                    const reactedByMe = users.includes(currentUser.phoneNumber) ? ' reacted-by-me' : '';
+                    reactionsHtml += `
+                        <div class="reaction-bubble${reactedByMe}" data-emoji="${emoji}" data-message-key="${messageKey}">
+                            <span>${emoji}</span>${count}
+                        </div>
+                    `;
+                }
+                reactionsHtml += '</div>';
+            }
+
+            // Handle replied-to messages
+            if (message.repliedTo) {
+                // Determine sender name for the replied-to message
+                let repliedToSenderName = message.repliedTo.senderName;
+                if (message.repliedTo.sender === currentUser.phoneNumber) {
+                    repliedToSenderName = "You";
+                } else if (message.repliedTo.sender === currentChatWith.phoneNumber) {
+                    repliedToSenderName = currentChatWith.name;
+                }
+                
+                repliedToHtml = `
+                    <div class="replied-message-preview">
+                        Replying to <strong>${repliedToSenderName}</strong>:
+                        <span class="original-text">${message.repliedTo.text}</span>
+                    </div>
+                `;
+            }
+
+            if (message.sender === currentUser.phoneNumber) {
+                // Listen for read/delivered status updates for sent messages
+                // Use a specific reference to avoid re-attaching listeners on the same message
+                const messageStatusRef = database.ref(`chats/${[currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_')}/${messageKey}`);
+                messageStatusRef.on('value', (snapshot) => {
+                    const updatedMessage = snapshot.val();
+                    if (updatedMessage) {
+                        const statusClass = updatedMessage.read ? 'read' : 'delivered';
+                        const checkmark = updatedMessage.read ? '✓✓' : '✓';
+                        
+                        let existingStatusSpan = messageDiv.querySelector('.message-status');
+                        if (!existingStatusSpan) {
+                            existingStatusSpan = document.createElement('span');
+                            existingStatusSpan.className = `message-status`; // Initial class, will be updated
+                            const smallTag = messageDiv.querySelector('.small');
+                            if (smallTag) {
+                                smallTag.appendChild(existingStatusSpan);
+                            } else {
+                                console.warn("addMessageToChat: .small element not found for status indicator. Message key:", messageKey);
+                            }
+                        }
+                        existingStatusSpan.className = `message-status ${statusClass}`;
+                        existingStatusSpan.textContent = checkmark;
+                        console.log(`[MESSAGE_STATUS] Updated status for message ${messageKey}: ${checkmark} (read: ${updatedMessage.read})`);
+                    }
+                });
+                statusIndicator = `<span class="message-status delivered">✓</span>`; // Initial status
+            }
+
+            if (message.type === 'gameInvitation') {
+                // Simplified display for game invitations - no buttons
+                messageContentHtml = `
+                    <div>
+                        <strong>Game Invitation from ${message.inviterName || 'Unknown'}</strong>
+                        <p>${message.text}</p>
+                    </div>
+                `;
+            }
+            
+            messageDiv.innerHTML = `
+                ${repliedToHtml}
+                <div>${message.text}${editedTag}</div>
+                <div class="small d-flex justify-content-end align-items-center">
+                    ${time}
+                    ${statusIndicator}
+                </div>
+                ${reactionsHtml}
+            `;
+            
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            console.log("[MESSAGES] Message appended to DOM. Scrolling to bottom. Message:", message); 
 
-            if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'block') {
-                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
-                database.ref(`chats/${chatId}/${messageKey}`).update({ read: true });
-            }
+            // Attach double-click listener for all messages
+            attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber);
 
-            messageDiv.addEventListener('dblclick', (e) => showContextMenu(e, messageKey, message.text, isMyMessage, message.deleted));
+            // Add click listener to reaction bubbles for toggling reactions
             messageDiv.querySelectorAll('.reaction-bubble').forEach(bubble => {
-                bubble.addEventListener('click', (e) => toggleReaction(messageKey, e.currentTarget.dataset.emoji));
+                bubble.addEventListener('click', (e) => {
+                    const emoji = e.currentTarget.dataset.emoji;
+                    toggleReaction(messageKey, emoji);
+                });
             });
         }
 
+        // Function to update an existing message in the chat UI
         function updateMessageInChat(message, messageKey) {
             const messageDiv = chatMessages.querySelector(`[data-message-key="${messageKey}"]`);
-            if (messageDiv) {
-                const scrollAtBottom = chatMessages.scrollHeight - chatMessages.scrollTop === chatMessages.clientHeight;
-                messageDiv.remove();
+            if (!messageDiv) {
+                console.warn(`[UPDATE] Message div not found for key: ${messageKey}. Re-adding.`);
+                // If the message was not found (e.g., it was a historical message that wasn't initially loaded
+                // or a race condition), add it.
                 addMessageToChat(message, messageKey);
-                if (scrollAtBottom) chatMessages.scrollTop = chatMessages.scrollHeight;
+                return;
             }
+
+            // Handle game result messages separately (though they shouldn't change)
+            if (message.type === 'game_result') {
+                messageDiv.innerHTML = `<div>${message.text}</div>`;
+                return;
+            }
+
+            const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            let statusIndicator = '';
+            let editedTag = '';
+            let reactionsHtml = '';
+            let repliedToHtml = '';
+
+            // Handle deleted messages
+            if (message.deleted) {
+                messageDiv.className = `deleted-message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
+                messageDiv.innerHTML = `
+                    <div><em>This message was deleted.</em></div>
+                    <div class="small d-flex justify-content-end align-items-center">
+                        ${time}
+                    </div>
+                `;
+                console.log(`[UPDATE] Message ${messageKey} updated to deleted state.`);
+                return;
+            }
+
+            // Reapply original classes if it was previously deleted
+            messageDiv.className = `message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
+
+            // Handle edited messages
+            if (message.edited) {
+                editedTag = `<span class="edited-tag">(Edited)</span>`;
+            }
+
+            // Handle reactions
+            if (message.reactions) {
+                reactionsHtml = '<div class="reactions-container">';
+                for (const emoji in message.reactions) {
+                    const users = message.reactions[emoji];
+                    const count = users.length;
+                    const reactedByMe = users.includes(currentUser.phoneNumber) ? ' reacted-by-me' : '';
+                    reactionsHtml += `
+                        <div class="reaction-bubble${reactedByMe}" data-emoji="${emoji}" data-message-key="${messageKey}">
+                            <span>${emoji}</span>${count}
+                        </div>
+                    `;
+                }
+                reactionsHtml += '</div>';
+            }
+
+            // Handle replied-to messages
+            if (message.repliedTo) {
+                let repliedToSenderName = message.repliedTo.senderName;
+                if (message.repliedTo.sender === currentUser.phoneNumber) {
+                    repliedToSenderName = "You";
+                } else if (message.repliedTo.sender === currentChatWith.phoneNumber) {
+                    repliedToSenderName = currentChatWith.name;
+                }
+                repliedToHtml = `
+                    <div class="replied-message-preview">
+                        Replying to <strong>${repliedToSenderName}</strong>:
+                        <span class="original-text">${message.repliedTo.text}</span>
+                    </div>
+                `;
+            }
+
+            if (message.sender === currentUser.phoneNumber) {
+                const statusClass = message.read ? 'read' : 'delivered';
+                const checkmark = message.read ? '✓✓' : '✓';
+                statusIndicator = `<span class="message-status ${statusClass}">${checkmark}</span>`;
+            }
+
+            messageDiv.innerHTML = `
+                ${repliedToHtml}
+                <div>${message.text}${editedTag}</div>
+                <div class="small d-flex justify-content-end align-items-center">
+                    ${time}
+                    ${statusIndicator}
+                </div>
+                ${reactionsHtml}
+            `;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            console.log(`[UPDATE] Message ${messageKey} updated in DOM.`);
+
+            // Re-attach click listener to reaction bubbles for toggling reactions
+            messageDiv.querySelectorAll('.reaction-bubble').forEach(bubble => {
+                bubble.addEventListener('click', (e) => {
+                    const emoji = e.currentTarget.dataset.emoji;
+                    toggleReaction(messageKey, emoji);
+                });
+            });
         }
 
+        // Function to remove a message from the chat UI
         function removeMessageFromChat(messageKey) {
             const messageDiv = chatMessages.querySelector(`[data-message-key="${messageKey}"]`);
-            if (messageDiv) messageDiv.remove();
+            if (messageDiv) {
+                messageDiv.remove();
+                console.log(`[REMOVE] Message ${messageKey} removed from DOM.`);
+            } else {
+                console.warn(`[REMOVE] Message div not found for key: ${messageKey}. Cannot remove.`);
+            }
         }
 
-        function showContextMenu(event, messageKey, messageText, isMyMessage, isDeleted) {
-            event.preventDefault();
+        // Function to attach double-click listener to a message element
+        function attachMessageDoubleClickListener(messageDiv, messageKey, messageText, isMyMessage) {
+            messageDiv.addEventListener('dblclick', (e) => {
+                // Prevent default browser double-click behavior (e.g., text selection)
+                e.preventDefault();
+                showContextMenu(e, messageKey, messageText, isMyMessage);
+            });
+        }
+
+        // Function to show the context menu for messages
+        function showContextMenu(event, messageKey, messageText, isMyMessage) {
+            // Remove any existing context menus first
             document.querySelectorAll('.context-menu').forEach(menu => menu.remove());
+
+            const messageElement = event.currentTarget;
             const contextMenu = document.createElement('div');
             contextMenu.className = 'context-menu';
-            let menuHtml = `<button class="reply-btn">Reply</button><button class="react-btn">React</button>`;
-            if (isMyMessage && !isDeleted) {
-                menuHtml += `<button class="edit-btn">Edit</button><button class="delete-btn">Delete</button>`;
+            contextMenu.style.position = 'fixed'; // Ensure fixed positioning
+
+            let menuHtml = `
+                <button id="reply-message-btn">Reply</button>
+                <button id="react-message-btn">React</button>
+            `;
+            // Only show edit/delete if it's the current user's message AND not already deleted
+            if (isMyMessage && !messageElement.classList.contains('deleted-message')) {
+                menuHtml += `
+                    <button id="edit-message-btn">Edit</button>
+                    <button id="delete-message-btn">Delete</button>
+                `;
             }
             contextMenu.innerHTML = menuHtml;
-            document.body.appendChild(contextMenu);
+            document.body.appendChild(contextMenu); // Append to body
 
-            contextMenu.style.top = `${event.clientY}px`;
-            contextMenu.style.left = `${event.clientX}px`;
-            contextMenu.classList.add('show');
+            // Position the context menu based on click event
+            let x = event.clientX;
+            let y = event.clientY;
 
-            contextMenu.querySelector('.reply-btn').addEventListener('click', () => {
-                setReply(messageKey, messageText, isMyMessage ? currentUser.phoneNumber : currentChatWith.phoneNumber, isMyMessage ? currentUser.name : currentChatWith.name);
+            // Give the browser a moment to render the menu to get its dimensions
+            setTimeout(() => {
+                const menuWidth = contextMenu.offsetWidth;
+                const menuHeight = contextMenu.offsetHeight;
+
+                // Adjust X position if it goes off the right edge
+                if (x + menuWidth > window.innerWidth) {
+                    x = window.innerWidth - menuWidth - 10; // 10px padding from right edge
+                }
+                // Adjust X position if it goes off the left edge (shouldn't happen with right-click but good for robustness)
+                if (x < 10) {
+                    x = 10; // 10px padding from left edge
+                }
+
+                // Adjust Y position if it goes off the bottom edge
+                if (y + menuHeight > window.innerHeight) {
+                    y = window.innerHeight - menuHeight - 10; // 10px padding from bottom edge
+                }
+                // Adjust Y position if it goes off the top edge
+                if (y < 10) {
+                    y = 10; // 10px padding from top edge
+                }
+
+                contextMenu.style.left = `${x}px`;
+                contextMenu.style.top = `${y}px`;
+                contextMenu.classList.add('show');
+            }, 10); // Small delay to allow menu dimensions to be calculated
+
+            // Set up event listeners for menu buttons
+            contextMenu.querySelector('#reply-message-btn').addEventListener('click', () => {
+                // Determine the actual sender's phone number for the message being replied to
+                const originalMessageSenderPhoneNumber = isMyMessage ? currentUser.phoneNumber : currentChatWith.phoneNumber;
+                setReply(messageKey, messageText, originalMessageSenderPhoneNumber, messageElement.classList.contains('sent') ? currentUser.name : currentChatWith.name);
                 contextMenu.remove();
             });
-            contextMenu.querySelector('.react-btn').addEventListener('click', () => {
+
+            contextMenu.querySelector('#react-message-btn').addEventListener('click', () => {
                 showEmojiPicker(messageKey);
                 contextMenu.remove();
             });
-            if (isMyMessage && !isDeleted) {
-                contextMenu.querySelector('.edit-btn').addEventListener('click', () => { editMessage(messageKey, messageText); contextMenu.remove(); });
-                contextMenu.querySelector('.delete-btn').addEventListener('click', () => { deleteMessage(messageKey); contextMenu.remove(); });
+
+            if (isMyMessage && !messageElement.classList.contains('deleted-message')) {
+                contextMenu.querySelector('#edit-message-btn').addEventListener('click', () => {
+                    editMessage(messageKey, messageText);
+                    contextMenu.remove();
+                });
+
+                contextMenu.querySelector('#delete-message-btn').addEventListener('click', () => {
+                    deleteMessage(messageKey);
+                    contextMenu.remove();
+                });
             }
-            document.addEventListener('click', () => contextMenu.remove(), { once: true });
+
+            // Hide menu when clicking anywhere else
+            const hideMenu = (e) => {
+                // Check if the click was outside the context menu
+                if (!contextMenu.contains(e.target)) {
+                    contextMenu.remove();
+                    document.removeEventListener('click', hideMenu);
+                    document.removeEventListener('touchstart', hideMenu); // For mobile
+                }
+            };
+            document.addEventListener('click', hideMenu);
+            document.addEventListener('touchstart', hideMenu); // For mobile
         }
-        
+
+        // Function to show the emoji picker modal
         function showEmojiPicker(messageKey) {
             currentMessageKeyForReaction = messageKey;
-            emojiGrid.innerHTML = commonEmojis.map(emoji => `<button>${emoji}</button>`).join('');
-            emojiGrid.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    toggleReaction(currentMessageKeyForReaction, btn.textContent);
-                    emojiPickerModal.style.display = 'none';
+            emojiGrid.innerHTML = ''; // Clear previous emojis
+
+            commonEmojis.forEach(emoji => {
+                const button = document.createElement('button');
+                button.textContent = emoji;
+                button.addEventListener('click', () => {
+                    toggleReaction(currentMessageKeyForReaction, emoji);
+                    emojiPickerModal.style.display = 'none'; // Hide picker after selection
                 });
+                emojiGrid.appendChild(button);
             });
+
             emojiPickerModal.style.display = 'flex';
         }
 
-        closeEmojiPickerBtn.addEventListener('click', () => emojiPickerModal.style.display = 'none');
+        // Event listener for closing emoji picker modal
+        closeEmojiPickerBtn.addEventListener('click', () => {
+            emojiPickerModal.style.display = 'none';
+            currentMessageKeyForReaction = null;
+        });
 
+        // Function to toggle (add/remove) an emoji reaction
         function toggleReaction(messageKey, emoji) {
-            if (!currentUser || !currentChatWith) return;
+            if (!currentUser || !currentChatWith) {
+                console.error("Cannot toggle reaction: currentUser or currentChatWith is null.");
+                return;
+            }
+
             const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
             const messageRef = database.ref(`chats/${chatId}/${messageKey}/reactions`);
+
             messageRef.transaction((currentReactions) => {
-                if (currentReactions === null) currentReactions = {};
-                if (currentReactions[emoji] === undefined) currentReactions[emoji] = [];
-                const userIndex = currentReactions[emoji].indexOf(currentUser.phoneNumber);
-                if (userIndex > -1) {
-                    currentReactions[emoji].splice(userIndex, 1);
-                    if (currentReactions[emoji].length === 0) delete currentReactions[emoji];
-                } else {
-                    currentReactions[emoji].push(currentUser.phoneNumber);
+                // Initialize reactions if null
+                if (currentReactions === null) {
+                    currentReactions = {};
                 }
-                return Object.keys(currentReactions).length === 0 ? null : currentReactions;
+
+                // Initialize emoji's user list if null
+                if (currentReactions[emoji] === undefined) {
+                    currentReactions[emoji] = [];
+                }
+
+                const users = currentReactions[emoji];
+                const userIndex = users.indexOf(currentUser.phoneNumber);
+
+                if (userIndex > -1) {
+                    // User already reacted with this emoji, so remove it
+                    users.splice(userIndex, 1);
+                    if (users.length === 0) {
+                        // If no more users for this emoji, delete the emoji key
+                        delete currentReactions[emoji];
+                    }
+                } else {
+                    // User has not reacted with this emoji, so add it
+                    users.push(currentUser.phoneNumber);
+                }
+
+                // If the entire reactions object becomes empty, return null to delete it
+                if (Object.keys(currentReactions).length === 0) {
+                    return null;
+                } else {
+                    return currentReactions;
+                }
+            }).then(() => {
+                console.log(`Reaction "${emoji}" toggled for message ${messageKey}.`);
+            }).catch(error => {
+                console.error("Error toggling reaction:", error);
             });
         }
 
+
+        // Function to handle message editing
         function editMessage(messageKey, currentText) {
             currentMessageToEdit = database.ref(`chats/${[currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_')}/${messageKey}`);
             editMessageInput.value = currentText;
-            editMessageModal.style.display = 'flex';
+            editMessageModal.style.display = 'flex'; // Show the edit modal
         }
 
+        // Function to handle message deletion
         function deleteMessage(messageKey) {
             const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
-            database.ref(`chats/${chatId}/${messageKey}`).update({
-                text: '',
+            const messageRef = database.ref(`chats/${chatId}/${messageKey}`);
+            
+            // Update message to mark as deleted
+            messageRef.update({
+                text: '', // Clear text content
                 deleted: true,
-                edited: false,
-                reactions: null,
+                edited: false, // Ensure edited flag is false
+                reactions: null, // Clear reactions on deletion
                 deletedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                console.log(`Message ${messageKey} marked as deleted.`);
+                // The updateMessageInChat listener will handle updating the UI
+            }).catch(error => {
+                console.error("Error deleting message:", error);
             });
         }
 
-        closeEditModalBtn.addEventListener('click', () => editMessageModal.style.display = 'none');
-        cancelEditBtn.addEventListener('click', () => editMessageModal.style.display = 'none');
+        // Event listeners for Edit Message Modal
+        closeEditModalBtn.addEventListener('click', () => {
+            editMessageModal.style.display = 'none';
+            currentMessageToEdit = null;
+        });
+
+        cancelEditBtn.addEventListener('click', () => {
+            editMessageModal.style.display = 'none';
+            currentMessageToEdit = null;
+        });
+
         saveEditBtn.addEventListener('click', () => {
             const newText = editMessageInput.value.trim();
             if (currentMessageToEdit && newText) {
@@ -1596,55 +2459,133 @@
                     text: newText,
                     edited: true,
                     editedAt: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    console.log("Message edited successfully!");
+                    editMessageModal.style.display = 'none';
+                    currentMessageToEdit = null;
+                }).catch(error => {
+                    console.error("Error saving edited message:", error);
                 });
-                editMessageModal.style.display = 'none';
+            } else {
+                console.warn("No message to edit or new text is empty.");
             }
         });
 
+        // --- Reply Feature Functions ---
+        // Modified setReply to store sender's phone number as well
         function setReply(messageKey, messageText, senderPhoneNumber, senderDisplayName) {
-            repliedToMessage = { key: messageKey, text: messageText, sender: senderPhoneNumber, senderName: senderDisplayName };
+            repliedToMessage = {
+                key: messageKey,
+                text: messageText,
+                sender: senderPhoneNumber, // Store the sender's phone number
+                senderName: senderDisplayName // Store sender name for display
+            };
             replySenderName.textContent = senderDisplayName;
             replyMessageText.textContent = messageText;
             replyPreview.style.display = 'flex';
-            messageInput.focus();
+            messageInput.focus(); // Focus input for user to type reply
         }
 
         function clearReply() {
             repliedToMessage = null;
             replyPreview.style.display = 'none';
+            replySenderName.textContent = '';
+            replyMessageText.textContent = '';
         }
+
         clearReplyBtn.addEventListener('click', clearReply);
 
+
+        // Typing detection
         messageInput.addEventListener('input', () => {
             if (!currentUser || !currentChatWith) return;
-            database.ref(`typing/${currentUser.phoneNumber}`).set({ isTyping: true });
+            
+            database.ref(`typing/${currentUser.phoneNumber}`).set({
+                isTyping: true,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            
             if (typingTimeout) clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => database.ref(`typing/${currentUser.phoneNumber}`).set({ isTyping: false }), 2000);
+            
+            typingTimeout = setTimeout(() => {
+                database.ref(`typing/${currentUser.phoneNumber}`).set({
+                    isTyping: false,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            }, 2000);
         });
 
         sendBtn.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => e.key === 'Enter' && sendMessage());
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
 
-        function sendMessage() {
+        async function sendMessage() {
             const text = messageInput.value.trim();
-            if (!text || !currentUser || !currentChatWith) return;
-            if (typingTimeout) clearTimeout(typingTimeout);
-            database.ref(`typing/${currentUser.phoneNumber}`).set({ isTyping: false });
             
-            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+            console.log("[SEND] Attempting to send message...");
+            console.log("[SEND] currentUser:", currentUser);
+            console.log("[SEND] currentChatWith:", currentChatWith);
+            console.log("[SEND] Message text:", text);
+
+            if (!text || !currentUser || !currentChatWith) {
+                console.error('[SEND] Error: Message not sent. Missing text, current user, or chat partner. Text:', text, 'CurrentUser:', currentUser, 'CurrentChatWith:', currentChatWith);
+                return;
+            }
+            
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+                database.ref(`typing/${currentUser.phoneNumber}`).set({
+                    isTyping: false,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
+            
+            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber]
+                .sort()
+                .join('_');
+            
+            console.log("[SEND] Generated chatId:", chatId);
+            const newMessageRef = database.ref('chats/' + chatId).push();
+            
             const messageData = {
                 text: text,
                 sender: currentUser.phoneNumber,
                 receiver: currentChatWith.phoneNumber,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
+                delivered: true,
                 read: false,
+                edited: false,
+                deleted: false,
+                reactions: null
             };
-            if (repliedToMessage) messageData.repliedTo = repliedToMessage;
-            database.ref('chats/' + chatId).push().set(messageData);
-            messageInput.value = '';
-            clearReply();
+
+            // Add repliedTo data if a message is being replied to
+            if (repliedToMessage) {
+                // Use the information already stored in repliedToMessage
+                messageData.repliedTo = {
+                    key: repliedToMessage.key,
+                    text: repliedToMessage.text,
+                    sender: repliedToMessage.sender, // This is the phone number
+                    senderName: repliedToMessage.senderName // This is the display name
+                };
+            }
+
+            newMessageRef.set(messageData).then(() => {
+                messageInput.value = '';
+                clearReply(); // Clear reply state after sending
+                console.log("[SEND] Message sent successfully to Firebase!");
+            }).catch(error => {
+                console.error("Error sending message to Firebase:", error);
+                console.error('[SEND] Error: Failed to send message. Please try again. Error details:', error);
+            });
         }
 
+        // --- Multiplayer Color Pop Game ---
+
+        // Initialize the game grid
         function initGameGrid() {
             gameGrid.innerHTML = '';
             for (let i = 0; i < 25; i++) {
@@ -1656,294 +2597,788 @@
             }
         }
 
+        // Handle cell clicks in the game
         function handleCellClick(e) {
-            if (!gameActive || !gameRef) return;
-            const cellIndex = e.target.dataset.index;
-            gameRef.child('cells').child(cellIndex).transaction((currentCell) => {
-                if (currentCell && currentCell.color && !currentCell.poppedBy) {
-                    return { color: null, poppedBy: currentUser.phoneNumber };
-                }
-            }).then(result => {
-                if (result.committed) {
-                    gameRef.child(`scores/${currentUser.phoneNumber}`).transaction(score => (score || 0) + 1);
+            if (!gameActive || !gameRef || !currentUser || !currentChatWith) return;
+            
+            const cell = e.target;
+            const cellIndex = cell.dataset.index;
+            
+            gameRef.child('cells').child(cellIndex).once('value').then(snapshot => {
+                const cellData = snapshot.val();
+                if (cellData && cellData.color && !cellData.poppedBy) {
+                    // Atomically update cell to prevent race conditions
+                    gameRef.child('cells').child(cellIndex).transaction((currentCell) => {
+                        if (currentCell && currentCell.color && !currentCell.poppedBy) {
+                            return {
+                                color: null, // Remove color
+                                poppedBy: currentUser.phoneNumber,
+                                poppedAt: firebase.database.ServerValue.TIMESTAMP
+                            };
+                        }
+                        return undefined; // Abort the transaction if cell already popped or no color
+                    }).then((result) => {
+                        if (result.committed) {
+                            // Update score for the player who successfully popped the cell
+                            gameRef.child(`scores/${currentUser.phoneNumber}`).transaction((currentScore) => {
+                                return (currentScore || 0) + 1;
+                            });
+
+                            // Add animation
+                            cell.classList.add('cell-popped');
+                            setTimeout(() => {
+                                cell.classList.remove('cell-popped');
+                            }, 300);
+                        }
+                    });
                 }
             });
         }
 
+        // Function to initiate a game invitation
         function initiateGame() {
-            if (!currentUser || !currentChatWith) return;
+            if (!currentUser || !currentChatWith) {
+                console.error('Game Error: Please select a contact to play with');
+                return;
+            }
+
+            const potentialGameId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_game';
+            
+            // Create a unique invitation ID
             const invitationId = `${currentUser.phoneNumber}_${currentChatWith.phoneNumber}_${Date.now()}`;
             gameInvitationRef = database.ref(`gameInvitations/${invitationId}`);
+
+            // Send a regular chat message to the opponent about the invitation
             const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
             database.ref('chats/' + chatId).push().set({
-                text: `${currentUser.name} invites you to play Color Pop Battle! Tap the 'Play' button to join.`,
+                text: `${currentUser.name} invites you to play Color Pop Battle! Tap the 'Play Color Pop Battle' button to join.`,
                 sender: currentUser.phoneNumber,
                 receiver: currentChatWith.phoneNumber,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
-                type: 'text'
+                delivered: true,
+                read: false,
+                type: 'text' // Regular text message
             }).then(() => {
-                gameInvitationRef.set({
+                // Now set the invitation status in the gameInvitations node
+                return gameInvitationRef.set({
                     inviter: currentUser.phoneNumber,
                     inviterName: currentUser.name,
                     invitee: currentChatWith.phoneNumber,
+                    inviteeName: currentChatWith.name,
                     status: 'pending',
-                    gameId: [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_game'
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    gameId: potentialGameId,
+                    chatMessageKey: null // No specific chat message key for this type of invitation now
                 });
+            }).then(() => {
+                console.log(`Game Invitation Sent: Waiting for ${currentChatWith.name} to accept the game invitation...`);
+                
+                // Listen for changes in this specific invitation (for the inviter)
                 gameInvitationRef.on('value', (snapshot) => {
-                    const inv = snapshot.val();
-                    if (inv?.status === 'accepted') {
-                        gameInvitationRef.off();
-                        startGame(inv.gameId);
+                    const invitation = snapshot.val();
+                    if (invitation) {
+                        if (invitation.status === 'accepted') {
+                            console.log(`Invitation Accepted: ${currentChatWith.name} accepted your game invitation! Starting game...`);
+                            gameInvitationRef.off(); // Stop listening
+                            startGame(invitation.gameId);
+                        } else if (invitation.status === 'declined') {
+                            console.log(`Invitation Declined: ${currentChatWith.name} declined your game invitation.`);
+                            gameInvitationRef.off(); // Stop listening
+                            gameInvitationRef.remove(); // Clean up the invitation
+                        }
                     }
                 });
+            }).catch(error => {
+                console.error("Error sending game invitation:", error);
+                console.error('Error: Failed to send game invitation. Please try again.');
             });
         }
 
+        // Function to listen for incoming game invitations (no direct UI reaction here)
         function listenForGameInvitations() {
             if (!currentUser) return;
-            // This logic is now handled by the play game button click
-        }
 
-        async function handlePlayGameButtonClick() {
-            if (!currentUser || !currentChatWith) return;
-            const invitationsRef = database.ref('gameInvitations');
-            const incomingSnapshot = await invitationsRef.orderByChild('invitee').equalTo(currentUser.phoneNumber).once('value');
-            let pendingInvitation = null;
-            incomingSnapshot.forEach(child => {
-                const inv = child.val();
-                if (inv.inviter === currentChatWith.phoneNumber && inv.status === 'pending') {
-                    pendingInvitation = { key: child.key, ...inv };
+            database.ref('gameInvitations').orderByChild('invitee').equalTo(currentUser.phoneNumber).on('child_added', (snapshot) => {
+                const invitation = snapshot.val();
+                const invitationKey = snapshot.key;
+
+                if (invitation.status === 'pending' && invitation.inviter !== currentUser.phoneNumber) {
+                    // This listener ensures the invitation exists in Firebase for the invitee to discover via the button
+                    console.log(`Incoming pending game invitation from ${invitation.inviterName}.`);
                 }
             });
-
-            if (pendingInvitation) {
-                await database.ref(`gameInvitations/${pendingInvitation.key}`).update({ status: 'accepted' });
-                startGame(pendingInvitation.gameId);
-            } else {
-                initiateGame();
-            }
         }
 
-        playGameInChatBtn.addEventListener('click', handlePlayGameButtonClick);
+        // Function to accept a game invitation (called internally by handlePlayGameButtonClick)
+        async function acceptGameInvitation(invitationKey, gameIdToStart, chatMessageKey, chatId, inviterPhoneNumber) {
+            // First, ensure currentChatWith is set to the inviter
+            const inviterUserSnapshot = await database.ref(`users/${inviterPhoneNumber}`).once('value');
+            const inviterUser = inviterUserSnapshot.val();
+            if (inviterUser) {
+                currentChatWith = inviterUser;
+            } else {
+                console.error("Error: Inviter user data not found for acceptance.");
+                return;
+            }
 
+            database.ref(`gameInvitations/${invitationKey}`).update({
+                status: 'accepted',
+                acceptedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                // Send a chat message to the inviter confirming acceptance
+                database.ref('chats/' + chatId).push().set({
+                    text: `${currentUser.name} accepted your game invitation! Starting game.`,
+                    sender: currentUser.phoneNumber,
+                    receiver: inviterPhoneNumber,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    delivered: true,
+                    read: false,
+                    type: 'text' // Regular text message
+                });
+                startGame(gameIdToStart);
+            }).catch(error => {
+                console.error("Error accepting game invitation:", error);
+                console.error('Error: Failed to accept game invitation. Please try again.');
+            });
+        }
+
+        // Function to decline a game invitation (can be called if we re-introduce a decline mechanism)
+        function declineGameInvitation(invitationKey, chatMessageKey, chatId, inviterPhoneNumber) {
+            database.ref(`gameInvitations/${invitationKey}`).update({
+                status: 'declined',
+                declinedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                // Send a chat message to the inviter confirming decline
+                database.ref('chats/' + chatId).push().set({
+                    text: `${currentUser.name} declined your game invitation.`,
+                    sender: currentUser.phoneNumber,
+                    receiver: inviterPhoneNumber,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    delivered: true,
+                    read: false,
+                    type: 'text' // Regular text message
+                });
+                // Also remove the invitation from the invitations node for cleanup
+                database.ref(`gameInvitations/${invitationKey}`).remove();
+            }).catch(error => {
+                console.error("Error declining game invitation:", error);
+                console.error('Error: Failed to decline game invitation. Please try again.');
+            });
+        }
+
+        // Start the game (now called after invitation acceptance)
         function startGame(idOfGame) {
+            if (!currentUser || !currentChatWith) {
+                console.error('Game Error: User or opponent not set for game.');
+                return;
+            }
+            
             gameActive = true;
-            gameId = idOfGame;
+            gameId = idOfGame; // Use the gameId passed from the invitation
             gameRef = database.ref(`games/${gameId}`);
             
+            // Set up game players
             playerYouName.textContent = currentUser.name;
             playerOpponentName.textContent = currentChatWith.name;
+            
+            // Explicitly reset scores for the new game
             playerYouScore.textContent = '0';
             playerOpponentScore.textContent = '0';
 
-            gameRef.set({
-                player1: currentUser.phoneNumber,
-                player2: currentChatWith.phoneNumber,
-                status: 'playing',
-                scores: { [currentUser.phoneNumber]: 0, [currentChatWith.phoneNumber]: 0 },
-                cells: {}
+            // Update scores in Firebase to 0 for a fresh start
+            gameRef.child('scores').set({
+                [currentUser.phoneNumber]: 0,
+                [currentChatWith.phoneNumber]: 0
+            });
+            
+            // Get opponent battery status
+            database.ref(`users/${currentChatWith.phoneNumber}`).once('value').then(snapshot => {
+                const opponent = snapshot.val();
+                if (opponent) {
+                    const batteryText = opponent.batteryLevel !== undefined ? 
+                        `Battery: ${opponent.batteryLevel}% ${opponent.charging ? '⚡' : ''} ${getBatteryEmoji(opponent.batteryLevel)}` : // Corrected to 'charging'
+                        'Battery: Unknown';
+                    playerOpponentBattery.textContent = batteryText;
+                }
+            });
+            
+            // Initialize game state (only if it's a new game or if it was ended)
+            gameRef.once('value').then(snapshot => {
+                const existingGame = snapshot.val();
+                if (!existingGame || existingGame.status === 'ended') {
+                    gameRef.set({
+                        player1: currentUser.phoneNumber,
+                        player1Name: currentUser.name,
+                        player2: currentChatWith.phoneNumber,
+                        player2Name: currentChatWith.name,
+                        status: 'playing',
+                        startedAt: firebase.database.ServerValue.TIMESTAMP,
+                        // Scores are already reset above, no need to re-initialize here
+                        cells: {} // Initialize cells for the new game
+                    });
+                } else {
+                    // If game already exists and is playing, just join and update UI
+                    gameRef.update({
+                        status: 'playing' // Ensure status is playing
+                    });
+                }
             });
 
+            // Initialize grid
             initGameGrid();
+            
+            // Start timer
             timeLeft = 60;
             gameTimer.textContent = `Time: ${timeLeft}`;
-            if (timerInterval) clearInterval(timerInterval);
+            clearInterval(timerInterval); // Clear any existing timer
             timerInterval = setInterval(() => {
                 timeLeft--;
                 gameTimer.textContent = `Time: ${timeLeft}`;
-                if (timeLeft <= 0) endGame();
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
             }, 1000);
-
+            
+            // Listen for game state changes
             gameRef.on('value', (snapshot) => {
                 const gameData = snapshot.val();
                 if (!gameData) return;
+                
+                // Update scores
                 if (gameData.scores) {
                     playerYouScore.textContent = gameData.scores[currentUser.phoneNumber] || '0';
                     playerOpponentScore.textContent = gameData.scores[currentChatWith.phoneNumber] || '0';
                 }
-                if (gameData.status === 'ended' && gameActive) endGame(true);
-            });
-
-            gameRef.child('cells').on('child_changed', (snapshot) => {
-                const cell = gameGrid.querySelector(`[data-index="${snapshot.key}"]`);
-                if (cell) {
-                    cell.style.backgroundColor = '';
-                    cell.classList.add('cell-popped');
-                    setTimeout(() => cell.classList.remove('cell-popped'), 300);
+                
+                // Check if game ended (if opponent ended it)
+                if (gameData.status === 'ended' && gameActive) {
+                    endGame(true); // Pass true to indicate it was ended by another player or timer
                 }
             });
             
-            if (gameInterval) clearInterval(gameInterval);
+            // Listen for cell changes
+            gameRef.child('cells').on('child_changed', (snapshot) => {
+                const cellData = snapshot.val();
+                const cellIndex = snapshot.key;
+                const cell = document.querySelector(`.game-cell[data-index="${cellIndex}"]`);
+                
+                if (cellData && cell) {
+                    if (cellData.poppedBy) {
+                        // Cell was popped by someone, remove color
+                        cell.style.backgroundColor = '';
+                        cell.classList.add('cell-popped');
+                        setTimeout(() => {
+                            cell.classList.remove('cell-popped');
+                        }, 300);
+                    } else if (cellData.color) {
+                        // New color appeared
+                        cell.style.backgroundColor = cellData.color;
+                    }
+                }
+            });
+
+            gameRef.child('cells').on('child_added', (snapshot) => {
+                const cellData = snapshot.val();
+                const cellIndex = snapshot.key;
+                const cell = document.querySelector(`.game-cell[data-index="${cellIndex}"]`);
+                if (cellData && cell && cellData.color) {
+                    cell.style.backgroundColor = cellData.color;
+                }
+            });
+            
+            // Start adding colors to cells
+            clearInterval(gameInterval); // Clear any existing game interval
             gameInterval = setInterval(() => {
                 if (!gameActive) return;
-                const emptyCells = Array.from(gameGrid.children).filter(c => !c.style.backgroundColor);
+                
+                const cellsOnScreen = Array.from(document.querySelectorAll('.game-cell'));
+                // Filter cells that don't have a color (i.e., not yet appeared or have been popped)
+                const emptyCells = cellsOnScreen.filter(cell => !cell.style.backgroundColor);
+                
                 if (emptyCells.length > 0) {
                     const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-                    gameRef.child('cells').child(randomCell.dataset.index).set({
-                        color: colors[Math.floor(Math.random() * colors.length)]
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    const cellIndex = randomCell.dataset.index;
+                    
+                    // Add color to the cell in Firebase
+                    gameRef.child('cells').child(cellIndex).set({
+                        color: randomColor,
+                        appearedAt: firebase.database.ServerValue.TIMESTAMP
                     });
                 }
             }, 1000);
-
+            
             gameContainer.style.display = 'flex';
+            console.log('Game Started: Playing Color Pop with ' + currentChatWith.name + '!');
         }
 
+        // End the game
         function endGame(fromFirebase = false) {
-            if (!gameActive) return;
+            if (!gameActive && !fromFirebase) return; // Prevent double ending if already ended by Firebase listener
+
             gameActive = false;
             clearInterval(gameInterval);
             clearInterval(timerInterval);
             
+            if (gameRef && !fromFirebase) { // Only update status if ending from client side
+                // Update game status to ended
+                gameRef.update({
+                    status: 'ended',
+                    endedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
+
             if (gameRef) {
-                if (!fromFirebase) gameRef.update({ status: 'ended' });
-                
+                // Get final scores and post to chat
                 gameRef.child('scores').once('value').then(snapshot => {
                     const scores = snapshot.val();
-                    if (scores) {
+                    if (scores && currentUser && currentChatWith) {
                         const yourScore = scores[currentUser.phoneNumber] || 0;
                         const opponentScore = scores[currentChatWith.phoneNumber] || 0;
-                        let message = `🏁 Game over! Final score: You: ${yourScore}, ${currentChatWith.name}: ${opponentScore}.`;
-                        if (yourScore > opponentScore) message += " You win! 🎉";
-                        else if (yourScore < opponentScore) message += " You lose. 😢";
-                        else message += " It's a tie! �";
                         
-                        // Send game result to chat
+                        const messageText = `Game over! Final score - ${currentUser.name}: ${yourScore}, ${currentChatWith.name}: ${opponentScore}`;
+                        
+                        console.log('Game Over: ' + messageText);
+
+                        // NEW: Send score to chat
                         const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
-                        database.ref('chats/' + chatId).push().set({
-                            text: message,
-                            type: 'game_result',
-                            timestamp: firebase.database.ServerValue.TIMESTAMP
-                        });
+                        const messageData = {
+                            text: messageText,
+                            sender: 'system', // Using 'system' to identify the message
+                            receiver: 'all',
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            delivered: true,
+                            read: false,
+                            type: 'game_result' // Custom type for styling
+                        };
+                        database.ref('chats/' + chatId).push().set(messageData);
                     }
-                    database.ref(`games/${gameId}`).remove();
                 });
+                
+                // Clean up listeners
                 gameRef.off();
+                gameRef.child('cells').off();
+                
+                // Explicitly remove entire game data from Firebase when game ends
+                if (gameId) {
+                    database.ref(`games/${gameId}`).remove().catch(error => { 
+                        console.error("Error removing game data:", error);
+                    });
+                }
+
                 gameRef = null;
                 gameId = null;
             }
-            gameContainer.style.display = 'none';
+            gameContainer.style.display = 'none'; // Ensure game container is hidden
         }
 
-        newGameBtn.addEventListener('click', () => { endGame(); initiateGame(); });
-        closeGameBtn.addEventListener('click', () => confirmationModal.style.display = 'flex');
-        closeModalBtn.addEventListener('click', () => confirmationModal.style.display = 'none');
-        confirmYesBtn.addEventListener('click', () => { confirmationModal.style.display = 'none'; endGame(); });
-        confirmNoBtn.addEventListener('click', () => confirmationModal.style.display = 'none');
+        // Unified handler for play game buttons
+        async function handlePlayGameButtonClick() {
+            if (!currentUser || !currentChatWith) {
+                console.error('Game Error: Please select a contact to play with first!');
+                return;
+            }
 
-        window.addEventListener('click', (event) => {
-            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal || event.target == settingsModal || event.target == bioModal || event.target == reportUserModal) {
-                event.target.style.display = 'none';
+            const invitationsRef = database.ref('gameInvitations');
+            const gameIdForThisPair = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_game';
+
+            // Check if there's a pending invitation *from* currentChatWith *to* currentUser
+            const incomingInvitationQuery = invitationsRef
+                .orderByChild('invitee')
+                .equalTo(currentUser.phoneNumber);
+
+            const incomingSnapshot = await incomingInvitationQuery.once('value');
+            let pendingIncomingInvitation = null;
+
+            incomingSnapshot.forEach(childSnapshot => {
+                const invitation = childSnapshot.val();
+                if (invitation.inviter === currentChatWith.phoneNumber && invitation.status === 'pending') {
+                    pendingIncomingInvitation = { key: childSnapshot.key, ...invitation };
+                    return true; // Stop iterating
+                }
+            });
+
+            if (pendingIncomingInvitation) {
+                // Scenario 1: Current user is the invitee and there's a pending invitation from the chat partner
+                console.log(`Game Invitation: Accepting game invitation from ${currentChatWith.name}...`);
+                
+                // Update the invitation status in Firebase
+                await database.ref(`gameInvitations/${pendingIncomingInvitation.key}`).update({
+                    status: 'accepted',
+                    acceptedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // Send a chat message to the inviter confirming acceptance
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                database.ref('chats/' + chatId).push().set({
+                    text: `${currentUser.name} accepted your game invitation! Starting game.`,
+                    sender: currentUser.phoneNumber,
+                    receiver: currentChatWith.phoneNumber,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    delivered: true,
+                    read: false,
+                    type: 'text' // Regular text message
+                });
+
+                startGame(pendingIncomingInvitation.gameId);
+
+            } else {
+                // Scenario 2: No pending invitation from this partner, so initiate a new one
+                // This also covers the case where the current user is the inviter
+                
+                // Check if there's an existing game or invitation initiated by current user
+                const existingGameSnapshot = await database.ref(`games/${gameIdForThisPair}`).once('value');
+                const existingGame = existingGameSnapshot.val();
+
+                if (existingGame && existingGame.status === 'playing') {
+                    console.log(`Game in Progress: ${currentChatWith.name} is already in a game with you. Joining...`);
+                    startGame(gameIdForThisPair);
+                    return;
+                }
+
+                // Initiate a new game invitation and send a text message
+                initiateGame();
+            }
+        }
+
+        // New game button
+        newGameBtn.addEventListener('click', () => {
+            endGame(); // End current game properly
+            initiateGame(); // Initiate a new game invitation
+        });
+
+        // Close game button - now shows confirmation modal
+        closeGameBtn.addEventListener('click', () => {
+            // Check if game is active before showing modal
+            if (gameActive) {
+                confirmationModal.style.display = 'flex'; // Show the modal
+            } else {
+                endGame(); // If game is not active, just end it (e.g., if it was already ended by timer/opponent)
+                gameContainer.style.display = 'none';
             }
         });
 
+        // Event listeners for the confirmation modal buttons
+        closeModalBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'none'; // Hide the modal
+        });
+
+        confirmYesBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'none'; // Hide the modal
+            endGame(); // Proceed to end the game
+        });
+
+        confirmNoBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'none'; // Hide the modal
+        });
+
+        // Close the modal if the user clicks outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal || event.target == settingsModal || event.target == bioModal || event.target == reportUserModal) {
+                confirmationModal.style.display = 'none';
+                emojiPickerModal.style.display = 'none';
+                editMessageModal.style.display = 'none';
+                settingsModal.style.display = 'none';
+                bioModal.style.display = 'none';
+                reportUserModal.style.display = 'none';
+            }
+        });
+
+
+        // Play game buttons now use the unified handler
+        // playGameBtn.addEventListener('click', handlePlayGameButtonClick); // Removed from contacts screen
+        playGameInChatBtn.addEventListener('click', handlePlayGameButtonClick);
+
+        // Function to update the state of the Register button
         function updateRegisterButtonState() {
-            const phone = phoneNumberInput.value.trim();
-            const name = userNameInput.value.trim();
-            registerBtn.disabled = !(phone.length === 10 && /^\d+$/.test(phone) && name.length > 0);
+            const phoneNumber = phoneNumberInput.value.trim();
+            const userName = userNameInput.value.trim();
+            const isValidPhoneNumber = phoneNumber.length === 10 && /^\d+$/.test(phoneNumber) && !/^[0-5]/.test(phoneNumber) && !/^(\d)\1{9}$/.test(phoneNumber);
+            const isValidUserName = userName.length > 0;
+
+            // Only enable if both are valid AND the connecting message is NOT visible
+            registerBtn.disabled = !(isValidPhoneNumber && isValidUserName) || connectingMessage.style.display === 'block';
         }
 
-        phoneNumberInput.addEventListener('input', updateRegisterButtonState);
-        userNameInput.addEventListener('input', updateRegisterButtonState);
+        // Add event listener for phone number input for live feedback
+        phoneNumberInput.addEventListener('input', () => {
+            const phoneNumber = phoneNumberInput.value.trim();
+            const isValidLength = phoneNumber.length === 10;
+            const isNumeric = /^\d+$/.test(phoneNumber);
+            const isInvalidStart = /^[0-5]/.test(phoneNumber);
+            const hasRepeatingDigits = /^(\d)\1{9}$/.test(phoneNumber);
 
+            if (phoneNumber.length > 0 && (!isValidLength || !isNumeric || isInvalidStart || hasRepeatingDigits)) {
+                phoneNumberFeedback.textContent = "Do not try to spam, otherwise your account will be blocked";
+                phoneNumberFeedback.style.display = 'block';
+            } else {
+                phoneNumberFeedback.style.display = 'none';
+            }
+            // Hide general registration error when user starts typing again
+            registrationErrorFeedback.style.display = 'none';
+            updateRegisterButtonState(); // Update button state on every input
+        });
+
+        // Add event listener for user name input to enable/disable button
+        userNameInput.addEventListener('input', () => {
+            // Hide general registration error when user starts typing again
+            registrationErrorFeedback.style.display = 'none';
+            updateRegisterButtonState();
+        });
+
+        // New function to refresh UI related to unread messages
         function refreshUIForUnreadMessages() {
             updateNewMessageIndicator();
-            loadContacts(contactSearch.value.trim());
+            loadContacts(contactSearch.value.trim()); // Re-render contacts to update badges
         }
 
+        // --- Global Unread Message Listener ---
         async function setupGlobalUnreadListener() {
-            if (!currentUser) return;
-            Object.values(globalUnreadListeners).forEach(listeners => Object.values(listeners).forEach(l => l.ref.off('value', l.cb)));
-            globalUnreadListeners = {};
+            if (!currentUser) {
+                console.warn("setupGlobalUnreadListener: currentUser is null. Cannot set up global listener.");
+                return;
+            }
 
+            const myPhoneNumber = currentUser.phoneNumber;
+
+            // First, clear any existing global listeners to prevent duplicates on re-login
+            for (const chatId in globalUnreadListeners) {
+                if (globalUnreadListeners[chatId]) {
+                    // Turn off all listeners for this chat ID
+                    database.ref('chats/' + chatId).off('child_added', globalUnreadListeners[chatId].added);
+                    database.ref('chats/' + chatId).off('child_changed', globalUnreadListeners[chatId].changed);
+                    database.ref('chats/' + chatId).off('child_removed', globalUnreadListeners[chatId].removed);
+                    delete globalUnreadListeners[chatId];
+                }
+            }
+            console.log("[GLOBAL_UNREAD] Cleared existing global unread listeners.");
+
+            // Fetch all users to set up listeners for potential chat partners
             const usersSnapshot = await database.ref('users').once('value');
-            if (!usersSnapshot.exists()) return;
-            
+            const usersData = usersSnapshot.val();
+
+            if (!usersData) {
+                console.log("[GLOBAL_UNREAD] No other users found to set up chat listeners.");
+                return;
+            }
+
+            // Initialize unread counts and timestamps from existing unread messages
             unreadCounts = {};
             latestUnreadMessageTimestamps = {};
 
-            Object.keys(usersSnapshot.val()).forEach(otherPhone => {
-                if (otherPhone === currentUser.phoneNumber) return;
-                const chatId = [currentUser.phoneNumber, otherPhone].sort().join('_');
+            for (const otherPhoneNumber in usersData) {
+                if (otherPhoneNumber === myPhoneNumber) continue; // Skip self
+
+                const chatId = [myPhoneNumber, otherPhoneNumber].sort().join('_');
                 const chatRef = database.ref(`chats/${chatId}`);
-                
-                const listener = chatRef.on('value', (snapshot) => {
-                    let count = 0;
-                    let latestTimestamp = 0;
-                    snapshot.forEach(child => {
-                        const msg = child.val();
-                        if (msg.receiver === currentUser.phoneNumber && !msg.read && msg.sender === otherPhone) {
-                            count++;
-                            if (msg.timestamp > latestTimestamp) latestTimestamp = msg.timestamp;
+
+                // Listener for new messages (child_added)
+                const addedListener = chatRef.orderByChild('timestamp').on('child_added', (snapshot) => {
+                    const message = snapshot.val();
+                    // Check if the message is for the current user, is unread, and is from the other person
+                    // This listener will also fire for existing messages on initial setup.
+                    if (message.receiver === myPhoneNumber && !message.read && message.sender === otherPhoneNumber) {
+                        // Only increment if the user is not currently in this specific chat
+                        if (!currentChatWith || currentChatWith.phoneNumber !== otherPhoneNumber) {
+                            unreadCounts[otherPhoneNumber] = (unreadCounts[otherPhoneNumber] || 0) + 1;
+                            if (!latestUnreadMessageTimestamps[otherPhoneNumber] || message.timestamp > latestUnreadMessageTimestamps[otherPhoneNumber]) {
+                                latestUnreadMessageTimestamps[otherPhoneNumber] = message.timestamp;
+                            }
+                            console.log(`[GLOBAL_UNREAD] New unread message for ${myPhoneNumber} from ${otherPhoneNumber}. Count: ${unreadCounts[otherPhoneNumber]}`);
+                            refreshUIForUnreadMessages(); // Call unified refresh
+                        } else {
+                            // If we are in the chat with this sender, mark the message as read immediately
+                            if (!message.read) {
+                                database.ref(`chats/${chatId}/${snapshot.key}`).update({ read: true });
+                                console.log(`[GLOBAL_UNREAD] Message from ${otherPhoneNumber} marked as read because in chat.`);
+                                // This update will trigger 'child_changed', which will then call refreshUIForUnreadMessages
+                            }
                         }
-                    });
-                    unreadCounts[otherPhone] = count;
-                    if (count > 0) latestUnreadMessageTimestamps[otherPhone] = latestTimestamp;
-                    else delete latestUnreadMessageTimestamps[otherPhone];
-                    refreshUIForUnreadMessages();
+                    }
+                }, (error) => {
+                    console.error(`[GLOBAL_UNREAD] Error listening to chat ${chatId} (child_added):`, error);
                 });
-                globalUnreadListeners[chatId] = { added: listener }; // Simplified for new logic
-            });
+
+                // Listener for message changes (child_changed)
+                const changedListener = chatRef.on('child_changed', (snapshot) => {
+                    const message = snapshot.val();
+                    const messageKey = snapshot.key;
+
+                    if (message.receiver === myPhoneNumber && message.read && message.sender === otherPhoneNumber) {
+                        if (unreadCounts[otherPhoneNumber] > 0) {
+                            unreadCounts[otherPhoneNumber]--;
+                            console.log(`[GLOBAL_UNREAD] Message from ${otherPhoneNumber} marked read. Count: ${unreadCounts[otherPhoneNumber]}`);
+                            // Re-evaluate latest timestamp if the one that became read was the latest
+                            if (latestUnreadMessageTimestamps[otherPhoneNumber] && message.timestamp === latestUnreadMessageTimestamps[otherPhoneNumber]) {
+                                recalculateUnreadCountForSender(otherPhoneNumber); // This already calls refreshUIForUnreadMessages
+                            } else {
+                                refreshUIForUnreadMessages(); // Call unified refresh
+                            }
+                        }
+                    } else if (message.deleted && message.receiver === myPhoneNumber) {
+                        recalculateUnreadCountForSender(otherPhoneNumber); // This already calls refreshUIForUnreadMessages
+                    }
+                }, (error) => {
+                    console.error(`[GLOBAL_UNREAD] Error listening to chat ${chatId} (child_changed):`, error);
+                });
+
+                // Listener for message removals (child_removed)
+                const removedListener = chatRef.on('child_removed', (snapshot) => {
+                    const message = snapshot.val();
+                    // If the removed message was an unread message for currentUser from this sender
+                    if (message.receiver === myPhoneNumber && !message.read && message.sender === otherPhoneNumber) {
+                        recalculateUnreadCountForSender(otherPhoneNumber); // This already calls refreshUIForUnreadMessages
+                    }
+                }, (error) => {
+                    console.error(`[GLOBAL_UNREAD] Error listening to chat ${chatId} (child_removed):`, error);
+                });
+
+                // Store listener references for cleanup
+                globalUnreadListeners[chatId] = {
+                    added: addedListener,
+                    changed: changedListener,
+                    removed: removedListener
+                };
+            }
+            console.log("[GLOBAL_UNREAD] Global unread listeners set up for all contacts.");
         }
 
-        newMessageIndicator.addEventListener('click', async () => {
+        // Helper function to recalculate unread count and latest timestamp for a specific sender
+        async function recalculateUnreadCountForSender(senderPhoneNumber) {
+            if (!currentUser) return;
+            const myPhoneNumber = currentUser.phoneNumber;
+            const chatId = [myPhoneNumber, senderPhoneNumber].sort().join('_');
+            const chatRef = database.ref(`chats/${chatId}`);
+
+            let count = 0;
             let latestTimestamp = 0;
-            let latestSenderPhone = null;
-            for (const phone in latestUnreadMessageTimestamps) {
-                if (latestUnreadMessageTimestamps[phone] > latestTimestamp) {
-                    latestTimestamp = latestUnreadMessageTimestamps[phone];
-                    latestSenderPhone = phone;
+
+            const snapshot = await chatRef.orderByChild('timestamp').once('value');
+            snapshot.forEach(messageSnapshot => {
+                const message = messageSnapshot.val();
+                if (message.receiver === myPhoneNumber && !message.read && message.sender === senderPhoneNumber) {
+                    count++;
+                    if (message.timestamp > latestTimestamp) {
+                        latestTimestamp = message.timestamp;
+                    }
+                }
+            });
+
+            unreadCounts[senderPhoneNumber] = count;
+            if (count > 0) {
+                latestUnreadMessageTimestamps[senderPhoneNumber] = latestTimestamp;
+            } else {
+                delete latestUnreadMessageTimestamps[senderPhoneNumber];
+            }
+            refreshUIForUnreadMessages(); // Call unified refresh
+            console.log(`[GLOBAL_UNREAD] Recalculated unread count for ${senderPhoneNumber}: ${count}`);
+        }
+
+        // Click listener for the new message indicator
+        newMessageIndicator.addEventListener('click', async () => {
+            // Find the contact with the most recent unread message
+            let latestUnreadContact = null;
+            let latestUnreadTimestamp = 0;
+            let latestUnreadSenderPhoneNumber = null;
+
+            // Iterate through latestUnreadMessageTimestamps to find the overall latest
+            for (const phoneNumber in latestUnreadMessageTimestamps) {
+                if (latestUnreadMessageTimestamps[phoneNumber] > latestUnreadTimestamp) {
+                    latestUnreadTimestamp = latestUnreadMessageTimestamps[phoneNumber];
+                    latestUnreadSenderPhoneNumber = phoneNumber;
                 }
             }
-            if (latestSenderPhone) {
-                const userSnapshot = await database.ref(`users/${latestSenderPhone}`).once('value');
-                if (userSnapshot.exists()) startChat(userSnapshot.val());
+
+            if (latestUnreadSenderPhoneNumber) {
+                // Fetch full user data for this phone number
+                const userSnapshot = await database.ref(`users/${latestUnreadSenderPhoneNumber}`).once('value');
+                if (userSnapshot.exists()) {
+                    latestUnreadContact = userSnapshot.val();
+                    startChat(latestUnreadContact); // This will handle marking messages as read and triggering UI refresh
+                } else {
+                    console.warn(`User data not found for ${latestUnreadSenderPhoneNumber}. Cannot start chat.`);
+                    // If contact invalid, force a UI refresh to hide the indicator if no other unread messages exist
+                    refreshUIForUnreadMessages();
+                }
+            } else {
+                // If no unread messages found, hide the indicator
+                refreshUIForUnreadMessages();
+                console.warn("New message indicator clicked but no unread messages found.");
             }
         });
 
+        // --- Settings Modal Logic ---
         settingsBtn.addEventListener('click', async () => {
-            if (!currentUser) return;
+            if (!currentUser) {
+                console.warn("Cannot open settings: currentUser is null.");
+                return;
+            }
+            // Fetch current user's settings to populate the modal
             const userSnapshot = await database.ref(`users/${currentUser.phoneNumber}`).once('value');
             const userData = userSnapshot.val();
             if (userData) {
                 hideNumberSwitch.checked = userData.hidePhoneNumber || false;
                 userBioSettings.value = userData.bio || '';
-                const savedColor = localStorage.getItem('themeColor') || '#0d6efd';
-                document.querySelectorAll('.theme-color-dot').forEach(dot => {
-                    dot.classList.toggle('selected', dot.dataset.color === savedColor);
-                });
             }
             settingsModal.style.display = 'flex';
         });
 
-        closeSettingsModalBtn.addEventListener('click', () => settingsModal.style.display = 'none');
-
-        saveSettingsBtn.addEventListener('click', async () => {
-            if (!currentUser) return;
-            const newHidePhoneNumber = hideNumberSwitch.checked;
-            const newBio = userBioSettings.value.trim();
-            const selectedColorDot = themeColorOptions.querySelector('.selected');
-            const newColor = selectedColorDot ? selectedColorDot.dataset.color : '#0d6efd';
-
-            await database.ref(`users/${currentUser.phoneNumber}`).update({
-                hidePhoneNumber: newHidePhoneNumber,
-                bio: newBio
-            });
-            applyTheme(newColor);
-            localStorage.setItem('themeColor', newColor);
-
+        closeSettingsModalBtn.addEventListener('click', () => {
             settingsModal.style.display = 'none';
         });
 
+        saveSettingsBtn.addEventListener('click', async () => {
+            if (!currentUser) {
+                console.warn("Cannot save settings: currentUser is null.");
+                return;
+            }
+            const newHidePhoneNumber = hideNumberSwitch.checked;
+            const newBio = userBioSettings.value.trim();
+
+            try {
+                await database.ref(`users/${currentUser.phoneNumber}`).update({
+                    hidePhoneNumber: newHidePhoneNumber,
+                    bio: newBio
+                });
+                console.log("Settings saved successfully!");
+                settingsModal.style.display = 'none';
+                // Update current user object in local storage and memory
+                currentUser.hidePhoneNumber = newHidePhoneNumber;
+                currentUser.bio = newBio;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                refreshUIForUnreadMessages(); // Re-load contacts to reflect phone number visibility change
+            } catch (error) {
+                console.error("Error saving settings:", error);
+            }
+        });
+
+        // --- Bio Display Modal Logic ---
         chatProfileLogo.addEventListener('click', () => {
-            if (!currentChatWith) return;
+            if (!currentChatWith) {
+                console.warn("No chat partner selected to display bio.");
+                return;
+            }
             bioModalUserName.textContent = currentChatWith.name;
-            bioModalContent.textContent = currentChatWith.bio || `${currentChatWith.name} has not set a bio yet.`;
-            bioModalContent.classList.toggle('no-bio', !currentChatWith.bio);
+            if (currentChatWith.bio) {
+                bioModalContent.textContent = currentChatWith.bio;
+                bioModalContent.classList.remove('no-bio');
+            } else {
+                bioModalContent.textContent = `${currentChatWith.name} has not set a bio yet.`;
+                bioModalContent.classList.add('no-bio');
+            }
             bioModal.style.display = 'flex';
         });
-        closeBioModalBtn.addEventListener('click', () => bioModal.style.display = 'none');
-        closeBioModalFooterBtn.addEventListener('click', () => bioModal.style.display = 'none');
 
+        closeBioModalBtn.addEventListener('click', () => {
+            bioModal.style.display = 'none';
+        });
+
+        closeBioModalFooterBtn.addEventListener('click', () => {
+            bioModal.style.display = 'none';
+        });
+
+        // --- Report User Logic ---
         reportUserBtn.addEventListener('click', () => {
             if (!currentChatWith) return;
             reportUserName.textContent = currentChatWith.name;
@@ -1951,107 +3386,114 @@
             reportFeedback.style.display = 'none';
             reportUserModal.style.display = 'flex';
         });
-        closeReportModalBtn.addEventListener('click', () => reportUserModal.style.display = 'none');
-        cancelReportBtn.addEventListener('click', () => reportUserModal.style.display = 'none');
+
+        closeReportModalBtn.addEventListener('click', () => {
+            reportUserModal.style.display = 'none';
+        });
+
+        cancelReportBtn.addEventListener('click', () => {
+            reportUserModal.style.display = 'none';
+        });
+
         submitReportBtn.addEventListener('click', async () => {
             const reason = reportReasonInput.value.trim();
             if (!reason) {
-                reportFeedback.textContent = 'Please provide a reason.';
+                reportFeedback.textContent = 'Please provide a reason for the report.';
                 reportFeedback.style.display = 'block';
                 return;
             }
-            const reportRef = database.ref(`reports/${currentChatWith.phoneNumber}/${currentUser.phoneNumber}`);
+
+            if (!currentUser || !currentChatWith) return;
+
+            const reportedPhoneNumber = currentChatWith.phoneNumber;
+            const reporterPhoneNumber = currentUser.phoneNumber;
+            const reportRef = database.ref(`reports/${reportedPhoneNumber}/${reporterPhoneNumber}`);
+
             const snapshot = await reportRef.once('value');
             if (snapshot.exists()) {
                 reportFeedback.textContent = 'You have already reported this user.';
                 reportFeedback.style.display = 'block';
                 return;
             }
-            await reportRef.set({ reason: reason, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            const reportsSnapshot = await database.ref(`reports/${currentChatWith.phoneNumber}`).once('value');
-            if (reportsSnapshot.numChildren() > 3) {
-                await database.ref(`users/${currentChatWith.phoneNumber}`).update({ suspended: true });
+
+            // Submit the report
+            await reportRef.set({
+                reason: reason,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            // Check the total number of reports for the user
+            const allReportsRef = database.ref(`reports/${reportedPhoneNumber}`);
+            const reportsSnapshot = await allReportsRef.once('value');
+            const reportCount = reportsSnapshot.numChildren();
+
+            console.log(`User ${reportedPhoneNumber} now has ${reportCount} reports.`);
+
+            // If report count exceeds the threshold, suspend the user
+            if (reportCount > 3) {
+                await database.ref(`users/${reportedPhoneNumber}`).update({
+                    suspended: true
+                });
+                console.log(`User ${reportedPhoneNumber} has been suspended.`);
             }
+
+            // Provide feedback and close modal
+            reportReasonInput.value = '';
+            reportFeedback.style.display = 'none';
             reportUserModal.style.display = 'none';
-            showNotification('Report Submitted', `Your report against ${currentChatWith.name} has been submitted.`);
+            showNotification('Report Submitted', `Your report against ${currentChatWith.name} has been submitted.`, 'success');
         });
 
-        // Theme functions
-        function applyTheme(color) {
-            const root = document.documentElement;
-            root.style.setProperty('--primary-color', color);
-            // A simple way to get a darker shade for the border
-            const darkerColor = pSBC(-0.2, color);
-            root.style.setProperty('--primary-dark-color', darkerColor);
-        }
 
-        themeColorOptions.addEventListener('click', (e) => {
-            if (e.target.classList.contains('theme-color-dot')) {
-                themeColorOptions.querySelector('.selected')?.classList.remove('selected');
-                e.target.classList.add('selected');
-            }
-        });
-
-        // Helper function for color shading (https://github.com/PimpTrizkit/PJs/wiki/12.-Shade,-Blend-and-Convert-a-Web-Color-(pSBC.js))
-        const pSBC=(p,c0,c1,l)=>{
-            let r,g,b,P,f,t,h,i=parseInt,m=Math.round,a=typeof(c1)=="string";
-            if(typeof(p)!="number"||p<-1||p>1||typeof(c0)!="string"||(c0[0]!='r'&&c0[0]!='#')||(c1&&!a))return null;
-            if(!this.pSBCr)this.pSBCr=(d)=>{
-                let n=d.length,x={};
-                if(n>9){
-                    [r,g,b,a]=d=d.split(","),n=d.length;
-                    if(n<3||n>4)return null;
-                    x.r=i(r[3]=="a"?r.slice(5):r.slice(4)),x.g=i(g),x.b=i(b),x.a=a?parseFloat(a):-1
-                }else{
-                    if(n==8||n==6||n<4)return null;
-                    if(n<6)d="#"+d[1]+d[1]+d[2]+d[2]+d[3]+d[3]+(n>4?d[4]+d[4]:"");
-                    d=i(d.slice(1),16);
-                    if(n==9||n==5)x.r=d>>24&255,x.g=d>>16&255,x.b=d>>8&255,x.a=m((d&255)/0.255)/1000;
-                    else x.r=d>>16,x.g=d>>8&255,x.b=d&255,x.a=-1
-                }return x};
-            h=c0.length>9,h=a?c1.length>9?true:c1=="c"?!h:false:h,f=this.pSBCr(c0),P=p<0,t=c1&&c1!="c"?this.pSBCr(c1):P?{r:0,g:0,b:0,a:-1}:{r:255,g:255,b:255,a:-1},p=P?p*-1:p,P=1-p;
-            if(!f||!t)return null;
-            if(l)r=m(P*f.r+p*t.r),g=m(P*f.g+p*t.g),b=m(P*f.b+p*t.b);
-            else r=m((P*f.r**2+p*t.r**2)**0.5),g=m((P*f.g**2+p*t.g**2)**0.5),b=m((P*f.b**2+p*t.b**2)**0.5);
-            a=f.a,t=t.a,f=a>=0||t>=0,a=f?a<0?t:t<0?a:a*P+t*p:0;
-            if(h)return"rgb"+(f?"a(":"")+r+","+g+","+b+(f?","+m(a*1000)/1000:"")+")";
-            else return"#"+(4294967296+r*16777216+g*65536+b*256+(f?m(a*255):0)).toString(16).slice(1,f?undefined:-2)
-        }
-
+        // Check if user is already registered on page load
         window.addEventListener('load', () => {
-            const savedTheme = localStorage.getItem('themeColor');
+            // Apply theme on load
+            const savedTheme = localStorage.getItem('chatThemeColor');
             if (savedTheme) {
                 applyTheme(savedTheme);
+            } else {
+                applyTheme('#0d6efd'); // Apply default theme if none is saved
             }
 
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
+                // On load, fetch the full user data to check for suspension status
                 database.ref('users/' + currentUser.phoneNumber).once('value').then(snapshot => {
                     const userData = snapshot.val();
                     if (userData) {
+                        // --- NEW: Check for suspension on load ---
                         if (userData.suspended) {
+                            console.log(`Login blocked for ${currentUser.phoneNumber}: Account is suspended.`);
                             registrationFormView.style.display = 'none';
                             accountSuspendedView.style.display = 'block';
-                            registrationScreen.style.display = 'block';
-                            localStorage.clear();
+                            registrationScreen.style.display = 'block'; // Ensure the container is visible
+                            localStorage.clear(); // Clear local storage to force re-login attempt
                             return;
                         }
-                        currentUser = { ...currentUser, ...userData };
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                        currentUser = { ...currentUser, ...userData }; // Merge with existing data
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Update local storage
                         showContactsScreen();
                         monitorOnlineStatus();
                         listenForGameInvitations();
-                        setupGlobalUnreadListener();
+                        setupGlobalUnreadListener(); // Setup global unread listener on load
                     } else {
+                         // User data not found in Firebase, likely deleted. Clear local and show registration.
                          localStorage.clear();
                          registrationScreen.style.display = 'block';
+                         registrationFormView.style.display = 'block';
+                         accountSuspendedView.style.display = 'none';
                     }
+                }).catch(error => {
+                    console.error("Error fetching user data on load:", error);
+                    // Fallback to showing registration if data fetch fails
+                    registrationScreen.style.display = 'block';
                 });
             } else {
                 registrationScreen.style.display = 'block';
             }
-            updateRegisterButtonState();
+            updateRegisterButtonState(); // Set initial state of the register button on load
         });
     </script>
 </body>
