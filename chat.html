@@ -857,33 +857,63 @@
             </div>
         </div>
     </div>
+
+    <!-- Report User Modal -->
+    <div id="report-user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="report-modal-header">Report User</span>
+                <span class="close-modal-btn" id="close-report-modal-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Please provide a reason for reporting <strong id="report-user-name"></strong>.</p>
+                <textarea id="report-reason-input" class="form-control" rows="4" placeholder="Enter reason..."></textarea>
+                <div id="report-feedback" class="text-danger small mt-2" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="submit-report-btn" class="btn btn-danger">Submit Report</button>
+                <button id="cancel-report-btn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
     
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
 
     <div class="container mt-4">
         <div id="registration-screen" class="chat-container">
-            <div class="chat-header">
-                <h5>Welcome to the Chat App</h5>
+            <!-- Account Suspended View -->
+            <div id="account-suspended-view" style="display: none; text-align: center; padding: 40px;">
+                <h1 style="font-size: 3em;">🚫</h1>
+                <h2>Account Suspended</h2>
+                <p>Your account has been suspended due to a violation of our terms or unusual activity.</p>
+                <p>For more details or to appeal, please contact customer support.</p>
             </div>
-            <div class="p-4">
-                <div class="mb-3">
-                    <label for="phone-number" class="form-label">Phone Number</label>
-                    <input type="text" class="form-control rounded-pill" id="phone-number" placeholder="Enter your 10-digit phone number" maxlength="10">
-                    <div id="phone-number-feedback" class="text-danger small mt-1" style="display: none;"></div>
+
+            <!-- Registration Form View -->
+            <div id="registration-form-view">
+                <div class="chat-header">
+                    <h5>Welcome to the Chat App</h5>
                 </div>
-                <div class="mb-3">
-                    <label for="user-name" class="form-label">Your Name</label>
-                    <input type="text" class="form-control rounded-pill" id="user-name" placeholder="Enter your name">
+                <div class="p-4">
+                    <div class="mb-3">
+                        <label for="phone-number" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control rounded-pill" id="phone-number" placeholder="Enter your 10-digit phone number" maxlength="10">
+                        <div id="phone-number-feedback" class="text-danger small mt-1" style="display: none;"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="user-name" class="form-label">Your Name</label>
+                        <input type="text" class="form-control rounded-pill" id="user-name" placeholder="Enter your name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="user-bio" class="form-label">Your Bio (Optional)</label>
+                        <textarea class="form-control rounded-pill" id="user-bio" rows="2" placeholder="Tell others about yourself..."></textarea>
+                    </div>
+                    <button id="register-btn" class="btn btn-primary w-100 rounded-pill">Register</button>
+                    <div id="connecting-message" class="connecting-message" style="display: none;">
+                        Connecting... Please wait.
+                    </div>
+                    <div id="registration-error-feedback" class="text-danger small mt-2" style="display: none;"></div>
                 </div>
-                <div class="mb-3">
-                    <label for="user-bio" class="form-label">Your Bio (Optional)</label>
-                    <textarea class="form-control rounded-pill" id="user-bio" rows="2" placeholder="Tell others about yourself..."></textarea>
-                </div>
-                <button id="register-btn" class="btn btn-primary w-100 rounded-pill">Register</button>
-                <div id="connecting-message" class="connecting-message" style="display: none;">
-                    Connecting... Please wait.
-                </div>
-                <div id="registration-error-feedback" class="text-danger small mt-2" style="display: none;"></div>
             </div>
         </div>
 
@@ -915,6 +945,7 @@
                         <span id="chat-with-name" class="fw-bold">Chat with...</span>
                         <div id="chat-with-status" class="small text-white-75"></div>
                     </div>
+                    <button id="report-user-btn" class="btn btn-sm btn-danger rounded-pill ms-2">Report</button>
                 </div>
                 <div class="status-info">
                     <!-- Removed current user's network status from chat header -->
@@ -961,6 +992,8 @@
 
         // DOM Elements
         const registrationScreen = document.getElementById('registration-screen');
+        const registrationFormView = document.getElementById('registration-form-view'); // New: Form container
+        const accountSuspendedView = document.getElementById('account-suspended-view'); // New: Suspension message container
         const contactsScreen = document.getElementById('contacts-screen');
         const chatScreen = document.getElementById('chat-screen');
         const registerBtn = document.getElementById('register-btn');
@@ -1019,6 +1052,16 @@
         const bioModalContent = document.getElementById('bio-modal-content'); // New: Bio content in bio modal
         const closeBioModalFooterBtn = document.getElementById('close-bio-modal-footer-btn'); // New: Close bio modal button in footer
 
+        // Report User Modal Elements
+        const reportUserBtn = document.getElementById('report-user-btn');
+        const reportUserModal = document.getElementById('report-user-modal');
+        const closeReportModalBtn = document.getElementById('close-report-modal-btn');
+        const reportUserName = document.getElementById('report-user-name');
+        const reportReasonInput = document.getElementById('report-reason-input');
+        const reportFeedback = document.getElementById('report-feedback');
+        const submitReportBtn = document.getElementById('submit-report-btn');
+        const cancelReportBtn = document.getElementById('cancel-report-btn');
+
 
         // Game specific DOM elements
         const playGameBtn = document.getElementById('play-game-btn'); // This button is no longer in contacts-screen
@@ -1071,7 +1114,7 @@
         const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F3'];
 
         // Common Emojis for the picker
-        const commonEmojis = ['👍', '❤️', '😂', '😢', '😡', '👏', '�', '💯'];
+        const commonEmojis = ['👍', '❤️', '😂', '😢', '😡', '👏', '🎉', '💯'];
 
         // Helper to format timestamp to a readable last seen string
         function formatLastSeen(timestamp) {
@@ -1124,17 +1167,6 @@
             function updateNetworkStatus() {
                 // The networkStatus and chatNetworkStatus elements are no longer in the HTML,
                 // so we remove the lines that attempt to update them.
-                // const status = navigator.onLine ? "Online" : "Offline";
-                // const connection = navigator.connection;
-                // let networkType = "Unknown";
-                
-                // if (connection) {
-                //     networkType = connection.effectiveType || connection.type || "Unknown";
-                // }
-                
-                // networkStatus.textContent = `${status} (${networkType})`;
-                // chatNetworkStatus.textContent = `${status} (${networkType})`;
-                // The above lines are removed as per user request to not show own online status
             }
             
             window.addEventListener('online', updateNetworkStatus);
@@ -1153,14 +1185,14 @@
             if (level >= 60) return '🔋';
             if (level >= 30) return '🔋';
             if (level >= 10) return '🔋';
-            return '🔋';
+            return '�';
         }
 
         function updateBatteryDisplay(battery) {
             const level = Math.round(battery.level * 100);
             const charging = battery.charging ? "⚡" : "";
             // Updated to include battery emoji, removed "Charging" word
-            batteryStatus.textContent = `Battery: ${level}% ${charging} ${getBatteryEmoji(level)}`;
+            // batteryStatus.textContent = `Battery: ${level}% ${charging} ${getBatteryEmoji(level)}`;
         }
 
         function updateUserBatteryStatus(battery) {
@@ -1186,8 +1218,18 @@
             phoneNumberFeedback.style.display = 'none';
             registrationErrorFeedback.style.display = 'none';
 
+            const isInvalidStart = /^[0-5]/.test(phoneNumber);
+            const hasRepeatingDigits = /^(\d)\1{9}$/.test(phoneNumber);
+
             if (!phoneNumber || !userName || phoneNumber.length !== 10 || !/^\d+$/.test(phoneNumber)) {
                 registrationErrorFeedback.textContent = 'Please ensure a valid 10-digit phone number and your name are entered.';
+                registrationErrorFeedback.style.display = 'block';
+                registrationErrorFeedback.classList.add('fade-in-animation');
+                return;
+            }
+
+            if (isInvalidStart || hasRepeatingDigits) {
+                registrationErrorFeedback.textContent = 'Do not try to spam, otherwise your account will be blocked';
                 registrationErrorFeedback.style.display = 'block';
                 registrationErrorFeedback.classList.add('fade-in-animation');
                 return;
@@ -1207,6 +1249,17 @@
                 if (snapshot.exists()) {
                     // User exists, now check device UUID and name
                     const existingUser = snapshot.val();
+
+                    // --- NEW: Check for suspension ---
+                    if (existingUser.suspended) {
+                        console.log(`Login blocked for ${phoneNumber}: Account is suspended.`);
+                        registrationFormView.style.display = 'none';
+                        accountSuspendedView.style.display = 'block';
+                        connectingMessage.style.display = 'none';
+                        registerBtn.disabled = false;
+                        return; // Stop the login process
+                    }
+
                     const firebaseDeviceUUID = existingUser.deviceUUID;
 
                     if (existingUser.name !== userName) {
@@ -1272,7 +1325,8 @@
                         batteryLevel: 0,
                         batteryCharging: false,
                         hidePhoneNumber: false, // Default to false for new users
-                        bio: userBio || '' // Save bio for new users
+                        bio: userBio || '', // Save bio for new users
+                        suspended: false // Default to not suspended
                     });
 
                     currentUser = { phoneNumber, name: userName };
@@ -1381,11 +1435,6 @@
         // Function to play notification sound - kept for potential future use, but not called
         function playNotificationSound() {
             // Removed for now as per previous instructions, can be re-enabled if needed.
-            // if (notificationSound && notificationSound.src) {
-            //     notificationSound.play().catch(e => console.error("Error playing sound:", e));
-            // } else {
-            //     console.warn("Notification sound source not set. Cannot play sound.");
-            // }
         }
 
         // Notification system - kept for potential future use, but not called
@@ -1449,11 +1498,6 @@
 
         /**
          * Determines a simple gender icon based on the name.
-         * This is a very basic heuristic and is not accurate for all names or cultures.
-         * For accurate gender representation, consider adding a gender field during registration
-         * or using a more sophisticated external API.
-         * @param {string} name - The user's name.
-         * @returns {string} Unicode gender symbol (♂, ♀) or a default user icon (👤).
          */
         function getProfileIcon(name) {
             if (!name) return '👤'; // Default user icon
@@ -1463,11 +1507,6 @@
             if (lowerCaseName.endsWith('a') || lowerCaseName.endsWith('i') || lowerCaseName.endsWith('e')) {
                 return '♀'; // Female symbol
             }
-            // Add some common male name checks if needed, otherwise default to male
-            // For example:
-            // if (lowerCaseName.endsWith('o') || lowerCaseName.endsWith('n')) {
-            //     return '♂'; // Male symbol
-            // }
             return '♂'; // Default to male symbol for other names
         }
 
@@ -2892,12 +2931,13 @@
 
         // Close the modal if the user clicks outside of it
         window.addEventListener('click', (event) => {
-            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal || event.target == settingsModal || event.target == bioModal) {
+            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal || event.target == settingsModal || event.target == bioModal || event.target == reportUserModal) {
                 confirmationModal.style.display = 'none';
                 emojiPickerModal.style.display = 'none';
                 editMessageModal.style.display = 'none';
                 settingsModal.style.display = 'none';
                 bioModal.style.display = 'none';
+                reportUserModal.style.display = 'none';
             }
         });
 
@@ -2910,7 +2950,7 @@
         function updateRegisterButtonState() {
             const phoneNumber = phoneNumberInput.value.trim();
             const userName = userNameInput.value.trim();
-            const isValidPhoneNumber = phoneNumber.length === 10 && /^\d+$/.test(phoneNumber);
+            const isValidPhoneNumber = phoneNumber.length === 10 && /^\d+$/.test(phoneNumber) && !/^[0-5]/.test(phoneNumber) && !/^(\d)\1{9}$/.test(phoneNumber);
             const isValidUserName = userName.length > 0;
 
             // Only enable if both are valid AND the connecting message is NOT visible
@@ -2922,14 +2962,14 @@
             const phoneNumber = phoneNumberInput.value.trim();
             const isValidLength = phoneNumber.length === 10;
             const isNumeric = /^\d+$/.test(phoneNumber);
+            const isInvalidStart = /^[0-5]/.test(phoneNumber);
+            const hasRepeatingDigits = /^(\d)\1{9}$/.test(phoneNumber);
 
-            if (phoneNumber.length > 0 && (!isValidLength || !isNumeric)) {
-                phoneNumberFeedback.textContent = "Please enter a valid 10-digit phone number.";
+            if (phoneNumber.length > 0 && (!isValidLength || !isNumeric || isInvalidStart || hasRepeatingDigits)) {
+                phoneNumberFeedback.textContent = "Do not try to spam, otherwise your account will be blocked";
                 phoneNumberFeedback.style.display = 'block';
-                phoneNumberFeedback.classList.add('fade-in-animation');
             } else {
                 phoneNumberFeedback.style.display = 'none';
-                phoneNumberFeedback.classList.remove('fade-in-animation');
             }
             // Hide general registration error when user starts typing again
             registrationErrorFeedback.style.display = 'none';
@@ -2950,10 +2990,6 @@
         }
 
         // --- Global Unread Message Listener ---
-        // Global map to store references to listeners for cleanup
-        // (Moved from global scope to inside setupGlobalUnreadListener for better encapsulation)
-        // let globalUnreadListeners = {};
-
         async function setupGlobalUnreadListener() {
             if (!currentUser) {
                 console.warn("setupGlobalUnreadListener: currentUser is null. Cannot set up global listener.");
@@ -2984,7 +3020,6 @@
             }
 
             // Initialize unread counts and timestamps from existing unread messages
-            // This will be populated by the 'child_added' event for existing messages.
             unreadCounts = {};
             latestUnreadMessageTimestamps = {};
 
@@ -3199,23 +3234,105 @@
             bioModal.style.display = 'none';
         });
 
+        // --- Report User Logic ---
+        reportUserBtn.addEventListener('click', () => {
+            if (!currentChatWith) return;
+            reportUserName.textContent = currentChatWith.name;
+            reportReasonInput.value = '';
+            reportFeedback.style.display = 'none';
+            reportUserModal.style.display = 'flex';
+        });
+
+        closeReportModalBtn.addEventListener('click', () => {
+            reportUserModal.style.display = 'none';
+        });
+
+        cancelReportBtn.addEventListener('click', () => {
+            reportUserModal.style.display = 'none';
+        });
+
+        submitReportBtn.addEventListener('click', async () => {
+            const reason = reportReasonInput.value.trim();
+            if (!reason) {
+                reportFeedback.textContent = 'Please provide a reason for the report.';
+                reportFeedback.style.display = 'block';
+                return;
+            }
+
+            if (!currentUser || !currentChatWith) return;
+
+            const reportedPhoneNumber = currentChatWith.phoneNumber;
+            const reporterPhoneNumber = currentUser.phoneNumber;
+            const reportRef = database.ref(`reports/${reportedPhoneNumber}/${reporterPhoneNumber}`);
+
+            const snapshot = await reportRef.once('value');
+            if (snapshot.exists()) {
+                reportFeedback.textContent = 'You have already reported this user.';
+                reportFeedback.style.display = 'block';
+                return;
+            }
+
+            // Submit the report
+            await reportRef.set({
+                reason: reason,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            // Check the total number of reports for the user
+            const allReportsRef = database.ref(`reports/${reportedPhoneNumber}`);
+            const reportsSnapshot = await allReportsRef.once('value');
+            const reportCount = reportsSnapshot.numChildren();
+
+            console.log(`User ${reportedPhoneNumber} now has ${reportCount} reports.`);
+
+            // If report count exceeds the threshold, suspend the user
+            if (reportCount > 3) {
+                await database.ref(`users/${reportedPhoneNumber}`).update({
+                    suspended: true
+                });
+                console.log(`User ${reportedPhoneNumber} has been suspended.`);
+            }
+
+            // Provide feedback and close modal
+            reportReasonInput.value = '';
+            reportFeedback.style.display = 'none';
+            reportUserModal.style.display = 'none';
+            showNotification('Report Submitted', `Your report against ${currentChatWith.name} has been submitted.`, 'success');
+        });
+
 
         // Check if user is already registered on page load
         window.addEventListener('load', () => {
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
-                // On load, fetch the full user data to get hidePhoneNumber and bio
+                // On load, fetch the full user data to check for suspension status
                 database.ref('users/' + currentUser.phoneNumber).once('value').then(snapshot => {
                     const userData = snapshot.val();
                     if (userData) {
+                        // --- NEW: Check for suspension on load ---
+                        if (userData.suspended) {
+                            console.log(`Login blocked for ${currentUser.phoneNumber}: Account is suspended.`);
+                            registrationFormView.style.display = 'none';
+                            accountSuspendedView.style.display = 'block';
+                            registrationScreen.style.display = 'block'; // Ensure the container is visible
+                            localStorage.clear(); // Clear local storage to force re-login attempt
+                            return;
+                        }
+
                         currentUser = { ...currentUser, ...userData }; // Merge with existing data
                         localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Update local storage
+                        showContactsScreen();
+                        monitorOnlineStatus();
+                        listenForGameInvitations();
+                        setupGlobalUnreadListener(); // Setup global unread listener on load
+                    } else {
+                         // User data not found in Firebase, likely deleted. Clear local and show registration.
+                         localStorage.clear();
+                         registrationScreen.style.display = 'block';
+                         registrationFormView.style.display = 'block';
+                         accountSuspendedView.style.display = 'none';
                     }
-                    showContactsScreen();
-                    monitorOnlineStatus();
-                    listenForGameInvitations();
-                    setupGlobalUnreadListener(); // Setup global unread listener on load
                 }).catch(error => {
                     console.error("Error fetching user data on load:", error);
                     // Fallback to showing registration if data fetch fails
