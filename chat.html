@@ -357,13 +357,6 @@
             cursor: pointer;
         }
 
-        /* Adjustments for status below number */
-        .contact-item .text-end {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end; /* Align items to the right */
-        }
-
         .contact-item .text-muted.small {
             display: block; /* Ensure phone number is on its own line */
             margin-bottom: 5px; /* Space between number and status */
@@ -768,10 +761,15 @@
             color: #ffd700; /* Gold color */
             cursor: pointer;
             transition: transform 0.2s;
-            margin-left: 10px;
+            margin-left: 15px;
         }
         .favorite-star:hover {
             transform: scale(1.2);
+        }
+        .contact-info-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
         }
     </style>
 </head>
@@ -870,6 +868,16 @@
                     </div>
                 </div>
                 <hr>
+                <div class="mb-3">
+                    <label for="user-mood-settings" class="form-label">Your Mood</label>
+                    <select class="form-select" id="user-mood-settings">
+                        <option value="">None</option>
+                        <option value="😊">Happy</option>
+                        <option value="😢">Sad</option>
+                        <option value="😠">Angry</option>
+                        <option value="😭">Crying</option>
+                    </select>
+                </div>
                 <div class="form-check form-switch mb-3">
                     <input class="form-check-input" type="checkbox" id="hide-number-switch">
                     <label class="form-check-label" for="hide-number-switch">Hide My Phone Number</label>
@@ -1111,20 +1119,21 @@
         let currentMessageKeyForReaction = null; // Stores the key of the message to react to
 
         // Settings Modal Elements
-        const settingsBtn = document.getElementById('settings-btn'); // New: Settings button
-        const settingsModal = document.getElementById('settings-modal'); // New: Settings modal
-        const closeSettingsModalBtn = document.getElementById('close-settings-modal-btn'); // New: Close settings modal button
-        const hideNumberSwitch = document.getElementById('hide-number-switch'); // New: Hide number switch
-        const userBioSettings = document.getElementById('user-bio-settings'); // New: Bio input in settings
-        const saveSettingsBtn = document.getElementById('save-settings-btn'); // New: Save settings button
-        const themeSwatchesContainer = document.getElementById('theme-color-swatches'); // New: Theme color swatches
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsModalBtn = document.getElementById('close-settings-modal-btn');
+        const hideNumberSwitch = document.getElementById('hide-number-switch');
+        const userBioSettings = document.getElementById('user-bio-settings');
+        const userMoodSettings = document.getElementById('user-mood-settings'); // New: Mood select
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        const themeSwatchesContainer = document.getElementById('theme-color-swatches');
 
         // Bio Display Modal Elements
-        const bioModal = document.getElementById('bio-modal'); // New: Bio display modal
-        const closeBioModalBtn = document.getElementById('close-bio-modal-btn'); // New: Close bio modal button
-        const bioModalUserName = document.getElementById('bio-modal-user-name'); // New: User name in bio modal
-        const bioModalContent = document.getElementById('bio-modal-content'); // New: Bio content in bio modal
-        const closeBioModalFooterBtn = document.getElementById('close-bio-modal-footer-btn'); // New: Close bio modal button in footer
+        const bioModal = document.getElementById('bio-modal');
+        const closeBioModalBtn = document.getElementById('close-bio-modal-btn');
+        const bioModalUserName = document.getElementById('bio-modal-user-name');
+        const bioModalContent = document.getElementById('bio-modal-content');
+        const closeBioModalFooterBtn = document.getElementById('close-bio-modal-footer-btn');
 
         // Report User Modal Elements
         const reportUserBtn = document.getElementById('report-user-btn');
@@ -1448,6 +1457,7 @@
                         batteryCharging: false,
                         hidePhoneNumber: false, // Default to false for new users
                         bio: userBio || '', // Save bio for new users
+                        mood: '', // Initialize mood
                         suspended: false, // Default to not suspended
                         favorites: [] // Initialize favorites
                     });
@@ -1619,17 +1629,21 @@
         }
 
         /**
-         * Determines a simple gender icon based on the name.
+         * Gets the content for the profile logo, prioritizing mood over gender icon.
          */
-        function getProfileIcon(name) {
-            if (!name) return '👤'; // Default user icon
-
-            const lowerCaseName = name.toLowerCase();
-            // Very simple heuristic: check for common female name endings
-            if (lowerCaseName.endsWith('a') || lowerCaseName.endsWith('i') || lowerCaseName.endsWith('e')) {
-                return '♀️'; // Female symbol
+        function getProfileLogoContent(user) {
+            if (user && user.mood) {
+                return user.mood; // Return mood emoji if set
             }
-            return '♂️'; // Default to male symbol for other names
+            if (user && user.name) {
+                const lowerCaseName = user.name.toLowerCase();
+                // Very simple heuristic: check for common female name endings
+                if (lowerCaseName.endsWith('a') || lowerCaseName.endsWith('i') || lowerCaseName.endsWith('e')) {
+                    return '♀️'; // Female symbol
+                }
+                return '♂️'; // Default to male symbol for other names
+            }
+            return '👤'; // Default user icon
         }
 
         async function updateNewMessageIndicator() {
@@ -1729,7 +1743,7 @@
                         statusText = `Last seen: ${formatLastSeen(user.lastSeen)}`;
                     }
 
-                    const profileIcon = getProfileIcon(user.name);
+                    const profileLogoContent = getProfileLogoContent(user);
                     const unreadCount = unreadCounts[user.phoneNumber] || 0;
                     let unreadBadge = '';
                     if (unreadCount > 0) {
@@ -1742,12 +1756,12 @@
                     const displayPhoneNumber = user.hidePhoneNumber ? 'Number Hidden' : user.phoneNumber;
                     
                     contactItem.innerHTML = `
-                        <div class="d-flex align-items-center flex-grow-1" data-phone-click="${user.phoneNumber}">
-                            <div class="profile-logo">${profileIcon}</div>
+                        <div class="contact-info-container" data-phone-click="${user.phoneNumber}">
+                            <div class="profile-logo">${profileLogoContent}</div>
                             <div>
                                 <strong>${user.name}</strong>
                                 <div class="text-muted small">${displayPhoneNumber}</div>
-                                <div class="text-end">
+                                <div class="d-flex align-items-center">
                                     <span class="badge ${statusBadgeClass}">${statusText}</span>
                                     ${unreadBadge}
                                 </div>
@@ -1809,7 +1823,7 @@
             currentChatWith = contact;
             console.log(`[CHAT] Chat initiated with contact: ${contact.name} (${contact.phoneNumber})`); 
             chatWithName.textContent = `${contact.name}`;
-            chatProfileLogo.textContent = getProfileIcon(contact.name);
+            chatProfileLogo.textContent = getProfileLogoContent(contact);
             
             // Mark all unread messages from this contact as read in Firebase
             const myPhoneNumber = currentUser.phoneNumber;
@@ -3056,6 +3070,7 @@
             if (userData) {
                 hideNumberSwitch.checked = userData.hidePhoneNumber || false;
                 userBioSettings.value = userData.bio || '';
+                userMoodSettings.value = userData.mood || ''; // Set current mood
             }
             settingsModal.style.display = 'flex';
         });
@@ -3068,15 +3083,18 @@
             if (!currentUser) return;
             const newHidePhoneNumber = hideNumberSwitch.checked;
             const newBio = userBioSettings.value.trim();
+            const newMood = userMoodSettings.value; // Get selected mood
 
             try {
                 await database.ref(`users/${currentUser.phoneNumber}`).update({
                     hidePhoneNumber: newHidePhoneNumber,
-                    bio: newBio
+                    bio: newBio,
+                    mood: newMood // Save mood to Firebase
                 });
                 settingsModal.style.display = 'none';
                 currentUser.hidePhoneNumber = newHidePhoneNumber;
                 currentUser.bio = newBio;
+                currentUser.mood = newMood; // Update local user object
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 refreshUIForUnreadMessages();
             } catch (error) {
