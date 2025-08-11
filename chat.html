@@ -541,7 +541,7 @@
         }
 
         /* Updated style for scrollable contacts list */
-        #contacts-list {
+        #contacts-list, #status-list {
             max-height: calc(100vh - 200px); /* Adjusts height based on viewport, leaving space for header/search */
             overflow-y: auto;
         }
@@ -695,6 +695,9 @@
             background-color: #5a6268;
             border-color: #545b62;
         }
+        #contacts-screen .chat-header .btn-info {
+            margin-right: 10px;
+        }
 
         /* Bio Modal specific styles */
         #bio-modal .modal-content {
@@ -770,6 +773,17 @@
             flex-grow: 1;
             display: flex;
             align-items: center;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .status-item p {
+            margin: 0;
+            color: #555;
+            font-style: italic;
         }
     </style>
 </head>
@@ -877,6 +891,10 @@
                         <option value="😠">Angry</option>
                         <option value="😭">Crying</option>
                     </select>
+                </div>
+                <div class="mb-3">
+                    <label for="user-status-settings" class="form-label">Your Status</label>
+                    <textarea class="form-control" id="user-status-settings" rows="2" placeholder="Set your status..."></textarea>
                 </div>
                 <div class="form-check form-switch mb-3">
                     <input class="form-check-input" type="checkbox" id="hide-number-switch">
@@ -999,7 +1017,10 @@
         <div id="contacts-screen" class="chat-container" style="display: none;">
             <div class="chat-header d-flex justify-content-between align-items-center">
                 <h5>Contacts</h5>
-                <button id="settings-btn" class="btn btn-secondary">Settings</button>
+                <div>
+                    <button id="view-status-btn" class="btn btn-info">View Status</button>
+                    <button id="settings-btn" class="btn btn-secondary">Settings</button>
+                </div>
             </div>
             <div class="p-3">
                 <!-- New Message Indicator -->
@@ -1013,6 +1034,16 @@
                 <div id="contacts-list" class="list-group list-group-flush">
                     </div>
                 </div>
+        </div>
+
+        <div id="status-screen" class="chat-container" style="display: none;">
+            <div class="chat-header d-flex justify-content-between align-items-center">
+                <button id="back-to-contacts-from-status" class="btn btn-sm btn-light rounded-pill me-2">← Back</button>
+                <h5 class="me-auto">Statuses</h5>
+            </div>
+            <div id="status-list" class="list-group list-group-flush">
+                <!-- Statuses will be loaded here -->
+            </div>
         </div>
 
         <div id="chat-screen" class="chat-container" style="display: none;">
@@ -1074,14 +1105,17 @@
         const accountSuspendedView = document.getElementById('account-suspended-view'); // New: Suspension message container
         const contactsScreen = document.getElementById('contacts-screen');
         const chatScreen = document.getElementById('chat-screen');
+        const statusScreen = document.getElementById('status-screen'); // New: Status screen
         const registerBtn = document.getElementById('register-btn');
         const phoneNumberInput = document.getElementById('phone-number');
         const userNameInput = document.getElementById('user-name');
         const userBioInput = document.getElementById('user-bio'); // New: Bio input on registration
         const contactsList = document.getElementById('contacts-list');
+        const statusList = document.getElementById('status-list'); // New: Status list
         const contactSearch = document.getElementById('contact-search');
         const searchBtn = document.getElementById('search-btn');
         const backToContactsBtn = document.getElementById('back-to-contacts');
+        const backToContactsFromStatusBtn = document.getElementById('back-to-contacts-from-status'); // New: Back from status
         const chatMessages = document.getElementById('chat-messages');
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
@@ -1091,6 +1125,7 @@
         const phoneNumberFeedback = document.getElementById('phone-number-feedback'); 
         const connectingMessage = document.getElementById('connecting-message'); 
         const registrationErrorFeedback = document.getElementById('registration-error-feedback'); // New element for general registration errors
+        const viewStatusBtn = document.getElementById('view-status-btn'); // New: View Status button
 
         // Modal Elements
         const confirmationModal = document.getElementById('confirmation-modal');
@@ -1124,7 +1159,8 @@
         const closeSettingsModalBtn = document.getElementById('close-settings-modal-btn');
         const hideNumberSwitch = document.getElementById('hide-number-switch');
         const userBioSettings = document.getElementById('user-bio-settings');
-        const userMoodSettings = document.getElementById('user-mood-settings'); // New: Mood select
+        const userMoodSettings = document.getElementById('user-mood-settings');
+        const userStatusSettings = document.getElementById('user-status-settings'); // New: Status textarea
         const saveSettingsBtn = document.getElementById('save-settings-btn');
         const themeSwatchesContainer = document.getElementById('theme-color-swatches');
 
@@ -1458,6 +1494,7 @@
                         hidePhoneNumber: false, // Default to false for new users
                         bio: userBio || '', // Save bio for new users
                         mood: '', // Initialize mood
+                        status: '', // Initialize status
                         suspended: false, // Default to not suspended
                         favorites: [] // Initialize favorites
                     });
@@ -1622,6 +1659,7 @@
             console.log('[SCREEN] Showing contacts screen.');
             registrationScreen.style.display = 'none';
             chatScreen.style.display = 'none';
+            statusScreen.style.display = 'none';
             contactsScreen.style.display = 'block';
             
             refreshUIForUnreadMessages(); // Use the unified refresh
@@ -3070,7 +3108,8 @@
             if (userData) {
                 hideNumberSwitch.checked = userData.hidePhoneNumber || false;
                 userBioSettings.value = userData.bio || '';
-                userMoodSettings.value = userData.mood || ''; // Set current mood
+                userMoodSettings.value = userData.mood || '';
+                userStatusSettings.value = userData.status || ''; // Set current status
             }
             settingsModal.style.display = 'flex';
         });
@@ -3083,18 +3122,21 @@
             if (!currentUser) return;
             const newHidePhoneNumber = hideNumberSwitch.checked;
             const newBio = userBioSettings.value.trim();
-            const newMood = userMoodSettings.value; // Get selected mood
+            const newMood = userMoodSettings.value;
+            const newStatus = userStatusSettings.value.trim(); // Get status text
 
             try {
                 await database.ref(`users/${currentUser.phoneNumber}`).update({
                     hidePhoneNumber: newHidePhoneNumber,
                     bio: newBio,
-                    mood: newMood // Save mood to Firebase
+                    mood: newMood,
+                    status: newStatus // Save status to Firebase
                 });
                 settingsModal.style.display = 'none';
                 currentUser.hidePhoneNumber = newHidePhoneNumber;
                 currentUser.bio = newBio;
-                currentUser.mood = newMood; // Update local user object
+                currentUser.mood = newMood;
+                currentUser.status = newStatus; // Update local user object
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 refreshUIForUnreadMessages();
             } catch (error) {
@@ -3180,6 +3222,52 @@
             reportUserModal.style.display = 'none';
             showNotification('Report Submitted', `Your report against ${currentChatWith.name} has been submitted.`, 'success');
         });
+
+        // New: Status Screen Logic
+        viewStatusBtn.addEventListener('click', () => {
+            showStatusScreen();
+        });
+
+        backToContactsFromStatusBtn.addEventListener('click', () => {
+            showContactsScreen();
+        });
+
+        function showStatusScreen() {
+            contactsScreen.style.display = 'none';
+            chatScreen.style.display = 'none';
+            statusScreen.style.display = 'block';
+
+            const usersRef = database.ref('users');
+            usersRef.on('value', (snapshot) => {
+                statusList.innerHTML = '';
+                const users = snapshot.val();
+                if (users) {
+                    let hasStatus = false;
+                    Object.values(users).forEach(user => {
+                        if (user.status) {
+                            hasStatus = true;
+                            const statusItem = document.createElement('div');
+                            statusItem.className = 'status-item';
+                            
+                            const profileLogoContent = getProfileLogoContent(user);
+
+                            statusItem.innerHTML = `
+                                <div class="profile-logo">${profileLogoContent}</div>
+                                <div>
+                                    <strong>${user.name}</strong>
+                                    <p>"${user.status}"</p>
+                                </div>
+                            `;
+                            statusList.appendChild(statusItem);
+                        }
+                    });
+
+                    if (!hasStatus) {
+                        statusList.innerHTML = '<div class="text-center p-3 text-muted">No one has set a status yet.</div>';
+                    }
+                }
+            });
+        }
 
 
         window.addEventListener('load', () => {
