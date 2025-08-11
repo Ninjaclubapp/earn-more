@@ -779,11 +779,24 @@
             align-items: center;
             padding: 15px 20px;
             border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .status-item:hover {
+            background-color: #f8f9fa;
         }
         .status-item p {
             margin: 0;
             color: #555;
             font-style: italic;
+        }
+        .list-group-header {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        #status-viewers-list {
+            max-height: 200px;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -973,6 +986,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Status Viewers Modal -->
+    <div id="status-viewers-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>My Status</span>
+                <span class="close-modal-btn" id="close-status-viewers-btn">&times;</span>
+            </div>
+            <div class="modal-body text-start">
+                <p id="my-status-text" class="lead"></p>
+                <hr>
+                <div id="status-viewers-list-container">
+                    <div class="d-flex align-items-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill me-2" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
+                        <span id="status-viewers-count">Viewed by 0</span>
+                    </div>
+                    <div id="status-viewers-list" class="list-group list-group-flush">
+                        <!-- Viewer list will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
 
@@ -1137,6 +1173,8 @@
         const opponentChargingModal = document.getElementById('opponent-charging-modal');
         const opponentChargingModalBody = document.getElementById('opponent-charging-modal-body');
         const dismissOpponentChargingAlertBtn = document.getElementById('dismiss-opponent-charging-alert-btn');
+        const statusViewersModal = document.getElementById('status-viewers-modal'); // New: Status viewers modal
+        const closeStatusViewersBtn = document.getElementById('close-status-viewers-btn'); // New: Close status viewers
 
 
         // Edit Message Modal Elements
@@ -1363,7 +1401,7 @@
             if (level >= 90) return '🔋';
             if (level >= 60) return '🔋';
             if (level >= 30) return '🔋';
-            if (level >= 10) return '🔋';
+            if (level >= 10) return '�';
             return '🪫';
         }
 
@@ -1495,6 +1533,8 @@
                         bio: userBio || '', // Save bio for new users
                         mood: '', // Initialize mood
                         status: '', // Initialize status
+                        statusTimestamp: null,
+                        statusViewers: null,
                         suspended: false, // Default to not suspended
                         favorites: [] // Initialize favorites
                     });
@@ -2922,7 +2962,7 @@
         });
 
         window.addEventListener('click', (event) => {
-            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal || event.target == settingsModal || event.target == bioModal || event.target == reportUserModal || event.target == chargingSafetyModal || event.target == opponentChargingModal) {
+            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal || event.target == settingsModal || event.target == bioModal || event.target == reportUserModal || event.target == chargingSafetyModal || event.target == opponentChargingModal || event.target == statusViewersModal) {
                 confirmationModal.style.display = 'none';
                 emojiPickerModal.style.display = 'none';
                 editMessageModal.style.display = 'none';
@@ -2931,6 +2971,7 @@
                 reportUserModal.style.display = 'none';
                 chargingSafetyModal.style.display = 'none';
                 opponentChargingModal.style.display = 'none';
+                statusViewersModal.style.display = 'none';
             }
         });
 
@@ -3126,12 +3167,20 @@
             const newStatus = userStatusSettings.value.trim(); // Get status text
 
             try {
-                await database.ref(`users/${currentUser.phoneNumber}`).update({
+                const updates = {
                     hidePhoneNumber: newHidePhoneNumber,
                     bio: newBio,
                     mood: newMood,
-                    status: newStatus // Save status to Firebase
-                });
+                    status: newStatus
+                };
+                // If status is new or updated, reset viewers and set timestamp
+                if (newStatus) {
+                    updates.statusTimestamp = firebase.database.ServerValue.TIMESTAMP;
+                    updates.statusViewers = null;
+                }
+                
+                await database.ref(`users/${currentUser.phoneNumber}`).update(updates);
+
                 settingsModal.style.display = 'none';
                 currentUser.hidePhoneNumber = newHidePhoneNumber;
                 currentUser.bio = newBio;
@@ -3232,6 +3281,10 @@
             showContactsScreen();
         });
 
+        closeStatusViewersBtn.addEventListener('click', () => {
+            statusViewersModal.style.display = 'none';
+        });
+
         function showStatusScreen() {
             contactsScreen.style.display = 'none';
             chatScreen.style.display = 'none';
@@ -3239,34 +3292,129 @@
 
             const usersRef = database.ref('users');
             usersRef.on('value', (snapshot) => {
-                statusList.innerHTML = '';
+                statusList.innerHTML = ''; // Clear the list
                 const users = snapshot.val();
-                if (users) {
-                    let hasStatus = false;
-                    Object.values(users).forEach(user => {
-                        if (user.status) {
-                            hasStatus = true;
-                            const statusItem = document.createElement('div');
-                            statusItem.className = 'status-item';
-                            
-                            const profileLogoContent = getProfileLogoContent(user);
+                if (!users) return;
 
-                            statusItem.innerHTML = `
-                                <div class="profile-logo">${profileLogoContent}</div>
-                                <div>
-                                    <strong>${user.name}</strong>
-                                    <p>"${user.status}"</p>
-                                </div>
-                            `;
-                            statusList.appendChild(statusItem);
+                let myStatusHTML = '';
+                let recentUpdatesHTML = '';
+                let hasRecentUpdates = false;
+
+                const me = users[currentUser.phoneNumber];
+                const viewersCount = (me && me.statusViewers) ? Object.keys(me.statusViewers).length : 0;
+                
+                myStatusHTML = `
+                    <div class="list-group-header fw-bold p-2 bg-light">My Status</div>
+                    <div class="status-item my-status">
+                        <div class="profile-logo">${getProfileLogoContent(me)}</div>
+                        <div>
+                            <strong>You</strong>
+                            ${me && me.status ? `<p>"${me.status}"</p><small class="text-muted">${viewersCount} views</small>` : `<p class="text-muted">No status set. Tap to add.</p>`}
+                        </div>
+                    </div>
+                `;
+
+                recentUpdatesHTML += `<div class="list-group-header fw-bold p-2 bg-light">Recent Updates</div>`;
+                Object.values(users).forEach(user => {
+                    if (user.phoneNumber !== currentUser.phoneNumber && user.status) {
+                        hasRecentUpdates = true;
+                        const statusItem = document.createElement('div');
+                        statusItem.className = 'status-item other-status';
+                        statusItem.dataset.phone = user.phoneNumber;
+                        
+                        const profileLogoContent = getProfileLogoContent(user);
+                        
+                        statusItem.innerHTML = `
+                            <div class="profile-logo">${profileLogoContent}</div>
+                            <div>
+                                <strong>${user.name}</strong>
+                                <p>"${user.status}"</p>
+                            </div>
+                        `;
+                        recentUpdatesHTML += statusItem.outerHTML;
+                    }
+                });
+
+                if (!hasRecentUpdates) {
+                    recentUpdatesHTML += '<div class="text-center p-3 text-muted">No recent updates from your contacts.</div>';
+                }
+
+                statusList.innerHTML = myStatusHTML + recentUpdatesHTML;
+
+                const myStatusElement = statusList.querySelector('.my-status');
+                if (myStatusElement) {
+                    myStatusElement.addEventListener('click', () => {
+                        if (!me || !me.status) {
+                            settingsModal.style.display = 'flex';
+                        } else {
+                            showMyStatusViewers();
                         }
                     });
+                }
+                
+                statusList.querySelectorAll('.other-status').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const phone = item.dataset.phone;
+                        const user = users[phone];
+                        if (user) {
+                            handleStatusClick(user);
+                        }
+                    });
+                });
+            });
+        }
 
-                    if (!hasStatus) {
-                        statusList.innerHTML = '<div class="text-center p-3 text-muted">No one has set a status yet.</div>';
+        async function handleStatusClick(user) {
+            alert(`${user.name}'s status:\n"${user.status}"`);
+
+            if (user.phoneNumber !== currentUser.phoneNumber) {
+                try {
+                    await database.ref(`users/${user.phoneNumber}/statusViewers/${currentUser.phoneNumber}`).set(true);
+                    console.log(`Status view recorded for ${user.name}`);
+                } catch (error) {
+                    console.error("Error recording status view:", error);
+                }
+            }
+        }
+
+        async function showMyStatusViewers() {
+            const myStatusText = document.getElementById('my-status-text');
+            const viewersCountSpan = document.getElementById('status-viewers-count');
+            const viewersList = document.getElementById('status-viewers-list');
+            
+            viewersList.innerHTML = '';
+
+            const userRef = database.ref(`users/${currentUser.phoneNumber}`);
+            const snapshot = await userRef.once('value');
+            const myData = snapshot.val();
+
+            if (!myData || !myData.status) return;
+
+            myStatusText.textContent = `"${myData.status}"`;
+            const viewers = myData.statusViewers;
+            const viewersCount = viewers ? Object.keys(viewers).length : 0;
+            viewersCountSpan.textContent = `Viewed by ${viewersCount}`;
+
+            if (viewers) {
+                for (const viewerPhone of Object.keys(viewers)) {
+                    const viewerSnapshot = await database.ref(`users/${viewerPhone}`).once('value');
+                    const viewerData = viewerSnapshot.val();
+                    if (viewerData) {
+                        const viewerItem = document.createElement('div');
+                        viewerItem.className = 'list-group-item d-flex align-items-center';
+                        const profileLogoContent = getProfileLogoContent(viewerData);
+                        viewerItem.innerHTML = `
+                            <div class="profile-logo">${profileLogoContent}</div>
+                            <span>${viewerData.name}</span>
+                        `;
+                        viewersList.appendChild(viewerItem);
                     }
                 }
-            });
+            } else {
+                viewersList.innerHTML = '<div class="list-group-item text-center text-muted">No views yet.</div>';
+            }
+
+            statusViewersModal.style.display = 'flex';
         }
 
 
