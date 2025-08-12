@@ -1245,7 +1245,7 @@
 
         <div id="chat-screen" class="chat-container" style="display: none;">
             <div class="chat-header d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items: center">
                     <button id="back-to-contacts" class="btn btn-sm btn-light rounded-pill me-2">← Back</button>
                     <div class="profile-logo" id="chat-profile-logo"></div>
                     <div>
@@ -1274,9 +1274,9 @@
                     <button class="btn btn-primary rounded-pill ms-2" type="button" id="send-btn">Send</button>
                 </div>
                 <div class="chat-input-buttons">
-                    <button id="doodle-btn" class="btn btn-info rounded-pill">Doodle</button>
-                    <button id="live-doodle-btn" class="btn btn-warning rounded-pill">Live Doodle</button>
-                    <button id="play-game-in-chat-btn" class="btn btn-success rounded-pill">Play Color Pop</button>
+                    <button id="doodle-btn" class="btn btn-sm btn-info rounded-pill">Doodle</button>
+                    <button id="live-doodle-btn" class="btn btn-sm btn-warning rounded-pill">Live Doodle</button>
+                    <button id="play-game-in-chat-btn" class="btn btn-sm btn-success rounded-pill">Play Color Pop</button>
                 </div>
             </div>
         </div>
@@ -1600,7 +1600,7 @@
         function getBatteryEmoji(level) {
             if (level >= 90) return '🔋';
             if (level >= 60) return '🔋';
-            if (level >= 30) return '�';
+            if (level >= 30) return '🔋';
             if (level >= 10) return '🪫';
             return '🪫';
         }
