@@ -798,13 +798,16 @@
 
         /* Doodle Feature Styles */
         #doodle-modal .modal-content {
-            max-width: 550px; /* Wider modal for doodling */
+            max-width: 95vw; /* Use viewport width for responsiveness */
+            width: 550px; /* Set a max size for larger screens */
         }
         #doodle-canvas {
             border: 1px solid #ccc;
             border-radius: 8px;
             cursor: crosshair;
             touch-action: none; /* Prevents scrolling on canvas on touch devices */
+            width: 100%;
+            display: block;
         }
         .doodle-controls {
             display: flex;
@@ -1072,7 +1075,7 @@
                 <span class="close-modal-btn" id="close-doodle-modal-btn">&times;</span>
             </div>
             <div class="modal-body">
-                <canvas id="doodle-canvas" width="500" height="300"></canvas>
+                <canvas id="doodle-canvas"></canvas>
                 <div class="doodle-controls">
                     <div class="color-palette" id="color-palette">
                         <div class="color-swatch active" style="background-color: black;" data-color="black"></div>
@@ -2700,18 +2703,39 @@
         }
 
         // --- Doodling Logic ---
-        function initializeDoodleCanvas() {
-            doodleCtx.strokeStyle = '#000000';
-            doodleCtx.lineWidth = 5;
-            doodleCtx.lineCap = 'round';
-            doodleCtx.lineJoin = 'round';
+        function resizeDoodleCanvas() {
+            const canvas = doodleCanvas;
+            const parent = canvas.parentElement;
+            const parentStyle = window.getComputedStyle(parent);
+            const parentPaddingX = parseFloat(parentStyle.paddingLeft) + parseFloat(parentStyle.paddingRight);
+            
+            const newWidth = parent.clientWidth - parentPaddingX;
+            const newHeight = newWidth * 0.6; // Maintain a 5:3 aspect ratio
 
+            // Only resize if necessary to avoid clearing the canvas unnecessarily
+            if (canvas.width !== newWidth || canvas.height !== newHeight) {
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+
+                // Reset drawing context properties, as they are cleared when the canvas is resized
+                const activeColor = document.querySelector('#color-palette .color-swatch.active')?.dataset.color || 'black';
+                doodleCtx.strokeStyle = activeColor;
+                doodleCtx.lineWidth = brushSizeSlider.value;
+                doodleCtx.lineCap = 'round';
+                doodleCtx.lineJoin = 'round';
+                
+                // Clear the canvas with a white background
+                doodleCtx.fillStyle = 'white';
+                doodleCtx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function initializeDoodleCanvas() {
             const clearCanvas = () => {
                 doodleCtx.fillStyle = 'white';
                 doodleCtx.fillRect(0, 0, doodleCanvas.width, doodleCanvas.height);
             };
-            clearCanvas(); // Initial clear
-
+            
             const startDoodling = (e) => {
                 isDoodling = true;
                 [lastDoodleX, lastDoodleY] = getMousePos(doodleCanvas, e);
@@ -2735,11 +2759,11 @@
 
             const getMousePos = (canvas, evt) => {
                 const rect = canvas.getBoundingClientRect();
-                if (evt.touches) { // Touch event
-                    return [evt.touches[0].clientX - rect.left, evt.touches[0].clientY - rect.top];
-                }
-                // Mouse event
-                return [evt.clientX - rect.left, evt.clientY - rect.top];
+                const touch = evt.touches ? evt.touches[0] : null;
+                return [
+                    (touch ? touch.clientX : evt.clientX) - rect.left,
+                    (touch ? touch.clientY : evt.clientY) - rect.top
+                ];
             };
 
             doodleCanvas.addEventListener('mousedown', startDoodling);
@@ -2747,13 +2771,14 @@
             doodleCanvas.addEventListener('mouseup', stopDoodling);
             doodleCanvas.addEventListener('mouseout', stopDoodling);
 
-            doodleCanvas.addEventListener('touchstart', startDoodling);
-            doodleCanvas.addEventListener('touchmove', drawDoodle);
+            doodleCanvas.addEventListener('touchstart', startDoodling, { passive: false });
+            doodleCanvas.addEventListener('touchmove', drawDoodle, { passive: false });
             doodleCanvas.addEventListener('touchend', stopDoodling);
 
             colorPalette.addEventListener('click', (e) => {
                 if (e.target.classList.contains('color-swatch')) {
-                    doodleCtx.strokeStyle = e.target.dataset.color;
+                    const newColor = e.target.dataset.color;
+                    doodleCtx.strokeStyle = newColor;
                     document.querySelector('.color-swatch.active').classList.remove('active');
                     e.target.classList.add('active');
                 }
@@ -2773,15 +2798,21 @@
                 const doodleData = doodleCanvas.toDataURL('image/png');
                 sendDoodleMessage(doodleData);
                 doodleModal.style.display = 'none';
-                clearCanvas();
             });
 
             doodleBtn.addEventListener('click', () => {
                 doodleModal.style.display = 'flex';
+                setTimeout(resizeDoodleCanvas, 10); // Use a small timeout to ensure modal is visible
             });
 
             closeDoodleModalBtn.addEventListener('click', () => {
                 doodleModal.style.display = 'none';
+            });
+
+            window.addEventListener('resize', () => {
+                if (doodleModal.style.display === 'flex') {
+                    resizeDoodleCanvas();
+                }
             });
         }
 
@@ -3704,3 +3735,4 @@
     </script>
 </body>
 </html>
+
