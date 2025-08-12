@@ -795,6 +795,63 @@
             max-height: 200px;
             overflow-y: auto;
         }
+
+        /* Doodle Feature Styles */
+        #doodle-modal .modal-content {
+            max-width: 550px; /* Wider modal for doodling */
+        }
+        #doodle-canvas {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: crosshair;
+            touch-action: none; /* Prevents scrolling on canvas on touch devices */
+        }
+        .doodle-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        .color-palette {
+            display: flex;
+            gap: 8px;
+        }
+        .color-swatch {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+        .color-swatch.active {
+            border-color: #333;
+        }
+        .brush-size-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .message-doodle {
+            max-width: 100%;
+            border-radius: 15px;
+            border: 2px solid #eee;
+            background-color: white;
+            padding: 5px;
+        }
+        .chat-input-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .chat-input-buttons .btn {
+            flex-grow: 1;
+        }
     </style>
 </head>
 <body>
@@ -899,7 +956,7 @@
                         <option value="😊">Happy</option>
                         <option value="😢">Sad</option>
                         <option value="😠">Angry</option>
-                        <option value=" ">Crying</option>
+                        <option value="😭">Crying</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -1006,6 +1063,37 @@
             </div>
         </div>
     </div>
+
+    <!-- Doodle Modal -->
+    <div id="doodle-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Doodle Something!</span>
+                <span class="close-modal-btn" id="close-doodle-modal-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <canvas id="doodle-canvas" width="500" height="300"></canvas>
+                <div class="doodle-controls">
+                    <div class="color-palette" id="color-palette">
+                        <div class="color-swatch active" style="background-color: black;" data-color="black"></div>
+                        <div class="color-swatch" style="background-color: red;" data-color="red"></div>
+                        <div class="color-swatch" style="background-color: blue;" data-color="blue"></div>
+                        <div class="color-swatch" style="background-color: green;" data-color="green"></div>
+                        <div class="color-swatch" style="background-color: yellow;" data-color="yellow"></div>
+                    </div>
+                    <div class="brush-size-container">
+                        <label for="brush-size">Size:</label>
+                        <input type="range" id="brush-size" min="1" max="20" value="5">
+                    </div>
+                    <button id="doodle-erase-btn" class="btn btn-sm btn-outline-secondary">Erase</button>
+                    <button id="doodle-clear-btn" class="btn btn-sm btn-outline-danger">Clear</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="send-doodle-btn" class="btn btn-primary">Send Doodle</button>
+            </div>
+        </div>
+    </div>
     
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
 
@@ -1109,7 +1197,10 @@
                     <input type="text" id="message-input" class="form-control rounded-pill" placeholder="Type a message...">
                     <button class="btn btn-primary rounded-pill ms-2" type="button" id="send-btn">Send</button>
                 </div>
-                <button id="play-game-in-chat-btn" class="btn btn-success w-100 mt-3 rounded-pill">Play Color Pop Battle</button>
+                <div class="chat-input-buttons">
+                    <button id="doodle-btn" class="btn btn-info rounded-pill">Doodle</button>
+                    <button id="play-game-in-chat-btn" class="btn btn-success rounded-pill">Play Color Pop</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1216,6 +1307,18 @@
         const submitReportBtn = document.getElementById('submit-report-btn');
         const cancelReportBtn = document.getElementById('cancel-report-btn');
 
+        // Doodle Feature DOM Elements
+        const doodleBtn = document.getElementById('doodle-btn');
+        const doodleModal = document.getElementById('doodle-modal');
+        const closeDoodleModalBtn = document.getElementById('close-doodle-modal-btn');
+        const doodleCanvas = document.getElementById('doodle-canvas');
+        const doodleCtx = doodleCanvas.getContext('2d');
+        const colorPalette = document.getElementById('color-palette');
+        const brushSizeSlider = document.getElementById('brush-size');
+        const doodleEraseBtn = document.getElementById('doodle-erase-btn');
+        const doodleClearBtn = document.getElementById('doodle-clear-btn');
+        const sendDoodleBtn = document.getElementById('send-doodle-btn');
+
 
         // Game specific DOM elements
         const playGameInChatBtn = document.getElementById('play-game-in-chat-btn');
@@ -1267,6 +1370,11 @@
         let gameInterval = null;
         let gameInvitationRef = null; // Reference to the current game invitation
         const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F3'];
+
+        // Doodle State
+        let isDoodling = false;
+        let lastDoodleX = 0;
+        let lastDoodleY = 0;
 
         // Common Emojis for the picker
         const commonEmojis = ['👍', '❤️', '😂', '😢', '😡', '👏', '🎉', '💯'];
@@ -1398,7 +1506,7 @@
             if (level >= 90) return '🔋';
             if (level >= 60) return '🔋';
             if (level >= 30) return '🔋';
-            if (level >= 10) return ' ';
+            if (level >= 10) return '🪫';
             return '🪫';
         }
 
@@ -2104,7 +2212,13 @@
             
             const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
-            let messageContentHtml = `<div>${message.text}</div>`;
+            let messageContentHtml = '';
+            if (message.type === 'doodle' && message.doodleData) {
+                messageContentHtml = `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>`;
+            } else {
+                 messageContentHtml = `<div>${message.text}</div>`;
+            }
+
             let statusIndicator = '';
             let editedTag = '';
             let reactionsHtml = '';
@@ -2151,10 +2265,12 @@
                     repliedToSenderName = currentChatWith.name;
                 }
                 
+                const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : message.repliedTo.text;
+
                 repliedToHtml = `
                     <div class="replied-message-preview">
                         Replying to <strong>${repliedToSenderName}</strong>:
-                        <span class="original-text">${message.repliedTo.text}</span>
+                        <span class="original-text">${repliedText}</span>
                     </div>
                 `;
             }
@@ -2182,19 +2298,11 @@
                 });
                 statusIndicator = `<span class="message-status delivered">✓</span>`;
             }
-
-            if (message.type === 'gameInvitation') {
-                messageContentHtml = `
-                    <div>
-                        <strong>Game Invitation from ${message.inviterName || 'Unknown'}</strong>
-                        <p>${message.text}</p>
-                    </div>
-                `;
-            }
             
             messageDiv.innerHTML = `
                 ${repliedToHtml}
-                <div>${message.text}${editedTag}</div>
+                ${messageContentHtml}
+                ${message.type !== 'doodle' ? editedTag : ''}
                 <div class="small d-flex justify-content-end align-items-center">
                     ${time}
                     ${statusIndicator}
@@ -2205,7 +2313,7 @@
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber);
+            attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber, message.type);
 
             messageDiv.querySelectorAll('.reaction-bubble').forEach(bubble => {
                 bubble.addEventListener('click', (e) => {
@@ -2272,10 +2380,11 @@
                 } else if (message.repliedTo.sender === currentChatWith.phoneNumber) {
                     repliedToSenderName = currentChatWith.name;
                 }
+                const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : message.repliedTo.text;
                 repliedToHtml = `
                     <div class="replied-message-preview">
                         Replying to <strong>${repliedToSenderName}</strong>:
-                        <span class="original-text">${message.repliedTo.text}</span>
+                        <span class="original-text">${repliedText}</span>
                     </div>
                 `;
             }
@@ -2286,9 +2395,17 @@
                 statusIndicator = `<span class="message-status ${statusClass}">${checkmark}</span>`;
             }
 
+            let messageContentHtml = '';
+            if (message.type === 'doodle' && message.doodleData) {
+                messageContentHtml = `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>`;
+            } else {
+                 messageContentHtml = `<div>${message.text}</div>`;
+            }
+
             messageDiv.innerHTML = `
                 ${repliedToHtml}
-                <div>${message.text}${editedTag}</div>
+                ${messageContentHtml}
+                ${message.type !== 'doodle' ? editedTag : ''}
                 <div class="small d-flex justify-content-end align-items-center">
                     ${time}
                     ${statusIndicator}
@@ -2312,14 +2429,14 @@
             }
         }
 
-        function attachMessageDoubleClickListener(messageDiv, messageKey, messageText, isMyMessage) {
+        function attachMessageDoubleClickListener(messageDiv, messageKey, messageText, isMyMessage, messageType) {
             messageDiv.addEventListener('dblclick', (e) => {
                 e.preventDefault();
-                showContextMenu(e, messageKey, messageText, isMyMessage);
+                showContextMenu(e, messageKey, messageText, isMyMessage, messageType);
             });
         }
 
-        function showContextMenu(event, messageKey, messageText, isMyMessage) {
+        function showContextMenu(event, messageKey, messageText, isMyMessage, messageType) {
             document.querySelectorAll('.context-menu').forEach(menu => menu.remove());
 
             const messageElement = event.currentTarget;
@@ -2332,10 +2449,10 @@
                 <button id="react-message-btn">React</button>
             `;
             if (isMyMessage && !messageElement.classList.contains('deleted-message')) {
-                menuHtml += `
-                    <button id="edit-message-btn">Edit</button>
-                    <button id="delete-message-btn">Delete</button>
-                `;
+                 if (messageType !== 'doodle') { // Can't edit a doodle
+                    menuHtml += `<button id="edit-message-btn">Edit</button>`;
+                }
+                menuHtml += `<button id="delete-message-btn">Delete</button>`;
             }
             contextMenu.innerHTML = menuHtml;
             document.body.appendChild(contextMenu);
@@ -2358,7 +2475,7 @@
 
             contextMenu.querySelector('#reply-message-btn').addEventListener('click', () => {
                 const originalMessageSenderPhoneNumber = isMyMessage ? currentUser.phoneNumber : currentChatWith.phoneNumber;
-                setReply(messageKey, messageText, originalMessageSenderPhoneNumber, messageElement.classList.contains('sent') ? currentUser.name : currentChatWith.name);
+                setReply(messageKey, messageText, originalMessageSenderPhoneNumber, messageElement.classList.contains('sent') ? currentUser.name : currentChatWith.name, messageType);
                 contextMenu.remove();
             });
 
@@ -2368,10 +2485,12 @@
             });
 
             if (isMyMessage && !messageElement.classList.contains('deleted-message')) {
-                contextMenu.querySelector('#edit-message-btn').addEventListener('click', () => {
-                    editMessage(messageKey, messageText);
-                    contextMenu.remove();
-                });
+                 if (messageType !== 'doodle') {
+                    contextMenu.querySelector('#edit-message-btn').addEventListener('click', () => {
+                        editMessage(messageKey, messageText);
+                        contextMenu.remove();
+                    });
+                }
 
                 contextMenu.querySelector('#delete-message-btn').addEventListener('click', () => {
                     deleteMessage(messageKey);
@@ -2450,6 +2569,7 @@
             
             messageRef.update({
                 text: '',
+                doodleData: null,
                 deleted: true,
                 edited: false,
                 reactions: null,
@@ -2481,15 +2601,17 @@
             }
         });
 
-        function setReply(messageKey, messageText, senderPhoneNumber, senderDisplayName) {
+        function setReply(messageKey, messageText, senderPhoneNumber, senderDisplayName, messageType = 'text') {
             repliedToMessage = {
                 key: messageKey,
                 text: messageText,
                 sender: senderPhoneNumber,
-                senderName: senderDisplayName
+                senderName: senderDisplayName,
+                type: messageType
             };
+            const replyContent = messageType === 'doodle' ? '[Doodle]' : messageText;
             replySenderName.textContent = senderDisplayName;
-            replyMessageText.textContent = messageText;
+            replyMessageText.textContent = replyContent;
             replyPreview.style.display = 'flex';
             messageInput.focus();
         }
@@ -2557,7 +2679,8 @@
                 read: false,
                 edited: false,
                 deleted: false,
-                reactions: null
+                reactions: null,
+                type: 'text'
             };
 
             if (repliedToMessage) {
@@ -2565,7 +2688,8 @@
                     key: repliedToMessage.key,
                     text: repliedToMessage.text,
                     sender: repliedToMessage.sender,
-                    senderName: repliedToMessage.senderName
+                    senderName: repliedToMessage.senderName,
+                    type: repliedToMessage.type
                 };
             }
 
@@ -2574,6 +2698,123 @@
                 clearReply();
             });
         }
+
+        // --- Doodling Logic ---
+        function initializeDoodleCanvas() {
+            doodleCtx.strokeStyle = '#000000';
+            doodleCtx.lineWidth = 5;
+            doodleCtx.lineCap = 'round';
+            doodleCtx.lineJoin = 'round';
+
+            const clearCanvas = () => {
+                doodleCtx.fillStyle = 'white';
+                doodleCtx.fillRect(0, 0, doodleCanvas.width, doodleCanvas.height);
+            };
+            clearCanvas(); // Initial clear
+
+            const startDoodling = (e) => {
+                isDoodling = true;
+                [lastDoodleX, lastDoodleY] = getMousePos(doodleCanvas, e);
+            };
+
+            const stopDoodling = () => {
+                isDoodling = false;
+                doodleCtx.beginPath();
+            };
+
+            const drawDoodle = (e) => {
+                if (!isDoodling) return;
+                e.preventDefault();
+                const [x, y] = getMousePos(doodleCanvas, e);
+                doodleCtx.beginPath();
+                doodleCtx.moveTo(lastDoodleX, lastDoodleY);
+                doodleCtx.lineTo(x, y);
+                doodleCtx.stroke();
+                [lastDoodleX, lastDoodleY] = [x, y];
+            };
+
+            const getMousePos = (canvas, evt) => {
+                const rect = canvas.getBoundingClientRect();
+                if (evt.touches) { // Touch event
+                    return [evt.touches[0].clientX - rect.left, evt.touches[0].clientY - rect.top];
+                }
+                // Mouse event
+                return [evt.clientX - rect.left, evt.clientY - rect.top];
+            };
+
+            doodleCanvas.addEventListener('mousedown', startDoodling);
+            doodleCanvas.addEventListener('mousemove', drawDoodle);
+            doodleCanvas.addEventListener('mouseup', stopDoodling);
+            doodleCanvas.addEventListener('mouseout', stopDoodling);
+
+            doodleCanvas.addEventListener('touchstart', startDoodling);
+            doodleCanvas.addEventListener('touchmove', drawDoodle);
+            doodleCanvas.addEventListener('touchend', stopDoodling);
+
+            colorPalette.addEventListener('click', (e) => {
+                if (e.target.classList.contains('color-swatch')) {
+                    doodleCtx.strokeStyle = e.target.dataset.color;
+                    document.querySelector('.color-swatch.active').classList.remove('active');
+                    e.target.classList.add('active');
+                }
+            });
+
+            brushSizeSlider.addEventListener('input', (e) => {
+                doodleCtx.lineWidth = e.target.value;
+            });
+
+            doodleEraseBtn.addEventListener('click', () => {
+                doodleCtx.strokeStyle = 'white';
+            });
+
+            doodleClearBtn.addEventListener('click', clearCanvas);
+
+            sendDoodleBtn.addEventListener('click', () => {
+                const doodleData = doodleCanvas.toDataURL('image/png');
+                sendDoodleMessage(doodleData);
+                doodleModal.style.display = 'none';
+                clearCanvas();
+            });
+
+            doodleBtn.addEventListener('click', () => {
+                doodleModal.style.display = 'flex';
+            });
+
+            closeDoodleModalBtn.addEventListener('click', () => {
+                doodleModal.style.display = 'none';
+            });
+        }
+
+        function sendDoodleMessage(doodleData) {
+            if (!doodleData || !currentUser || !currentChatWith) return;
+
+            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+            const newMessageRef = database.ref('chats/' + chatId).push();
+
+            const messageData = {
+                sender: currentUser.phoneNumber,
+                receiver: currentChatWith.phoneNumber,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                delivered: true,
+                read: false,
+                type: 'doodle',
+                doodleData: doodleData
+            };
+             if (repliedToMessage) {
+                messageData.repliedTo = {
+                    key: repliedToMessage.key,
+                    text: repliedToMessage.text,
+                    sender: repliedToMessage.sender,
+                    senderName: repliedToMessage.senderName,
+                    type: repliedToMessage.type
+                };
+            }
+
+            newMessageRef.set(messageData).then(() => {
+                clearReply();
+            });
+        }
+
 
         // --- Multiplayer Color Pop Game ---
         function initGameGrid() {
@@ -2630,7 +2871,7 @@
 
             const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
             database.ref('chats/' + chatId).push().set({
-                text: `${currentUser.name} invites you to play Color Pop Battle! Tap the 'Play Color Pop Battle' button to join.`,
+                text: `${currentUser.name} invites you to play Color Pop Battle! Tap the 'Play Color Pop' button to join.`,
                 sender: currentUser.phoneNumber,
                 receiver: currentChatWith.phoneNumber,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
@@ -2959,7 +3200,7 @@
         });
 
         window.addEventListener('click', (event) => {
-            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal || event.target == settingsModal || event.target == bioModal || event.target == reportUserModal || event.target == chargingSafetyModal || event.target == opponentChargingModal || event.target == statusViewersModal) {
+            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal || event.target == settingsModal || event.target == bioModal || event.target == reportUserModal || event.target == chargingSafetyModal || event.target == opponentChargingModal || event.target == statusViewersModal || event.target == doodleModal) {
                 confirmationModal.style.display = 'none';
                 emojiPickerModal.style.display = 'none';
                 editMessageModal.style.display = 'none';
@@ -2969,6 +3210,7 @@
                 chargingSafetyModal.style.display = 'none';
                 opponentChargingModal.style.display = 'none';
                 statusViewersModal.style.display = 'none';
+                doodleModal.style.display = 'none';
             }
         });
 
@@ -3457,6 +3699,7 @@
                 registrationScreen.style.display = 'block';
             }
             updateRegisterButtonState();
+            initializeDoodleCanvas(); // Initialize the doodle feature on load
         });
     </script>
 </body>
