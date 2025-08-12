@@ -88,7 +88,7 @@
             cursor: pointer;
             padding: 15px 20px;
             border-bottom: 1px solid #eee;
-            transition: background-color 0.3s ease, transform 0.2s ease-out;
+            transition: background-color: 0.3s ease, transform 0.2s ease-out;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -798,16 +798,24 @@
 
         /* Doodle Feature Styles */
         #doodle-modal .modal-content {
-            max-width: 95vw; /* Use viewport width for responsiveness */
-            width: 550px; /* Set a max size for larger screens */
+            max-width: 90vw;
+            width: 90vw;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #doodle-modal .modal-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
         #doodle-canvas {
             border: 1px solid #ccc;
             border-radius: 8px;
             cursor: crosshair;
-            touch-action: none; /* Prevents scrolling on canvas on touch devices */
+            touch-action: none;
             width: 100%;
-            display: block;
+            flex-grow: 1;
         }
         .doodle-controls {
             display: flex;
@@ -854,6 +862,42 @@
         }
         .chat-input-buttons .btn {
             flex-grow: 1;
+        }
+
+        /* NEW: Live Doodle Styles */
+        #live-doodle-modal .modal-content {
+            max-width: 90vw; /* Much wider modal */
+            width: 90vw;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #live-doodle-modal .modal-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        #live-doodle-canvas-container {
+            flex-grow: 1;
+            position: relative;
+        }
+        #live-doodle-canvas {
+            border: 2px solid #333;
+            border-radius: 8px;
+            cursor: crosshair;
+            touch-action: none;
+            background-color: white;
+            width: 100%;
+            height: 100%;
+        }
+        .live-doodle-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 0;
+            gap: 15px;
         }
     </style>
 </head>
@@ -1097,6 +1141,35 @@
             </div>
         </div>
     </div>
+
+    <!-- NEW: Live Doodle Modal -->
+    <div id="live-doodle-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Live Doodle Session</span>
+                <span class="close-modal-btn" id="close-live-doodle-modal-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="live-doodle-canvas-container">
+                    <canvas id="live-doodle-canvas"></canvas>
+                </div>
+                <div class="live-doodle-controls">
+                    <div class="color-palette" id="live-color-palette">
+                        <div class="color-swatch active" style="background-color: black;" data-color="black"></div>
+                        <div class="color-swatch" style="background-color: red;" data-color="red"></div>
+                        <div class="color-swatch" style="background-color: blue;" data-color="blue"></div>
+                        <div class="color-swatch" style="background-color: green;" data-color="green"></div>
+                        <div class="color-swatch" style="background-color: yellow;" data-color="yellow"></div>
+                    </div>
+                    <div class="brush-size-container">
+                        <label for="live-brush-size">Size:</label>
+                        <input type="range" id="live-brush-size" min="1" max="20" value="5">
+                    </div>
+                    <button id="live-doodle-clear-btn" class="btn btn-danger">Clear for Everyone</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
 
@@ -1202,6 +1275,7 @@
                 </div>
                 <div class="chat-input-buttons">
                     <button id="doodle-btn" class="btn btn-info rounded-pill">Doodle</button>
+                    <button id="live-doodle-btn" class="btn btn-warning rounded-pill">Live Doodle</button>
                     <button id="play-game-in-chat-btn" class="btn btn-success rounded-pill">Play Color Pop</button>
                 </div>
             </div>
@@ -1322,6 +1396,16 @@
         const doodleClearBtn = document.getElementById('doodle-clear-btn');
         const sendDoodleBtn = document.getElementById('send-doodle-btn');
 
+        // NEW: Live Doodle DOM Elements
+        const liveDoodleBtn = document.getElementById('live-doodle-btn');
+        const liveDoodleModal = document.getElementById('live-doodle-modal');
+        const closeLiveDoodleModalBtn = document.getElementById('close-live-doodle-modal-btn');
+        const liveDoodleCanvas = document.getElementById('live-doodle-canvas');
+        const liveDoodleCtx = liveDoodleCanvas.getContext('2d');
+        const liveColorPalette = document.getElementById('live-color-palette');
+        const liveBrushSizeSlider = document.getElementById('live-brush-size');
+        const liveDoodleClearBtn = document.getElementById('live-doodle-clear-btn');
+
 
         // Game specific DOM elements
         const playGameInChatBtn = document.getElementById('play-game-in-chat-btn');
@@ -1378,6 +1462,14 @@
         let isDoodling = false;
         let lastDoodleX = 0;
         let lastDoodleY = 0;
+
+        // NEW: Live Doodle State
+        let liveDoodleRef = null;
+        let isLiveDoodling = false;
+        let currentLivePathId = null;
+        let liveDoodleListenersAttached = false;
+        let throttleTimer;
+
 
         // Common Emojis for the picker
         const commonEmojis = ['👍', '❤️', '😂', '😢', '😡', '👏', '🎉', '💯'];
@@ -1508,7 +1600,7 @@
         function getBatteryEmoji(level) {
             if (level >= 90) return '🔋';
             if (level >= 60) return '🔋';
-            if (level >= 30) return '🔋';
+            if (level >= 30) return '�';
             if (level >= 10) return '🪫';
             return '🪫';
         }
@@ -2703,39 +2795,8 @@
         }
 
         // --- Doodling Logic ---
-        function resizeDoodleCanvas() {
-            const canvas = doodleCanvas;
-            const parent = canvas.parentElement;
-            const parentStyle = window.getComputedStyle(parent);
-            const parentPaddingX = parseFloat(parentStyle.paddingLeft) + parseFloat(parentStyle.paddingRight);
-            
-            const newWidth = parent.clientWidth - parentPaddingX;
-            const newHeight = newWidth * 0.6; // Maintain a 5:3 aspect ratio
-
-            // Only resize if necessary to avoid clearing the canvas unnecessarily
-            if (canvas.width !== newWidth || canvas.height !== newHeight) {
-                canvas.width = newWidth;
-                canvas.height = newHeight;
-
-                // Reset drawing context properties, as they are cleared when the canvas is resized
-                const activeColor = document.querySelector('#color-palette .color-swatch.active')?.dataset.color || 'black';
-                doodleCtx.strokeStyle = activeColor;
-                doodleCtx.lineWidth = brushSizeSlider.value;
-                doodleCtx.lineCap = 'round';
-                doodleCtx.lineJoin = 'round';
-                
-                // Clear the canvas with a white background
-                doodleCtx.fillStyle = 'white';
-                doodleCtx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-        }
-
         function initializeDoodleCanvas() {
-            const clearCanvas = () => {
-                doodleCtx.fillStyle = 'white';
-                doodleCtx.fillRect(0, 0, doodleCanvas.width, doodleCanvas.height);
-            };
-            
+            // This function sets up the listeners. The resizing and context reset is handled separately.
             const startDoodling = (e) => {
                 isDoodling = true;
                 [lastDoodleX, lastDoodleY] = getMousePos(doodleCanvas, e);
@@ -2759,11 +2820,11 @@
 
             const getMousePos = (canvas, evt) => {
                 const rect = canvas.getBoundingClientRect();
-                const touch = evt.touches ? evt.touches[0] : null;
-                return [
-                    (touch ? touch.clientX : evt.clientX) - rect.left,
-                    (touch ? touch.clientY : evt.clientY) - rect.top
-                ];
+                 if (evt.touches && evt.touches.length > 0) { // Touch event
+                    return [evt.touches[0].clientX - rect.left, evt.touches[0].clientY - rect.top];
+                }
+                // Mouse event
+                return [evt.clientX - rect.left, evt.clientY - rect.top];
             };
 
             doodleCanvas.addEventListener('mousedown', startDoodling);
@@ -2771,15 +2832,17 @@
             doodleCanvas.addEventListener('mouseup', stopDoodling);
             doodleCanvas.addEventListener('mouseout', stopDoodling);
 
-            doodleCanvas.addEventListener('touchstart', startDoodling, { passive: false });
-            doodleCanvas.addEventListener('touchmove', drawDoodle, { passive: false });
+            doodleCanvas.addEventListener('touchstart', startDoodling);
+            doodleCanvas.addEventListener('touchmove', drawDoodle);
             doodleCanvas.addEventListener('touchend', stopDoodling);
 
             colorPalette.addEventListener('click', (e) => {
                 if (e.target.classList.contains('color-swatch')) {
-                    const newColor = e.target.dataset.color;
-                    doodleCtx.strokeStyle = newColor;
-                    document.querySelector('.color-swatch.active').classList.remove('active');
+                    doodleCtx.strokeStyle = e.target.dataset.color;
+                    const currentActive = document.querySelector('#color-palette .color-swatch.active');
+                    if (currentActive) {
+                        currentActive.classList.remove('active');
+                    }
                     e.target.classList.add('active');
                 }
             });
@@ -2792,7 +2855,10 @@
                 doodleCtx.strokeStyle = 'white';
             });
 
-            doodleClearBtn.addEventListener('click', clearCanvas);
+            doodleClearBtn.addEventListener('click', () => {
+                 doodleCtx.fillStyle = 'white';
+                 doodleCtx.fillRect(0, 0, doodleCanvas.width, doodleCanvas.height);
+            });
 
             sendDoodleBtn.addEventListener('click', () => {
                 const doodleData = doodleCanvas.toDataURL('image/png');
@@ -2802,19 +2868,27 @@
 
             doodleBtn.addEventListener('click', () => {
                 doodleModal.style.display = 'flex';
-                setTimeout(resizeDoodleCanvas, 10); // Use a small timeout to ensure modal is visible
+                setTimeout(resizeDoodleCanvas, 10); 
             });
 
             closeDoodleModalBtn.addEventListener('click', () => {
                 doodleModal.style.display = 'none';
             });
-
-            window.addEventListener('resize', () => {
-                if (doodleModal.style.display === 'flex') {
-                    resizeDoodleCanvas();
-                }
-            });
         }
+        
+        function resizeDoodleCanvas() {
+            if (doodleModal.style.display !== 'flex') return;
+            doodleCanvas.width = doodleCanvas.clientWidth;
+            doodleCanvas.height = doodleCanvas.clientHeight;
+            // Reset context after resizing
+            doodleCtx.strokeStyle = document.querySelector('#color-palette .color-swatch.active')?.dataset.color || 'black';
+            doodleCtx.lineWidth = brushSizeSlider.value;
+            doodleCtx.lineCap = 'round';
+            doodleCtx.lineJoin = 'round';
+            doodleCtx.fillStyle = 'white';
+            doodleCtx.fillRect(0, 0, doodleCanvas.width, doodleCanvas.height);
+        }
+
 
         function sendDoodleMessage(doodleData) {
             if (!doodleData || !currentUser || !currentChatWith) return;
@@ -2845,6 +2919,188 @@
                 clearReply();
             });
         }
+
+        // --- NEW: Live Doodle Logic ---
+        function startLiveDoodleSession() {
+            if (!currentUser || !currentChatWith) return;
+
+            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+            liveDoodleRef = database.ref(`liveDoodles/${chatId}`);
+
+            liveDoodleModal.style.display = 'flex';
+            setTimeout(initializeLiveDoodleCanvas, 10);
+        }
+
+        function stopLiveDoodleSession() {
+            if (liveDoodleRef && liveDoodleListenersAttached) {
+                liveDoodleRef.child('paths').off();
+                liveDoodleRef.child('clear').off();
+                // Optional: remove the doodle data when session ends
+                // liveDoodleRef.remove(); 
+            }
+            liveDoodleListenersAttached = false;
+            liveDoodleRef = null;
+        }
+
+        function initializeLiveDoodleCanvas() {
+            resizeLiveDoodleCanvas(); // Initial resize and context setup
+            
+            const getLiveMousePos = (canvas, evt) => {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                let clientX, clientY;
+
+                if (evt.touches && evt.touches.length > 0) {
+                    clientX = evt.touches[0].clientX;
+                    clientY = evt.touches[0].clientY;
+                } else {
+                    clientX = evt.clientX;
+                    clientY = evt.clientY;
+                }
+                return [(clientX - rect.left) * scaleX, (clientY - rect.top) * scaleY];
+            };
+
+            const startDrawing = (e) => {
+                e.preventDefault();
+                isLiveDoodling = true;
+                const [x, y] = getLiveMousePos(liveDoodleCanvas, e);
+
+                const newPathRef = liveDoodleRef.child('paths').push();
+                currentLivePathId = newPathRef.key;
+                
+                const pathData = {
+                    color: liveDoodleCtx.strokeStyle,
+                    size: liveDoodleCtx.lineWidth,
+                    points: {}
+                };
+                newPathRef.set(pathData);
+                newPathRef.child('points').push({ x, y });
+            };
+
+            const draw = (e) => {
+                if (!isLiveDoodling || !currentLivePathId) return;
+                e.preventDefault();
+
+                // Throttle the drawing events to avoid overwhelming Firebase
+                clearTimeout(throttleTimer);
+                throttleTimer = setTimeout(() => {
+                    const [x, y] = getLiveMousePos(liveDoodleCanvas, e);
+                    liveDoodleRef.child('paths').child(currentLivePathId).child('points').push({ x, y });
+                }, 15); // Send updates roughly 60 times per second
+            };
+
+            const stopDrawing = () => {
+                isLiveDoodling = false;
+                currentLivePathId = null;
+            };
+
+            liveDoodleCanvas.addEventListener('mousedown', startDrawing);
+            liveDoodleCanvas.addEventListener('mousemove', draw);
+            liveDoodleCanvas.addEventListener('mouseup', stopDrawing);
+            liveDoodleCanvas.addEventListener('mouseout', stopDrawing);
+
+            liveDoodleCanvas.addEventListener('touchstart', startDrawing);
+            liveDoodleCanvas.addEventListener('touchmove', draw);
+            liveDoodleCanvas.addEventListener('touchend', stopDrawing);
+
+            // Listen for remote drawing data
+            if (liveDoodleRef && !liveDoodleListenersAttached) {
+                liveDoodleListenersAttached = true;
+                
+                // Listener for new paths being added
+                liveDoodleRef.child('paths').on('child_added', (pathSnapshot) => {
+                    const pathData = pathSnapshot.val();
+                    const pathId = pathSnapshot.key;
+                    let lastPoint = null;
+
+                    // Listener for points being added to a path
+                    liveDoodleRef.child('paths').child(pathId).child('points').on('child_added', (pointSnapshot) => {
+                        const point = pointSnapshot.val();
+                        if (lastPoint) {
+                            liveDoodleCtx.beginPath();
+                            liveDoodleCtx.moveTo(lastPoint.x, lastPoint.y);
+                            liveDoodleCtx.lineTo(point.x, point.y);
+                            liveDoodleCtx.strokeStyle = pathData.color;
+                            liveDoodleCtx.lineWidth = pathData.size;
+                            liveDoodleCtx.stroke();
+                        }
+                        lastPoint = point;
+                    });
+                });
+
+                // Listener for the clear command
+                liveDoodleRef.child('clear').on('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                         liveDoodleCtx.clearRect(0, 0, liveDoodleCanvas.width, liveDoodleCanvas.height);
+                    }
+                });
+            }
+        }
+        
+        function resizeLiveDoodleCanvas() {
+            if (liveDoodleModal.style.display !== 'flex') return;
+            const canvasContainer = document.getElementById('live-doodle-canvas-container');
+            liveDoodleCanvas.width = canvasContainer.clientWidth;
+            liveDoodleCanvas.height = canvasContainer.clientHeight;
+            // Reset context after resizing
+            liveDoodleCtx.strokeStyle = document.querySelector('#live-color-palette .color-swatch.active')?.dataset.color || 'black';
+            liveDoodleCtx.lineWidth = liveBrushSizeSlider.value;
+            liveDoodleCtx.lineCap = 'round';
+            liveDoodleCtx.lineJoin = 'round';
+            // Redraw existing content if any
+            if (liveDoodleRef) {
+                liveDoodleRef.child('paths').once('value', (snapshot) => {
+                    snapshot.forEach((pathSnapshot) => {
+                        const pathData = pathSnapshot.val();
+                        let lastPoint = null;
+                        if (pathData.points) {
+                            Object.values(pathData.points).forEach(point => {
+                                if (lastPoint) {
+                                    liveDoodleCtx.beginPath();
+                                    liveDoodleCtx.moveTo(lastPoint.x, lastPoint.y);
+                                    liveDoodleCtx.lineTo(point.x, point.y);
+                                    liveDoodleCtx.strokeStyle = pathData.color;
+                                    liveDoodleCtx.lineWidth = pathData.size;
+                                    liveDoodleCtx.stroke();
+                                }
+                                lastPoint = point;
+                            });
+                        }
+                    });
+                });
+            }
+        }
+
+
+        liveDoodleBtn.addEventListener('click', startLiveDoodleSession);
+
+        closeLiveDoodleModalBtn.addEventListener('click', () => {
+            liveDoodleModal.style.display = 'none';
+            stopLiveDoodleSession();
+        });
+
+        liveColorPalette.addEventListener('click', (e) => {
+            if (e.target.classList.contains('color-swatch')) {
+                liveDoodleCtx.strokeStyle = e.target.dataset.color;
+                const currentActive = document.querySelector('#live-color-palette .color-swatch.active');
+                if (currentActive) {
+                    currentActive.classList.remove('active');
+                }
+                e.target.classList.add('active');
+            }
+        });
+
+        liveBrushSizeSlider.addEventListener('input', (e) => {
+            liveDoodleCtx.lineWidth = e.target.value;
+        });
+
+        liveDoodleClearBtn.addEventListener('click', () => {
+            if (liveDoodleRef) {
+                liveDoodleRef.child('paths').remove();
+                liveDoodleRef.child('clear').set(firebase.database.ServerValue.TIMESTAMP);
+            }
+        });
 
 
         // --- Multiplayer Color Pop Game ---
@@ -3231,17 +3487,17 @@
         });
 
         window.addEventListener('click', (event) => {
-            if (event.target == confirmationModal || event.target == emojiPickerModal || event.target == editMessageModal || event.target == settingsModal || event.target == bioModal || event.target == reportUserModal || event.target == chargingSafetyModal || event.target == opponentChargingModal || event.target == statusViewersModal || event.target == doodleModal) {
-                confirmationModal.style.display = 'none';
-                emojiPickerModal.style.display = 'none';
-                editMessageModal.style.display = 'none';
-                settingsModal.style.display = 'none';
-                bioModal.style.display = 'none';
-                reportUserModal.style.display = 'none';
-                chargingSafetyModal.style.display = 'none';
-                opponentChargingModal.style.display = 'none';
-                statusViewersModal.style.display = 'none';
-                doodleModal.style.display = 'none';
+            const modals = [
+                confirmationModal, emojiPickerModal, editMessageModal, settingsModal, 
+                bioModal, reportUserModal, chargingSafetyModal, opponentChargingModal, 
+                statusViewersModal, doodleModal, liveDoodleModal
+            ];
+
+            if (modals.includes(event.target)) {
+                event.target.style.display = 'none';
+                if (event.target === liveDoodleModal) {
+                    stopLiveDoodleSession();
+                }
             }
         });
 
@@ -3731,8 +3987,11 @@
             }
             updateRegisterButtonState();
             initializeDoodleCanvas(); // Initialize the doodle feature on load
+            window.addEventListener('resize', () => {
+                resizeDoodleCanvas();
+                resizeLiveDoodleCanvas();
+            });
         });
     </script>
 </body>
 </html>
-
