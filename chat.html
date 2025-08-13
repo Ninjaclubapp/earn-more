@@ -18,7 +18,6 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            /* Enhanced background for aesthetic appeal */
             background: radial-gradient(circle at top left, #e0eafc, #cfdef3);
             display: flex;
             justify-content: center;
@@ -28,7 +27,7 @@
         }
         .chat-container {
             max-width: 600px;
-            width: 100%; /* Ensure it takes full width on smaller screens */
+            width: 100%;
             margin: 0 auto;
             border: 1px solid #ddd;
             border-radius: 15px;
@@ -62,7 +61,7 @@
             word-wrap: break-word;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             transition: transform 0.2s ease-out;
-            position: relative; /* Needed for context menu positioning */
+            position: relative;
         }
         .message:hover {
             transform: translateY(-2px);
@@ -276,7 +275,6 @@
             font-weight: bold;
             margin-right: 10px;
             flex-shrink: 0;
-            /* Added styles for logo - NOT using CSS variables as requested */
             background-image: linear-gradient(45deg, #0d6efd, #00aaff);
             color: white;
             border: 2px solid #ffffff;
@@ -298,23 +296,22 @@
             width: 35px;
             height: 35px;
             font-size: 1em;
-            margin-right: 10px; /* Adjust margin as needed */
-            cursor: pointer; /* Make it clickable */
+            margin-right: 10px;
+            cursor: pointer;
         }
         .chat-header .d-flex {
             align-items: center;
         }
-        /* Modal styles */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1060; /* Sit on top */
+            display: none; 
+            position: fixed; 
+            z-index: 1060; 
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4); 
             justify-content: center;
             align-items: center;
         }
@@ -358,24 +355,21 @@
         }
 
         .contact-item .text-muted.small {
-            display: block; /* Ensure phone number is on its own line */
-            margin-bottom: 5px; /* Space between number and status */
+            display: block; 
+            margin-bottom: 5px; 
         }
 
         .contact-item strong {
-            display: block; /* Ensure name is on its own line */
+            display: block; 
         }
-
-        /* Context Menu Styles */
         .context-menu {
-            /* Removed top, left, transform properties as they are set by JS now */
             display: none;
-            position: fixed; /* Changed to fixed for viewport positioning */
+            position: fixed; 
             background-color: #fff;
             border: 1px solid #ddd;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1001; /* High z-index to ensure visibility */
+            z-index: 1001; 
             min-width: 120px;
             overflow: hidden;
             opacity: 0;
@@ -385,7 +379,7 @@
         .context-menu.show {
             display: block;
             opacity: 1;
-            transform: translateY(0); /* Keep this for the fade-in effect */
+            transform: translateY(0); 
         }
 
         .context-menu button {
@@ -426,7 +420,6 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.03);
         }
 
-        /* Emoji Reactions Styles */
         .reactions-container {
             display: flex;
             flex-wrap: wrap;
@@ -479,7 +472,6 @@
             background-color: #eee;
         }
 
-        /* Reply Message Styles */
         .replied-message-preview {
             background-color: rgba(0,0,0,0.05);
             border-left: 4px solid var(--reply-border-color);
@@ -500,7 +492,7 @@
             display: block;
         }
         .message.sent .replied-message-preview {
-            background-color: rgba(255,255,255,0.2); /* Lighter for sent messages */
+            background-color: rgba(255,255,255,0.2); 
             border-left-color: white;
             color: rgba(255,255,255,0.8);
         }
@@ -508,7 +500,6 @@
             color: white;
         }
 
-        /* Reply input styling */
         .reply-input-wrapper {
             background-color: #e9ecef;
             border-radius: 8px;
@@ -540,26 +531,23 @@
             color: #dc3545;
         }
 
-        /* Updated style for scrollable contacts list */
         #contacts-list, #status-list {
-            max-height: calc(100vh - 200px); /* Adjusts height based on viewport, leaving space for header/search */
+            max-height: calc(100vh - 200px); 
             overflow-y: auto;
         }
 
-        /* New message indicator styling */
         #new-message-indicator {
             border-radius: 10px;
             font-weight: 500;
-            margin-bottom: 15px; /* Space below the indicator */
-            display: none; /* Hidden by default */
-            /* Custom styles for a subtle look */
-            background-color: #e0f7fa; /* Light blue background */
-            color: var(--primary-color-text); /* Primary blue text */
-            border: 1px solid #b2ebf2; /* Light border */
-            padding: 8px 15px; /* Adjust padding */
+            margin-bottom: 15px; 
+            display: none; 
+            background-color: #e0f7fa; 
+            color: var(--primary-color-text); 
+            border: 1px solid #b2ebf2; 
+            padding: 8px 15px; 
             text-align: center;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
             transition: all 0.2s ease-in-out;
         }
         #new-message-indicator:hover {
@@ -567,8 +555,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        /* Game Result Message Style */
-        .game-result-message {
+        .game-result-message, .system-message {
             background-color: #e3f2fd;
             color: #0d6efd;
             font-weight: 500;
@@ -579,7 +566,6 @@
             border-radius: 10px;
         }
 
-        /* Charging Alert Style */
         .charging-alert {
             background-color: #fff3cd;
             color: #664d03;
@@ -599,7 +585,6 @@
             font-size: 1em;
         }
 
-        /* Removed all @keyframes and animation properties for performance */
         @keyframes pop {
             0% { transform: scale(0); opacity: 0; }
             80% { transform: scale(1.1); opacity: 1; }
@@ -612,16 +597,11 @@
             font-weight: 500;
             margin-top: 15px;
         }
-
-        /* Professional Registration Page Styles */
         #registration-screen {
-            /* Enhanced background for the card itself */
             background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
             border-radius: 20px;
             padding: 30px;
-            /* Increased shadow for more depth */
             box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-            /* Added a subtle border */
             border: 1px solid #e0e0e0;
         }
         #registration-screen .chat-header {
@@ -631,7 +611,7 @@
             font-size: 1.5em;
             text-align: center;
             justify-content: center;
-            margin: -30px -30px 20px -30px; /* Adjust to cover padding */
+            margin: -30px -30px 20px -30px; 
         }
         #registration-screen .chat-header h5 {
             margin: 0;
@@ -647,27 +627,26 @@
             border: 1px solid #ced4da;
             padding: 12px 18px;
             font-size: 1.05em;
-            border-radius: 12px; /* Slightly more rounded inputs */
+            border-radius: 12px; 
             transition: all 0.3s ease;
         }
         #registration-screen .form-control:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25), 0 2px 8px rgba(0, 123, 255, 0.1); /* Added subtle shadow on focus */
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25), 0 2px 8px rgba(0, 123, 255, 0.1); 
         }
         #registration-screen .btn-primary {
-            /* More vibrant gradient for the button */
             background: linear-gradient(90deg, var(--primary-color-text), #00c6ff);
             border: none;
             padding: 12px 25px;
             font-size: 1.1em;
             font-weight: 600;
-            border-radius: 12px; /* Consistent rounded corners */
-            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3); /* Stronger initial shadow */
+            border-radius: 12px; 
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3); 
             transition: all 0.3s ease;
         }
         #registration-screen .btn-primary:hover {
-            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4); /* Enhanced hover shadow */
-            transform: translateY(-3px); /* More pronounced lift on hover */
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4); 
+            transform: translateY(-3px); 
         }
         #registration-screen .text-danger {
             font-size: 0.9em;
@@ -681,7 +660,6 @@
             font-weight: 500;
         }
         
-        /* Settings button in contacts screen */
         #contacts-screen .chat-header .btn-secondary {
             background-color: #6c757d;
             border-color: #6c757d;
@@ -696,7 +674,6 @@
             border-color: #545b62;
         }
 
-        /* Bio Modal specific styles */
         #bio-modal .modal-content {
             text-align: left;
             padding: 25px;
@@ -713,10 +690,10 @@
             line-height: 1.5;
             color: #444;
             text-align: left;
-            word-wrap: break-word; /* Ensure long bios wrap */
-            white-space: pre-wrap; /* Preserve formatting like newlines */
-            max-height: 300px; /* Limit height for long bios */
-            overflow-y: auto; /* Add scroll if bio is too long */
+            word-wrap: break-word; 
+            white-space: pre-wrap; 
+            max-height: 300px; 
+            overflow-y: auto; 
         }
         #bio-modal .modal-body.no-bio {
             font-style: italic;
@@ -729,7 +706,6 @@
             margin-top: 15px;
         }
 
-        /* Theme Swatch Styles */
         .theme-swatch {
             width: 30px;
             height: 30px;
@@ -755,10 +731,9 @@
             border-color: var(--primary-color-dark);
         }
 
-        /* Favorite Star Style */
         .favorite-star {
             font-size: 1.5em;
-            color: #ffd700; /* Gold color */
+            color: #ffd700; 
             cursor: pointer;
             transition: transform 0.2s;
             margin-left: 15px;
@@ -796,7 +771,6 @@
             overflow-y: auto;
         }
 
-        /* Doodle Feature Styles */
         #doodle-modal .modal-content {
             max-width: 90vw;
             width: 90vw;
@@ -864,9 +838,8 @@
             flex-grow: 1;
         }
 
-        /* NEW: Live Doodle Styles */
         #live-doodle-modal .modal-content {
-            max-width: 90vw; /* Much wider modal */
+            max-width: 90vw; 
             width: 90vw;
             height: 90vh;
             display: flex;
@@ -898,6 +871,29 @@
             align-items: center;
             padding: 10px 0;
             gap: 15px;
+        }
+        /* Disappearing Messages Styles */
+        .chat-header-btn {
+            background: none;
+            border: none;
+            color: white;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .chat-header-btn:hover {
+            opacity: 1;
+        }
+        #disappearing-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8em;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        #disappearing-messages-modal .modal-body {
+            text-align: left;
         }
     </style>
 </head>
@@ -971,7 +967,6 @@
             </div>
             <div class="modal-body">
                 <div class="emoji-grid" id="emoji-grid">
-                    <!-- Emojis will be dynamically loaded here -->
                 </div>
             </div>
         </div>
@@ -1031,7 +1026,6 @@
                 <span class="close-modal-btn" id="close-bio-modal-btn">&times;</span>
             </div>
             <div class="modal-body" id="bio-modal-content">
-                <!-- Bio content will be loaded here -->
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="close-bio-modal-footer-btn">Close</button>
@@ -1080,7 +1074,6 @@
                 <span>⚠️ Safety Warning</span>
             </div>
             <div class="modal-body" id="opponent-charging-modal-body">
-                <!-- Message will be set by JS -->
             </div>
             <div class="modal-footer">
                 <button id="dismiss-opponent-charging-alert-btn" class="btn btn-primary">Dismiss</button>
@@ -1104,7 +1097,6 @@
                         <span id="status-viewers-count">Viewed by 0</span>
                     </div>
                     <div id="status-viewers-list" class="list-group list-group-flush">
-                        <!-- Viewer list will be populated here -->
                     </div>
                 </div>
             </div>
@@ -1142,7 +1134,7 @@
         </div>
     </div>
 
-    <!-- NEW: Live Doodle Modal -->
+    <!-- Live Doodle Modal -->
     <div id="live-doodle-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1171,11 +1163,48 @@
         </div>
     </div>
     
+    <!-- Disappearing Messages Modal -->
+    <div id="disappearing-messages-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Disappearing Messages</span>
+                <span class="close-modal-btn" id="close-disappearing-modal-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>When turned on, new messages will be deleted for everyone in this chat after the selected duration.</p>
+                <div id="timer-options">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="timerDuration" id="timer-off" value="0" checked>
+                        <label class="form-check-label" for="timer-off">Off</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="timerDuration" id="timer-5s" value="5000">
+                        <label class="form-check-label" for="timer-5s">5 seconds</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="timerDuration" id="timer-1m" value="60000">
+                        <label class="form-check-label" for="timer-1m">1 minute</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="timerDuration" id="timer-1h" value="3600000">
+                        <label class="form-check-label" for="timer-1h">1 hour</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="timerDuration" id="timer-24h" value="86400000">
+                        <label class="form-check-label" for="timer-24h">24 hours</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-disappearing-settings-btn" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
 
     <div class="container mt-4">
         <div id="registration-screen" class="chat-container">
-            <!-- Account Suspended View -->
             <div id="account-suspended-view" style="display: none; text-align: center; padding: 40px;">
                 <h1 style="font-size: 3em;">🚫</h1>
                 <h2>Account Suspended</h2>
@@ -1183,7 +1212,6 @@
                 <p>For more details or to appeal, please contact customer support.</p>
             </div>
 
-            <!-- Registration Form View -->
             <div id="registration-form-view">
                 <div class="chat-header">
                     <h5>Welcome to the Chat App</h5>
@@ -1220,7 +1248,6 @@
                 </div>
             </div>
             <div class="p-3">
-                <!-- New Message Indicator -->
                 <button id="new-message-indicator" class="btn btn-link text-primary d-block w-100 py-2" style="display: none; font-size: 0.9em; text-decoration: none;">
                     You have <span id="new-message-count">0</span> new message(s). Click to view.
                 </button>
@@ -1239,29 +1266,36 @@
                 <h5 class="me-auto">Statuses</h5>
             </div>
             <div id="status-list" class="list-group list-group-flush">
-                <!-- Statuses will be loaded here -->
             </div>
         </div>
 
         <div id="chat-screen" class="chat-container" style="display: none;">
             <div class="chat-header d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items: center">
+                <div class="d-flex align-items-center flex-grow-1">
                     <button id="back-to-contacts" class="btn btn-sm btn-light rounded-pill me-2">← Back</button>
                     <div class="profile-logo" id="chat-profile-logo"></div>
-                    <div>
+                    <div class="flex-grow-1">
                         <span id="chat-with-name" class="fw-bold">Chat with...</span>
                         <div id="chat-with-status" class="small text-white-75"></div>
+                        <div id="disappearing-status-indicator" class="small text-white-75" style="display: none;"></div>
                     </div>
-                    <button id="report-user-btn" class="btn btn-sm btn-danger rounded-pill ms-2">Report</button>
                 </div>
-                <div class="status-info">
-                    <span id="opponent-battery-status"></span>
+                <div class="d-flex align-items-center">
+                     <button id="disappearing-messages-btn" class="chat-header-btn" title="Disappearing Messages">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
+                            <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .586.023l-.07-.004.011.002zM8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
+                        </svg>
+                    </button>
+                    <button id="report-user-btn" class="btn btn-sm btn-danger rounded-pill ms-2">Report</button>
+                    <div class="status-info ms-2">
+                        <span id="opponent-battery-status"></span>
+                    </div>
                 </div>
             </div>
             <div id="chat-messages" class="chat-messages">
                 </div>
             <div class="p-3 border-top bg-light">
-                <!-- Reply preview area -->
                 <div id="reply-preview" class="reply-input-wrapper" style="display: none;">
                     <div class="reply-content">
                         Replying to <strong><span id="reply-sender-name"></span></strong>: <span id="reply-message-text"></span>
@@ -1302,21 +1336,21 @@
 
         // DOM Elements
         const registrationScreen = document.getElementById('registration-screen');
-        const registrationFormView = document.getElementById('registration-form-view'); // New: Form container
-        const accountSuspendedView = document.getElementById('account-suspended-view'); // New: Suspension message container
+        const registrationFormView = document.getElementById('registration-form-view');
+        const accountSuspendedView = document.getElementById('account-suspended-view');
         const contactsScreen = document.getElementById('contacts-screen');
         const chatScreen = document.getElementById('chat-screen');
-        const statusScreen = document.getElementById('status-screen'); // New: Status screen
+        const statusScreen = document.getElementById('status-screen');
         const registerBtn = document.getElementById('register-btn');
         const phoneNumberInput = document.getElementById('phone-number');
         const userNameInput = document.getElementById('user-name');
-        const userBioInput = document.getElementById('user-bio'); // New: Bio input on registration
+        const userBioInput = document.getElementById('user-bio');
         const contactsList = document.getElementById('contacts-list');
-        const statusList = document.getElementById('status-list'); // New: Status list
+        const statusList = document.getElementById('status-list');
         const contactSearch = document.getElementById('contact-search');
         const searchBtn = document.getElementById('search-btn');
         const backToContactsBtn = document.getElementById('back-to-contacts');
-        const backToContactsFromStatusBtn = document.getElementById('back-to-contacts-from-status'); // New: Back from status
+        const backToContactsFromStatusBtn = document.getElementById('back-to-contacts-from-status');
         const chatMessages = document.getElementById('chat-messages');
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
@@ -1325,8 +1359,8 @@
         const opponentBatteryStatus = document.getElementById('opponent-battery-status');
         const phoneNumberFeedback = document.getElementById('phone-number-feedback'); 
         const connectingMessage = document.getElementById('connecting-message'); 
-        const registrationErrorFeedback = document.getElementById('registration-error-feedback'); // New element for general registration errors
-        const viewStatusBtn = document.getElementById('view-status-btn'); // New: View Status button
+        const registrationErrorFeedback = document.getElementById('registration-error-feedback');
+        const viewStatusBtn = document.getElementById('view-status-btn');
 
         // Modal Elements
         const confirmationModal = document.getElementById('confirmation-modal');
@@ -1338,9 +1372,8 @@
         const opponentChargingModal = document.getElementById('opponent-charging-modal');
         const opponentChargingModalBody = document.getElementById('opponent-charging-modal-body');
         const dismissOpponentChargingAlertBtn = document.getElementById('dismiss-opponent-charging-alert-btn');
-        const statusViewersModal = document.getElementById('status-viewers-modal'); // New: Status viewers modal
-        const closeStatusViewersBtn = document.getElementById('close-status-viewers-btn'); // New: Close status viewers
-
+        const statusViewersModal = document.getElementById('status-viewers-modal');
+        const closeStatusViewersBtn = document.getElementById('close-status-viewers-btn');
 
         // Edit Message Modal Elements
         const editMessageModal = document.getElementById('edit-message-modal');
@@ -1348,13 +1381,13 @@
         const editMessageInput = document.getElementById('edit-message-input');
         const saveEditBtn = document.getElementById('save-edit-btn');
         const cancelEditBtn = document.getElementById('cancel-edit-btn');
-        let currentMessageToEdit = null; // Stores the Firebase reference of the message being edited
+        let currentMessageToEdit = null;
 
         // Emoji Picker Modal Elements
         const emojiPickerModal = document.getElementById('emoji-picker-modal');
         const closeEmojiPickerBtn = document.getElementById('close-emoji-picker-btn');
         const emojiGrid = document.getElementById('emoji-grid');
-        let currentMessageKeyForReaction = null; // Stores the key of the message to react to
+        let currentMessageKeyForReaction = null;
 
         // Settings Modal Elements
         const settingsBtn = document.getElementById('settings-btn');
@@ -1363,7 +1396,7 @@
         const hideNumberSwitch = document.getElementById('hide-number-switch');
         const userBioSettings = document.getElementById('user-bio-settings');
         const userMoodSettings = document.getElementById('user-mood-settings');
-        const userStatusSettings = document.getElementById('user-status-settings'); // New: Status textarea
+        const userStatusSettings = document.getElementById('user-status-settings');
         const saveSettingsBtn = document.getElementById('save-settings-btn');
         const themeSwatchesContainer = document.getElementById('theme-color-swatches');
 
@@ -1396,7 +1429,7 @@
         const doodleClearBtn = document.getElementById('doodle-clear-btn');
         const sendDoodleBtn = document.getElementById('send-doodle-btn');
 
-        // NEW: Live Doodle DOM Elements
+        // Live Doodle DOM Elements
         const liveDoodleBtn = document.getElementById('live-doodle-btn');
         const liveDoodleModal = document.getElementById('live-doodle-modal');
         const closeLiveDoodleModalBtn = document.getElementById('close-live-doodle-modal-btn');
@@ -1406,6 +1439,12 @@
         const liveBrushSizeSlider = document.getElementById('live-brush-size');
         const liveDoodleClearBtn = document.getElementById('live-doodle-clear-btn');
 
+        // Disappearing Messages DOM Elements
+        const disappearingMessagesBtn = document.getElementById('disappearing-messages-btn');
+        const disappearingMessagesModal = document.getElementById('disappearing-messages-modal');
+        const closeDisappearingModalBtn = document.getElementById('close-disappearing-modal-btn');
+        const saveDisappearingSettingsBtn = document.getElementById('save-disappearing-settings-btn');
+        const disappearingStatusIndicator = document.getElementById('disappearing-status-indicator');
 
         // Game specific DOM elements
         const playGameInChatBtn = document.getElementById('play-game-in-chat-btn');
@@ -1432,21 +1471,22 @@
         const newMessageIndicator = document.getElementById('new-message-indicator');
         const newMessageCountSpan = document.getElementById('new-message-count');
 
-
         // App State
         let currentUser = null;
-        let currentChatWith = null; // Stores the full user object of the current chat partner
-        let unreadCounts = {}; // Object to store unread message counts per contact (just count)
-        let latestUnreadMessageTimestamps = {}; // Stores latest unread timestamp per contact
-        let messageListeners = {}; // Stores references to Firebase listeners for messages
-        let globalUnreadListeners = {}; // Stores references to global unread listeners for cleanup
+        let currentChatWith = null;
+        let unreadCounts = {};
+        let latestUnreadMessageTimestamps = {};
+        let messageListeners = {};
+        let globalUnreadListeners = {};
         let typingTimeout = null;
         let onlineStatusRef = null;
         let batteryMonitor = null;
-        let repliedToMessage = null; // Stores the message object being replied to
-        let totalUnreadMessages = 0; // New: Total unread messages across all contacts
-        let chargingAlertShown = false; // Flag to show charging alert only once
-        let opponentChargingAlertShown = {}; // Flag to show opponent charging alert only once per contact
+        let repliedToMessage = null;
+        let totalUnreadMessages = 0;
+        let chargingAlertShown = false;
+        let opponentChargingAlertShown = {};
+        let currentChatSettings = {}; // Holds settings for the current chat, like disappearing messages
+        let activeMessageTimers = {}; // Holds active setTimeout IDs for message deletion
 
         // Game State
         let gameActive = false;
@@ -1455,7 +1495,7 @@
         let timeLeft = 60;
         let timerInterval = null;
         let gameInterval = null;
-        let gameInvitationRef = null; // Reference to the current game invitation
+        let gameInvitationRef = null;
         const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F3'];
 
         // Doodle State
@@ -1463,53 +1503,31 @@
         let lastDoodleX = 0;
         let lastDoodleY = 0;
 
-        // NEW: Live Doodle State
+        // Live Doodle State
         let liveDoodleRef = null;
         let isLiveDoodling = false;
         let currentLivePathId = null;
         let liveDoodleListenersAttached = false;
         let throttleTimer;
 
-
-        // Common Emojis for the picker
         const commonEmojis = ['👍', '❤️', '😂', '😢', '😡', '👏', '🎉', '💯'];
 
         // --- Theme Color Logic ---
         const themes = {
-            '#0d6efd': { // Blue (Default)
-                '--primary-color': '#0d6efd',
-                '--primary-color-dark': '#0a58ca',
-                '--primary-color-text': '#007bff',
-                '--reply-border-color': '#0d6efd',
-                '--sent-message-bg': '#0d6efd',
+            '#0d6efd': {
+                '--primary-color': '#0d6efd', '--primary-color-dark': '#0a58ca', '--primary-color-text': '#007bff', '--reply-border-color': '#0d6efd', '--sent-message-bg': '#0d6efd',
             },
-            '#dc3545': { // Red
-                '--primary-color': '#dc3545',
-                '--primary-color-dark': '#b02a37',
-                '--primary-color-text': '#dc3545',
-                '--reply-border-color': '#dc3545',
-                '--sent-message-bg': '#dc3545',
+            '#dc3545': {
+                '--primary-color': '#dc3545', '--primary-color-dark': '#b02a37', '--primary-color-text': '#dc3545', '--reply-border-color': '#dc3545', '--sent-message-bg': '#dc3545',
             },
-            '#198754': { // Green
-                '--primary-color': '#198754',
-                '--primary-color-dark': '#146c43',
-                '--primary-color-text': '#198754',
-                '--reply-border-color': '#198754',
-                '--sent-message-bg': '#198754',
+            '#198754': {
+                '--primary-color': '#198754', '--primary-color-dark': '#146c43', '--primary-color-text': '#198754', '--reply-border-color': '#198754', '--sent-message-bg': '#198754',
             },
-            '#ffc107': { // Yellow
-                '--primary-color': '#ffc107',
-                '--primary-color-dark': '#d39e00',
-                '--primary-color-text': '#ffc107',
-                '--reply-border-color': '#ffc107',
-                '--sent-message-bg': '#ffc107',
+            '#ffc107': {
+                '--primary-color': '#ffc107', '--primary-color-dark': '#d39e00', '--primary-color-text': '#ffc107', '--reply-border-color': '#ffc107', '--sent-message-bg': '#ffc107',
             },
-            '#6f42c1': { // Purple
-                '--primary-color': '#6f42c1',
-                '--primary-color-dark': '#59359a',
-                '--primary-color-text': '#6f42c1',
-                '--reply-border-color': '#6f42c1',
-                '--sent-message-bg': '#6f42c1',
+            '#6f42c1': {
+                '--primary-color': '#6f42c1', '--primary-color-dark': '#59359a', '--primary-color-text': '#6f42c1', '--reply-border-color': '#6f42c1', '--sent-message-bg': '#6f42c1',
             }
         };
 
@@ -1521,7 +1539,6 @@
                     document.documentElement.style.setProperty(key, value);
                 }
                 localStorage.setItem('chatThemeColor', color);
-                // Update active swatch
                 document.querySelectorAll('.theme-swatch').forEach(sw => {
                     sw.classList.toggle('active', sw.dataset.color === color);
                 });
@@ -1530,75 +1547,55 @@
 
         themeSwatchesContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('theme-swatch')) {
-                const color = e.target.dataset.color;
-                applyTheme(color);
+                applyTheme(e.target.dataset.color);
             }
         });
 
-
-        // Helper to format timestamp to a readable last seen string
         function formatLastSeen(timestamp) {
             if (!timestamp) return 'Unknown';
             const date = new Date(timestamp);
             const now = new Date();
             const diffSeconds = Math.floor((now - date) / 1000);
 
-            if (diffSeconds < 60) {
-                return 'just now';
-            } else if (diffSeconds < 3600) {
-                const minutes = Math.floor(diffSeconds / 60);
-                return `${minutes} min ago`;
-            } else if (diffSeconds < 86400) {
-                const hours = Math.floor(diffSeconds / 3600);
-                return `${hours} hr ago`;
-            } else {
-                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
+            if (diffSeconds < 60) return 'just now';
+            if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)} min ago`;
+            if (diffSeconds < 86400) return `${Math.floor(diffSeconds / 3600)} hr ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function formatTimerDuration(durationMs) {
+            if (!durationMs || durationMs <= 0) return "Off";
+            const seconds = durationMs / 1000;
+            if (seconds < 60) return `${seconds} seconds`;
+            if (seconds < 3600) return `${seconds / 60} minute(s)`;
+            if (seconds < 86400) return `${seconds / 3600} hour(s)`;
+            return `${seconds / 86400} day(s)`;
         }
 
-        // Initialize battery and network monitoring
         function initDeviceStatus() {
-            // Battery status
             if ('getBattery' in navigator) {
                 navigator.getBattery().then(battery => {
                     batteryMonitor = battery;
-                    
-                    // Initial update
                     updateUserBatteryStatus(battery);
-
-                    battery.addEventListener('levelchange', () => {
-                        if (currentUser) {
-                            updateUserBatteryStatus(battery);
-                        }
-                    });
-                    
+                    battery.addEventListener('levelchange', () => { if (currentUser) updateUserBatteryStatus(battery); });
                     battery.addEventListener('chargingchange', () => {
-                        if (currentUser) {
-                            updateUserBatteryStatus(battery);
-                        }
-                        // New: Show charging safety modal
+                        if (currentUser) updateUserBatteryStatus(battery);
                         if (battery.charging && !chargingAlertShown) {
                             chargingSafetyModal.style.display = 'flex';
                             chargingAlertShown = true;
                         } else if (!battery.charging) {
-                            chargingAlertShown = false; // Reset when unplugged
+                            chargingAlertShown = false;
                         }
                     });
                 });
             }
         }
 
-        dismissChargingAlertBtn.addEventListener('click', () => {
-            chargingSafetyModal.style.display = 'none';
-        });
+        dismissChargingAlertBtn.addEventListener('click', () => chargingSafetyModal.style.display = 'none');
+        dismissOpponentChargingAlertBtn.addEventListener('click', () => opponentChargingModal.style.display = 'none');
 
-        dismissOpponentChargingAlertBtn.addEventListener('click', () => {
-            opponentChargingModal.style.display = 'none';
-        });
-
-        // Function to determine battery emoji and status text
         function getBatteryEmoji(level) {
-            if (level >= 90) return '🔋';
+            if (level >= 90) return '�';
             if (level >= 60) return '🔋';
             if (level >= 30) return '🔋';
             if (level >= 10) return '🪫';
@@ -1607,9 +1604,7 @@
 
         function updateUserBatteryStatus(battery) {
             if (!currentUser) return;
-            
             const level = Math.round(battery.level * 100);
-            
             database.ref('users/' + currentUser.phoneNumber).update({
                 batteryLevel: level,
                 batteryCharging: battery.charging,
@@ -1617,13 +1612,11 @@
             });
         }
 
-        // Registration
-        registerBtn.addEventListener('click', async () => { // Made async
+        registerBtn.addEventListener('click', async () => {
             const phoneNumber = phoneNumberInput.value.trim();
             const userName = userNameInput.value.trim();
-            const userBio = userBioInput.value.trim(); // Get bio from input
+            const userBio = userBioInput.value.trim();
             
-            // Clear previous error messages
             phoneNumberFeedback.style.display = 'none';
             registrationErrorFeedback.style.display = 'none';
 
@@ -1642,241 +1635,149 @@
                 return;
             }
 
-            // Show connecting message and disable button
             connectingMessage.style.display = 'block';
             registerBtn.disabled = true;
 
             try {
-                // Get the current device's UUID from localStorage
                 let localDeviceUUID = localStorage.getItem('deviceUUID');
-
-                // Check if user already exists in Firebase
                 const snapshot = await database.ref('users/' + phoneNumber).once('value');
 
                 if (snapshot.exists()) {
-                    // User exists, now check device UUID and name
                     const existingUser = snapshot.val();
 
-                    // --- NEW: Check for suspension ---
                     if (existingUser.suspended) {
-                        console.log(`Login blocked for ${phoneNumber}: Account is suspended.`);
                         registrationFormView.style.display = 'none';
                         accountSuspendedView.style.display = 'block';
-                        connectingMessage.style.display = 'none';
-                        registerBtn.disabled = false;
-                        return; // Stop the login process
-                    }
-
-                    const firebaseDeviceUUID = existingUser.deviceUUID;
-
-                    if (existingUser.name !== userName) {
-                        // Phone number exists but with a different name
-                        registrationErrorFeedback.textContent = 'Access Denied: This phone number is already registered with a different name.';
-                        registrationErrorFeedback.style.display = 'block';
-                        console.error('Error: This phone number is already registered with a different name');
                         connectingMessage.style.display = 'none';
                         registerBtn.disabled = false;
                         return;
                     }
 
-                    // Handle device UUID check
+                    const firebaseDeviceUUID = existingUser.deviceUUID;
+
+                    if (existingUser.name !== userName) {
+                        registrationErrorFeedback.textContent = 'Access Denied: This phone number is already registered with a different name.';
+                        registrationErrorFeedback.style.display = 'block';
+                        connectingMessage.style.display = 'none';
+                        registerBtn.disabled = false;
+                        return;
+                    }
+
                     if (firebaseDeviceUUID) {
-                        // Firebase has a device ID for this user
                         if (!localDeviceUUID || localDeviceUUID !== firebaseDeviceUUID) {
-                            // Local device ID is missing or doesn't match Firebase's registered device ID
                             registrationErrorFeedback.textContent = '🚫 Login blocked! It seems you\'re using a new device or cleared app data. 🛡️ Your privacy comes first — contact admin immediately at 📞 8486105725 for quick help. Your chat is safe. ✅';
                             registrationErrorFeedback.style.display = 'block';
-                            console.error('Error: Device ID mismatch. Cannot log in from this device.');
                             connectingMessage.style.display = 'none';
                             registerBtn.disabled = false;
                             return;
                         }
-                        // Device IDs match, proceed with login
-                        console.log(`Welcome back, ${userName}! Logged in from registered device.`);
                     } else {
-                        // Firebase does NOT have a device ID for this user (legacy user or first login with device tracking)
-                        // Assign the current device as the registered device
-                        localDeviceUUID = crypto.randomUUID(); // Generate a new UUID for this device
+                        localDeviceUUID = crypto.randomUUID();
                         await database.ref('users/' + phoneNumber).update({ deviceUUID: localDeviceUUID });
-                        localStorage.setItem('deviceUUID', localDeviceUUID); // Store locally
-                        console.log(`Welcome back, ${userName}! Registered current device as primary.`);
+                        localStorage.setItem('deviceUUID', localDeviceUUID);
                     }
 
-                    // Finalize login for existing user
                     currentUser = { phoneNumber, name: userName };
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     showContactsScreen();
                     monitorOnlineStatus();
                     listenForGameInvitations();
-                    setupGlobalUnreadListener(); // Setup global unread listener on login
-                    if (batteryMonitor) {
-                        updateUserBatteryStatus(batteryMonitor);
-                    }
-                    // Update bio if provided during login, and hidePhoneNumber if it's missing or needs default
+                    setupGlobalUnreadListener();
+                    if (batteryMonitor) updateUserBatteryStatus(batteryMonitor);
                     database.ref('users/' + phoneNumber).update({
-                        bio: userBio || existingUser.bio || '', // Keep existing bio if not provided, else empty string
-                        hidePhoneNumber: existingUser.hidePhoneNumber !== undefined ? existingUser.hidePhoneNumber : false // Default to false if not set
+                        bio: userBio || existingUser.bio || '',
+                        hidePhoneNumber: existingUser.hidePhoneNumber !== undefined ? existingUser.hidePhoneNumber : false
                     });
 
                 } else {
-                    // User does not exist, proceed with new registration
                     const newDeviceUUID = crypto.randomUUID();
                     await database.ref('users/' + phoneNumber).set({
-                        name: userName,
-                        phoneNumber: phoneNumber,
-                        deviceUUID: newDeviceUUID, // Store new device UUID
-                        lastSeen: firebase.database.ServerValue.TIMESTAMP,
-                        online: true,
-                        batteryLevel: 0,
-                        batteryCharging: false,
-                        hidePhoneNumber: false, // Default to false for new users
-                        bio: userBio || '', // Save bio for new users
-                        mood: '', // Initialize mood
-                        status: '', // Initialize status
-                        statusTimestamp: null,
-                        statusViewers: null,
-                        suspended: false, // Default to not suspended
-                        favorites: [] // Initialize favorites
+                        name: userName, phoneNumber: phoneNumber, deviceUUID: newDeviceUUID,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP, online: true,
+                        batteryLevel: 0, batteryCharging: false, hidePhoneNumber: false,
+                        bio: userBio || '', mood: '', status: '', statusTimestamp: null,
+                        statusViewers: null, suspended: false, favorites: []
                     });
 
                     currentUser = { phoneNumber, name: userName };
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    localStorage.setItem('deviceUUID', newDeviceUUID); // Store device UUID locally
+                    localStorage.setItem('deviceUUID', newDeviceUUID);
                     showContactsScreen();
                     monitorOnlineStatus();
                     listenForGameInvitations();
-                    setupGlobalUnreadListener(); // Setup global unread listener on registration
-                    console.log(`Welcome: Hi ${userName}! You're now registered with this device.`);
-                    
-                    if (batteryMonitor) {
-                        updateUserBatteryStatus(batteryMonitor);
-                    }
+                    setupGlobalUnreadListener();
+                    if (batteryMonitor) updateUserBatteryStatus(batteryMonitor);
                 }
             } catch (error) {
                 console.error("Error during registration/login:", error);
                 registrationErrorFeedback.textContent = 'Registration/Login failed. Please try again.';
                 registrationErrorFeedback.style.display = 'block';
             } finally {
-                // Always hide connecting message and re-enable button
                 connectingMessage.style.display = 'none';
                 registerBtn.disabled = false;
             }
         });
 
         function monitorOnlineStatus() {
-            // Ensure currentUser is available before proceeding
-            if (!currentUser) {
-                console.warn("monitorOnlineStatus: currentUser is null. Cannot monitor online status.");
-                return;
-            }
+            if (!currentUser) return;
             
             onlineStatusRef = database.ref('users/' + currentUser.phoneNumber);
             
-            // Set up onDisconnect to set offline status if the client disconnects unexpectedly
             onlineStatusRef.onDisconnect().update({
                 online: false,
                 lastSeen: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
-                // Set user to online when they're active
                 onlineStatusRef.update({
                     online: true,
                     lastSeen: firebase.database.ServerValue.TIMESTAMP
                 });
-                console.log(`monitorOnlineStatus: User ${currentUser.phoneNumber} set to online with onDisconnect handler.`);
-            }).catch(error => {
-                console.error("monitorOnlineStatus: Error setting onDisconnect or initial online status:", error);
             });
 
-            // Listen for Firebase connection status changes
             database.ref('.info/connected').on('value', (snapshot) => {
-                if (snapshot.val() === true) {
-                    console.log("Firebase .info/connected: Connected. Attempting to set user online.");
-                    if (currentUser) { // Double check currentUser here too
-                        onlineStatusRef.update({
-                            online: true,
-                            lastSeen: firebase.database.ServerValue.TIMESTAMP
-                        });
-                    }
-                } else {
-                    console.log("Firebase .info/connected: Disconnected. User might be offline.");
+                if (snapshot.val() === true && currentUser) {
+                    onlineStatusRef.update({
+                        online: true,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    });
                 }
             });
             
-            // Set user to offline when they close the app or navigate away
             window.addEventListener('beforeunload', () => {
                 if (currentUser) {
                     onlineStatusRef.update({
                         online: false,
                         lastSeen: firebase.database.ServerValue.TIMESTAMP
-                    }).then(() => {
-                        console.log(`beforeunload: User ${currentUser.phoneNumber} explicitly set offline.`);
-                    }).catch(error => {
-                        console.error("beforeunload: Error setting user offline:", error);
                     });
                 }
             });
 
-            // Handle visibility change
             document.addEventListener('visibilitychange', () => {
                 if (!currentUser) return;
                 if (document.hidden) {
-                    onlineStatusRef.update({
-                        online: false,
-                        lastSeen: firebase.database.ServerValue.TIMESTAMP
-                    }).then(() => {
-                        console.log(`visibilitychange: User ${currentUser.phoneNumber} set offline (hidden).`);
-                    }).catch(error => {
-                        console.error("visibilitychange: Error setting user offline (hidden):", error);
-                    });
+                    onlineStatusRef.update({ online: false, lastSeen: firebase.database.ServerValue.TIMESTAMP });
                 } else {
-                    onlineStatusRef.update({
-                        online: true,
-                        lastSeen: firebase.database.ServerValue.TIMESTAMP
-                    }).then(() => {
-                        console.log(`visibilitychange: User ${currentUser.phoneNumber} set online (visible).`);
-                    }).catch(error => {
-                        console.error("visibilitychange: Error setting user online (visible):", error);
-                    });
+                    onlineStatusRef.update({ online: true, lastSeen: firebase.database.ServerValue.TIMESTAMP });
                 }
             });
         }
 
-        // Function to play notification sound - kept for potential future use, but not called
-        function playNotificationSound() {
-            // Removed for now as per previous instructions, can be re-enabled if needed.
-        }
-
-        // Notification system - kept for potential future use, but not called
         function showNotification(title, message, type = 'info', actions = []) {
             const toastWrapper = document.createElement('div');
             toastWrapper.className = 'notification-toast';
             
-            let actionButtonsHtml = '';
-            if (actions.length > 0) {
-                actionButtonsHtml = '<div class="d-flex justify-content-end mt-2">';
-                actions.forEach(action => {
-                    actionButtonsHtml += `<button class="btn btn-sm btn-${action.type || 'primary'} me-2" id="toast-action-${action.id}">${action.text}</button>`;
-                });
-                actionButtonsHtml += '</div>';
-            }
+            let actionButtonsHtml = actions.length > 0 ? '<div class="d-flex justify-content-end mt-2">' + actions.map(action => `<button class="btn btn-sm btn-${action.type || 'primary'} me-2" id="toast-action-${action.id}">${action.text}</button>`).join('') + '</div>' : '';
 
             toastWrapper.innerHTML = `
                 <div class="toast-header">
                     <strong class="me-auto">${title}</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
-                <div class="toast-body">
-                    ${message}
-                    ${actionButtonsHtml}
-                </div>
+                <div class="toast-body">${message}${actionButtonsHtml}</div>
             `;
             
             notificationContainer.appendChild(toastWrapper);
             
-            const bsToast = new bootstrap.Toast(toastWrapper, {
-                autohide: actions.length === 0, // Autohide only if no actions
-                delay: actions.length === 0 ? 3000 : false // No delay if actions are present
-            });
+            const bsToast = new bootstrap.Toast(toastWrapper, { autohide: actions.length === 0, delay: actions.length === 0 ? 3000 : false });
             bsToast.show();
 
             actions.forEach(action => {
@@ -1884,44 +1785,31 @@
                 if (actionButton) {
                     actionButton.addEventListener('click', () => {
                         action.handler();
-                        bsToast.hide(); // Hide toast after action
+                        bsToast.hide();
                     });
                 }
             });
 
-            toastWrapper.addEventListener('hidden.bs.toast', () => {
-                toastWrapper.remove();
-            });
+            toastWrapper.addEventListener('hidden.bs.toast', () => toastWrapper.remove());
         }
 
-        // Contacts Screen
         function showContactsScreen() {
-            console.log('[SCREEN] Showing contacts screen.');
             registrationScreen.style.display = 'none';
             chatScreen.style.display = 'none';
             statusScreen.style.display = 'none';
             contactsScreen.style.display = 'block';
-            
-            refreshUIForUnreadMessages(); // Use the unified refresh
-            initDeviceStatus(); // Ensure device status (including battery) is initialized and displayed
+            refreshUIForUnreadMessages();
+            initDeviceStatus();
         }
 
-        /**
-         * Gets the content for the profile logo, prioritizing mood over gender icon.
-         */
         function getProfileLogoContent(user) {
-            if (user && user.mood) {
-                return user.mood; // Return mood emoji if set
-            }
+            if (user && user.mood) return user.mood;
             if (user && user.name) {
                 const lowerCaseName = user.name.toLowerCase();
-                // Very simple heuristic: check for common female name endings
-                if (lowerCaseName.endsWith('a') || lowerCaseName.endsWith('i') || lowerCaseName.endsWith('e')) {
-                    return '♀️'; // Female symbol
-                }
-                return '♂️'; // Default to male symbol for other names
+                if (lowerCaseName.endsWith('a') || lowerCaseName.endsWith('i') || lowerCaseName.endsWith('e')) return '♀️';
+                return '♂️';
             }
-            return '👤'; // Default user icon
+            return '👤';
         }
 
         async function updateNewMessageIndicator() {
@@ -1932,7 +1820,6 @@
             for (const phoneNumber in unreadCounts) {
                 if (unreadCounts[phoneNumber] > 0) {
                     totalUnreadMessages += unreadCounts[phoneNumber];
-                    // Find the latest timestamp among all unread messages
                     if (latestUnreadMessageTimestamps[phoneNumber] && latestUnreadMessageTimestamps[phoneNumber] > latestUnreadTimestamp) {
                         latestUnreadTimestamp = latestUnreadMessageTimestamps[phoneNumber];
                         latestUnreadSenderPhoneNumber = phoneNumber;
@@ -1941,17 +1828,12 @@
             }
 
             if (totalUnreadMessages > 0) {
-                let indicatorText = '';
+                let indicatorText = `You have ${totalUnreadMessages} new message${totalUnreadMessages > 1 ? 's' : ''}. Click to view.`;
                 if (totalUnreadMessages === 1 && latestUnreadSenderPhoneNumber) {
-                    // Fetch sender's name for single unread message
                     const userSnapshot = await database.ref(`users/${latestUnreadSenderPhoneNumber}`).once('value');
-                    const userData = userSnapshot.val();
-                    const senderName = userData ? userData.name : 'Someone';
+                    const senderName = userSnapshot.val() ? userSnapshot.val().name : 'Someone';
                     indicatorText = `New message from ${senderName}. Click to view.`;
-                } else {
-                    indicatorText = `You have ${totalUnreadMessages} new message${totalUnreadMessages > 1 ? 's' : ''}. Click to view.`;
                 }
-                
                 newMessageIndicator.textContent = indicatorText;
                 newMessageIndicator.style.display = 'block';
             } else {
@@ -1960,9 +1842,7 @@
         }
 
         function loadContacts(searchTerm = '') {
-            console.log('[CONTACTS] Loading contacts. Current unreadCounts:', JSON.stringify(unreadCounts));
             const contactsRef = database.ref('users');
-            
             contactsRef.on('value', (snapshot) => {
                 contactsList.innerHTML = '';
                 const users = snapshot.val();
@@ -1973,7 +1853,6 @@
                     return;
                 }
 
-                // Get current user's favorites
                 const myFavorites = (users[currentUser.phoneNumber] && users[currentUser.phoneNumber].favorites) || [];
                 
                 let allContacts = Object.keys(users)
@@ -1987,24 +1866,18 @@
                     );
                 }
 
-                // Sort contacts: Favorites > Unread > Alphabetical
                 allContacts.sort((a, b) => {
                     const aIsFav = myFavorites.includes(a.phoneNumber);
                     const bIsFav = myFavorites.includes(b.phoneNumber);
                     const aHasUnread = (unreadCounts[a.phoneNumber] || 0) > 0;
                     const bHasUnread = (unreadCounts[b.phoneNumber] || 0) > 0;
 
-                    if (aIsFav !== bIsFav) return aIsFav ? -1 : 1; // Favorites first
-                    if (aHasUnread !== bHasUnread) return aHasUnread ? -1 : 1; // Unread next
+                    if (aIsFav !== bIsFav) return aIsFav ? -1 : 1;
+                    if (aHasUnread !== bHasUnread) return aHasUnread ? -1 : 1;
 
-                    // If both have unread, sort by most recent message
                     if (aHasUnread && bHasUnread) {
-                        const aTime = latestUnreadMessageTimestamps[a.phoneNumber] || 0;
-                        const bTime = latestUnreadMessageTimestamps[b.phoneNumber] || 0;
-                        return bTime - aTime;
+                        return (latestUnreadMessageTimestamps[b.phoneNumber] || 0) - (latestUnreadMessageTimestamps[a.phoneNumber] || 0);
                     }
-
-                    // Finally, sort by name
                     return a.name.localeCompare(b.name);
                 });
 
@@ -2012,30 +1885,16 @@
                     const contactItem = document.createElement('div');
                     contactItem.className = 'contact-item';
                     
-                    let statusText = '';
-                    let statusBadgeClass = 'bg-secondary';
-                    if (user.online) {
-                        statusText = 'Online';
-                        statusBadgeClass = 'bg-success';
-                    } else {
-                        statusText = `Last seen: ${formatLastSeen(user.lastSeen)}`;
-                    }
-
-                    const profileLogoContent = getProfileLogoContent(user);
-                    const unreadCount = unreadCounts[user.phoneNumber] || 0;
-                    let unreadBadge = '';
-                    if (unreadCount > 0) {
-                        unreadBadge = `<span class="unread-count">${unreadCount}</span>`;
-                    }
-
+                    const statusText = user.online ? 'Online' : `Last seen: ${formatLastSeen(user.lastSeen)}`;
+                    const statusBadgeClass = user.online ? 'bg-success' : 'bg-secondary';
+                    const unreadBadge = (unreadCounts[user.phoneNumber] || 0) > 0 ? `<span class="unread-count">${unreadCounts[user.phoneNumber]}</span>` : '';
                     const isFavorite = myFavorites.includes(user.phoneNumber);
                     const favoriteStar = `<span class="favorite-star" data-phone="${user.phoneNumber}">${isFavorite ? '★' : '☆'}</span>`;
-
                     const displayPhoneNumber = user.hidePhoneNumber ? 'Number Hidden' : user.phoneNumber;
                     
                     contactItem.innerHTML = `
                         <div class="contact-info-container" data-phone-click="${user.phoneNumber}">
-                            <div class="profile-logo">${profileLogoContent}</div>
+                            <div class="profile-logo">${getProfileLogoContent(user)}</div>
                             <div>
                                 <strong>${user.name}</strong>
                                 <div class="text-muted small">${displayPhoneNumber}</div>
@@ -2047,22 +1906,18 @@
                         </div>
                         ${favoriteStar}
                     `;
-                    
                     contactsList.appendChild(contactItem);
                 });
 
-                // Add event listeners after creating the elements
-                contactsList.querySelectorAll('.contact-item').forEach(item => {
-                    item.querySelector('[data-phone-click]').addEventListener('click', (e) => {
+                contactsList.querySelectorAll('[data-phone-click]').forEach(item => {
+                    item.addEventListener('click', (e) => {
                         const phone = e.currentTarget.dataset.phoneClick;
                         const user = allContacts.find(c => c.phoneNumber === phone);
                         if(user) startChat(user);
                     });
-
-                    item.querySelector('.favorite-star').addEventListener('click', (e) => {
-                        const phone = e.currentTarget.dataset.phone;
-                        toggleFavorite(phone);
-                    });
+                });
+                contactsList.querySelectorAll('.favorite-star').forEach(item => {
+                    item.addEventListener('click', (e) => toggleFavorite(e.currentTarget.dataset.phone));
                 });
 
                 updateNewMessageIndicator();
@@ -2077,44 +1932,26 @@
             let favorites = userData.favorites || [];
 
             const index = favorites.indexOf(contactPhoneNumber);
-            if (index > -1) {
-                favorites.splice(index, 1); // Remove from favorites
-            } else {
-                favorites.push(contactPhoneNumber); // Add to favorites
-            }
+            if (index > -1) favorites.splice(index, 1);
+            else favorites.push(contactPhoneNumber);
 
             await userRef.update({ favorites: favorites });
-            // The 'on value' listener in loadContacts will automatically refresh the list
         }
 
-        searchBtn.addEventListener('click', () => {
-            console.log('[SEARCH] Search button clicked. Term:', contactSearch.value.trim());
-            loadContacts(contactSearch.value.trim());
-        });
-        
-        contactSearch.addEventListener('input', () => {
-            loadContacts(contactSearch.value.trim()); 
-        });
+        searchBtn.addEventListener('click', () => loadContacts(contactSearch.value.trim()));
+        contactSearch.addEventListener('input', () => loadContacts(contactSearch.value.trim()));
 
-        // Chat Screen
-        async function startChat(contact) { // Make it async
+        async function startChat(contact) {
             currentChatWith = contact;
-            console.log(`[CHAT] Chat initiated with contact: ${contact.name} (${contact.phoneNumber})`); 
             chatWithName.textContent = `${contact.name}`;
             chatProfileLogo.textContent = getProfileLogoContent(contact);
             
-            // Mark all unread messages from this contact as read in Firebase
             const myPhoneNumber = currentUser.phoneNumber;
             const theirPhoneNumber = contact.phoneNumber;
             const chatId = [myPhoneNumber, theirPhoneNumber].sort().join('_');
             const chatRef = database.ref(`chats/${chatId}`);
 
-            const unreadMessagesQuery = chatRef
-                .orderByChild('receiver')
-                .equalTo(myPhoneNumber)
-                .once('value'); // Use once to get current state
-
-            const snapshot = await unreadMessagesQuery;
+            const snapshot = await chatRef.orderByChild('receiver').equalTo(myPhoneNumber).once('value');
             const updates = {};
             snapshot.forEach(childSnapshot => {
                 const message = childSnapshot.val();
@@ -2122,48 +1959,37 @@
                     updates[`${childSnapshot.key}/read`] = true;
                 }
             });
-
-            if (Object.keys(updates).length > 0) {
-                console.log(`[CHAT] Marking ${Object.keys(updates).length} messages from ${theirPhoneNumber} as read.`);
-                await chatRef.update(updates);
-            } else {
-                console.log(`[CHAT] No unread messages from ${theirPhoneNumber} to mark as read.`);
-            }
+            if (Object.keys(updates).length > 0) await chatRef.update(updates);
 
             database.ref(`users/${contact.phoneNumber}`).on('value', (snapshot) => {
                 const partner = snapshot.val();
                 if (partner) {
-                    if (partner.online) {
-                        chatWithStatus.textContent = 'Online';
-                    } else {
-                        chatWithStatus.textContent = `Last seen: ${formatLastSeen(partner.lastSeen)}`;
-                    }
-                    
-                    let batteryHeaderText = '?';
-                    if (partner.batteryLevel !== undefined) {
-                        batteryHeaderText = `${getBatteryEmoji(partner.batteryLevel)} ${partner.batteryLevel}%`;
-                    }
-                    opponentBatteryStatus.textContent = batteryHeaderText;
+                    chatWithStatus.textContent = partner.online ? 'Online' : `Last seen: ${formatLastSeen(partner.lastSeen)}`;
+                    opponentBatteryStatus.textContent = partner.batteryLevel !== undefined ? `${getBatteryEmoji(partner.batteryLevel)} ${partner.batteryLevel}%` : '?';
 
-                    // Manage the opponent's charging alert pop-up
-                    if (partner.batteryCharging) {
-                        // Show the modal only if it hasn't been shown for this contact in this session
-                        if (!opponentChargingAlertShown[contact.phoneNumber]) {
-                            opponentChargingModalBody.textContent = `${contact.name} is charging their phone. For their safety, you might want to keep the conversation brief.`;
-                            opponentChargingModal.style.display = 'flex';
-                            opponentChargingAlertShown[contact.phoneNumber] = true; // Mark as shown for this contact
-                        }
+                    if (partner.batteryCharging && !opponentChargingAlertShown[contact.phoneNumber]) {
+                        opponentChargingModalBody.textContent = `${contact.name} is charging their phone. For their safety, you might want to keep the conversation brief.`;
+                        opponentChargingModal.style.display = 'flex';
+                        opponentChargingAlertShown[contact.phoneNumber] = true;
                     }
-
                     if (gameActive && gameId) {
-                        let gameBatteryText = 'Battery: Unknown';
-                        if (partner.batteryLevel !== undefined) {
-                            gameBatteryText = `Battery: ${partner.batteryLevel}% ${partner.batteryCharging ? '⚡' : ''}`;
-                        } else if (partner.batteryCharging) {
-                            gameBatteryText = 'Charging...';
-                        }
-                        playerOpponentBattery.textContent = gameBatteryText;
+                        playerOpponentBattery.textContent = partner.batteryLevel !== undefined ? `Battery: ${partner.batteryLevel}% ${partner.batteryCharging ? '⚡' : ''}` : (partner.batteryCharging ? 'Charging...' : 'Battery: Unknown');
                     }
+                }
+            });
+
+            // Listen for chat settings changes (for disappearing messages)
+            database.ref(`chats/${chatId}/settings`).on('value', (snapshot) => {
+                currentChatSettings = snapshot.val() || {};
+                const duration = currentChatSettings.disappearingTimer;
+                if (duration && duration > 0) {
+                    disappearingStatusIndicator.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg>
+                        <span>On (${formatTimerDuration(duration)})</span>
+                    `;
+                    disappearingStatusIndicator.style.display = 'flex';
+                } else {
+                    disappearingStatusIndicator.style.display = 'none';
                 }
             });
 
@@ -2176,13 +2002,8 @@
 
         function setupTypingListener(contactPhoneNumber) {
             const typingIndicator = document.getElementById('typing-indicator'); 
-            if (!typingIndicator) {
-                console.error("setupTypingListener: typingIndicator DOM element not found!");
-                return;
-            }
-
+            if (!typingIndicator) return;
             typingIndicator.style.display = 'none';
-            
             database.ref(`typing/${contactPhoneNumber}`).on('value', (snapshot) => {
                 if (snapshot.exists() && snapshot.val().isTyping) {
                     typingIndicator.textContent = `${currentChatWith.name} is typing...`;
@@ -2194,15 +2015,19 @@
         }
 
         backToContactsBtn.addEventListener('click', () => {
-            console.log('[SCREEN] Returning to contacts screen.');
             chatScreen.style.display = 'none';
             contactsScreen.style.display = 'block';
+            
+            // Clear all active timers for the chat we are leaving
+            Object.values(activeMessageTimers).forEach(clearTimeout);
+            activeMessageTimers = {};
             
             if (currentChatWith) {
                 database.ref(`typing/${currentChatWith.phoneNumber}`).off();
                 database.ref(`users/${currentChatWith.phoneNumber}`).off();
-                
                 const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                database.ref(`chats/${chatId}/settings`).off();
+                
                 if (messageListeners[chatId]) {
                     database.ref('chats/' + chatId).off('child_added', messageListeners[chatId].added);
                     database.ref('chats/' + chatId).off('child_changed', messageListeners[chatId].changed);
@@ -2210,9 +2035,7 @@
                     delete messageListeners[chatId];
                 }
 
-                if (gameRef) {
-                    gameRef.off();
-                }
+                if (gameRef) gameRef.off();
                 endGame();
             }
             
@@ -2222,75 +2045,90 @@
             clearReply();
         });
 
+        function scheduleDeletion(messageKey, disappearsAt) {
+            if (activeMessageTimers[messageKey]) {
+                clearTimeout(activeMessageTimers[messageKey]);
+            }
+
+            const timeRemaining = disappearsAt - Date.now();
+            if (timeRemaining > 0) {
+                const timerId = setTimeout(() => {
+                    const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                    database.ref(`chats/${chatId}/${messageKey}`).remove();
+                    delete activeMessageTimers[messageKey];
+                }, timeRemaining);
+                activeMessageTimers[messageKey] = timerId;
+            } else {
+                // If already expired, remove immediately
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                database.ref(`chats/${chatId}/${messageKey}`).remove();
+            }
+        }
+
         function loadChatMessages() {
             chatMessages.innerHTML = '';
+            if (!currentUser || !currentChatWith) return;
             
-            if (!currentUser || !currentChatWith) {
-                console.warn("[MESSAGES] currentUser or currentChatWith is null. Cannot load messages.");
-                return;
-            }
+            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
             
-            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber]
-                .sort()
-                .join('_');
-            
-            console.log("[MESSAGES] Setting up listeners for chatId:", chatId);
-
             if (messageListeners[chatId]) {
                 database.ref('chats/' + chatId).off('child_added', messageListeners[chatId].added);
                 database.ref('chats/' + chatId).off('child_changed', messageListeners[chatId].changed);
                 database.ref('chats/' + chatId).off('child_removed', messageListeners[chatId].removed);
             }
             
-            database.ref('chats/' + chatId)
-                .orderByChild('timestamp')
-                .once('value', (snapshot) => {
-                    if (snapshot.exists()) {
-                        snapshot.forEach((childSnapshot) => {
-                            const message = childSnapshot.val();
-                            const messageKey = childSnapshot.key;
+            database.ref('chats/' + chatId).orderByChild('timestamp').once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const message = childSnapshot.val();
+                        const messageKey = childSnapshot.key;
+                        
+                        // Check for disappearing messages on load
+                        if (message.disappearsAt && message.disappearsAt < Date.now()) {
+                            database.ref(`chats/${chatId}/${messageKey}`).remove(); // Already expired
+                        } else {
                             addMessageToChat(message, messageKey);
                             if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'block') {
-                                database.ref(`chats/${chatId}/${messageKey}`).update({
-                                    read: true
-                                });
+                                database.ref(`chats/${chatId}/${messageKey}`).update({ read: true });
                             }
-                        });
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }
-                }).then(() => {
-                    const chatRef = database.ref('chats/' + chatId);
-
-                    messageListeners[chatId] = {
-                        added: chatRef.orderByChild('timestamp').on('child_added', (snapshot) => {
-                            const message = snapshot.val();
-                            const messageKey = snapshot.key;
-                            
-                            const existingMessageDiv = chatMessages.querySelector(`[data-message-key="${messageKey}"]`);
-                            if (!existingMessageDiv) {
-                                addMessageToChat(message, messageKey);
-                            }
-
-                            if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'block') {
-                                database.ref(`chats/${chatId}/${messageKey}`).update({
-                                    read: true
-                                });
-                            }
-                        }),
-                        changed: chatRef.on('child_changed', (snapshot) => {
-                            const message = snapshot.val();
-                            const messageKey = snapshot.key;
-                            updateMessageInChat(message, messageKey);
-                        }),
-                        removed: chatRef.on('child_removed', (snapshot) => {
-                            const messageKey = snapshot.key;
-                            removeMessageFromChat(messageKey);
-                        })
-                    };
-                });
+                        }
+                    });
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            }).then(() => {
+                const chatRef = database.ref('chats/' + chatId);
+                messageListeners[chatId] = {
+                    added: chatRef.orderByChild('timestamp').on('child_added', (snapshot) => {
+                        const message = snapshot.val();
+                        const messageKey = snapshot.key;
+                        if (!chatMessages.querySelector(`[data-message-key="${messageKey}"]`)) {
+                            addMessageToChat(message, messageKey);
+                        }
+                        if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'block') {
+                            database.ref(`chats/${chatId}/${messageKey}`).update({ read: true });
+                        }
+                    }),
+                    changed: chatRef.on('child_changed', (snapshot) => updateMessageInChat(snapshot.val(), snapshot.key)),
+                    removed: chatRef.on('child_removed', (snapshot) => removeMessageFromChat(snapshot.key))
+                };
+            });
         }
 
         function addMessageToChat(message, messageKey) {
+            if (message.type === 'system') {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message system-message';
+                messageDiv.dataset.messageKey = messageKey;
+                messageDiv.innerHTML = `<div>${message.text}</div>`;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return;
+            }
+            
+            if (message.disappearsAt) {
+                scheduleDeletion(messageKey, message.disappearsAt);
+            }
+
             if (message.type === 'game_result') {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message game-result-message';
@@ -2307,12 +2145,7 @@
             
             const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
-            let messageContentHtml = '';
-            if (message.type === 'doodle' && message.doodleData) {
-                messageContentHtml = `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>`;
-            } else {
-                 messageContentHtml = `<div>${message.text}</div>`;
-            }
+            let messageContentHtml = message.type === 'doodle' && message.doodleData ? `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>` : `<div>${message.text}</div>`;
 
             let statusIndicator = '';
             let editedTag = '';
@@ -2321,21 +2154,14 @@
 
             if (message.deleted) {
                 messageDiv.className = `deleted-message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
-                messageDiv.innerHTML = `
-                    <div><em>This message was deleted.</em></div>
-                    <div class="small d-flex justify-content-end align-items-center">
-                        ${time}
-                    </div>
-                `;
+                messageDiv.innerHTML = `<div><em>This message was deleted.</em></div><div class="small d-flex justify-content-end align-items-center">${time}</div>`;
                 chatMessages.appendChild(messageDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
                 attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber);
                 return;
             }
 
-            if (message.edited) {
-                editedTag = `<span class="edited-tag">(Edited)</span>`;
-            }
+            if (message.edited) editedTag = `<span class="edited-tag">(Edited)</span>`;
 
             if (message.reactions) {
                 reactionsHtml = '<div class="reactions-container">';
@@ -2343,31 +2169,17 @@
                     const users = message.reactions[emoji];
                     const count = users.length;
                     const reactedByMe = users.includes(currentUser.phoneNumber) ? ' reacted-by-me' : '';
-                    reactionsHtml += `
-                        <div class="reaction-bubble${reactedByMe}" data-emoji="${emoji}" data-message-key="${messageKey}">
-                            <span>${emoji}</span>${count}
-                        </div>
-                    `;
+                    reactionsHtml += `<div class="reaction-bubble${reactedByMe}" data-emoji="${emoji}" data-message-key="${messageKey}"><span>${emoji}</span>${count}</div>`;
                 }
                 reactionsHtml += '</div>';
             }
 
             if (message.repliedTo) {
                 let repliedToSenderName = message.repliedTo.senderName;
-                if (message.repliedTo.sender === currentUser.phoneNumber) {
-                    repliedToSenderName = "You";
-                } else if (message.repliedTo.sender === currentChatWith.phoneNumber) {
-                    repliedToSenderName = currentChatWith.name;
-                }
-                
+                if (message.repliedTo.sender === currentUser.phoneNumber) repliedToSenderName = "You";
+                else if (message.repliedTo.sender === currentChatWith.phoneNumber) repliedToSenderName = currentChatWith.name;
                 const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : message.repliedTo.text;
-
-                repliedToHtml = `
-                    <div class="replied-message-preview">
-                        Replying to <strong>${repliedToSenderName}</strong>:
-                        <span class="original-text">${repliedText}</span>
-                    </div>
-                `;
+                repliedToHtml = `<div class="replied-message-preview">Replying to <strong>${repliedToSenderName}</strong>:<span class="original-text">${repliedText}</span></div>`;
             }
 
             if (message.sender === currentUser.phoneNumber) {
@@ -2377,15 +2189,12 @@
                     if (updatedMessage) {
                         const statusClass = updatedMessage.read ? 'read' : 'delivered';
                         const checkmark = updatedMessage.read ? '✓✓' : '✓';
-                        
                         let existingStatusSpan = messageDiv.querySelector('.message-status');
                         if (!existingStatusSpan) {
                             existingStatusSpan = document.createElement('span');
                             existingStatusSpan.className = `message-status`;
                             const smallTag = messageDiv.querySelector('.small');
-                            if (smallTag) {
-                                smallTag.appendChild(existingStatusSpan);
-                            }
+                            if (smallTag) smallTag.appendChild(existingStatusSpan);
                         }
                         existingStatusSpan.className = `message-status ${statusClass}`;
                         existingStatusSpan.textContent = checkmark;
@@ -2398,10 +2207,7 @@
                 ${repliedToHtml}
                 ${messageContentHtml}
                 ${message.type !== 'doodle' ? editedTag : ''}
-                <div class="small d-flex justify-content-end align-items-center">
-                    ${time}
-                    ${statusIndicator}
-                </div>
+                <div class="small d-flex justify-content-end align-items-center">${time}${statusIndicator}</div>
                 ${reactionsHtml}
             `;
             
@@ -2411,10 +2217,7 @@
             attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber, message.type);
 
             messageDiv.querySelectorAll('.reaction-bubble').forEach(bubble => {
-                bubble.addEventListener('click', (e) => {
-                    const emoji = e.currentTarget.dataset.emoji;
-                    toggleReaction(messageKey, emoji);
-                });
+                bubble.addEventListener('click', (e) => toggleReaction(messageKey, e.currentTarget.dataset.emoji));
             });
         }
 
@@ -2425,7 +2228,7 @@
                 return;
             }
 
-            if (message.type === 'game_result') {
+            if (message.type === 'game_result' || message.type === 'system') {
                 messageDiv.innerHTML = `<div>${message.text}</div>`;
                 return;
             }
@@ -2438,20 +2241,13 @@
 
             if (message.deleted) {
                 messageDiv.className = `deleted-message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
-                messageDiv.innerHTML = `
-                    <div><em>This message was deleted.</em></div>
-                    <div class="small d-flex justify-content-end align-items-center">
-                        ${time}
-                    </div>
-                `;
+                messageDiv.innerHTML = `<div><em>This message was deleted.</em></div><div class="small d-flex justify-content-end align-items-center">${time}</div>`;
                 return;
             }
 
             messageDiv.className = `message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
 
-            if (message.edited) {
-                editedTag = `<span class="edited-tag">(Edited)</span>`;
-            }
+            if (message.edited) editedTag = `<span class="edited-tag">(Edited)</span>`;
 
             if (message.reactions) {
                 reactionsHtml = '<div class="reactions-container">';
@@ -2459,29 +2255,17 @@
                     const users = message.reactions[emoji];
                     const count = users.length;
                     const reactedByMe = users.includes(currentUser.phoneNumber) ? ' reacted-by-me' : '';
-                    reactionsHtml += `
-                        <div class="reaction-bubble${reactedByMe}" data-emoji="${emoji}" data-message-key="${messageKey}">
-                            <span>${emoji}</span>${count}
-                        </div>
-                    `;
+                    reactionsHtml += `<div class="reaction-bubble${reactedByMe}" data-emoji="${emoji}" data-message-key="${messageKey}"><span>${emoji}</span>${count}</div>`;
                 }
                 reactionsHtml += '</div>';
             }
 
             if (message.repliedTo) {
                 let repliedToSenderName = message.repliedTo.senderName;
-                if (message.repliedTo.sender === currentUser.phoneNumber) {
-                    repliedToSenderName = "You";
-                } else if (message.repliedTo.sender === currentChatWith.phoneNumber) {
-                    repliedToSenderName = currentChatWith.name;
-                }
+                if (message.repliedTo.sender === currentUser.phoneNumber) repliedToSenderName = "You";
+                else if (message.repliedTo.sender === currentChatWith.phoneNumber) repliedToSenderName = currentChatWith.name;
                 const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : message.repliedTo.text;
-                repliedToHtml = `
-                    <div class="replied-message-preview">
-                        Replying to <strong>${repliedToSenderName}</strong>:
-                        <span class="original-text">${repliedText}</span>
-                    </div>
-                `;
+                repliedToHtml = `<div class="replied-message-preview">Replying to <strong>${repliedToSenderName}</strong>:<span class="original-text">${repliedText}</span></div>`;
             }
 
             if (message.sender === currentUser.phoneNumber) {
@@ -2490,37 +2274,28 @@
                 statusIndicator = `<span class="message-status ${statusClass}">${checkmark}</span>`;
             }
 
-            let messageContentHtml = '';
-            if (message.type === 'doodle' && message.doodleData) {
-                messageContentHtml = `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>`;
-            } else {
-                 messageContentHtml = `<div>${message.text}</div>`;
-            }
+            let messageContentHtml = message.type === 'doodle' && message.doodleData ? `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>` : `<div>${message.text}</div>`;
 
             messageDiv.innerHTML = `
                 ${repliedToHtml}
                 ${messageContentHtml}
                 ${message.type !== 'doodle' ? editedTag : ''}
-                <div class="small d-flex justify-content-end align-items-center">
-                    ${time}
-                    ${statusIndicator}
-                </div>
+                <div class="small d-flex justify-content-end align-items-center">${time}${statusIndicator}</div>
                 ${reactionsHtml}
             `;
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             messageDiv.querySelectorAll('.reaction-bubble').forEach(bubble => {
-                bubble.addEventListener('click', (e) => {
-                    const emoji = e.currentTarget.dataset.emoji;
-                    toggleReaction(messageKey, emoji);
-                });
+                bubble.addEventListener('click', (e) => toggleReaction(messageKey, e.currentTarget.dataset.emoji));
             });
         }
 
         function removeMessageFromChat(messageKey) {
             const messageDiv = chatMessages.querySelector(`[data-message-key="${messageKey}"]`);
-            if (messageDiv) {
-                messageDiv.remove();
+            if (messageDiv) messageDiv.remove();
+            if (activeMessageTimers[messageKey]) {
+                clearTimeout(activeMessageTimers[messageKey]);
+                delete activeMessageTimers[messageKey];
             }
         }
 
@@ -2539,14 +2314,9 @@
             contextMenu.className = 'context-menu';
             contextMenu.style.position = 'fixed';
 
-            let menuHtml = `
-                <button id="reply-message-btn">Reply</button>
-                <button id="react-message-btn">React</button>
-            `;
+            let menuHtml = `<button id="reply-message-btn">Reply</button><button id="react-message-btn">React</button>`;
             if (isMyMessage && !messageElement.classList.contains('deleted-message')) {
-                 if (messageType !== 'doodle') { // Can't edit a doodle
-                    menuHtml += `<button id="edit-message-btn">Edit</button>`;
-                }
+                 if (messageType !== 'doodle') menuHtml += `<button id="edit-message-btn">Edit</button>`;
                 menuHtml += `<button id="delete-message-btn">Delete</button>`;
             }
             contextMenu.innerHTML = menuHtml;
@@ -2569,8 +2339,7 @@
             }, 10);
 
             contextMenu.querySelector('#reply-message-btn').addEventListener('click', () => {
-                const originalMessageSenderPhoneNumber = isMyMessage ? currentUser.phoneNumber : currentChatWith.phoneNumber;
-                setReply(messageKey, messageText, originalMessageSenderPhoneNumber, messageElement.classList.contains('sent') ? currentUser.name : currentChatWith.name, messageType);
+                setReply(messageKey, messageText, isMyMessage ? currentUser.phoneNumber : currentChatWith.phoneNumber, messageElement.classList.contains('sent') ? currentUser.name : currentChatWith.name, messageType);
                 contextMenu.remove();
             });
 
@@ -2586,7 +2355,6 @@
                         contextMenu.remove();
                     });
                 }
-
                 contextMenu.querySelector('#delete-message-btn').addEventListener('click', () => {
                     deleteMessage(messageKey);
                     contextMenu.remove();
@@ -2607,7 +2375,6 @@
         function showEmojiPicker(messageKey) {
             currentMessageKeyForReaction = messageKey;
             emojiGrid.innerHTML = '';
-
             commonEmojis.forEach(emoji => {
                 const button = document.createElement('button');
                 button.textContent = emoji;
@@ -2617,7 +2384,6 @@
                 });
                 emojiGrid.appendChild(button);
             });
-
             emojiPickerModal.style.display = 'flex';
         }
 
@@ -2628,29 +2394,23 @@
 
         function toggleReaction(messageKey, emoji) {
             if (!currentUser || !currentChatWith) return;
-
             const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
             const messageRef = database.ref(`chats/${chatId}/${messageKey}/reactions`);
-
             messageRef.transaction((currentReactions) => {
                 if (currentReactions === null) currentReactions = {};
                 if (currentReactions[emoji] === undefined) currentReactions[emoji] = [];
-
                 const users = currentReactions[emoji];
                 const userIndex = users.indexOf(currentUser.phoneNumber);
-
                 if (userIndex > -1) {
                     users.splice(userIndex, 1);
                     if (users.length === 0) delete currentReactions[emoji];
                 } else {
                     users.push(currentUser.phoneNumber);
                 }
-
                 if (Object.keys(currentReactions).length === 0) return null;
                 return currentReactions;
             });
         }
-
 
         function editMessage(messageKey, currentText) {
             currentMessageToEdit = database.ref(`chats/${[currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_')}/${messageKey}`);
@@ -2661,34 +2421,20 @@
         function deleteMessage(messageKey) {
             const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
             const messageRef = database.ref(`chats/${chatId}/${messageKey}`);
-            
             messageRef.update({
-                text: '',
-                doodleData: null,
-                deleted: true,
-                edited: false,
-                reactions: null,
+                text: '', doodleData: null, deleted: true, edited: false, reactions: null,
                 deletedAt: firebase.database.ServerValue.TIMESTAMP
             });
         }
 
-        closeEditModalBtn.addEventListener('click', () => {
-            editMessageModal.style.display = 'none';
-            currentMessageToEdit = null;
-        });
-
-        cancelEditBtn.addEventListener('click', () => {
-            editMessageModal.style.display = 'none';
-            currentMessageToEdit = null;
-        });
+        closeEditModalBtn.addEventListener('click', () => { editMessageModal.style.display = 'none'; currentMessageToEdit = null; });
+        cancelEditBtn.addEventListener('click', () => { editMessageModal.style.display = 'none'; currentMessageToEdit = null; });
 
         saveEditBtn.addEventListener('click', () => {
             const newText = editMessageInput.value.trim();
             if (currentMessageToEdit && newText) {
                 currentMessageToEdit.update({
-                    text: newText,
-                    edited: true,
-                    editedAt: firebase.database.ServerValue.TIMESTAMP
+                    text: newText, edited: true, editedAt: firebase.database.ServerValue.TIMESTAMP
                 }).then(() => {
                     editMessageModal.style.display = 'none';
                     currentMessageToEdit = null;
@@ -2697,13 +2443,7 @@
         });
 
         function setReply(messageKey, messageText, senderPhoneNumber, senderDisplayName, messageType = 'text') {
-            repliedToMessage = {
-                key: messageKey,
-                text: messageText,
-                sender: senderPhoneNumber,
-                senderName: senderDisplayName,
-                type: messageType
-            };
+            repliedToMessage = { key: messageKey, text: messageText, sender: senderPhoneNumber, senderName: senderDisplayName, type: messageType };
             const replyContent = messageType === 'doodle' ? '[Doodle]' : messageText;
             replySenderName.textContent = senderDisplayName;
             replyMessageText.textContent = replyContent;
@@ -2720,71 +2460,46 @@
 
         clearReplyBtn.addEventListener('click', clearReply);
 
-
         messageInput.addEventListener('input', () => {
             if (!currentUser || !currentChatWith) return;
-            
-            database.ref(`typing/${currentUser.phoneNumber}`).set({
-                isTyping: true,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            
+            database.ref(`typing/${currentUser.phoneNumber}`).set({ isTyping: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
             if (typingTimeout) clearTimeout(typingTimeout);
-            
             typingTimeout = setTimeout(() => {
-                database.ref(`typing/${currentUser.phoneNumber}`).set({
-                    isTyping: false,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
+                database.ref(`typing/${currentUser.phoneNumber}`).set({ isTyping: false, timestamp: firebase.database.ServerValue.TIMESTAMP });
             }, 2000);
         });
 
         sendBtn.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+        messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
         async function sendMessage() {
             const text = messageInput.value.trim();
-            
             if (!text || !currentUser || !currentChatWith) return;
             
             if (typingTimeout) {
                 clearTimeout(typingTimeout);
-                database.ref(`typing/${currentUser.phoneNumber}`).set({
-                    isTyping: false,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
+                database.ref(`typing/${currentUser.phoneNumber}`).set({ isTyping: false, timestamp: firebase.database.ServerValue.TIMESTAMP });
             }
             
-            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber]
-                .sort()
-                .join('_');
-            
+            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
             const newMessageRef = database.ref('chats/' + chatId).push();
             
             const messageData = {
-                text: text,
-                sender: currentUser.phoneNumber,
-                receiver: currentChatWith.phoneNumber,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                delivered: true,
-                read: false,
-                edited: false,
-                deleted: false,
-                reactions: null,
-                type: 'text'
+                text: text, sender: currentUser.phoneNumber, receiver: currentChatWith.phoneNumber,
+                timestamp: firebase.database.ServerValue.TIMESTAMP, delivered: true, read: false,
+                edited: false, deleted: false, reactions: null, type: 'text'
             };
+
+            // Add disappearing timestamp if timer is on
+            const timerDuration = currentChatSettings.disappearingTimer;
+            if (timerDuration && timerDuration > 0) {
+                messageData.disappearsAt = Date.now() + timerDuration;
+            }
 
             if (repliedToMessage) {
                 messageData.repliedTo = {
-                    key: repliedToMessage.key,
-                    text: repliedToMessage.text,
-                    sender: repliedToMessage.sender,
-                    senderName: repliedToMessage.senderName,
-                    type: repliedToMessage.type
+                    key: repliedToMessage.key, text: repliedToMessage.text, sender: repliedToMessage.sender,
+                    senderName: repliedToMessage.senderName, type: repliedToMessage.type
                 };
             }
 
@@ -2793,20 +2508,51 @@
                 clearReply();
             });
         }
+        
+        // --- Disappearing Messages Logic ---
+        disappearingMessagesBtn.addEventListener('click', () => {
+            const currentDuration = currentChatSettings.disappearingTimer || 0;
+            const radioToCheck = document.querySelector(`#timer-options input[value="${currentDuration}"]`);
+            if(radioToCheck) radioToCheck.checked = true;
+            disappearingMessagesModal.style.display = 'flex';
+        });
+
+        closeDisappearingModalBtn.addEventListener('click', () => {
+            disappearingMessagesModal.style.display = 'none';
+        });
+
+        saveDisappearingSettingsBtn.addEventListener('click', () => {
+            if (!currentUser || !currentChatWith) return;
+
+            const selectedDuration = parseInt(document.querySelector('input[name="timerDuration"]:checked').value);
+            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+            const settingsRef = database.ref(`chats/${chatId}/settings`);
+            
+            settingsRef.update({
+                disappearingTimer: selectedDuration,
+                setBy: currentUser.phoneNumber,
+                setAt: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            // Send a system message to notify both users of the change
+            const systemMessageText = selectedDuration > 0 
+                ? `${currentUser.name} turned on disappearing messages. New messages will now disappear after ${formatTimerDuration(selectedDuration)}.`
+                : `${currentUser.name} turned off disappearing messages.`;
+
+            database.ref('chats/' + chatId).push().set({
+                text: systemMessageText,
+                type: 'system',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            disappearingMessagesModal.style.display = 'none';
+        });
+
 
         // --- Doodling Logic ---
         function initializeDoodleCanvas() {
-            // This function sets up the listeners. The resizing and context reset is handled separately.
-            const startDoodling = (e) => {
-                isDoodling = true;
-                [lastDoodleX, lastDoodleY] = getMousePos(doodleCanvas, e);
-            };
-
-            const stopDoodling = () => {
-                isDoodling = false;
-                doodleCtx.beginPath();
-            };
-
+            const startDoodling = (e) => { isDoodling = true; [lastDoodleX, lastDoodleY] = getMousePos(doodleCanvas, e); };
+            const stopDoodling = () => { isDoodling = false; doodleCtx.beginPath(); };
             const drawDoodle = (e) => {
                 if (!isDoodling) return;
                 e.preventDefault();
@@ -2817,70 +2563,44 @@
                 doodleCtx.stroke();
                 [lastDoodleX, lastDoodleY] = [x, y];
             };
-
             const getMousePos = (canvas, evt) => {
                 const rect = canvas.getBoundingClientRect();
-                 if (evt.touches && evt.touches.length > 0) { // Touch event
-                    return [evt.touches[0].clientX - rect.left, evt.touches[0].clientY - rect.top];
-                }
-                // Mouse event
+                 if (evt.touches && evt.touches.length > 0) return [evt.touches[0].clientX - rect.left, evt.touches[0].clientY - rect.top];
                 return [evt.clientX - rect.left, evt.clientY - rect.top];
             };
-
             doodleCanvas.addEventListener('mousedown', startDoodling);
             doodleCanvas.addEventListener('mousemove', drawDoodle);
             doodleCanvas.addEventListener('mouseup', stopDoodling);
             doodleCanvas.addEventListener('mouseout', stopDoodling);
-
             doodleCanvas.addEventListener('touchstart', startDoodling);
             doodleCanvas.addEventListener('touchmove', drawDoodle);
             doodleCanvas.addEventListener('touchend', stopDoodling);
-
             colorPalette.addEventListener('click', (e) => {
                 if (e.target.classList.contains('color-swatch')) {
                     doodleCtx.strokeStyle = e.target.dataset.color;
-                    const currentActive = document.querySelector('#color-palette .color-swatch.active');
-                    if (currentActive) {
-                        currentActive.classList.remove('active');
-                    }
+                    document.querySelector('#color-palette .color-swatch.active')?.classList.remove('active');
                     e.target.classList.add('active');
                 }
             });
-
-            brushSizeSlider.addEventListener('input', (e) => {
-                doodleCtx.lineWidth = e.target.value;
-            });
-
-            doodleEraseBtn.addEventListener('click', () => {
-                doodleCtx.strokeStyle = 'white';
-            });
-
-            doodleClearBtn.addEventListener('click', () => {
-                 doodleCtx.fillStyle = 'white';
-                 doodleCtx.fillRect(0, 0, doodleCanvas.width, doodleCanvas.height);
-            });
-
+            brushSizeSlider.addEventListener('input', (e) => { doodleCtx.lineWidth = e.target.value; });
+            doodleEraseBtn.addEventListener('click', () => { doodleCtx.strokeStyle = 'white'; });
+            doodleClearBtn.addEventListener('click', () => { doodleCtx.fillStyle = 'white'; doodleCtx.fillRect(0, 0, doodleCanvas.width, doodleCanvas.height); });
             sendDoodleBtn.addEventListener('click', () => {
                 const doodleData = doodleCanvas.toDataURL('image/png');
                 sendDoodleMessage(doodleData);
                 doodleModal.style.display = 'none';
             });
-
             doodleBtn.addEventListener('click', () => {
                 doodleModal.style.display = 'flex';
                 setTimeout(resizeDoodleCanvas, 10); 
             });
-
-            closeDoodleModalBtn.addEventListener('click', () => {
-                doodleModal.style.display = 'none';
-            });
+            closeDoodleModalBtn.addEventListener('click', () => { doodleModal.style.display = 'none'; });
         }
         
         function resizeDoodleCanvas() {
             if (doodleModal.style.display !== 'flex') return;
             doodleCanvas.width = doodleCanvas.clientWidth;
             doodleCanvas.height = doodleCanvas.clientHeight;
-            // Reset context after resizing
             doodleCtx.strokeStyle = document.querySelector('#color-palette .color-swatch.active')?.dataset.color || 'black';
             doodleCtx.lineWidth = brushSizeSlider.value;
             doodleCtx.lineCap = 'round';
@@ -2889,44 +2609,29 @@
             doodleCtx.fillRect(0, 0, doodleCanvas.width, doodleCanvas.height);
         }
 
-
         function sendDoodleMessage(doodleData) {
             if (!doodleData || !currentUser || !currentChatWith) return;
-
             const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
             const newMessageRef = database.ref('chats/' + chatId).push();
-
             const messageData = {
-                sender: currentUser.phoneNumber,
-                receiver: currentChatWith.phoneNumber,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                delivered: true,
-                read: false,
-                type: 'doodle',
-                doodleData: doodleData
+                sender: currentUser.phoneNumber, receiver: currentChatWith.phoneNumber,
+                timestamp: firebase.database.ServerValue.TIMESTAMP, delivered: true, read: false,
+                type: 'doodle', doodleData: doodleData
             };
              if (repliedToMessage) {
                 messageData.repliedTo = {
-                    key: repliedToMessage.key,
-                    text: repliedToMessage.text,
-                    sender: repliedToMessage.sender,
-                    senderName: repliedToMessage.senderName,
-                    type: repliedToMessage.type
+                    key: repliedToMessage.key, text: repliedToMessage.text, sender: repliedToMessage.sender,
+                    senderName: repliedToMessage.senderName, type: repliedToMessage.type
                 };
             }
-
-            newMessageRef.set(messageData).then(() => {
-                clearReply();
-            });
+            newMessageRef.set(messageData).then(() => clearReply());
         }
 
-        // --- NEW: Live Doodle Logic ---
+        // --- Live Doodle Logic ---
         function startLiveDoodleSession() {
             if (!currentUser || !currentChatWith) return;
-
             const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
             liveDoodleRef = database.ref(`liveDoodles/${chatId}`);
-
             liveDoodleModal.style.display = 'flex';
             setTimeout(initializeLiveDoodleCanvas, 10);
         }
@@ -2935,86 +2640,55 @@
             if (liveDoodleRef && liveDoodleListenersAttached) {
                 liveDoodleRef.child('paths').off();
                 liveDoodleRef.child('clear').off();
-                // Optional: remove the doodle data when session ends
-                // liveDoodleRef.remove(); 
             }
             liveDoodleListenersAttached = false;
             liveDoodleRef = null;
         }
 
         function initializeLiveDoodleCanvas() {
-            resizeLiveDoodleCanvas(); // Initial resize and context setup
-            
+            resizeLiveDoodleCanvas();
             const getLiveMousePos = (canvas, evt) => {
                 const rect = canvas.getBoundingClientRect();
                 const scaleX = canvas.width / rect.width;
                 const scaleY = canvas.height / rect.height;
                 let clientX, clientY;
-
-                if (evt.touches && evt.touches.length > 0) {
-                    clientX = evt.touches[0].clientX;
-                    clientY = evt.touches[0].clientY;
-                } else {
-                    clientX = evt.clientX;
-                    clientY = evt.clientY;
-                }
+                if (evt.touches && evt.touches.length > 0) { clientX = evt.touches[0].clientX; clientY = evt.touches[0].clientY; } 
+                else { clientX = evt.clientX; clientY = evt.clientY; }
                 return [(clientX - rect.left) * scaleX, (clientY - rect.top) * scaleY];
             };
-
             const startDrawing = (e) => {
                 e.preventDefault();
                 isLiveDoodling = true;
                 const [x, y] = getLiveMousePos(liveDoodleCanvas, e);
-
                 const newPathRef = liveDoodleRef.child('paths').push();
                 currentLivePathId = newPathRef.key;
-                
-                const pathData = {
-                    color: liveDoodleCtx.strokeStyle,
-                    size: liveDoodleCtx.lineWidth,
-                    points: {}
-                };
+                const pathData = { color: liveDoodleCtx.strokeStyle, size: liveDoodleCtx.lineWidth, points: {} };
                 newPathRef.set(pathData);
                 newPathRef.child('points').push({ x, y });
             };
-
             const draw = (e) => {
                 if (!isLiveDoodling || !currentLivePathId) return;
                 e.preventDefault();
-
-                // Throttle the drawing events to avoid overwhelming Firebase
                 clearTimeout(throttleTimer);
                 throttleTimer = setTimeout(() => {
                     const [x, y] = getLiveMousePos(liveDoodleCanvas, e);
                     liveDoodleRef.child('paths').child(currentLivePathId).child('points').push({ x, y });
-                }, 15); // Send updates roughly 60 times per second
+                }, 15);
             };
-
-            const stopDrawing = () => {
-                isLiveDoodling = false;
-                currentLivePathId = null;
-            };
-
+            const stopDrawing = () => { isLiveDoodling = false; currentLivePathId = null; };
             liveDoodleCanvas.addEventListener('mousedown', startDrawing);
             liveDoodleCanvas.addEventListener('mousemove', draw);
             liveDoodleCanvas.addEventListener('mouseup', stopDrawing);
             liveDoodleCanvas.addEventListener('mouseout', stopDrawing);
-
             liveDoodleCanvas.addEventListener('touchstart', startDrawing);
             liveDoodleCanvas.addEventListener('touchmove', draw);
             liveDoodleCanvas.addEventListener('touchend', stopDrawing);
-
-            // Listen for remote drawing data
             if (liveDoodleRef && !liveDoodleListenersAttached) {
                 liveDoodleListenersAttached = true;
-                
-                // Listener for new paths being added
                 liveDoodleRef.child('paths').on('child_added', (pathSnapshot) => {
                     const pathData = pathSnapshot.val();
                     const pathId = pathSnapshot.key;
                     let lastPoint = null;
-
-                    // Listener for points being added to a path
                     liveDoodleRef.child('paths').child(pathId).child('points').on('child_added', (pointSnapshot) => {
                         const point = pointSnapshot.val();
                         if (lastPoint) {
@@ -3028,12 +2702,8 @@
                         lastPoint = point;
                     });
                 });
-
-                // Listener for the clear command
                 liveDoodleRef.child('clear').on('value', (snapshot) => {
-                    if (snapshot.exists()) {
-                         liveDoodleCtx.clearRect(0, 0, liveDoodleCanvas.width, liveDoodleCanvas.height);
-                    }
+                    if (snapshot.exists()) liveDoodleCtx.clearRect(0, 0, liveDoodleCanvas.width, liveDoodleCanvas.height);
                 });
             }
         }
@@ -3043,12 +2713,10 @@
             const canvasContainer = document.getElementById('live-doodle-canvas-container');
             liveDoodleCanvas.width = canvasContainer.clientWidth;
             liveDoodleCanvas.height = canvasContainer.clientHeight;
-            // Reset context after resizing
             liveDoodleCtx.strokeStyle = document.querySelector('#live-color-palette .color-swatch.active')?.dataset.color || 'black';
             liveDoodleCtx.lineWidth = liveBrushSizeSlider.value;
             liveDoodleCtx.lineCap = 'round';
             liveDoodleCtx.lineJoin = 'round';
-            // Redraw existing content if any
             if (liveDoodleRef) {
                 liveDoodleRef.child('paths').once('value', (snapshot) => {
                     snapshot.forEach((pathSnapshot) => {
@@ -3072,29 +2740,16 @@
             }
         }
 
-
         liveDoodleBtn.addEventListener('click', startLiveDoodleSession);
-
-        closeLiveDoodleModalBtn.addEventListener('click', () => {
-            liveDoodleModal.style.display = 'none';
-            stopLiveDoodleSession();
-        });
-
+        closeLiveDoodleModalBtn.addEventListener('click', () => { liveDoodleModal.style.display = 'none'; stopLiveDoodleSession(); });
         liveColorPalette.addEventListener('click', (e) => {
             if (e.target.classList.contains('color-swatch')) {
                 liveDoodleCtx.strokeStyle = e.target.dataset.color;
-                const currentActive = document.querySelector('#live-color-palette .color-swatch.active');
-                if (currentActive) {
-                    currentActive.classList.remove('active');
-                }
+                document.querySelector('#live-color-palette .color-swatch.active')?.classList.remove('active');
                 e.target.classList.add('active');
             }
         });
-
-        liveBrushSizeSlider.addEventListener('input', (e) => {
-            liveDoodleCtx.lineWidth = e.target.value;
-        });
-
+        liveBrushSizeSlider.addEventListener('input', (e) => { liveDoodleCtx.lineWidth = e.target.value; });
         liveDoodleClearBtn.addEventListener('click', () => {
             if (liveDoodleRef) {
                 liveDoodleRef.child('paths').remove();
@@ -3102,8 +2757,8 @@
             }
         });
 
-
         // --- Multiplayer Color Pop Game ---
+        // Game logic remains unchanged
         function initGameGrid() {
             gameGrid.innerHTML = '';
             for (let i = 0; i < 25; i++) {
@@ -3114,135 +2769,65 @@
                 gameGrid.appendChild(cell);
             }
         }
-
         function handleCellClick(e) {
             if (!gameActive || !gameRef || !currentUser || !currentChatWith) return;
-            
             const cell = e.target;
             const cellIndex = cell.dataset.index;
-            
             gameRef.child('cells').child(cellIndex).once('value').then(snapshot => {
-                const cellData = snapshot.val();
-                if (cellData && cellData.color && !cellData.poppedBy) {
+                if (snapshot.val() && snapshot.val().color && !snapshot.val().poppedBy) {
                     gameRef.child('cells').child(cellIndex).transaction((currentCell) => {
                         if (currentCell && currentCell.color && !currentCell.poppedBy) {
-                            return {
-                                color: null,
-                                poppedBy: currentUser.phoneNumber,
-                                poppedAt: firebase.database.ServerValue.TIMESTAMP
-                            };
+                            return { color: null, poppedBy: currentUser.phoneNumber, poppedAt: firebase.database.ServerValue.TIMESTAMP };
                         }
                         return undefined;
                     }).then((result) => {
                         if (result.committed) {
-                            gameRef.child(`scores/${currentUser.phoneNumber}`).transaction((currentScore) => {
-                                return (currentScore || 0) + 1;
-                            });
-
+                            gameRef.child(`scores/${currentUser.phoneNumber}`).transaction((currentScore) => (currentScore || 0) + 1);
                             cell.classList.add('cell-popped');
-                            setTimeout(() => {
-                                cell.classList.remove('cell-popped');
-                            }, 300);
+                            setTimeout(() => cell.classList.remove('cell-popped'), 300);
                         }
                     });
                 }
             });
         }
-
         function initiateGame() {
             if (!currentUser || !currentChatWith) return;
-
             const potentialGameId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_game';
             const invitationId = `${currentUser.phoneNumber}_${currentChatWith.phoneNumber}_${Date.now()}`;
             gameInvitationRef = database.ref(`gameInvitations/${invitationId}`);
-
             const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
             database.ref('chats/' + chatId).push().set({
                 text: `${currentUser.name} invites you to play Color Pop Battle! Tap the 'Play Color Pop' button to join.`,
-                sender: currentUser.phoneNumber,
-                receiver: currentChatWith.phoneNumber,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                delivered: true,
-                read: false,
-                type: 'text'
-            }).then(() => {
-                return gameInvitationRef.set({
-                    inviter: currentUser.phoneNumber,
-                    inviterName: currentUser.name,
-                    invitee: currentChatWith.phoneNumber,
-                    inviteeName: currentChatWith.name,
-                    status: 'pending',
-                    timestamp: firebase.database.ServerValue.TIMESTAMP,
-                    gameId: potentialGameId,
-                    chatMessageKey: null
-                });
-            }).then(() => {
+                sender: currentUser.phoneNumber, receiver: currentChatWith.phoneNumber,
+                timestamp: firebase.database.ServerValue.TIMESTAMP, delivered: true, read: false, type: 'text'
+            }).then(() => gameInvitationRef.set({
+                inviter: currentUser.phoneNumber, inviterName: currentUser.name, invitee: currentChatWith.phoneNumber,
+                inviteeName: currentChatWith.name, status: 'pending', timestamp: firebase.database.ServerValue.TIMESTAMP,
+                gameId: potentialGameId, chatMessageKey: null
+            })).then(() => {
                 gameInvitationRef.on('value', (snapshot) => {
                     const invitation = snapshot.val();
                     if (invitation) {
-                        if (invitation.status === 'accepted') {
-                            gameInvitationRef.off();
-                            startGame(invitation.gameId);
-                        } else if (invitation.status === 'declined') {
-                            gameInvitationRef.off();
-                            gameInvitationRef.remove();
-                        }
+                        if (invitation.status === 'accepted') { gameInvitationRef.off(); startGame(invitation.gameId); } 
+                        else if (invitation.status === 'declined') { gameInvitationRef.off(); gameInvitationRef.remove(); }
                     }
                 });
             });
         }
-
         function listenForGameInvitations() {
             if (!currentUser) return;
-
             database.ref('gameInvitations').orderByChild('invitee').equalTo(currentUser.phoneNumber).on('child_added', (snapshot) => {
-                const invitation = snapshot.val();
-                if (invitation.status === 'pending' && invitation.inviter !== currentUser.phoneNumber) {
-                    console.log(`Incoming pending game invitation from ${invitation.inviterName}.`);
+                if (snapshot.val().status === 'pending' && snapshot.val().inviter !== currentUser.phoneNumber) {
+                    // console.log(`Incoming pending game invitation from ${snapshot.val().inviterName}.`);
                 }
             });
         }
-
-        async function acceptGameInvitation(invitationKey, gameIdToStart, inviterPhoneNumber) {
-            const inviterUserSnapshot = await database.ref(`users/${inviterPhoneNumber}`).once('value');
-            const inviterUser = inviterUserSnapshot.val();
-            if (inviterUser) {
-                currentChatWith = inviterUser;
-            } else {
-                return;
-            }
-
-            database.ref(`gameInvitations/${invitationKey}`).update({
-                status: 'accepted',
-                acceptedAt: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                const chatId = [currentUser.phoneNumber, inviterPhoneNumber].sort().join('_');
-                database.ref('chats/' + chatId).push().set({
-                    text: `${currentUser.name} accepted your game invitation! Starting game.`,
-                    sender: currentUser.phoneNumber,
-                    receiver: inviterPhoneNumber,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP,
-                    delivered: true,
-                    read: false,
-                    type: 'text'
-                });
-                startGame(gameIdToStart);
-            });
-        }
-
         async function handlePlayGameButtonClick() {
             if (!currentUser || !currentChatWith) return;
-
             const invitationsRef = database.ref('gameInvitations');
             const gameIdForThisPair = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_game';
-
-            const incomingInvitationQuery = invitationsRef
-                .orderByChild('invitee')
-                .equalTo(currentUser.phoneNumber);
-
-            const incomingSnapshot = await incomingInvitationQuery.once('value');
+            const incomingSnapshot = await invitationsRef.orderByChild('invitee').equalTo(currentUser.phoneNumber).once('value');
             let pendingIncomingInvitation = null;
-
             incomingSnapshot.forEach(childSnapshot => {
                 const invitation = childSnapshot.val();
                 if (invitation.inviter === currentChatWith.phoneNumber && invitation.status === 'pending') {
@@ -3250,277 +2835,149 @@
                     return true;
                 }
             });
-
             if (pendingIncomingInvitation) {
-                await database.ref(`gameInvitations/${pendingIncomingInvitation.key}`).update({
-                    status: 'accepted',
-                    acceptedAt: firebase.database.ServerValue.TIMESTAMP
-                });
-
+                await database.ref(`gameInvitations/${pendingIncomingInvitation.key}`).update({ status: 'accepted', acceptedAt: firebase.database.ServerValue.TIMESTAMP });
                 const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
                 database.ref('chats/' + chatId).push().set({
                     text: `${currentUser.name} accepted your game invitation! Starting game.`,
-                    sender: currentUser.phoneNumber,
-                    receiver: currentChatWith.phoneNumber,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP,
-                    delivered: true,
-                    read: false,
-                    type: 'text'
+                    sender: currentUser.phoneNumber, receiver: currentChatWith.phoneNumber,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP, delivered: true, read: false, type: 'text'
                 });
-
                 startGame(pendingIncomingInvitation.gameId);
-
             } else {
                 const existingGameSnapshot = await database.ref(`games/${gameIdForThisPair}`).once('value');
-                const existingGame = existingGameSnapshot.val();
-
-                if (existingGame && existingGame.status === 'playing') {
+                if (existingGameSnapshot.val() && existingGameSnapshot.val().status === 'playing') {
                     startGame(gameIdForThisPair);
-                    return;
+                } else {
+                    initiateGame();
                 }
-                initiateGame();
             }
         }
-
         function startGame(idOfGame) {
             if (!currentUser || !currentChatWith) return;
-            
             gameActive = true;
             gameId = idOfGame;
             gameRef = database.ref(`games/${gameId}`);
-            
             playerYouName.textContent = currentUser.name;
             playerOpponentName.textContent = currentChatWith.name;
-            
             playerYouScore.textContent = '0';
             playerOpponentScore.textContent = '0';
-
-            gameRef.child('scores').set({
-                [currentUser.phoneNumber]: 0,
-                [currentChatWith.phoneNumber]: 0
-            });
-            
+            gameRef.child('scores').set({ [currentUser.phoneNumber]: 0, [currentChatWith.phoneNumber]: 0 });
             database.ref(`users/${currentChatWith.phoneNumber}`).once('value').then(snapshot => {
                 const opponent = snapshot.val();
-                if (opponent) {
-                    let gameBatteryText = 'Battery: Unknown';
-                    if (opponent.batteryLevel !== undefined) {
-                        gameBatteryText = `Battery: ${opponent.batteryLevel}% ${opponent.batteryCharging ? '⚡' : ''}`;
-                    } else if (opponent.batteryCharging) {
-                        gameBatteryText = 'Charging...';
-                    }
-                    playerOpponentBattery.textContent = gameBatteryText;
-                }
+                if (opponent) playerOpponentBattery.textContent = opponent.batteryLevel !== undefined ? `Battery: ${opponent.batteryLevel}% ${opponent.batteryCharging ? '⚡' : ''}` : (opponent.batteryCharging ? 'Charging...' : 'Battery: Unknown');
             });
-            
             gameRef.once('value').then(snapshot => {
-                const existingGame = snapshot.val();
-                if (!existingGame || existingGame.status === 'ended') {
+                if (!snapshot.val() || snapshot.val().status === 'ended') {
                     gameRef.set({
-                        player1: currentUser.phoneNumber,
-                        player1Name: currentUser.name,
-                        player2: currentChatWith.phoneNumber,
-                        player2Name: currentChatWith.name,
-                        status: 'playing',
-                        startedAt: firebase.database.ServerValue.TIMESTAMP,
-                        cells: {}
+                        player1: currentUser.phoneNumber, player1Name: currentUser.name, player2: currentChatWith.phoneNumber,
+                        player2Name: currentChatWith.name, status: 'playing', startedAt: firebase.database.ServerValue.TIMESTAMP, cells: {}
                     });
                 } else {
-                    gameRef.update({
-                        status: 'playing'
-                    });
+                    gameRef.update({ status: 'playing' });
                 }
             });
-
             initGameGrid();
-            
             timeLeft = 60;
             gameTimer.textContent = `Time: ${timeLeft}`;
             clearInterval(timerInterval);
             timerInterval = setInterval(() => {
                 timeLeft--;
                 gameTimer.textContent = `Time: ${timeLeft}`;
-                
-                if (timeLeft <= 0) {
-                    endGame();
-                }
+                if (timeLeft <= 0) endGame();
             }, 1000);
-            
             gameRef.on('value', (snapshot) => {
                 const gameData = snapshot.val();
                 if (!gameData) return;
-                
                 if (gameData.scores) {
                     playerYouScore.textContent = gameData.scores[currentUser.phoneNumber] || '0';
                     playerOpponentScore.textContent = gameData.scores[currentChatWith.phoneNumber] || '0';
                 }
-                
-                if (gameData.status === 'ended' && gameActive) {
-                    endGame(true);
-                }
+                if (gameData.status === 'ended' && gameActive) endGame(true);
             });
-            
             gameRef.child('cells').on('child_changed', (snapshot) => {
                 const cellData = snapshot.val();
                 const cellIndex = snapshot.key;
                 const cell = document.querySelector(`.game-cell[data-index="${cellIndex}"]`);
-                
                 if (cellData && cell) {
                     if (cellData.poppedBy) {
                         cell.style.backgroundColor = '';
                         cell.classList.add('cell-popped');
-                        setTimeout(() => {
-                            cell.classList.remove('cell-popped');
-                        }, 300);
+                        setTimeout(() => cell.classList.remove('cell-popped'), 300);
                     } else if (cellData.color) {
                         cell.style.backgroundColor = cellData.color;
                     }
                 }
             });
-
             gameRef.child('cells').on('child_added', (snapshot) => {
                 const cellData = snapshot.val();
                 const cellIndex = snapshot.key;
                 const cell = document.querySelector(`.game-cell[data-index="${cellIndex}"]`);
-                if (cellData && cell && cellData.color) {
-                    cell.style.backgroundColor = cellData.color;
-                }
+                if (cellData && cell && cellData.color) cell.style.backgroundColor = cellData.color;
             });
-            
             clearInterval(gameInterval);
             gameInterval = setInterval(() => {
                 if (!gameActive) return;
-                
-                const cellsOnScreen = Array.from(document.querySelectorAll('.game-cell'));
-                const emptyCells = cellsOnScreen.filter(cell => !cell.style.backgroundColor);
-                
+                const emptyCells = Array.from(document.querySelectorAll('.game-cell')).filter(cell => !cell.style.backgroundColor);
                 if (emptyCells.length > 0) {
                     const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
                     const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                    const cellIndex = randomCell.dataset.index;
-                    
-                    gameRef.child('cells').child(cellIndex).set({
-                        color: randomColor,
-                        appearedAt: firebase.database.ServerValue.TIMESTAMP
-                    });
+                    gameRef.child('cells').child(randomCell.dataset.index).set({ color: randomColor, appearedAt: firebase.database.ServerValue.TIMESTAMP });
                 }
             }, 1000);
-            
             gameContainer.style.display = 'flex';
         }
-
         function endGame(fromFirebase = false) {
             if (!gameActive && !fromFirebase) return;
-
             gameActive = false;
             clearInterval(gameInterval);
             clearInterval(timerInterval);
-            
-            if (gameRef && !fromFirebase) {
-                gameRef.update({
-                    status: 'ended',
-                    endedAt: firebase.database.ServerValue.TIMESTAMP
-                });
-            }
-
+            if (gameRef && !fromFirebase) gameRef.update({ status: 'ended', endedAt: firebase.database.ServerValue.TIMESTAMP });
             if (gameRef) {
                 gameRef.child('scores').once('value').then(snapshot => {
                     const scores = snapshot.val();
                     if (scores && currentUser && currentChatWith) {
-                        const yourScore = scores[currentUser.phoneNumber] || 0;
-                        const opponentScore = scores[currentChatWith.phoneNumber] || 0;
-                        
-                        const messageText = `Game over! Final score - ${currentUser.name}: ${yourScore}, ${currentChatWith.name}: ${opponentScore}`;
-                        
+                        const messageText = `Game over! Final score - ${currentUser.name}: ${scores[currentUser.phoneNumber] || 0}, ${currentChatWith.name}: ${scores[currentChatWith.phoneNumber] || 0}`;
                         const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
-                        const messageData = {
-                            text: messageText,
-                            sender: 'system',
-                            receiver: 'all',
-                            timestamp: firebase.database.ServerValue.TIMESTAMP,
-                            delivered: true,
-                            read: false,
-                            type: 'game_result'
-                        };
-                        database.ref('chats/' + chatId).push().set(messageData);
+                        database.ref('chats/' + chatId).push().set({
+                            text: messageText, sender: 'system', receiver: 'all', timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            delivered: true, read: false, type: 'game_result'
+                        });
                     }
                 });
-                
                 gameRef.off();
                 gameRef.child('cells').off();
-                
-                if (gameId) {
-                    database.ref(`games/${gameId}`).remove();
-                }
-
+                if (gameId) database.ref(`games/${gameId}`).remove();
                 gameRef = null;
                 gameId = null;
             }
             gameContainer.style.display = 'none';
         }
-
-        newGameBtn.addEventListener('click', () => {
-            endGame();
-            initiateGame();
-        });
-
+        newGameBtn.addEventListener('click', () => { endGame(); initiateGame(); });
         closeGameBtn.addEventListener('click', () => {
-            if (gameActive) {
-                confirmationModal.style.display = 'flex';
-            } else {
-                endGame();
-                gameContainer.style.display = 'none';
-            }
+            if (gameActive) confirmationModal.style.display = 'flex';
+            else { endGame(); gameContainer.style.display = 'none'; }
         });
-
-        closeModalBtn.addEventListener('click', () => {
-            confirmationModal.style.display = 'none';
-        });
-
-        confirmYesBtn.addEventListener('click', () => {
-            confirmationModal.style.display = 'none';
-            endGame();
-        });
-
-        confirmNoBtn.addEventListener('click', () => {
-            confirmationModal.style.display = 'none';
-        });
-
+        closeModalBtn.addEventListener('click', () => confirmationModal.style.display = 'none');
+        confirmYesBtn.addEventListener('click', () => { confirmationModal.style.display = 'none'; endGame(); });
+        confirmNoBtn.addEventListener('click', () => confirmationModal.style.display = 'none');
         window.addEventListener('click', (event) => {
-            const modals = [
-                confirmationModal, emojiPickerModal, editMessageModal, settingsModal, 
-                bioModal, reportUserModal, chargingSafetyModal, opponentChargingModal, 
-                statusViewersModal, doodleModal, liveDoodleModal
-            ];
-
+            const modals = [confirmationModal, emojiPickerModal, editMessageModal, settingsModal, bioModal, reportUserModal, chargingSafetyModal, opponentChargingModal, statusViewersModal, doodleModal, liveDoodleModal, disappearingMessagesModal];
             if (modals.includes(event.target)) {
                 event.target.style.display = 'none';
-                if (event.target === liveDoodleModal) {
-                    stopLiveDoodleSession();
-                }
+                if (event.target === liveDoodleModal) stopLiveDoodleSession();
             }
         });
-
-
         playGameInChatBtn.addEventListener('click', handlePlayGameButtonClick);
-
         function updateRegisterButtonState() {
             const phoneNumber = phoneNumberInput.value.trim();
             const userName = userNameInput.value.trim();
             const isValidPhoneNumber = phoneNumber.length === 10 && /^\d+$/.test(phoneNumber) && !/^[0-5]/.test(phoneNumber) && !/^(\d)\1{9}$/.test(phoneNumber);
-            const isValidUserName = userName.length > 0;
-
-            registerBtn.disabled = !(isValidPhoneNumber && isValidUserName) || connectingMessage.style.display === 'block';
+            registerBtn.disabled = !(isValidPhoneNumber && userName.length > 0) || connectingMessage.style.display === 'block';
         }
-
         phoneNumberInput.addEventListener('input', () => {
             const phoneNumber = phoneNumberInput.value.trim();
-            const isValidLength = phoneNumber.length === 10;
-            const isNumeric = /^\d+$/.test(phoneNumber);
-            const isInvalidStart = /^[0-5]/.test(phoneNumber);
-            const hasRepeatingDigits = /^(\d)\1{9}$/.test(phoneNumber);
-
-            if (phoneNumber.length > 0 && (!isValidLength || !isNumeric || isInvalidStart || hasRepeatingDigits)) {
+            if (phoneNumber.length > 0 && (phoneNumber.length !== 10 || !/^\d+$/.test(phoneNumber) || /^[0-5]/.test(phoneNumber) || /^(\d)\1{9}$/.test(phoneNumber))) {
                 phoneNumberFeedback.textContent = "Do not try to spam, otherwise your account will be blocked";
                 phoneNumberFeedback.style.display = 'block';
             } else {
@@ -3529,22 +2986,17 @@
             registrationErrorFeedback.style.display = 'none';
             updateRegisterButtonState();
         });
-
         userNameInput.addEventListener('input', () => {
             registrationErrorFeedback.style.display = 'none';
             updateRegisterButtonState();
         });
-
         function refreshUIForUnreadMessages() {
             updateNewMessageIndicator();
             loadContacts(contactSearch.value.trim());
         }
-
         async function setupGlobalUnreadListener() {
             if (!currentUser) return;
-
             const myPhoneNumber = currentUser.phoneNumber;
-
             for (const chatId in globalUnreadListeners) {
                 if (globalUnreadListeners[chatId]) {
                     database.ref('chats/' + chatId).off('child_added', globalUnreadListeners[chatId].added);
@@ -3553,21 +3005,14 @@
                     delete globalUnreadListeners[chatId];
                 }
             }
-
             const usersSnapshot = await database.ref('users').once('value');
-            const usersData = usersSnapshot.val();
-
-            if (!usersData) return;
-
+            if (!usersSnapshot.val()) return;
             unreadCounts = {};
             latestUnreadMessageTimestamps = {};
-
-            for (const otherPhoneNumber in usersData) {
+            for (const otherPhoneNumber in usersSnapshot.val()) {
                 if (otherPhoneNumber === myPhoneNumber) continue;
-
                 const chatId = [myPhoneNumber, otherPhoneNumber].sort().join('_');
                 const chatRef = database.ref(`chats/${chatId}`);
-
                 const addedListener = chatRef.orderByChild('timestamp').on('child_added', (snapshot) => {
                     const message = snapshot.val();
                     if (message.receiver === myPhoneNumber && !message.read && message.sender === otherPhoneNumber) {
@@ -3577,97 +3022,68 @@
                                 latestUnreadMessageTimestamps[otherPhoneNumber] = message.timestamp;
                             }
                             refreshUIForUnreadMessages();
-                        } else {
-                            if (!message.read) {
-                                database.ref(`chats/${chatId}/${snapshot.key}`).update({ read: true });
-                            }
+                        } else if (!message.read) {
+                            database.ref(`chats/${chatId}/${snapshot.key}`).update({ read: true });
                         }
                     }
                 });
-
                 const changedListener = chatRef.on('child_changed', (snapshot) => {
                     const message = snapshot.val();
                     if (message.receiver === myPhoneNumber && message.read && message.sender === otherPhoneNumber) {
                         if (unreadCounts[otherPhoneNumber] > 0) {
                             unreadCounts[otherPhoneNumber]--;
-                            if (latestUnreadMessageTimestamps[otherPhoneNumber] && message.timestamp === latestUnreadMessageTimestamps[otherPhoneNumber]) {
-                                recalculateUnreadCountForSender(otherPhoneNumber);
-                            } else {
-                                refreshUIForUnreadMessages();
-                            }
+                            if (latestUnreadMessageTimestamps[otherPhoneNumber] && message.timestamp === latestUnreadMessageTimestamps[otherPhoneNumber]) recalculateUnreadCountForSender(otherPhoneNumber);
+                            else refreshUIForUnreadMessages();
                         }
                     } else if (message.deleted && message.receiver === myPhoneNumber) {
                         recalculateUnreadCountForSender(otherPhoneNumber);
                     }
                 });
-
                 const removedListener = chatRef.on('child_removed', (snapshot) => {
-                    const message = snapshot.val();
-                    if (message.receiver === myPhoneNumber && !message.read && message.sender === otherPhoneNumber) {
+                    if (snapshot.val().receiver === myPhoneNumber && !snapshot.val().read && snapshot.val().sender === otherPhoneNumber) {
                         recalculateUnreadCountForSender(otherPhoneNumber);
                     }
                 });
-
-                globalUnreadListeners[chatId] = {
-                    added: addedListener,
-                    changed: changedListener,
-                    removed: removedListener
-                };
+                globalUnreadListeners[chatId] = { added: addedListener, changed: changedListener, removed: removedListener };
             }
         }
-
         async function recalculateUnreadCountForSender(senderPhoneNumber) {
             if (!currentUser) return;
             const myPhoneNumber = currentUser.phoneNumber;
             const chatId = [myPhoneNumber, senderPhoneNumber].sort().join('_');
             const chatRef = database.ref(`chats/${chatId}`);
-
             let count = 0;
             let latestTimestamp = 0;
-
             const snapshot = await chatRef.orderByChild('timestamp').once('value');
             snapshot.forEach(messageSnapshot => {
                 const message = messageSnapshot.val();
                 if (message.receiver === myPhoneNumber && !message.read && message.sender === senderPhoneNumber) {
                     count++;
-                    if (message.timestamp > latestTimestamp) {
-                        latestTimestamp = message.timestamp;
-                    }
+                    if (message.timestamp > latestTimestamp) latestTimestamp = message.timestamp;
                 }
             });
-
             unreadCounts[senderPhoneNumber] = count;
-            if (count > 0) {
-                latestUnreadMessageTimestamps[senderPhoneNumber] = latestTimestamp;
-            } else {
-                delete latestUnreadMessageTimestamps[senderPhoneNumber];
-            }
+            if (count > 0) latestUnreadMessageTimestamps[senderPhoneNumber] = latestTimestamp;
+            else delete latestUnreadMessageTimestamps[senderPhoneNumber];
             refreshUIForUnreadMessages();
         }
-
         newMessageIndicator.addEventListener('click', async () => {
             let latestUnreadTimestamp = 0;
             let latestUnreadSenderPhoneNumber = null;
-
             for (const phoneNumber in latestUnreadMessageTimestamps) {
                 if (latestUnreadMessageTimestamps[phoneNumber] > latestUnreadTimestamp) {
                     latestUnreadTimestamp = latestUnreadMessageTimestamps[phoneNumber];
                     latestUnreadSenderPhoneNumber = phoneNumber;
                 }
             }
-
             if (latestUnreadSenderPhoneNumber) {
                 const userSnapshot = await database.ref(`users/${latestUnreadSenderPhoneNumber}`).once('value');
-                if (userSnapshot.exists()) {
-                    startChat(userSnapshot.val());
-                } else {
-                    refreshUIForUnreadMessages();
-                }
+                if (userSnapshot.exists()) startChat(userSnapshot.val());
+                else refreshUIForUnreadMessages();
             } else {
                 refreshUIForUnreadMessages();
             }
         });
-
         settingsBtn.addEventListener('click', async () => {
             if (!currentUser) return;
             const userSnapshot = await database.ref(`users/${currentUser.phoneNumber}`).once('value');
@@ -3676,49 +3092,29 @@
                 hideNumberSwitch.checked = userData.hidePhoneNumber || false;
                 userBioSettings.value = userData.bio || '';
                 userMoodSettings.value = userData.mood || '';
-                userStatusSettings.value = userData.status || ''; // Set current status
+                userStatusSettings.value = userData.status || '';
             }
             settingsModal.style.display = 'flex';
         });
-
-        closeSettingsModalBtn.addEventListener('click', () => {
-            settingsModal.style.display = 'none';
-        });
-
+        closeSettingsModalBtn.addEventListener('click', () => settingsModal.style.display = 'none');
         saveSettingsBtn.addEventListener('click', async () => {
             if (!currentUser) return;
-            const newHidePhoneNumber = hideNumberSwitch.checked;
-            const newBio = userBioSettings.value.trim();
-            const newMood = userMoodSettings.value;
-            const newStatus = userStatusSettings.value.trim(); // Get status text
-
-            try {
-                const updates = {
-                    hidePhoneNumber: newHidePhoneNumber,
-                    bio: newBio,
-                    mood: newMood,
-                    status: newStatus
-                };
-                // If status is new or updated, reset viewers and set timestamp
-                if (newStatus) {
-                    updates.statusTimestamp = firebase.database.ServerValue.TIMESTAMP;
-                    updates.statusViewers = null;
-                }
-                
-                await database.ref(`users/${currentUser.phoneNumber}`).update(updates);
-
-                settingsModal.style.display = 'none';
-                currentUser.hidePhoneNumber = newHidePhoneNumber;
-                currentUser.bio = newBio;
-                currentUser.mood = newMood;
-                currentUser.status = newStatus; // Update local user object
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                refreshUIForUnreadMessages();
-            } catch (error) {
-                console.error("Error saving settings:", error);
+            const updates = {
+                hidePhoneNumber: hideNumberSwitch.checked,
+                bio: userBioSettings.value.trim(),
+                mood: userMoodSettings.value,
+                status: userStatusSettings.value.trim()
+            };
+            if (updates.status) {
+                updates.statusTimestamp = firebase.database.ServerValue.TIMESTAMP;
+                updates.statusViewers = null;
             }
+            await database.ref(`users/${currentUser.phoneNumber}`).update(updates);
+            settingsModal.style.display = 'none';
+            currentUser = { ...currentUser, ...updates };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            refreshUIForUnreadMessages();
         });
-
         chatProfileLogo.addEventListener('click', () => {
             if (!currentChatWith) return;
             bioModalUserName.textContent = currentChatWith.name;
@@ -3731,15 +3127,8 @@
             }
             bioModal.style.display = 'flex';
         });
-
-        closeBioModalBtn.addEventListener('click', () => {
-            bioModal.style.display = 'none';
-        });
-
-        closeBioModalFooterBtn.addEventListener('click', () => {
-            bioModal.style.display = 'none';
-        });
-
+        closeBioModalBtn.addEventListener('click', () => bioModal.style.display = 'none');
+        closeBioModalFooterBtn.addEventListener('click', () => bioModal.style.display = 'none');
         reportUserBtn.addEventListener('click', () => {
             if (!currentChatWith) return;
             reportUserName.textContent = currentChatWith.name;
@@ -3747,15 +3136,8 @@
             reportFeedback.style.display = 'none';
             reportUserModal.style.display = 'flex';
         });
-
-        closeReportModalBtn.addEventListener('click', () => {
-            reportUserModal.style.display = 'none';
-        });
-
-        cancelReportBtn.addEventListener('click', () => {
-            reportUserModal.style.display = 'none';
-        });
-
+        closeReportModalBtn.addEventListener('click', () => reportUserModal.style.display = 'none');
+        cancelReportBtn.addEventListener('click', () => reportUserModal.style.display = 'none');
         submitReportBtn.addEventListener('click', async () => {
             const reason = reportReasonInput.value.trim();
             if (!reason) {
@@ -3763,195 +3145,104 @@
                 reportFeedback.style.display = 'block';
                 return;
             }
-
             if (!currentUser || !currentChatWith) return;
-
             const reportedPhoneNumber = currentChatWith.phoneNumber;
             const reporterPhoneNumber = currentUser.phoneNumber;
             const reportRef = database.ref(`reports/${reportedPhoneNumber}/${reporterPhoneNumber}`);
-
             const snapshot = await reportRef.once('value');
             if (snapshot.exists()) {
                 reportFeedback.textContent = 'You have already reported this user.';
                 reportFeedback.style.display = 'block';
                 return;
             }
-
-            await reportRef.set({
-                reason: reason,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-
-            const allReportsRef = database.ref(`reports/${reportedPhoneNumber}`);
-            const reportsSnapshot = await allReportsRef.once('value');
-            const reportCount = reportsSnapshot.numChildren();
-
-            if (reportCount > 3) {
-                await database.ref(`users/${reportedPhoneNumber}`).update({
-                    suspended: true
-                });
+            await reportRef.set({ reason: reason, timestamp: firebase.database.ServerValue.TIMESTAMP });
+            const reportsSnapshot = await database.ref(`reports/${reportedPhoneNumber}`).once('value');
+            if (reportsSnapshot.numChildren() > 3) {
+                await database.ref(`users/${reportedPhoneNumber}`).update({ suspended: true });
             }
-
-            reportReasonInput.value = '';
-            reportFeedback.style.display = 'none';
             reportUserModal.style.display = 'none';
             showNotification('Report Submitted', `Your report against ${currentChatWith.name} has been submitted.`, 'success');
         });
-
-        // New: Status Screen Logic
-        viewStatusBtn.addEventListener('click', () => {
-            showStatusScreen();
-        });
-
-        backToContactsFromStatusBtn.addEventListener('click', () => {
-            showContactsScreen();
-        });
-
-        closeStatusViewersBtn.addEventListener('click', () => {
-            statusViewersModal.style.display = 'none';
-        });
-
+        viewStatusBtn.addEventListener('click', () => showStatusScreen());
+        backToContactsFromStatusBtn.addEventListener('click', () => showContactsScreen());
+        closeStatusViewersBtn.addEventListener('click', () => statusViewersModal.style.display = 'none');
         function showStatusScreen() {
             contactsScreen.style.display = 'none';
             chatScreen.style.display = 'none';
             statusScreen.style.display = 'block';
-
             const usersRef = database.ref('users');
             usersRef.on('value', (snapshot) => {
-                statusList.innerHTML = ''; // Clear the list
+                statusList.innerHTML = '';
                 const users = snapshot.val();
                 if (!users) return;
-
                 let myStatusHTML = '';
                 let recentUpdatesHTML = '';
                 let hasRecentUpdates = false;
-
                 const me = users[currentUser.phoneNumber];
                 const viewersCount = (me && me.statusViewers) ? Object.keys(me.statusViewers).length : 0;
-                
-                myStatusHTML = `
-                    <div class="list-group-header fw-bold p-2 bg-light">My Status</div>
-                    <div class="status-item my-status">
-                        <div class="profile-logo">${getProfileLogoContent(me)}</div>
-                        <div>
-                            <strong>You</strong>
-                            ${me && me.status ? `<p>"${me.status}"</p><small class="text-muted">${viewersCount} views</small>` : `<p class="text-muted">No status set. Tap to add.</p>`}
-                        </div>
-                    </div>
-                `;
-
+                myStatusHTML = `<div class="list-group-header fw-bold p-2 bg-light">My Status</div><div class="status-item my-status"><div class="profile-logo">${getProfileLogoContent(me)}</div><div><strong>You</strong>${me && me.status ? `<p>"${me.status}"</p><small class="text-muted">${viewersCount} views</small>` : `<p class="text-muted">No status set. Tap to add.</p>`}</div></div>`;
                 recentUpdatesHTML += `<div class="list-group-header fw-bold p-2 bg-light">Recent Updates</div>`;
                 Object.values(users).forEach(user => {
                     if (user.phoneNumber !== currentUser.phoneNumber && user.status) {
                         hasRecentUpdates = true;
-                        const statusItem = document.createElement('div');
-                        statusItem.className = 'status-item other-status';
-                        statusItem.dataset.phone = user.phoneNumber;
-                        
-                        const profileLogoContent = getProfileLogoContent(user);
-                        
-                        statusItem.innerHTML = `
-                            <div class="profile-logo">${profileLogoContent}</div>
-                            <div>
-                                <strong>${user.name}</strong>
-                                <p>"${user.status}"</p>
-                            </div>
-                        `;
-                        recentUpdatesHTML += statusItem.outerHTML;
+                        recentUpdatesHTML += `<div class="status-item other-status" data-phone="${user.phoneNumber}"><div class="profile-logo">${getProfileLogoContent(user)}</div><div><strong>${user.name}</strong><p>"${user.status}"</p></div></div>`;
                     }
                 });
-
-                if (!hasRecentUpdates) {
-                    recentUpdatesHTML += '<div class="text-center p-3 text-muted">No recent updates from your contacts.</div>';
-                }
-
+                if (!hasRecentUpdates) recentUpdatesHTML += '<div class="text-center p-3 text-muted">No recent updates from your contacts.</div>';
                 statusList.innerHTML = myStatusHTML + recentUpdatesHTML;
-
-                const myStatusElement = statusList.querySelector('.my-status');
-                if (myStatusElement) {
-                    myStatusElement.addEventListener('click', () => {
-                        if (!me || !me.status) {
-                            settingsModal.style.display = 'flex';
-                        } else {
-                            showMyStatusViewers();
-                        }
-                    });
-                }
-                
+                statusList.querySelector('.my-status')?.addEventListener('click', () => {
+                    if (!me || !me.status) settingsModal.style.display = 'flex';
+                    else showMyStatusViewers();
+                });
                 statusList.querySelectorAll('.other-status').forEach(item => {
                     item.addEventListener('click', () => {
-                        const phone = item.dataset.phone;
-                        const user = users[phone];
-                        if (user) {
-                            handleStatusClick(user);
-                        }
+                        const user = users[item.dataset.phone];
+                        if (user) handleStatusClick(user);
                     });
                 });
             });
         }
-
         async function handleStatusClick(user) {
             alert(`${user.name}'s status:\n"${user.status}"`);
-
             if (user.phoneNumber !== currentUser.phoneNumber) {
                 try {
                     await database.ref(`users/${user.phoneNumber}/statusViewers/${currentUser.phoneNumber}`).set(true);
-                    console.log(`Status view recorded for ${user.name}`);
                 } catch (error) {
                     console.error("Error recording status view:", error);
                 }
             }
         }
-
         async function showMyStatusViewers() {
             const myStatusText = document.getElementById('my-status-text');
             const viewersCountSpan = document.getElementById('status-viewers-count');
             const viewersList = document.getElementById('status-viewers-list');
-            
             viewersList.innerHTML = '';
-
-            const userRef = database.ref(`users/${currentUser.phoneNumber}`);
-            const snapshot = await userRef.once('value');
+            const snapshot = await database.ref(`users/${currentUser.phoneNumber}`).once('value');
             const myData = snapshot.val();
-
             if (!myData || !myData.status) return;
-
             myStatusText.textContent = `"${myData.status}"`;
             const viewers = myData.statusViewers;
             const viewersCount = viewers ? Object.keys(viewers).length : 0;
             viewersCountSpan.textContent = `Viewed by ${viewersCount}`;
-
             if (viewers) {
                 for (const viewerPhone of Object.keys(viewers)) {
                     const viewerSnapshot = await database.ref(`users/${viewerPhone}`).once('value');
-                    const viewerData = viewerSnapshot.val();
-                    if (viewerData) {
+                    if (viewerSnapshot.val()) {
                         const viewerItem = document.createElement('div');
                         viewerItem.className = 'list-group-item d-flex align-items-center';
-                        const profileLogoContent = getProfileLogoContent(viewerData);
-                        viewerItem.innerHTML = `
-                            <div class="profile-logo">${profileLogoContent}</div>
-                            <span>${viewerData.name}</span>
-                        `;
+                        viewerItem.innerHTML = `<div class="profile-logo">${getProfileLogoContent(viewerSnapshot.val())}</div><span>${viewerSnapshot.val().name}</span>`;
                         viewersList.appendChild(viewerItem);
                     }
                 }
             } else {
                 viewersList.innerHTML = '<div class="list-group-item text-center text-muted">No views yet.</div>';
             }
-
             statusViewersModal.style.display = 'flex';
         }
 
-
         window.addEventListener('load', () => {
             const savedTheme = localStorage.getItem('chatThemeColor');
-            if (savedTheme) {
-                applyTheme(savedTheme);
-            } else {
-                applyTheme('#0d6efd');
-            }
-
+            applyTheme(savedTheme || '#0d6efd');
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -3965,7 +3256,6 @@
                             localStorage.clear();
                             return;
                         }
-
                         currentUser = { ...currentUser, ...userData };
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         showContactsScreen();
@@ -3986,7 +3276,7 @@
                 registrationScreen.style.display = 'block';
             }
             updateRegisterButtonState();
-            initializeDoodleCanvas(); // Initialize the doodle feature on load
+            initializeDoodleCanvas();
             window.addEventListener('resize', () => {
                 resizeDoodleCanvas();
                 resizeLiveDoodleCanvas();
