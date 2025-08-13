@@ -895,6 +895,20 @@
         #disappearing-messages-modal .modal-body {
             text-align: left;
         }
+        #view-status-btn {
+            position: relative;
+        }
+        #new-status-indicator-dot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 10px;
+            height: 10px;
+            background-color: #dc3545;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: none; /* Hidden by default */
+        }
     </style>
 </head>
 <body>
@@ -1243,7 +1257,10 @@
             <div class="chat-header d-flex justify-content-between align-items-center">
                 <h5>Contacts</h5>
                 <div class="d-flex align-items-center gap-2">
-                    <button id="view-status-btn" class="btn btn-info">View Status</button>
+                    <button id="view-status-btn" class="btn btn-info">
+                        View Status
+                        <span id="new-status-indicator-dot"></span>
+                    </button>
                     <button id="settings-btn" class="btn btn-secondary">Settings</button>
                 </div>
             </div>
@@ -1366,6 +1383,7 @@
             const connectingMessage = document.getElementById('connecting-message'); 
             const registrationErrorFeedback = document.getElementById('registration-error-feedback');
             const viewStatusBtn = document.getElementById('view-status-btn');
+            const newStatusIndicatorDot = document.getElementById('new-status-indicator-dot');
 
             // Modal Elements
             const confirmationModal = document.getElementById('confirmation-modal');
@@ -1846,6 +1864,18 @@
                 }
             }
 
+            function checkForUnreadStatuses(users) {
+                if (!currentUser || !users) return;
+                let hasUnreadStatus = false;
+                for (const user of Object.values(users)) {
+                    if (user.phoneNumber !== currentUser.phoneNumber && user.status && (!user.statusViewers || !user.statusViewers[currentUser.phoneNumber])) {
+                        hasUnreadStatus = true;
+                        break;
+                    }
+                }
+                newStatusIndicatorDot.style.display = hasUnreadStatus ? 'block' : 'none';
+            }
+
             function loadContacts(searchTerm = '') {
                 const contactsRef = database.ref('users');
                 contactsRef.on('value', (snapshot) => {
@@ -1857,6 +1887,8 @@
                         updateNewMessageIndicator();
                         return;
                     }
+
+                    checkForUnreadStatuses(users);
 
                     const myFavorites = (users[currentUser.phoneNumber] && users[currentUser.phoneNumber].favorites) || [];
                     
@@ -1969,7 +2001,9 @@
                 database.ref(`users/${contact.phoneNumber}`).on('value', (snapshot) => {
                     const partner = snapshot.val();
                     if (partner) {
-                        chatWithStatus.textContent = partner.online ? 'Online' : `Last seen: ${formatLastSeen(partner.lastSeen)}`;
+                        const statusText = partner.online ? 'Online' : `Last seen: ${formatLastSeen(partner.lastSeen)}`;
+                        chatWithStatus.innerHTML = `<marquee behavior="scroll" direction="left" scrollamount="2">${statusText}</marquee>`;
+                        
                         opponentBatteryStatus.textContent = partner.batteryLevel !== undefined ? `${getBatteryEmoji(partner.batteryLevel)} ${partner.batteryLevel}%` : '?';
 
                         if (partner.batteryCharging && !opponentChargingAlertShown[contact.phoneNumber]) {
@@ -2637,6 +2671,14 @@
                 if (!currentUser || !currentChatWith) return;
                 const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
                 liveDoodleRef = database.ref(`liveDoodles/${chatId}`);
+
+                // Send a system message to notify the other user
+                database.ref('chats/' + chatId).push().set({
+                    text: `${currentUser.name} started a live doodle. Tap the 'Live Doodle' button to join in!`,
+                    type: 'system',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
                 liveDoodleModal.style.display = 'flex';
                 setTimeout(initializeLiveDoodleCanvas, 10);
             }
