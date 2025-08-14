@@ -909,6 +909,42 @@
             border: 2px solid white;
             display: none; /* Hidden by default */
         }
+        /* Voice Note Styles */
+        #voice-record-btn {
+            background: none;
+            border: none;
+            padding: 0 10px;
+            cursor: pointer;
+        }
+        #voice-record-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: #6c757d;
+            transition: fill 0.2s;
+        }
+        #voice-record-btn:hover svg {
+            fill: var(--primary-color);
+        }
+        #voice-record-btn.recording svg {
+            fill: #dc3545;
+        }
+        #voice-recording-ui {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+        #recording-timer {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        #stop-recording-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .message-audio {
+            width: 250px;
+        }
     </style>
 </head>
 <body>
@@ -1324,8 +1360,16 @@
                     <button id="clear-reply-btn" class="clear-reply-btn">&times;</button>
                 </div>
                 <div id="typing-indicator" class="typing-indicator" style="display: none;"></div>
-                <div class="input-group mt-2">
+                <div id="voice-recording-ui">
+                    <span id="recording-timer">00:00</span>
+                    <div class="flex-grow-1">Recording...</div>
+                    <button id="stop-recording-btn" class="btn btn-sm btn-danger rounded-pill">Stop & Send</button>
+                </div>
+                <div class="input-group mt-2" id="text-input-group">
                     <input type="text" id="message-input" class="form-control rounded-pill" placeholder="Type a message...">
+                    <button id="voice-record-btn" title="Record Voice Note">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                    </button>
                     <button class="btn btn-primary rounded-pill ms-2" type="button" id="send-btn">Send</button>
                 </div>
                 <div class="chat-input-buttons">
@@ -1384,6 +1428,13 @@
             const registrationErrorFeedback = document.getElementById('registration-error-feedback');
             const viewStatusBtn = document.getElementById('view-status-btn');
             const newStatusIndicatorDot = document.getElementById('new-status-indicator-dot');
+
+            // Voice Note DOM Elements
+            const voiceRecordBtn = document.getElementById('voice-record-btn');
+            const voiceRecordingUi = document.getElementById('voice-recording-ui');
+            const textInputGroup = document.getElementById('text-input-group');
+            const recordingTimer = document.getElementById('recording-timer');
+            const stopRecordingBtn = document.getElementById('stop-recording-btn');
 
             // Modal Elements
             const confirmationModal = document.getElementById('confirmation-modal');
@@ -1511,6 +1562,12 @@
             let currentChatSettings = {}; // Holds settings for the current chat, like disappearing messages
             let activeMessageTimers = {}; // Holds active setTimeout IDs for message deletion
 
+            // Voice Note State
+            let mediaRecorder;
+            let audioChunks = [];
+            let recordingStartTime;
+            let recordingTimerInterval;
+
             // Game State
             let gameActive = false;
             let gameRef = null;
@@ -1619,7 +1676,7 @@
 
             function getBatteryEmoji(level) {
                 if (level >= 90) return '🔋';
-                if (level >= 60) return '🔋';
+                if (level >= 60) return '�';
                 if (level >= 30) return '🔋';
                 if (level >= 10) return '🪫';
                 return '🪫';
@@ -2184,7 +2241,14 @@
                 
                 const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 
-                let messageContentHtml = message.type === 'doodle' && message.doodleData ? `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>` : `<div>${message.text}</div>`;
+                let messageContentHtml = '';
+                if (message.type === 'doodle' && message.doodleData) {
+                    messageContentHtml = `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>`;
+                } else if (message.type === 'voice' && message.audioData) {
+                    messageContentHtml = `<div><audio controls src="${message.audioData}" class="message-audio"></audio></div>`;
+                } else {
+                    messageContentHtml = `<div>${message.text}</div>`;
+                }
 
                 let statusIndicator = '';
                 let editedTag = '';
@@ -2217,7 +2281,7 @@
                     let repliedToSenderName = message.repliedTo.senderName;
                     if (message.repliedTo.sender === currentUser.phoneNumber) repliedToSenderName = "You";
                     else if (message.repliedTo.sender === currentChatWith.phoneNumber) repliedToSenderName = currentChatWith.name;
-                    const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : message.repliedTo.text;
+                    const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : (message.repliedTo.type === 'voice' ? '[Voice Note]' : message.repliedTo.text);
                     repliedToHtml = `<div class="replied-message-preview">Replying to <strong>${repliedToSenderName}</strong>:<span class="original-text">${repliedText}</span></div>`;
                 }
 
@@ -2245,7 +2309,7 @@
                 messageDiv.innerHTML = `
                     ${repliedToHtml}
                     ${messageContentHtml}
-                    ${message.type !== 'doodle' ? editedTag : ''}
+                    ${message.type !== 'doodle' && message.type !== 'voice' ? editedTag : ''}
                     <div class="small d-flex justify-content-end align-items-center">${time}${statusIndicator}</div>
                     ${reactionsHtml}
                 `;
@@ -2303,7 +2367,7 @@
                     let repliedToSenderName = message.repliedTo.senderName;
                     if (message.repliedTo.sender === currentUser.phoneNumber) repliedToSenderName = "You";
                     else if (message.repliedTo.sender === currentChatWith.phoneNumber) repliedToSenderName = currentChatWith.name;
-                    const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : message.repliedTo.text;
+                    const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : (message.repliedTo.type === 'voice' ? '[Voice Note]' : message.repliedTo.text);
                     repliedToHtml = `<div class="replied-message-preview">Replying to <strong>${repliedToSenderName}</strong>:<span class="original-text">${repliedText}</span></div>`;
                 }
 
@@ -2313,12 +2377,20 @@
                     statusIndicator = `<span class="message-status ${statusClass}">${checkmark}</span>`;
                 }
 
-                let messageContentHtml = message.type === 'doodle' && message.doodleData ? `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>` : `<div>${message.text}</div>`;
+                let messageContentHtml = '';
+                if (message.type === 'doodle' && message.doodleData) {
+                    messageContentHtml = `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>`;
+                } else if (message.type === 'voice' && message.audioData) {
+                    messageContentHtml = `<div><audio controls src="${message.audioData}" class="message-audio"></audio></div>`;
+                } else {
+                    messageContentHtml = `<div>${message.text}</div>`;
+                }
+
 
                 messageDiv.innerHTML = `
                     ${repliedToHtml}
                     ${messageContentHtml}
-                    ${message.type !== 'doodle' ? editedTag : ''}
+                    ${message.type !== 'doodle' && message.type !== 'voice' ? editedTag : ''}
                     <div class="small d-flex justify-content-end align-items-center">${time}${statusIndicator}</div>
                     ${reactionsHtml}
                 `;
@@ -2355,7 +2427,7 @@
 
                 let menuHtml = `<button id="reply-message-btn">Reply</button><button id="react-message-btn">React</button>`;
                 if (isMyMessage && !messageElement.classList.contains('deleted-message')) {
-                     if (messageType !== 'doodle') menuHtml += `<button id="edit-message-btn">Edit</button>`;
+                     if (messageType !== 'doodle' && messageType !== 'voice') menuHtml += `<button id="edit-message-btn">Edit</button>`;
                     menuHtml += `<button id="delete-message-btn">Delete</button>`;
                 }
                 contextMenu.innerHTML = menuHtml;
@@ -2388,7 +2460,7 @@
                 });
 
                 if (isMyMessage && !messageElement.classList.contains('deleted-message')) {
-                     if (messageType !== 'doodle') {
+                     if (messageType !== 'doodle' && messageType !== 'voice') {
                         contextMenu.querySelector('#edit-message-btn').addEventListener('click', () => {
                             editMessage(messageKey, messageText);
                             contextMenu.remove();
@@ -2461,7 +2533,7 @@
                 const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
                 const messageRef = database.ref(`chats/${chatId}/${messageKey}`);
                 messageRef.update({
-                    text: '', doodleData: null, deleted: true, edited: false, reactions: null,
+                    text: '', doodleData: null, audioData: null, deleted: true, edited: false, reactions: null,
                     deletedAt: firebase.database.ServerValue.TIMESTAMP
                 });
             }
@@ -2483,7 +2555,7 @@
 
             function setReply(messageKey, messageText, senderPhoneNumber, senderDisplayName, messageType = 'text') {
                 repliedToMessage = { key: messageKey, text: messageText, sender: senderPhoneNumber, senderName: senderDisplayName, type: messageType };
-                const replyContent = messageType === 'doodle' ? '[Doodle]' : messageText;
+                const replyContent = messageType === 'doodle' ? '[Doodle]' : (messageType === 'voice' ? '[Voice Note]' : messageText);
                 replySenderName.textContent = senderDisplayName;
                 replyMessageText.textContent = replyContent;
                 replyPreview.style.display = 'flex';
@@ -2544,6 +2616,98 @@
 
                 newMessageRef.set(messageData).then(() => {
                     messageInput.value = '';
+                    clearReply();
+                });
+            }
+
+            // --- Voice Note Logic ---
+            voiceRecordBtn.addEventListener('click', async () => {
+                if (mediaRecorder && mediaRecorder.state === "recording") {
+                    stopRecording();
+                } else {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        startRecording(stream);
+                    } catch (err) {
+                        console.error("Error accessing microphone:", err);
+                        showNotification("Microphone Error", "Could not access the microphone. Please check your browser permissions.", "danger");
+                    }
+                }
+            });
+
+            function startRecording(stream) {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+                voiceRecordBtn.classList.add('recording');
+                textInputGroup.style.display = 'none';
+                voiceRecordingUi.style.display = 'flex';
+
+                audioChunks = [];
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    audioChunks.push(event.data);
+                });
+
+                recordingStartTime = Date.now();
+                recordingTimerInterval = setInterval(() => {
+                    const elapsedTime = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    const minutes = String(Math.floor(elapsedTime / 60)).padStart(2, '0');
+                    const seconds = String(elapsedTime % 60).padStart(2, '0');
+                    recordingTimer.textContent = `${minutes}:${seconds}`;
+                }, 1000);
+
+                mediaRecorder.addEventListener("stop", () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = function() {
+                        const base64String = reader.result;
+                        sendVoiceMessage(base64String);
+                    };
+
+                    voiceRecordBtn.classList.remove('recording');
+                    textInputGroup.style.display = 'flex';
+                    voiceRecordingUi.style.display = 'none';
+                    clearInterval(recordingTimerInterval);
+                    recordingTimer.textContent = '00:00';
+                    stream.getTracks().forEach(track => track.stop());
+                });
+            }
+
+            function stopRecording() {
+                if (mediaRecorder) {
+                    mediaRecorder.stop();
+                }
+            }
+            
+            stopRecordingBtn.addEventListener('click', stopRecording);
+
+            function sendVoiceMessage(audioData) {
+                if (!audioData || !currentUser || !currentChatWith) return;
+
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                const newMessageRef = database.ref('chats/' + chatId).push();
+
+                const messageData = {
+                    sender: currentUser.phoneNumber,
+                    receiver: currentChatWith.phoneNumber,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    delivered: true,
+                    read: false,
+                    type: 'voice',
+                    audioData: audioData
+                };
+
+                if (repliedToMessage) {
+                    messageData.repliedTo = {
+                        key: repliedToMessage.key,
+                        text: repliedToMessage.text,
+                        sender: repliedToMessage.sender,
+                        senderName: repliedToMessage.senderName,
+                        type: repliedToMessage.type
+                    };
+                }
+
+                newMessageRef.set(messageData).then(() => {
                     clearReply();
                 });
             }
