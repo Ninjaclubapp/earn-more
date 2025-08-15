@@ -1676,7 +1676,7 @@
 
             function getBatteryEmoji(level) {
                 if (level >= 90) return '🔋';
-                if (level >= 60) return '�';
+                if (level >= 60) return '🔋';
                 if (level >= 30) return '🔋';
                 if (level >= 10) return '🪫';
                 return '🪫';
@@ -1745,7 +1745,7 @@
 
                         if (firebaseDeviceUUID) {
                             if (!localDeviceUUID || localDeviceUUID !== firebaseDeviceUUID) {
-                                registrationErrorFeedback.textContent = '🚫 Login blocked! It seems you\'re using a new device or cleared app data. 🛡️ Your privacy comes first — contact admin immediately at 📞 8486105725 for quick help. Your chat is safe. ✅';
+                                registrationErrorFeedback.textContent = '🚫 Login blocked! New device or data cleared. Contact admin at 📞 8486105725 for quick assistance. ✅';
                                 registrationErrorFeedback.style.display = 'block';
                                 connectingMessage.style.display = 'none';
                                 registerBtn.disabled = false;
@@ -3495,3 +3495,4 @@
     </script>
 </body>
 </html>
+
