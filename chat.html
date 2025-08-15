@@ -945,6 +945,31 @@
         .message-audio {
             width: 250px;
         }
+        /* Voice Call Styles */
+        #call-modal .modal-content {
+            text-align: center;
+        }
+        #call-modal .profile-logo {
+            width: 80px;
+            height: 80px;
+            font-size: 2.5em;
+            margin: 0 auto 15px auto;
+        }
+        #call-status {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        #call-timer {
+            font-size: 1em;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        #call-actions button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5em;
+        }
     </style>
 </head>
 <body>
@@ -1251,6 +1276,23 @@
         </div>
     </div>
 
+    <!-- Voice Call Modal -->
+    <div id="call-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="call-profile-logo" class="profile-logo"></div>
+                <h5 id="call-with-name"></h5>
+                <p id="call-status"></p>
+                <p id="call-timer" style="display: none;">00:00</p>
+                <div id="call-actions" class="d-flex justify-content-center gap-3">
+                    <button id="accept-call-btn" class="btn btn-success" style="display: none;">📞</button>
+                    <button id="reject-call-btn" class="btn btn-danger">☎️</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <audio id="remote-audio" autoplay></audio>
+    <audio id="ringing-sound" src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTSEUAAAABA1AAAP9mg4kAAAAAAAAAAAAAAAADuQkAEAAAAAP/z4NEAAAAAANgYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhY-Iá²ázi-A/AAAAAAAAAAA=" loop></audio>
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
 
     <div class="container mt-4">
@@ -1334,17 +1376,18 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center flex-shrink-0">
-                     <button id="disappearing-messages-btn" class="chat-header-btn mx-1" title="Disappearing Messages">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
-                            <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .586.023l-.07-.004.011.002zM8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
-                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
-                        </svg>
-                    </button>
-                    <button id="report-user-btn" class="chat-header-btn text-white mx-1" title="Report User">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-flag-fill" viewBox="0 0 16 16">
-                            <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.5.5h-6.586a.5.5 0 0 0-.354.146L4.146 11.854a.5.5 0 0 1-.708 0L.146 8.564A.5.5 0 0 0 0 8.207V.5a.5.5 0 0 1 .5-.5h14.278z"/>
-                        </svg>
-                    </button>
+                    <div class="dropdown">
+                        <button class="chat-header-btn" type="button" id="chat-options-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                            </svg>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="chat-options-btn">
+                            <li><button class="dropdown-item" type="button" id="voice-call-btn">Voice Call</button></li>
+                            <li><button class="dropdown-item" type="button" id="disappearing-messages-btn">Disappearing Messages</button></li>
+                            <li><button class="dropdown-item" type="button" id="report-user-btn">Report User</button></li>
+                        </ul>
+                    </div>
                     <div class="status-info ms-2">
                         <span id="opponent-battery-status"></span>
                     </div>
@@ -1435,6 +1478,19 @@
             const textInputGroup = document.getElementById('text-input-group');
             const recordingTimer = document.getElementById('recording-timer');
             const stopRecordingBtn = document.getElementById('stop-recording-btn');
+
+            // Voice Call DOM Elements
+            const voiceCallBtn = document.getElementById('voice-call-btn');
+            const callModal = document.getElementById('call-modal');
+            const callProfileLogo = document.getElementById('call-profile-logo');
+            const callWithName = document.getElementById('call-with-name');
+            const callStatus = document.getElementById('call-status');
+            const callTimer = document.getElementById('call-timer');
+            const acceptCallBtn = document.getElementById('accept-call-btn');
+            const rejectCallBtn = document.getElementById('reject-call-btn');
+            const remoteAudio = document.getElementById('remote-audio');
+            const ringingSound = document.getElementById('ringing-sound');
+
 
             // Modal Elements
             const confirmationModal = document.getElementById('confirmation-modal');
@@ -1567,6 +1623,20 @@
             let audioChunks = [];
             let recordingStartTime;
             let recordingTimerInterval;
+            
+            // Voice Call State
+            let peerConnection;
+            let localStream;
+            let callTimerInterval;
+            let callSignalRef;
+            let outgoingCallTimeout;
+            let isCallActive = false;
+            const iceServers = {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                ],
+            };
 
             // Game State
             let gameActive = false;
@@ -1763,6 +1833,7 @@
                         monitorOnlineStatus();
                         listenForGameInvitations();
                         setupGlobalUnreadListener();
+                        listenForCallSignals();
                         if (batteryMonitor) updateUserBatteryStatus(batteryMonitor);
                         database.ref('users/' + phoneNumber).update({
                             bio: userBio || existingUser.bio || '',
@@ -1786,6 +1857,7 @@
                         monitorOnlineStatus();
                         listenForGameInvitations();
                         setupGlobalUnreadListener();
+                        listenForCallSignals();
                         if (batteryMonitor) updateUserBatteryStatus(batteryMonitor);
                     }
                 } catch (error) {
@@ -2619,6 +2691,15 @@
                     clearReply();
                 });
             }
+            
+            async function sendSystemMessage(text, toPhoneNumber) {
+                const chatId = [currentUser.phoneNumber, toPhoneNumber].sort().join('_');
+                database.ref('chats/' + chatId).push().set({
+                    text: text,
+                    type: 'system',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
 
             // --- Voice Note Logic ---
             voiceRecordBtn.addEventListener('click', async () => {
@@ -2710,6 +2791,221 @@
                 newMessageRef.set(messageData).then(() => {
                     clearReply();
                 });
+            }
+
+            // --- Voice Call Logic ---
+            async function createPeerConnection() {
+                peerConnection = new RTCPeerConnection(iceServers);
+
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+                peerConnection.onicecandidate = event => {
+                    if (event.candidate) {
+                        callSignalRef.child('iceCandidates').push(event.candidate.toJSON());
+                    }
+                };
+
+                peerConnection.ontrack = event => {
+                    if (event.streams && event.streams[0]) {
+                        remoteAudio.srcObject = event.streams[0];
+                    }
+                };
+            }
+
+            voiceCallBtn.addEventListener('click', async () => {
+                if (!currentUser || !currentChatWith || isCallActive) return;
+                
+                isCallActive = true;
+                callSignalRef = database.ref(`calls/${currentChatWith.phoneNumber}`);
+                // Clean up any previous call data
+                await callSignalRef.remove();
+                callSignalRef.onDisconnect().remove(); 
+                
+                await callSignalRef.set({ type: 'offer', from: currentUser.phoneNumber, fromName: currentUser.name });
+
+                await createPeerConnection();
+
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                await callSignalRef.update({ sdp: offer });
+
+                showCallModal('outgoing', { from: currentChatWith.phoneNumber, fromName: currentChatWith.name });
+
+                // Timeout for no answer
+                outgoingCallTimeout = setTimeout(() => {
+                    if (isCallActive) {
+                        sendSystemMessage(`Call to ${currentChatWith.name} not answered.`, currentChatWith.phoneNumber);
+                        endCall();
+                    }
+                }, 30000); // 30 seconds
+
+                callSignalRef.on('value', async snapshot => {
+                    const data = snapshot.val();
+                    if (!data) return; // Ignore null data on cleanup
+
+                    if (data.type === 'answer' && peerConnection.signalingState !== 'stable') {
+                        clearTimeout(outgoingCallTimeout);
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                        showCallModal('connected', { from: currentChatWith.phoneNumber, fromName: currentChatWith.name });
+                    }
+                    if (data.type === 'rejected') {
+                        sendSystemMessage(`${currentChatWith.name} declined the call.`, currentChatWith.phoneNumber);
+                        endCall();
+                    }
+                    if (data.type === 'hangup') {
+                        endCall();
+                    }
+                });
+
+                callSignalRef.child('iceCandidates').on('child_added', snapshot => {
+                    if (snapshot.exists() && peerConnection) {
+                        peerConnection.addIceCandidate(new RTCIceCandidate(snapshot.val()));
+                    }
+                });
+            });
+
+            async function listenForCallSignals() {
+                if (!currentUser) return;
+                const myCallRef = database.ref(`calls/${currentUser.phoneNumber}`);
+                myCallRef.on('value', async snapshot => {
+                    const data = snapshot.val();
+                    if (data && data.type === 'offer' && !isCallActive) {
+                        isCallActive = true;
+                        const callerData = await database.ref(`users/${data.from}`).once('value');
+                        showCallModal('incoming', { ...data, ...callerData.val() });
+                        callSignalRef = myCallRef;
+                        callSignalRef.onDisconnect().remove();
+                    }
+                });
+            }
+
+            acceptCallBtn.addEventListener('click', async () => {
+                const callData = await callSignalRef.once('value');
+                const callerPhoneNumber = callData.val().from;
+
+                await createPeerConnection();
+                
+                const offerSnapshot = await callSignalRef.child('sdp').once('value');
+                const offer = offerSnapshot.val();
+                
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+                
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                
+                await callSignalRef.update({ type: 'answer', sdp: answer });
+
+                showCallModal('connected', { from: callerPhoneNumber, fromName: callData.val().fromName });
+
+                callSignalRef.child('iceCandidates').on('child_added', snapshot => {
+                    if (snapshot.exists() && peerConnection) {
+                        peerConnection.addIceCandidate(new RTCIceCandidate(snapshot.val()));
+                    }
+                });
+
+                callSignalRef.on('value', async snapshot => {
+                    const data = snapshot.val();
+                    if (!data || data.type === 'hangup') {
+                        endCall();
+                    }
+                });
+            });
+
+            rejectCallBtn.addEventListener('click', async () => {
+                if (callSignalRef) {
+                    const callData = await callSignalRef.once('value');
+                    const callInfo = callData.val();
+                     if (callInfo) {
+                        const otherUserPhone = callInfo.from === currentUser.phoneNumber ? callInfo.to : callInfo.from;
+                        if(callInfo.type === 'offer'){
+                            await callSignalRef.update({ type: 'rejected' });
+                            sendSystemMessage(`You missed a call from ${callInfo.fromName}.`, callInfo.from);
+                        } else {
+                            await callSignalRef.update({ type: 'hangup' });
+                        }
+                    }
+                }
+                endCall();
+            });
+            
+            async function showCallModal(state, callData) {
+                callModal.style.display = 'flex';
+                const contact = { name: callData.fromName, ...callData };
+                
+                callWithName.textContent = contact.name;
+                callProfileLogo.textContent = getProfileLogoContent(contact);
+                ringingSound.play();
+
+                switch (state) {
+                    case 'incoming':
+                        callStatus.textContent = 'Incoming Call...';
+                        acceptCallBtn.style.display = 'inline-block';
+                        rejectCallBtn.textContent = '☎️';
+                        break;
+                    case 'outgoing':
+                        callStatus.textContent = 'Ringing...';
+                        acceptCallBtn.style.display = 'none';
+                        rejectCallBtn.textContent = '☎️';
+                        break;
+                    case 'connected':
+                        ringingSound.pause();
+                        callStatus.textContent = 'Connected';
+                        acceptCallBtn.style.display = 'none';
+                        rejectCallBtn.textContent = '☎️';
+                        callTimer.style.display = 'block';
+                        startCallTimer();
+                        break;
+                }
+            }
+            
+            function startCallTimer() {
+                let seconds = 0;
+                callTimerInterval = setInterval(() => {
+                    seconds++;
+                    const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+                    const secs = String(seconds % 60).padStart(2, '0');
+                    callTimer.textContent = `${mins}:${secs}`;
+                }, 1000);
+            }
+
+            function endCall() {
+                if (!isCallActive) return;
+                isCallActive = false;
+
+                ringingSound.pause();
+                clearTimeout(outgoingCallTimeout);
+
+                if (callTimerInterval) {
+                    const callDuration = callTimer.textContent;
+                    const callData = callSignalRef.once('value').then(snapshot => {
+                        const data = snapshot.val();
+                         if (data) {
+                            const otherUserPhone = data.from === currentUser.phoneNumber ? currentChatWith.phoneNumber : data.from;
+                            sendSystemMessage(`Call ended. Duration: ${callDuration}`, otherUserPhone);
+                        }
+                    });
+                }
+
+                if (peerConnection) {
+                    peerConnection.close();
+                    peerConnection = null;
+                }
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                    localStream = null;
+                }
+                if (callSignalRef) {
+                    callSignalRef.off();
+                    callSignalRef.remove();
+                    callSignalRef = null;
+                }
+                
+                remoteAudio.srcObject = null;
+                callModal.style.display = 'none';
+                clearInterval(callTimerInterval);
+                callTimer.textContent = '00:00';
+                callTimer.style.display = 'none';
             }
             
             // --- Disappearing Messages Logic ---
@@ -3173,9 +3469,11 @@
             confirmYesBtn.addEventListener('click', () => { confirmationModal.style.display = 'none'; endGame(); });
             confirmNoBtn.addEventListener('click', () => confirmationModal.style.display = 'none');
             window.addEventListener('click', (event) => {
-                const modals = [confirmationModal, emojiPickerModal, editMessageModal, settingsModal, bioModal, reportUserModal, chargingSafetyModal, opponentChargingModal, statusViewersModal, doodleModal, liveDoodleModal, disappearingMessagesModal];
+                const modals = [confirmationModal, emojiPickerModal, editMessageModal, settingsModal, bioModal, reportUserModal, chargingSafetyModal, opponentChargingModal, statusViewersModal, doodleModal, liveDoodleModal, disappearingMessagesModal, callModal];
                 if (modals.includes(event.target)) {
-                    event.target.style.display = 'none';
+                    if (event.target !== callModal) { // Don't close call modal on background click
+                        event.target.style.display = 'none';
+                    }
                     if (event.target === liveDoodleModal) stopLiveDoodleSession();
                 }
             });
@@ -3472,6 +3770,7 @@
                         monitorOnlineStatus();
                         listenForGameInvitations();
                         setupGlobalUnreadListener();
+                        listenForCallSignals();
                     } else {
                          localStorage.clear();
                          registrationScreen.style.display = 'block';
@@ -3495,4 +3794,3 @@
     </script>
 </body>
 </html>
-
