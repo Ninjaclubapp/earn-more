@@ -46,7 +46,7 @@
         }
 
         /* Make all screens behave as flex containers */
-        #registration-screen, #contacts-screen, #status-screen, #chat-screen, #create-group-screen {
+        #registration-screen, #contacts-screen, #status-screen, #chat-screen {
             display: flex; /* This will be set by JS, but we define the direction here */
             flex-direction: column;
             flex-grow: 1; /* Allow the screen to grow and fill the container */
@@ -65,6 +65,7 @@
         }
 
         .chat-messages {
+            /* height: 400px; /* REMOVED FIXED HEIGHT */
             flex-grow: 1; /* Allow message area to take all available space */
             overflow-y: auto;
             padding: 15px;
@@ -75,7 +76,7 @@
         }
 
         /* Adjust contacts and status list containers for flex layout */
-        #contacts-screen .p-3, #create-group-screen .p-3 {
+        #contacts-screen .p-3 {
             flex-grow: 1;
             overflow-y: auto;
             display: flex;
@@ -87,7 +88,7 @@
             flex-grow: 1;
         }
 
-        #contacts-list, #group-members-list {
+        #contacts-list {
            flex-grow: 1;
         }
 
@@ -120,12 +121,6 @@
             color: #333;
             margin-right: auto;
             border-bottom-left-radius: 5px;
-        }
-        .message-sender-name {
-            font-size: 0.8em;
-            font-weight: bold;
-            margin-bottom: 4px;
-            color: var(--primary-color-text);
         }
         .status-info {
             font-size: 12px;
@@ -1050,12 +1045,12 @@
                 <span>Confirm Action</span>
                 <span class="close-modal-btn">&times;</span>
             </div>
-            <div class="modal-body" id="confirmation-modal-body">
-                Are you sure?
+            <div class="modal-body">
+                Are you sure you want to quit the game? Your current progress will be lost.
             </div>
             <div class="modal-footer">
-                <button id="confirm-yes-btn" class="btn btn-danger">Yes</button>
-                <button id="confirm-no-btn" class="btn btn-secondary">No</button>
+                <button id="confirm-yes-btn" class="btn btn-danger">Yes, Quit</button>
+                <button id="confirm-no-btn" class="btn btn-secondary">No, Continue</button>
             </div>
         </div>
     </div>
@@ -1148,43 +1143,6 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="close-bio-modal-footer-btn">Close</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Group Info Modal -->
-    <div id="group-info-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="group-info-modal-title">Group Info</span>
-                <span class="close-modal-btn" id="close-group-info-modal-btn">&times;</span>
-            </div>
-            <div class="modal-body text-start">
-                <h5>Members (<span id="group-member-count">0</span>)</h5>
-                <div id="group-info-members-list" class="list-group list-group-flush" style="max-height: 250px; overflow-y: auto;">
-                    <!-- Group members will be populated here -->
-                </div>
-            </div>
-            <div class="modal-footer" id="group-info-footer">
-                 <!-- Admin buttons will be added here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Members Modal -->
-    <div id="add-members-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>Add Members</span>
-                <span class="close-modal-btn" id="close-add-members-modal-btn">&times;</span>
-            </div>
-            <div class="modal-body text-start">
-                <div id="add-members-list" class="list-group list-group-flush border rounded" style="max-height: 300px; overflow-y: auto;">
-                    <!-- Potential new members will be populated here -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="confirm-add-members-btn" class="btn btn-primary">Add Selected</button>
             </div>
         </div>
     </div>
@@ -1357,23 +1315,6 @@
         </div>
     </div>
 
-    <!-- Storage Usage Modal -->
-    <div id="storage-usage-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>Storage Usage</span>
-                <span class="close-modal-btn" id="close-storage-usage-modal-btn">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p>Total size of this conversation:</p>
-                <h3 id="conversation-size-display">Calculating...</h3>
-                <hr>
-                <p class="text-muted small">This is an estimate of the data stored in the database for this chat.</p>
-                <button id="delete-conversation-btn" class="btn btn-danger w-100 mt-3">Delete All Messages</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Voice Call Modal -->
     <div id="call-modal" class="modal">
         <div class="modal-content">
@@ -1390,8 +1331,8 @@
         </div>
     </div>
     <audio id="remote-audio" autoplay></audio>
-    <audio id="ringing-sound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" loop></audio>
-    <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm1tIBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
+    <audio id="ringing-sound" src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTSEUAAAABA1AAAP9mg4kAAAAAAAAAAAAAAAADuQkAEAAAAAP/z4NEAAAAAANgYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhY-A/AAAAAAAAAAA=" loop></audio>
+    <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
 
     <div class="container mt-4">
         <div id="registration-screen" class="chat-container">
@@ -1433,7 +1374,6 @@
             <div class="chat-header d-flex justify-content-between align-items-center">
                 <h5>Contacts</h5>
                 <div class="d-flex align-items-center gap-2">
-                    <button id="create-group-btn" class="btn btn-success">New Group</button>
                     <button id="view-status-btn" class="btn btn-info">
                         View Status
                         <span id="new-status-indicator-dot"></span>
@@ -1452,26 +1392,6 @@
                 <div id="contacts-list" class="list-group list-group-flush">
                     </div>
                 </div>
-        </div>
-        
-        <div id="create-group-screen" class="chat-container" style="display: none;">
-            <div class="chat-header d-flex justify-content-between align-items-center">
-                <button id="back-to-contacts-from-group" class="btn btn-sm btn-light rounded-pill me-2">← Back</button>
-                <h5 class="me-auto">Create New Group</h5>
-            </div>
-            <div class="p-3">
-                <div class="mb-3">
-                    <label for="group-name" class="form-label">Group Name</label>
-                    <input type="text" class="form-control" id="group-name" placeholder="Enter group name">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Select Members</label>
-                    <div id="group-members-list" class="list-group list-group-flush border rounded" style="max-height: 300px; overflow-y: auto;">
-                        <!-- Member selection list will be populated here -->
-                    </div>
-                </div>
-                <button id="confirm-create-group-btn" class="btn btn-primary w-100">Create Group</button>
-            </div>
         </div>
 
         <div id="status-screen" class="chat-container" style="display: none;">
@@ -1501,8 +1421,10 @@
                                 <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
                             </svg>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" id="chat-options-dropdown">
-                            <!-- Options will be dynamically populated here -->
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="chat-options-btn">
+                            <li><button class="dropdown-item" type="button" id="voice-call-btn">Voice Call</button></li>
+                            <li><button class="dropdown-item" type="button" id="disappearing-messages-btn">Disappearing Messages</button></li>
+                            <li><button class="dropdown-item" type="button" id="report-user-btn">Report User</button></li>
                         </ul>
                     </div>
                     <div class="status-info ms-2">
@@ -1565,7 +1487,6 @@
             const registrationFormView = document.getElementById('registration-form-view');
             const accountSuspendedView = document.getElementById('account-suspended-view');
             const contactsScreen = document.getElementById('contacts-screen');
-            const createGroupScreen = document.getElementById('create-group-screen');
             const chatScreen = document.getElementById('chat-screen');
             const statusScreen = document.getElementById('status-screen');
             const registerBtn = document.getElementById('register-btn');
@@ -1578,7 +1499,6 @@
             const searchBtn = document.getElementById('search-btn');
             const backToContactsBtn = document.getElementById('back-to-contacts');
             const backToContactsFromStatusBtn = document.getElementById('back-to-contacts-from-status');
-            const backToContactsFromGroupBtn = document.getElementById('back-to-contacts-from-group');
             const chatMessages = document.getElementById('chat-messages');
             const messageInput = document.getElementById('message-input');
             const sendBtn = document.getElementById('send-btn');
@@ -1590,11 +1510,6 @@
             const registrationErrorFeedback = document.getElementById('registration-error-feedback');
             const viewStatusBtn = document.getElementById('view-status-btn');
             const newStatusIndicatorDot = document.getElementById('new-status-indicator-dot');
-            const createGroupBtn = document.getElementById('create-group-btn');
-            const groupNameInput = document.getElementById('group-name');
-            const groupMembersList = document.getElementById('group-members-list');
-            const confirmCreateGroupBtn = document.getElementById('confirm-create-group-btn');
-            const chatOptionsDropdown = document.getElementById('chat-options-dropdown');
 
             // Voice Note DOM Elements
             const voiceRecordBtn = document.getElementById('voice-record-btn');
@@ -1604,6 +1519,7 @@
             const stopRecordingBtn = document.getElementById('stop-recording-btn');
 
             // Voice Call DOM Elements
+            const voiceCallBtn = document.getElementById('voice-call-btn');
             const callModal = document.getElementById('call-modal');
             const callProfileLogo = document.getElementById('call-profile-logo');
             const callWithName = document.getElementById('call-with-name');
@@ -1617,7 +1533,6 @@
 
             // Modal Elements
             const confirmationModal = document.getElementById('confirmation-modal');
-            const confirmationModalBody = document.getElementById('confirmation-modal-body');
             const closeModalBtn = document.querySelector('#confirmation-modal .close-modal-btn');
             const confirmYesBtn = document.getElementById('confirm-yes-btn');
             const confirmNoBtn = document.getElementById('confirm-no-btn');
@@ -1628,22 +1543,6 @@
             const dismissOpponentChargingAlertBtn = document.getElementById('dismiss-opponent-charging-alert-btn');
             const statusViewersModal = document.getElementById('status-viewers-modal');
             const closeStatusViewersBtn = document.getElementById('close-status-viewers-btn');
-            const storageUsageModal = document.getElementById('storage-usage-modal');
-            const closeStorageUsageModalBtn = document.getElementById('close-storage-usage-modal-btn');
-            const conversationSizeDisplay = document.getElementById('conversation-size-display');
-            const deleteConversationBtn = document.getElementById('delete-conversation-btn');
-
-            // Group Modals
-            const groupInfoModal = document.getElementById('group-info-modal');
-            const closeGroupInfoModalBtn = document.getElementById('close-group-info-modal-btn');
-            const groupInfoModalTitle = document.getElementById('group-info-modal-title');
-            const groupMemberCount = document.getElementById('group-member-count');
-            const groupInfoMembersList = document.getElementById('group-info-members-list');
-            const groupInfoFooter = document.getElementById('group-info-footer');
-            const addMembersModal = document.getElementById('add-members-modal');
-            const closeAddMembersModalBtn = document.getElementById('close-add-members-modal-btn');
-            const addMembersList = document.getElementById('add-members-list');
-            const confirmAddMembersBtn = document.getElementById('confirm-add-members-btn');
 
             // Edit Message Modal Elements
             const editMessageModal = document.getElementById('edit-message-modal');
@@ -1678,6 +1577,7 @@
             const closeBioModalFooterBtn = document.getElementById('close-bio-modal-footer-btn');
 
             // Report User Modal Elements
+            const reportUserBtn = document.getElementById('report-user-btn');
             const reportUserModal = document.getElementById('report-user-modal');
             const closeReportModalBtn = document.getElementById('close-report-modal-btn');
             const reportUserName = document.getElementById('report-user-name');
@@ -1709,6 +1609,7 @@
             const liveDoodleClearBtn = document.getElementById('live-doodle-clear-btn');
 
             // Disappearing Messages DOM Elements
+            const disappearingMessagesBtn = document.getElementById('disappearing-messages-btn');
             const disappearingMessagesModal = document.getElementById('disappearing-messages-modal');
             const closeDisappearingModalBtn = document.getElementById('close-disappearing-modal-btn');
             const saveDisappearingSettingsBtn = document.getElementById('save-disappearing-settings-btn');
@@ -1741,7 +1642,7 @@
 
             // App State
             let currentUser = null;
-            let currentChatTarget = null; // Can be a user object or a group object
+            let currentChatWith = null;
             let unreadCounts = {};
             let latestUnreadMessageTimestamps = {};
             let messageListeners = {};
@@ -1755,7 +1656,6 @@
             let opponentChargingAlertShown = {};
             let currentChatSettings = {}; // Holds settings for the current chat, like disappearing messages
             let activeMessageTimers = {}; // Holds active setTimeout IDs for message deletion
-            let allUsersCache = {}; // Cache for user data to reduce lookups
 
             // Voice Note State
             let mediaRecorder;
@@ -1966,7 +1866,7 @@
                             localStorage.setItem('deviceUUID', localDeviceUUID);
                         }
 
-                        currentUser = { phoneNumber, name: userName, isGroup: false };
+                        currentUser = { phoneNumber, name: userName };
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         showContactsScreen();
                         monitorOnlineStatus();
@@ -1989,7 +1889,7 @@
                             statusViewers: null, suspended: false, favorites: []
                         });
 
-                        currentUser = { phoneNumber, name: userName, isGroup: false };
+                        currentUser = { phoneNumber, name: userName };
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         localStorage.setItem('deviceUUID', newDeviceUUID);
                         showContactsScreen();
@@ -2088,17 +1988,15 @@
                 registrationScreen.style.display = 'none';
                 chatScreen.style.display = 'none';
                 statusScreen.style.display = 'none';
-                createGroupScreen.style.display = 'none';
-                contactsScreen.style.display = 'flex';
+                contactsScreen.style.display = 'flex'; // Changed to flex
                 refreshUIForUnreadMessages();
                 initDeviceStatus();
             }
 
-            function getProfileLogoContent(item) {
-                if (item && item.isGroup) return '👥';
-                if (item && item.mood) return item.mood;
-                if (item && item.name) {
-                    const lowerCaseName = item.name.toLowerCase();
+            function getProfileLogoContent(user) {
+                if (user && user.mood) return user.mood;
+                if (user && user.name) {
+                    const lowerCaseName = user.name.toLowerCase();
                     if (lowerCaseName.endsWith('a') || lowerCaseName.endsWith('i') || lowerCaseName.endsWith('e')) return '♀️';
                     return '♂️';
                 }
@@ -2107,24 +2005,23 @@
 
             async function updateNewMessageIndicator() {
                 totalUnreadMessages = 0;
-                let latestUnreadSenderId = null;
+                let latestUnreadSenderPhoneNumber = null;
                 let latestUnreadTimestamp = 0;
 
-                for (const id in unreadCounts) {
-                    if (unreadCounts[id] > 0) {
-                        totalUnreadMessages += unreadCounts[id];
-                        if (latestUnreadMessageTimestamps[id] && latestUnreadMessageTimestamps[id] > latestUnreadTimestamp) {
-                            latestUnreadTimestamp = latestUnreadMessageTimestamps[id];
-                            latestUnreadSenderId = id;
+                for (const phoneNumber in unreadCounts) {
+                    if (unreadCounts[phoneNumber] > 0) {
+                        totalUnreadMessages += unreadCounts[phoneNumber];
+                        if (latestUnreadMessageTimestamps[phoneNumber] && latestUnreadMessageTimestamps[phoneNumber] > latestUnreadTimestamp) {
+                            latestUnreadTimestamp = latestUnreadMessageTimestamps[phoneNumber];
+                            latestUnreadSenderPhoneNumber = phoneNumber;
                         }
                     }
                 }
 
                 if (totalUnreadMessages > 0) {
                     let indicatorText = `You have ${totalUnreadMessages} new message${totalUnreadMessages > 1 ? 's' : ''}. Click to view.`;
-                    if (totalUnreadMessages === 1 && latestUnreadSenderId) {
-                        // This part is tricky for groups, so we'll keep it simple
-                        const userSnapshot = await database.ref(`users/${latestUnreadSenderId}`).once('value');
+                    if (totalUnreadMessages === 1 && latestUnreadSenderPhoneNumber) {
+                        const userSnapshot = await database.ref(`users/${latestUnreadSenderPhoneNumber}`).once('value');
                         const senderName = userSnapshot.val() ? userSnapshot.val().name : 'Someone';
                         indicatorText = `New message from ${senderName}. Click to view.`;
                     }
@@ -2148,104 +2045,89 @@
             }
 
             function loadContacts(searchTerm = '') {
-                const usersRef = database.ref('users');
-                const groupsRef = database.ref('groups');
-
-                usersRef.on('value', (usersSnapshot) => {
-                    const users = usersSnapshot.val() || {};
-                    allUsersCache = users; // Update cache
+                const contactsRef = database.ref('users');
+                contactsRef.on('value', (snapshot) => {
+                    contactsList.innerHTML = '';
+                    const users = snapshot.val();
                     
-                    groupsRef.on('value', (groupsSnapshot) => {
-                        contactsList.innerHTML = '';
-                        const groups = groupsSnapshot.val() || {};
+                    if (!users) {
+                        contactsList.innerHTML = '<div class="text-center p-3 text-muted">No contacts found</div>';
+                        updateNewMessageIndicator();
+                        return;
+                    }
 
-                        if (!users && !groups) {
-                            contactsList.innerHTML = '<div class="text-center p-3 text-muted">No contacts found</div>';
-                            return;
+                    checkForUnreadStatuses(users);
+
+                    const myFavorites = (users[currentUser.phoneNumber] && users[currentUser.phoneNumber].favorites) || [];
+                    
+                    let allContacts = Object.keys(users)
+                        .map(key => ({ ...users[key], phoneNumber: key }))
+                        .filter(user => user.phoneNumber !== currentUser.phoneNumber);
+                    
+                    if (searchTerm) {
+                        allContacts = allContacts.filter(user => 
+                            user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            user.phoneNumber.includes(searchTerm)
+                        );
+                    }
+
+                    allContacts.sort((a, b) => {
+                        const aIsFav = myFavorites.includes(a.phoneNumber);
+                        const bIsFav = myFavorites.includes(b.phoneNumber);
+                        const aHasUnread = (unreadCounts[a.phoneNumber] || 0) > 0;
+                        const bHasUnread = (unreadCounts[b.phoneNumber] || 0) > 0;
+
+                        if (aIsFav !== bIsFav) return aIsFav ? -1 : 1;
+                        if (aHasUnread !== bHasUnread) return aHasUnread ? -1 : 1;
+
+                        if (aHasUnread && bHasUnread) {
+                            return (latestUnreadMessageTimestamps[b.phoneNumber] || 0) - (latestUnreadMessageTimestamps[a.phoneNumber] || 0);
                         }
+                        return a.name.localeCompare(b.name);
+                    });
 
-                        checkForUnreadStatuses(users);
-
-                        const myFavorites = (users[currentUser.phoneNumber] && users[currentUser.phoneNumber].favorites) || [];
+                    allContacts.forEach(user => {
+                        const contactItem = document.createElement('div');
+                        contactItem.className = 'contact-item';
                         
-                        let allContacts = Object.keys(users)
-                            .map(key => ({ ...users[key], phoneNumber: key, isGroup: false }))
-                            .filter(user => user.phoneNumber !== currentUser.phoneNumber);
-
-                        let myGroups = Object.keys(groups)
-                            .map(key => ({ ...groups[key], groupId: key, isGroup: true }))
-                            .filter(group => group.members && group.members[currentUser.phoneNumber]);
+                        const statusText = user.online ? 'Online' : `Last seen: ${formatLastSeen(user.lastSeen)}`;
+                        const statusBadgeClass = user.online ? 'bg-success' : 'bg-secondary';
+                        const unreadBadge = (unreadCounts[user.phoneNumber] || 0) > 0 ? `<span class="unread-count">${unreadCounts[user.phoneNumber]}</span>` : '';
+                        const isFavorite = myFavorites.includes(user.phoneNumber);
+                        const favoriteStar = `<span class="favorite-star" data-phone="${user.phoneNumber}">${isFavorite ? '★' : '☆'}</span>`;
+                        const displayPhoneNumber = user.hidePhoneNumber ? 'Number Hidden' : user.phoneNumber;
                         
-                        let allItems = [...allContacts, ...myGroups];
-                        
-                        if (searchTerm) {
-                            allItems = allItems.filter(item => 
-                                item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                (item.phoneNumber && item.phoneNumber.includes(searchTerm))
-                            );
-                        }
-
-                        allItems.sort((a, b) => {
-                            const aId = a.isGroup ? a.groupId : a.phoneNumber;
-                            const bId = b.isGroup ? b.groupId : b.phoneNumber;
-                            const aIsFav = !a.isGroup && myFavorites.includes(aId);
-                            const bIsFav = !b.isGroup && myFavorites.includes(bId);
-                            const aHasUnread = (unreadCounts[aId] || 0) > 0;
-                            const bHasUnread = (unreadCounts[bId] || 0) > 0;
-
-                            if (aIsFav !== bIsFav) return aIsFav ? -1 : 1;
-                            if (aHasUnread !== bHasUnread) return aHasUnread ? -1 : 1;
-
-                            if (aHasUnread && bHasUnread) {
-                                return (latestUnreadMessageTimestamps[bId] || 0) - (latestUnreadMessageTimestamps[aId] || 0);
-                            }
-                            return a.name.localeCompare(b.name);
-                        });
-
-                        allItems.forEach(item => {
-                            const contactItem = document.createElement('div');
-                            contactItem.className = 'contact-item';
-                            const itemId = item.isGroup ? item.groupId : item.phoneNumber;
-                            
-                            const statusText = item.isGroup ? `${Object.keys(item.members).length} members` : (item.online ? 'Online' : `Last seen: ${formatLastSeen(item.lastSeen)}`);
-                            const statusBadgeClass = item.isGroup ? 'bg-info' : (item.online ? 'bg-success' : 'bg-secondary');
-                            const unreadBadge = (unreadCounts[itemId] || 0) > 0 ? `<span class="unread-count">${unreadCounts[itemId]}</span>` : '';
-                            const isFavorite = !item.isGroup && myFavorites.includes(itemId);
-                            const favoriteStar = !item.isGroup ? `<span class="favorite-star" data-phone="${itemId}">${isFavorite ? '★' : '☆'}</span>` : '';
-                            const displayIdentifier = item.isGroup ? 'Group Chat' : (item.hidePhoneNumber ? 'Number Hidden' : item.phoneNumber);
-                            
-                            contactItem.innerHTML = `
-                                <div class="contact-info-container" data-item-id='${JSON.stringify(item)}'>
-                                    <div class="profile-logo">${getProfileLogoContent(item)}</div>
-                                    <div>
-                                        <strong>${item.name}</strong>
-                                        <div class="text-muted small">${displayIdentifier}</div>
-                                        <div class="d-flex align-items-center">
-                                            <span class="badge ${statusBadgeClass}">${statusText}</span>
-                                            ${unreadBadge}
-                                        </div>
+                        contactItem.innerHTML = `
+                            <div class="contact-info-container" data-phone-click="${user.phoneNumber}">
+                                <div class="profile-logo">${getProfileLogoContent(user)}</div>
+                                <div>
+                                    <strong>${user.name}</strong>
+                                    <div class="text-muted small">${displayPhoneNumber}</div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge ${statusBadgeClass}">${statusText}</span>
+                                        ${unreadBadge}
                                     </div>
                                 </div>
-                                ${favoriteStar}
-                            `;
-                            contactsList.appendChild(contactItem);
-                        });
-
-                        contactsList.querySelectorAll('[data-item-id]').forEach(item => {
-                            item.addEventListener('click', (e) => {
-                                const itemData = JSON.parse(e.currentTarget.dataset.itemId);
-                                startChat(itemData);
-                            });
-                        });
-                        contactsList.querySelectorAll('.favorite-star').forEach(item => {
-                            item.addEventListener('click', (e) => toggleFavorite(e.currentTarget.dataset.phone));
-                        });
-
-                        updateNewMessageIndicator();
+                            </div>
+                            ${favoriteStar}
+                        `;
+                        contactsList.appendChild(contactItem);
                     });
+
+                    contactsList.querySelectorAll('[data-phone-click]').forEach(item => {
+                        item.addEventListener('click', (e) => {
+                            const phone = e.currentTarget.dataset.phoneClick;
+                            const user = allContacts.find(c => c.phoneNumber === phone);
+                            if(user) startChat(user);
+                        });
+                    });
+                    contactsList.querySelectorAll('.favorite-star').forEach(item => {
+                        item.addEventListener('click', (e) => toggleFavorite(e.currentTarget.dataset.phone));
+                    });
+
+                    updateNewMessageIndicator();
                 });
             }
-
 
             async function toggleFavorite(contactPhoneNumber) {
                 if (!currentUser) return;
@@ -2264,92 +2146,54 @@
             searchBtn.addEventListener('click', () => loadContacts(contactSearch.value.trim()));
             contactSearch.addEventListener('input', () => loadContacts(contactSearch.value.trim()));
 
-            async function startChat(target) {
-                currentChatTarget = target;
-                chatWithName.textContent = `${target.name}`;
-                chatProfileLogo.textContent = getProfileLogoContent(target);
+            async function startChat(contact) {
+                currentChatWith = contact;
+                chatWithName.textContent = `${contact.name}`;
+                chatProfileLogo.textContent = getProfileLogoContent(contact);
                 
-                let chatId, chatRef, settingsRef;
-                chatOptionsDropdown.innerHTML = ''; // Clear previous options
+                const myPhoneNumber = currentUser.phoneNumber;
+                const theirPhoneNumber = contact.phoneNumber;
+                const chatId = [myPhoneNumber, theirPhoneNumber].sort().join('_');
+                const chatRef = database.ref(`chats/${chatId}`);
 
-                if (target.isGroup) {
-                    chatId = target.groupId;
-                    chatRef = database.ref(`groupChats/${chatId}`);
-                    settingsRef = database.ref(`groups/${chatId}/settings`);
-                    chatWithStatus.innerHTML = `<marquee behavior="scroll" direction="left" scrollamount="2">${Object.keys(target.members).length} members</marquee>`;
-                    opponentBatteryStatus.textContent = '';
-                    
-                    // Populate group chat options
-                    chatOptionsDropdown.innerHTML = `
-                        <li><button class="dropdown-item" id="view-group-members-btn">View Members</button></li>
-                        <li><button class="dropdown-item" id="disappearing-messages-btn">Disappearing Messages</button></li>
-                        <li><button class="dropdown-item" id="storage-usage-btn">Storage Usage</button></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><button class="dropdown-item text-danger" id="exit-group-btn">Exit Group</button></li>
-                    `;
-                    document.getElementById('view-group-members-btn').addEventListener('click', showGroupInfoModal);
-                    document.getElementById('exit-group-btn').addEventListener('click', exitGroup);
-                    
-                    // Clear unread count for this group
-                    unreadCounts[chatId] = 0;
-                    delete latestUnreadMessageTimestamps[chatId];
-                    refreshUIForUnreadMessages();
+                const snapshot = await chatRef.orderByChild('receiver').equalTo(myPhoneNumber).once('value');
+                const updates = {};
+                snapshot.forEach(childSnapshot => {
+                    const message = childSnapshot.val();
+                    if (message.sender === theirPhoneNumber && !message.read) {
+                        updates[`${childSnapshot.key}/read`] = true;
+                    }
+                });
+                if (Object.keys(updates).length > 0) await chatRef.update(updates);
 
-                } else {
-                    chatId = [currentUser.phoneNumber, target.phoneNumber].sort().join('_');
-                    chatRef = database.ref(`chats/${chatId}`);
-                    settingsRef = database.ref(`chats/${chatId}/settings`);
-                    
-                    // Populate 1-on-1 chat options
-                    chatOptionsDropdown.innerHTML = `
-                        <li><button class="dropdown-item" id="voice-call-btn">Voice Call</button></li>
-                        <li><button class="dropdown-item" id="disappearing-messages-btn">Disappearing Messages</button></li>
-                        <li><button class="dropdown-item" id="storage-usage-btn">Storage Usage</button></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><button class="dropdown-item text-danger" id="report-user-btn">Report User</button></li>
-                    `;
-                    document.getElementById('voice-call-btn').addEventListener('click', voiceCallBtnHandler);
-                    document.getElementById('report-user-btn').addEventListener('click', reportUserBtnHandler);
+                database.ref(`users/${contact.phoneNumber}`).on('value', (snapshot) => {
+                    const partner = snapshot.val();
+                    if (partner) {
+                        const statusText = partner.online ? 'Online' : `Last seen: ${formatLastSeen(partner.lastSeen)}`;
+                        chatWithStatus.innerHTML = `<marquee behavior="scroll" direction="left" scrollamount="2">${statusText}</marquee>`;
+                        
+                        opponentBatteryStatus.textContent = partner.batteryLevel !== undefined ? `${getBatteryEmoji(partner.batteryLevel)} ${partner.batteryLevel}%` : '?';
 
-                    const snapshot = await chatRef.orderByChild('receiver').equalTo(currentUser.phoneNumber).once('value');
-                    const updates = {};
-                    snapshot.forEach(childSnapshot => {
-                        const message = childSnapshot.val();
-                        if (message.sender === target.phoneNumber && !message.read) {
-                            updates[`${childSnapshot.key}/read`] = true;
+                        if (partner.batteryCharging && !opponentChargingAlertShown[contact.phoneNumber]) {
+                            opponentChargingModalBody.textContent = `${contact.name} is charging their phone. For their safety, you might want to keep the conversation brief.`;
+                            opponentChargingModal.style.display = 'flex';
+                            opponentChargingAlertShown[contact.phoneNumber] = true;
                         }
-                    });
-                    if (Object.keys(updates).length > 0) await chatRef.update(updates);
-
-                    database.ref(`users/${target.phoneNumber}`).on('value', (snapshot) => {
-                        const partner = snapshot.val();
-                        if (partner) {
-                            const statusText = partner.online ? 'Online' : `Last seen: ${formatLastSeen(partner.lastSeen)}`;
-                            chatWithStatus.innerHTML = `<marquee behavior="scroll" direction="left" scrollamount="2">${statusText}</marquee>`;
-                            opponentBatteryStatus.textContent = partner.batteryLevel !== undefined ? `${getBatteryEmoji(partner.batteryLevel)} ${partner.batteryLevel}%` : '?';
-                            if (partner.batteryCharging && !opponentChargingAlertShown[target.phoneNumber]) {
-                                opponentChargingModalBody.textContent = `${target.name} is charging their phone. For their safety, you might want to keep the conversation brief.`;
-                                opponentChargingModal.style.display = 'flex';
-                                opponentChargingAlertShown[target.phoneNumber] = true;
-                            }
-                            if (gameActive && gameId) {
-                                playerOpponentBattery.textContent = partner.batteryLevel !== undefined ? `Battery: ${partner.batteryLevel}% ${partner.batteryCharging ? '⚡' : ''}` : (partner.batteryCharging ? 'Charging...' : 'Battery: Unknown');
-                            }
+                        if (gameActive && gameId) {
+                            playerOpponentBattery.textContent = partner.batteryLevel !== undefined ? `Battery: ${partner.batteryLevel}% ${partner.batteryCharging ? '⚡' : ''}` : (partner.batteryCharging ? 'Charging...' : 'Battery: Unknown');
                         }
-                    });
-                    setupTypingListener(target.phoneNumber);
-                }
+                    }
+                });
 
-                // Common event listeners for dropdown items
-                document.getElementById('disappearing-messages-btn').addEventListener('click', disappearingMessagesBtnHandler);
-                document.getElementById('storage-usage-btn').addEventListener('click', storageUsageBtnHandler);
-
-
-                settingsRef.on('value', (snapshot) => {
+                // Listen for chat settings changes (for disappearing messages)
+                database.ref(`chats/${chatId}/settings`).on('value', (snapshot) => {
                     currentChatSettings = snapshot.val() || {};
                     const duration = currentChatSettings.disappearingTimer;
                     if (duration && duration > 0) {
-                        disappearingStatusIndicator.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg> <span>On (${formatTimerDuration(duration)})</span>`;
+                        disappearingStatusIndicator.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg>
+                            <span>On (${formatTimerDuration(duration)})</span>
+                        `;
                         disappearingStatusIndicator.style.display = 'flex';
                     } else {
                         disappearingStatusIndicator.style.display = 'none';
@@ -2357,7 +2201,9 @@
                 });
 
                 contactsScreen.style.display = 'none';
-                chatScreen.style.display = 'flex';
+                chatScreen.style.display = 'flex'; // Changed to flex
+                
+                setupTypingListener(contact.phoneNumber);
                 loadChatMessages();
             }
 
@@ -2367,7 +2213,7 @@
                 typingIndicator.style.display = 'none';
                 database.ref(`typing/${contactPhoneNumber}`).on('value', (snapshot) => {
                     if (snapshot.exists() && snapshot.val().isTyping) {
-                        typingIndicator.textContent = `${currentChatTarget.name} is typing...`;
+                        typingIndicator.textContent = `${currentChatWith.name} is typing...`;
                         typingIndicator.style.display = 'inline-block';
                     } else {
                         typingIndicator.style.display = 'none';
@@ -2377,28 +2223,22 @@
 
             backToContactsBtn.addEventListener('click', () => {
                 chatScreen.style.display = 'none';
-                contactsScreen.style.display = 'flex';
+                contactsScreen.style.display = 'flex'; // Changed to flex
                 
+                // Clear all active timers for the chat we are leaving
                 Object.values(activeMessageTimers).forEach(clearTimeout);
                 activeMessageTimers = {};
                 
-                if (currentChatTarget) {
-                    let chatId;
-                    if (currentChatTarget.isGroup) {
-                        chatId = currentChatTarget.groupId;
-                        database.ref(`groups/${chatId}/settings`).off();
-                    } else {
-                        chatId = [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                        database.ref(`typing/${currentChatTarget.phoneNumber}`).off();
-                        database.ref(`users/${currentChatTarget.phoneNumber}`).off();
-                        database.ref(`chats/${chatId}/settings`).off();
-                    }
+                if (currentChatWith) {
+                    database.ref(`typing/${currentChatWith.phoneNumber}`).off();
+                    database.ref(`users/${currentChatWith.phoneNumber}`).off();
+                    const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                    database.ref(`chats/${chatId}/settings`).off();
                     
                     if (messageListeners[chatId]) {
-                        const refPath = currentChatTarget.isGroup ? `groupChats/${chatId}` : `chats/${chatId}`;
-                        database.ref(refPath).off('child_added', messageListeners[chatId].added);
-                        database.ref(refPath).off('child_changed', messageListeners[chatId].changed);
-                        database.ref(refPath).off('child_removed', messageListeners[chatId].removed);
+                        database.ref('chats/' + chatId).off('child_added', messageListeners[chatId].added);
+                        database.ref('chats/' + chatId).off('child_changed', messageListeners[chatId].changed);
+                        database.ref('chats/' + chatId).off('child_removed', messageListeners[chatId].removed);
                         delete messageListeners[chatId];
                     }
 
@@ -2406,13 +2246,13 @@
                     endGame();
                 }
                 
-                currentChatTarget = null;
+                currentChatWith = null;
                 chatMessages.innerHTML = '';
                 refreshUIForUnreadMessages();
                 clearReply();
             });
 
-            function scheduleDeletion(messageKey, disappearsAt, isGroupChat = false) {
+            function scheduleDeletion(messageKey, disappearsAt) {
                 if (activeMessageTimers[messageKey]) {
                     clearTimeout(activeMessageTimers[messageKey]);
                 }
@@ -2420,62 +2260,50 @@
                 const timeRemaining = disappearsAt - Date.now();
                 if (timeRemaining > 0) {
                     const timerId = setTimeout(() => {
-                        let chatId;
-                        if (isGroupChat) {
-                            chatId = currentChatTarget.groupId;
-                            database.ref(`groupChats/${chatId}/${messageKey}`).remove();
-                        } else {
-                            chatId = [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                            database.ref(`chats/${chatId}/${messageKey}`).remove();
-                        }
+                        const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                        database.ref(`chats/${chatId}/${messageKey}`).remove();
                         delete activeMessageTimers[messageKey];
                     }, timeRemaining);
                     activeMessageTimers[messageKey] = timerId;
                 } else {
                     // If already expired, remove immediately
-                    let chatId;
-                    if (isGroupChat) {
-                        chatId = currentChatTarget.groupId;
-                        database.ref(`groupChats/${chatId}/${messageKey}`).remove();
-                    } else {
-                        chatId = [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                        database.ref(`chats/${chatId}/${messageKey}`).remove();
-                    }
+                    const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                    database.ref(`chats/${chatId}/${messageKey}`).remove();
                 }
             }
 
             function loadChatMessages() {
                 chatMessages.innerHTML = '';
-                if (!currentUser || !currentChatTarget) return;
+                if (!currentUser || !currentChatWith) return;
                 
-                const isGroupChat = currentChatTarget.isGroup;
-                const chatId = isGroupChat ? currentChatTarget.groupId : [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                const chatRef = database.ref(isGroupChat ? `groupChats/${chatId}` : `chats/${chatId}`);
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
                 
                 if (messageListeners[chatId]) {
-                    chatRef.off('child_added', messageListeners[chatId].added);
-                    chatRef.off('child_changed', messageListeners[chatId].changed);
-                    chatRef.off('child_removed', messageListeners[chatId].removed);
+                    database.ref('chats/' + chatId).off('child_added', messageListeners[chatId].added);
+                    database.ref('chats/' + chatId).off('child_changed', messageListeners[chatId].changed);
+                    database.ref('chats/' + chatId).off('child_removed', messageListeners[chatId].removed);
                 }
                 
-                chatRef.orderByChild('timestamp').once('value', (snapshot) => {
+                database.ref('chats/' + chatId).orderByChild('timestamp').once('value', (snapshot) => {
                     if (snapshot.exists()) {
                         snapshot.forEach((childSnapshot) => {
                             const message = childSnapshot.val();
                             const messageKey = childSnapshot.key;
                             
+                            // Check for disappearing messages on load
                             if (message.disappearsAt && message.disappearsAt < Date.now()) {
-                                chatRef.child(messageKey).remove();
+                                database.ref(`chats/${chatId}/${messageKey}`).remove(); // Already expired
                             } else {
                                 addMessageToChat(message, messageKey);
-                                if (!isGroupChat && message.sender === currentChatTarget.phoneNumber && !message.read && chatScreen.style.display === 'flex') {
-                                    chatRef.child(messageKey).update({ read: true });
+                                if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'flex') {
+                                    database.ref(`chats/${chatId}/${messageKey}`).update({ read: true });
                                 }
                             }
                         });
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                     }
                 }).then(() => {
+                    const chatRef = database.ref('chats/' + chatId);
                     messageListeners[chatId] = {
                         added: chatRef.orderByChild('timestamp').on('child_added', (snapshot) => {
                             const message = snapshot.val();
@@ -2483,8 +2311,8 @@
                             if (!chatMessages.querySelector(`[data-message-key="${messageKey}"]`)) {
                                 addMessageToChat(message, messageKey);
                             }
-                            if (!isGroupChat && message.sender === currentChatTarget.phoneNumber && !message.read && chatScreen.style.display === 'flex') {
-                                chatRef.child(messageKey).update({ read: true });
+                            if (message.sender === currentChatWith.phoneNumber && !message.read && chatScreen.style.display === 'flex') {
+                                database.ref(`chats/${chatId}/${messageKey}`).update({ read: true });
                             }
                         }),
                         changed: chatRef.on('child_changed', (snapshot) => updateMessageInChat(snapshot.val(), snapshot.key)),
@@ -2505,7 +2333,7 @@
                 }
                 
                 if (message.disappearsAt) {
-                    scheduleDeletion(messageKey, message.disappearsAt, currentChatTarget.isGroup);
+                    scheduleDeletion(messageKey, message.disappearsAt);
                 }
 
                 if (message.type === 'game_result') {
@@ -2533,12 +2361,6 @@
                     messageContentHtml = `<div>${message.text}</div>`;
                 }
 
-                let senderNameHtml = '';
-                if (currentChatTarget.isGroup && message.sender !== currentUser.phoneNumber) {
-                    const senderName = allUsersCache[message.sender] ? allUsersCache[message.sender].name : 'Unknown';
-                    senderNameHtml = `<div class="message-sender-name">${senderName}</div>`;
-                }
-
                 let statusIndicator = '';
                 let editedTag = '';
                 let reactionsHtml = '';
@@ -2549,7 +2371,7 @@
                     messageDiv.innerHTML = `<div><em>This message was deleted.</em></div><div class="small d-flex justify-content-end align-items-center">${time}</div>`;
                     chatMessages.appendChild(messageDiv);
                     chatMessages.scrollTop = chatMessages.scrollHeight;
-                    attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber, message.type, message.sender);
+                    attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber);
                     return;
                 }
 
@@ -2568,13 +2390,14 @@
 
                 if (message.repliedTo) {
                     let repliedToSenderName = message.repliedTo.senderName;
+                    if (message.repliedTo.sender === currentUser.phoneNumber) repliedToSenderName = "You";
+                    else if (message.repliedTo.sender === currentChatWith.phoneNumber) repliedToSenderName = currentChatWith.name;
                     const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : (message.repliedTo.type === 'voice' ? '[Voice Note]' : message.repliedTo.text);
                     repliedToHtml = `<div class="replied-message-preview">Replying to <strong>${repliedToSenderName}</strong>:<span class="original-text">${repliedText}</span></div>`;
                 }
 
-                if (message.sender === currentUser.phoneNumber && !currentChatTarget.isGroup) {
-                    const chatId = [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                    const messageStatusRef = database.ref(`chats/${chatId}/${messageKey}`);
+                if (message.sender === currentUser.phoneNumber) {
+                    const messageStatusRef = database.ref(`chats/${[currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_')}/${messageKey}`);
                     messageStatusRef.on('value', (snapshot) => {
                         const updatedMessage = snapshot.val();
                         if (updatedMessage) {
@@ -2595,7 +2418,6 @@
                 }
                 
                 messageDiv.innerHTML = `
-                    ${senderNameHtml}
                     ${repliedToHtml}
                     ${messageContentHtml}
                     ${message.type !== 'doodle' && message.type !== 'voice' ? editedTag : ''}
@@ -2606,7 +2428,7 @@
                 chatMessages.appendChild(messageDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber, message.type, message.sender);
+                attachMessageDoubleClickListener(messageDiv, messageKey, message.text, message.sender === currentUser.phoneNumber, message.type);
 
                 messageDiv.querySelectorAll('.reaction-bubble').forEach(bubble => {
                     bubble.addEventListener('click', (e) => toggleReaction(messageKey, e.currentTarget.dataset.emoji));
@@ -2630,7 +2452,6 @@
                 let editedTag = '';
                 let reactionsHtml = '';
                 let repliedToHtml = '';
-                let senderNameHtml = '';
 
                 if (message.deleted) {
                     messageDiv.className = `deleted-message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
@@ -2639,11 +2460,6 @@
                 }
 
                 messageDiv.className = `message ${message.sender === currentUser.phoneNumber ? 'sent' : 'received'}`;
-
-                if (currentChatTarget.isGroup && message.sender !== currentUser.phoneNumber) {
-                    const senderName = allUsersCache[message.sender] ? allUsersCache[message.sender].name : 'Unknown';
-                    senderNameHtml = `<div class="message-sender-name">${senderName}</div>`;
-                }
 
                 if (message.edited) editedTag = `<span class="edited-tag">(Edited)</span>`;
 
@@ -2659,11 +2475,14 @@
                 }
 
                 if (message.repliedTo) {
+                    let repliedToSenderName = message.repliedTo.senderName;
+                    if (message.repliedTo.sender === currentUser.phoneNumber) repliedToSenderName = "You";
+                    else if (message.repliedTo.sender === currentChatWith.phoneNumber) repliedToSenderName = currentChatWith.name;
                     const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : (message.repliedTo.type === 'voice' ? '[Voice Note]' : message.repliedTo.text);
-                    repliedToHtml = `<div class="replied-message-preview">Replying to <strong>${message.repliedTo.senderName}</strong>:<span class="original-text">${repliedText}</span></div>`;
+                    repliedToHtml = `<div class="replied-message-preview">Replying to <strong>${repliedToSenderName}</strong>:<span class="original-text">${repliedText}</span></div>`;
                 }
 
-                if (message.sender === currentUser.phoneNumber && !currentChatTarget.isGroup) {
+                if (message.sender === currentUser.phoneNumber) {
                     const statusClass = message.read ? 'read' : 'delivered';
                     const checkmark = message.read ? '✓✓' : '✓';
                     statusIndicator = `<span class="message-status ${statusClass}">${checkmark}</span>`;
@@ -2678,8 +2497,8 @@
                     messageContentHtml = `<div>${message.text}</div>`;
                 }
 
+
                 messageDiv.innerHTML = `
-                    ${senderNameHtml}
                     ${repliedToHtml}
                     ${messageContentHtml}
                     ${message.type !== 'doodle' && message.type !== 'voice' ? editedTag : ''}
@@ -2702,14 +2521,14 @@
                 }
             }
 
-            function attachMessageDoubleClickListener(messageDiv, messageKey, messageText, isMyMessage, messageType, senderId) {
+            function attachMessageDoubleClickListener(messageDiv, messageKey, messageText, isMyMessage, messageType) {
                 messageDiv.addEventListener('dblclick', (e) => {
                     e.preventDefault();
-                    showContextMenu(e, messageKey, messageText, isMyMessage, messageType, senderId);
+                    showContextMenu(e, messageKey, messageText, isMyMessage, messageType);
                 });
             }
 
-            function showContextMenu(event, messageKey, messageText, isMyMessage, messageType, senderId) {
+            function showContextMenu(event, messageKey, messageText, isMyMessage, messageType) {
                 document.querySelectorAll('.context-menu').forEach(menu => menu.remove());
 
                 const messageElement = event.currentTarget;
@@ -2742,8 +2561,7 @@
                 }, 10);
 
                 contextMenu.querySelector('#reply-message-btn').addEventListener('click', () => {
-                    const senderName = allUsersCache[senderId] ? allUsersCache[senderId].name : 'Someone';
-                    setReply(messageKey, messageText, senderId, senderName, messageType);
+                    setReply(messageKey, messageText, isMyMessage ? currentUser.phoneNumber : currentChatWith.phoneNumber, messageElement.classList.contains('sent') ? currentUser.name : currentChatWith.name, messageType);
                     contextMenu.remove();
                 });
 
@@ -2797,11 +2615,9 @@
             });
 
             function toggleReaction(messageKey, emoji) {
-                if (!currentUser || !currentChatTarget) return;
-                const isGroupChat = currentChatTarget.isGroup;
-                const chatId = isGroupChat ? currentChatTarget.groupId : [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                const messageRef = database.ref(`${isGroupChat ? 'groupChats' : 'chats'}/${chatId}/${messageKey}/reactions`);
-
+                if (!currentUser || !currentChatWith) return;
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                const messageRef = database.ref(`chats/${chatId}/${messageKey}/reactions`);
                 messageRef.transaction((currentReactions) => {
                     if (currentReactions === null) currentReactions = {};
                     if (currentReactions[emoji] === undefined) currentReactions[emoji] = [];
@@ -2819,17 +2635,14 @@
             }
 
             function editMessage(messageKey, currentText) {
-                const isGroupChat = currentChatTarget.isGroup;
-                const chatId = isGroupChat ? currentChatTarget.groupId : [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                currentMessageToEdit = database.ref(`${isGroupChat ? 'groupChats' : 'chats'}/${chatId}/${messageKey}`);
+                currentMessageToEdit = database.ref(`chats/${[currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_')}/${messageKey}`);
                 editMessageInput.value = currentText;
                 editMessageModal.style.display = 'flex';
             }
 
             function deleteMessage(messageKey) {
-                const isGroupChat = currentChatTarget.isGroup;
-                const chatId = isGroupChat ? currentChatTarget.groupId : [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                const messageRef = database.ref(`${isGroupChat ? 'groupChats' : 'chats'}/${chatId}/${messageKey}`);
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                const messageRef = database.ref(`chats/${chatId}/${messageKey}`);
                 messageRef.update({
                     text: '', doodleData: null, audioData: null, deleted: true, edited: false, reactions: null,
                     deletedAt: firebase.database.ServerValue.TIMESTAMP
@@ -2870,7 +2683,7 @@
             clearReplyBtn.addEventListener('click', clearReply);
 
             messageInput.addEventListener('input', () => {
-                if (!currentUser || !currentChatTarget || currentChatTarget.isGroup) return;
+                if (!currentUser || !currentChatWith) return;
                 database.ref(`typing/${currentUser.phoneNumber}`).set({ isTyping: true, timestamp: firebase.database.ServerValue.TIMESTAMP });
                 if (typingTimeout) clearTimeout(typingTimeout);
                 typingTimeout = setTimeout(() => {
@@ -2883,30 +2696,23 @@
 
             async function sendMessage() {
                 const text = messageInput.value.trim();
-                if (!text || !currentUser || !currentChatTarget) return;
+                if (!text || !currentUser || !currentChatWith) return;
                 
                 if (typingTimeout) {
                     clearTimeout(typingTimeout);
                     database.ref(`typing/${currentUser.phoneNumber}`).set({ isTyping: false, timestamp: firebase.database.ServerValue.TIMESTAMP });
                 }
                 
-                const isGroupChat = currentChatTarget.isGroup;
-                const chatId = isGroupChat ? currentChatTarget.groupId : [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                const chatRef = database.ref(isGroupChat ? `groupChats/${chatId}` : `chats/${chatId}`);
-                const newMessageRef = chatRef.push();
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                const newMessageRef = database.ref('chats/' + chatId).push();
                 
                 const messageData = {
-                    text: text, sender: currentUser.phoneNumber, 
-                    timestamp: firebase.database.ServerValue.TIMESTAMP, 
+                    text: text, sender: currentUser.phoneNumber, receiver: currentChatWith.phoneNumber,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP, delivered: true, read: false,
                     edited: false, deleted: false, reactions: null, type: 'text'
                 };
 
-                if (!isGroupChat) {
-                    messageData.receiver = currentChatTarget.phoneNumber;
-                    messageData.delivered = true;
-                    messageData.read = false;
-                }
-
+                // Add disappearing timestamp if timer is on
                 const timerDuration = currentChatSettings.disappearingTimer;
                 if (timerDuration && timerDuration > 0) {
                     messageData.disappearsAt = Date.now() + timerDuration;
@@ -2929,15 +2735,6 @@
                 const chatId = [currentUser.phoneNumber, toPhoneNumber].sort().join('_');
                 database.ref('chats/' + chatId).push().set({
                     text: text,
-                    type: 'system',
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-            }
-             async function sendGroupSystemMessage(text, groupId) {
-                const chatRef = database.ref(`groupChats/${groupId}`);
-                chatRef.push().set({
-                    text: text,
-                    sender: 'system',
                     type: 'system',
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
@@ -3005,25 +2802,20 @@
             stopRecordingBtn.addEventListener('click', stopRecording);
 
             function sendVoiceMessage(audioData) {
-                if (!audioData || !currentUser || !currentChatTarget) return;
-                
-                const isGroupChat = currentChatTarget.isGroup;
-                const chatId = isGroupChat ? currentChatTarget.groupId : [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                const chatRef = database.ref(isGroupChat ? `groupChats/${chatId}` : `chats/${chatId}`);
-                const newMessageRef = chatRef.push();
+                if (!audioData || !currentUser || !currentChatWith) return;
+
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                const newMessageRef = database.ref('chats/' + chatId).push();
 
                 const messageData = {
                     sender: currentUser.phoneNumber,
+                    receiver: currentChatWith.phoneNumber,
                     timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    delivered: true,
+                    read: false,
                     type: 'voice',
                     audioData: audioData
                 };
-                
-                if (!isGroupChat) {
-                    messageData.receiver = currentChatTarget.phoneNumber;
-                    messageData.delivered = true;
-                    messageData.read = false;
-                }
 
                 if (repliedToMessage) {
                     messageData.repliedTo = {
@@ -3060,56 +2852,57 @@
                 };
             }
 
-            function voiceCallBtnHandler() {
-                if (!currentUser || !currentChatTarget || currentChatTarget.isGroup || isCallActive) return;
+            voiceCallBtn.addEventListener('click', async () => {
+                if (!currentUser || !currentChatWith || isCallActive) return;
                 
                 isCallActive = true;
-                callSignalRef = database.ref(`calls/${currentChatTarget.phoneNumber}`);
-                callSignalRef.remove().then(() => {
-                    callSignalRef.onDisconnect().remove(); 
-                    return callSignalRef.set({ type: 'offer', from: currentUser.phoneNumber, fromName: currentUser.name });
-                }).then(() => {
-                    return createPeerConnection();
-                }).then(() => {
-                    return peerConnection.createOffer();
-                }).then(offer => {
-                    peerConnection.setLocalDescription(offer);
-                    return callSignalRef.update({ sdp: offer });
-                }).then(() => {
-                    showCallModal('outgoing', { from: currentChatTarget.phoneNumber, fromName: currentChatTarget.name });
+                callSignalRef = database.ref(`calls/${currentChatWith.phoneNumber}`);
+                // Clean up any previous call data
+                await callSignalRef.remove();
+                callSignalRef.onDisconnect().remove(); 
+                
+                await callSignalRef.set({ type: 'offer', from: currentUser.phoneNumber, fromName: currentUser.name });
 
-                    outgoingCallTimeout = setTimeout(() => {
-                        if (isCallActive) {
-                            sendSystemMessage(`Call to ${currentChatTarget.name} not answered.`, currentChatTarget.phoneNumber);
-                            endCall();
-                        }
-                    }, 30000);
+                await createPeerConnection();
 
-                    callSignalRef.on('value', async snapshot => {
-                        const data = snapshot.val();
-                        if (!data) return;
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                await callSignalRef.update({ sdp: offer });
 
-                        if (data.type === 'answer' && peerConnection.signalingState !== 'stable') {
-                            clearTimeout(outgoingCallTimeout);
-                            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
-                            showCallModal('connected', { from: currentChatTarget.phoneNumber, fromName: currentChatTarget.name });
-                        }
-                        if (data.type === 'rejected') {
-                            sendSystemMessage(`${currentChatTarget.name} declined the call.`, currentChatTarget.phoneNumber);
-                            endCall();
-                        }
-                        if (data.type === 'hangup') {
-                            endCall();
-                        }
-                    });
+                showCallModal('outgoing', { from: currentChatWith.phoneNumber, fromName: currentChatWith.name });
 
-                    callSignalRef.child('iceCandidates').on('child_added', snapshot => {
-                        if (snapshot.exists() && peerConnection) {
-                            peerConnection.addIceCandidate(new RTCIceCandidate(snapshot.val()));
-                        }
-                    });
+                // Timeout for no answer
+                outgoingCallTimeout = setTimeout(() => {
+                    if (isCallActive) {
+                        sendSystemMessage(`Call to ${currentChatWith.name} not answered.`, currentChatWith.phoneNumber);
+                        endCall();
+                    }
+                }, 30000); // 30 seconds
+
+                callSignalRef.on('value', async snapshot => {
+                    const data = snapshot.val();
+                    if (!data) return; // Ignore null data on cleanup
+
+                    if (data.type === 'answer' && peerConnection.signalingState !== 'stable') {
+                        clearTimeout(outgoingCallTimeout);
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                        showCallModal('connected', { from: currentChatWith.phoneNumber, fromName: currentChatWith.name });
+                    }
+                    if (data.type === 'rejected') {
+                        sendSystemMessage(`${currentChatWith.name} declined the call.`, currentChatWith.phoneNumber);
+                        endCall();
+                    }
+                    if (data.type === 'hangup') {
+                        endCall();
+                    }
                 });
-            }
+
+                callSignalRef.child('iceCandidates').on('child_added', snapshot => {
+                    if (snapshot.exists() && peerConnection) {
+                        peerConnection.addIceCandidate(new RTCIceCandidate(snapshot.val()));
+                    }
+                });
+            });
 
             async function listenForCallSignals() {
                 if (!currentUser) return;
@@ -3227,7 +3020,7 @@
                     const callData = callSignalRef.once('value').then(snapshot => {
                         const data = snapshot.val();
                          if (data) {
-                            const otherUserPhone = data.from === currentUser.phoneNumber ? currentChatTarget.phoneNumber : data.from;
+                            const otherUserPhone = data.from === currentUser.phoneNumber ? currentChatWith.phoneNumber : data.from;
                             sendSystemMessage(`Call ended. Duration: ${callDuration}`, otherUserPhone);
                         }
                     });
@@ -3255,25 +3048,23 @@
             }
             
             // --- Disappearing Messages Logic ---
-            function disappearingMessagesBtnHandler() {
+            disappearingMessagesBtn.addEventListener('click', () => {
                 const currentDuration = currentChatSettings.disappearingTimer || 0;
                 const radioToCheck = document.querySelector(`#timer-options input[value="${currentDuration}"]`);
                 if(radioToCheck) radioToCheck.checked = true;
                 disappearingMessagesModal.style.display = 'flex';
-            }
+            });
 
             closeDisappearingModalBtn.addEventListener('click', () => {
                 disappearingMessagesModal.style.display = 'none';
             });
 
             saveDisappearingSettingsBtn.addEventListener('click', () => {
-                if (!currentUser || !currentChatTarget) return;
+                if (!currentUser || !currentChatWith) return;
 
                 const selectedDuration = parseInt(document.querySelector('input[name="timerDuration"]:checked').value);
-                
-                const isGroupChat = currentChatTarget.isGroup;
-                const chatId = isGroupChat ? currentChatTarget.groupId : [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                const settingsRef = database.ref(isGroupChat ? `groups/${chatId}/settings` : `chats/${chatId}/settings`);
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                const settingsRef = database.ref(`chats/${chatId}/settings`);
                 
                 settingsRef.update({
                     disappearingTimer: selectedDuration,
@@ -3281,12 +3072,12 @@
                     setAt: firebase.database.ServerValue.TIMESTAMP
                 });
 
+                // Send a system message to notify both users of the change
                 const systemMessageText = selectedDuration > 0 
                     ? `${currentUser.name} turned on disappearing messages. New messages will now disappear after ${formatTimerDuration(selectedDuration)}.`
                     : `${currentUser.name} turned off disappearing messages.`;
-                
-                const chatRef = database.ref(isGroupChat ? `groupChats/${chatId}` : `chats/${chatId}`);
-                chatRef.push().set({
+
+                database.ref('chats/' + chatId).push().set({
                     text: systemMessageText,
                     type: 'system',
                     timestamp: firebase.database.ServerValue.TIMESTAMP
@@ -3357,25 +3148,14 @@
             }
 
             function sendDoodleMessage(doodleData) {
-                if (!doodleData || !currentUser || !currentChatTarget) return;
-                const isGroupChat = currentChatTarget.isGroup;
-                const chatId = isGroupChat ? currentChatTarget.groupId : [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                const chatRef = database.ref(isGroupChat ? `groupChats/${chatId}` : `chats/${chatId}`);
-                const newMessageRef = chatRef.push();
-
+                if (!doodleData || !currentUser || !currentChatWith) return;
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                const newMessageRef = database.ref('chats/' + chatId).push();
                 const messageData = {
-                    sender: currentUser.phoneNumber,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP,
-                    type: 'doodle',
-                    doodleData: doodleData
+                    sender: currentUser.phoneNumber, receiver: currentChatWith.phoneNumber,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP, delivered: true, read: false,
+                    type: 'doodle', doodleData: doodleData
                 };
-
-                if (!isGroupChat) {
-                    messageData.receiver = currentChatTarget.phoneNumber;
-                    messageData.delivered = true;
-                    messageData.read = false;
-                }
-
                  if (repliedToMessage) {
                     messageData.repliedTo = {
                         key: repliedToMessage.key, text: repliedToMessage.text, sender: repliedToMessage.sender,
@@ -3387,10 +3167,11 @@
 
             // --- Live Doodle Logic ---
             function startLiveDoodleSession() {
-                if (!currentUser || !currentChatTarget || currentChatTarget.isGroup) return;
-                const chatId = [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
+                if (!currentUser || !currentChatWith) return;
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
                 liveDoodleRef = database.ref(`liveDoodles/${chatId}`);
 
+                // Send a system message to notify the other user
                 database.ref('chats/' + chatId).push().set({
                     text: `${currentUser.name} started a live doodle. Tap the 'Live Doodle' button to join in!`,
                     type: 'system',
@@ -3523,6 +3304,7 @@
             });
 
             // --- Multiplayer Color Pop Game ---
+            // Game logic remains unchanged
             function initGameGrid() {
                 gameGrid.innerHTML = '';
                 for (let i = 0; i < 25; i++) {
@@ -3534,7 +3316,7 @@
                 }
             }
             function handleCellClick(e) {
-                if (!gameActive || !gameRef || !currentUser || !currentChatTarget) return;
+                if (!gameActive || !gameRef || !currentUser || !currentChatWith) return;
                 const cell = e.target;
                 const cellIndex = cell.dataset.index;
                 gameRef.child('cells').child(cellIndex).once('value').then(snapshot => {
@@ -3555,18 +3337,18 @@
                 });
             }
             function initiateGame() {
-                if (!currentUser || !currentChatTarget) return;
-                const potentialGameId = [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_') + '_game';
-                const invitationId = `${currentUser.phoneNumber}_${currentChatTarget.phoneNumber}_${Date.now()}`;
+                if (!currentUser || !currentChatWith) return;
+                const potentialGameId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_game';
+                const invitationId = `${currentUser.phoneNumber}_${currentChatWith.phoneNumber}_${Date.now()}`;
                 gameInvitationRef = database.ref(`gameInvitations/${invitationId}`);
-                const chatId = [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
                 database.ref('chats/' + chatId).push().set({
                     text: `${currentUser.name} invites you to play Color Pop Battle! Tap the 'Play Color Pop' button to join.`,
-                    sender: currentUser.phoneNumber, receiver: currentChatTarget.phoneNumber,
+                    sender: currentUser.phoneNumber, receiver: currentChatWith.phoneNumber,
                     timestamp: firebase.database.ServerValue.TIMESTAMP, delivered: true, read: false, type: 'text'
                 }).then(() => gameInvitationRef.set({
-                    inviter: currentUser.phoneNumber, inviterName: currentUser.name, invitee: currentChatTarget.phoneNumber,
-                    inviteeName: currentChatTarget.name, status: 'pending', timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    inviter: currentUser.phoneNumber, inviterName: currentUser.name, invitee: currentChatWith.phoneNumber,
+                    inviteeName: currentChatWith.name, status: 'pending', timestamp: firebase.database.ServerValue.TIMESTAMP,
                     gameId: potentialGameId, chatMessageKey: null
                 })).then(() => {
                     gameInvitationRef.on('value', (snapshot) => {
@@ -3587,24 +3369,24 @@
                 });
             }
             async function handlePlayGameButtonClick() {
-                if (!currentUser || !currentChatTarget) return;
+                if (!currentUser || !currentChatWith) return;
                 const invitationsRef = database.ref('gameInvitations');
-                const gameIdForThisPair = [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_') + '_game';
+                const gameIdForThisPair = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_') + '_game';
                 const incomingSnapshot = await invitationsRef.orderByChild('invitee').equalTo(currentUser.phoneNumber).once('value');
                 let pendingIncomingInvitation = null;
                 incomingSnapshot.forEach(childSnapshot => {
                     const invitation = childSnapshot.val();
-                    if (invitation.inviter === currentChatTarget.phoneNumber && invitation.status === 'pending') {
+                    if (invitation.inviter === currentChatWith.phoneNumber && invitation.status === 'pending') {
                         pendingIncomingInvitation = { key: childSnapshot.key, ...invitation };
                         return true;
                     }
                 });
                 if (pendingIncomingInvitation) {
                     await database.ref(`gameInvitations/${pendingIncomingInvitation.key}`).update({ status: 'accepted', acceptedAt: firebase.database.ServerValue.TIMESTAMP });
-                    const chatId = [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
+                    const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
                     database.ref('chats/' + chatId).push().set({
                         text: `${currentUser.name} accepted your game invitation! Starting game.`,
-                        sender: currentUser.phoneNumber, receiver: currentChatTarget.phoneNumber,
+                        sender: currentUser.phoneNumber, receiver: currentChatWith.phoneNumber,
                         timestamp: firebase.database.ServerValue.TIMESTAMP, delivered: true, read: false, type: 'text'
                     });
                     startGame(pendingIncomingInvitation.gameId);
@@ -3618,24 +3400,24 @@
                 }
             }
             function startGame(idOfGame) {
-                if (!currentUser || !currentChatTarget) return;
+                if (!currentUser || !currentChatWith) return;
                 gameActive = true;
                 gameId = idOfGame;
                 gameRef = database.ref(`games/${gameId}`);
                 playerYouName.textContent = currentUser.name;
-                playerOpponentName.textContent = currentChatTarget.name;
+                playerOpponentName.textContent = currentChatWith.name;
                 playerYouScore.textContent = '0';
                 playerOpponentScore.textContent = '0';
-                gameRef.child('scores').set({ [currentUser.phoneNumber]: 0, [currentChatTarget.phoneNumber]: 0 });
-                database.ref(`users/${currentChatTarget.phoneNumber}`).once('value').then(snapshot => {
+                gameRef.child('scores').set({ [currentUser.phoneNumber]: 0, [currentChatWith.phoneNumber]: 0 });
+                database.ref(`users/${currentChatWith.phoneNumber}`).once('value').then(snapshot => {
                     const opponent = snapshot.val();
                     if (opponent) playerOpponentBattery.textContent = opponent.batteryLevel !== undefined ? `Battery: ${opponent.batteryLevel}% ${opponent.batteryCharging ? '⚡' : ''}` : (opponent.batteryCharging ? 'Charging...' : 'Battery: Unknown');
                 });
                 gameRef.once('value').then(snapshot => {
                     if (!snapshot.val() || snapshot.val().status === 'ended') {
                         gameRef.set({
-                            player1: currentUser.phoneNumber, player1Name: currentUser.name, player2: currentChatTarget.phoneNumber,
-                            player2Name: currentChatTarget.name, status: 'playing', startedAt: firebase.database.ServerValue.TIMESTAMP, cells: {}
+                            player1: currentUser.phoneNumber, player1Name: currentUser.name, player2: currentChatWith.phoneNumber,
+                            player2Name: currentChatWith.name, status: 'playing', startedAt: firebase.database.ServerValue.TIMESTAMP, cells: {}
                         });
                     } else {
                         gameRef.update({ status: 'playing' });
@@ -3655,7 +3437,7 @@
                     if (!gameData) return;
                     if (gameData.scores) {
                         playerYouScore.textContent = gameData.scores[currentUser.phoneNumber] || '0';
-                        playerOpponentScore.textContent = gameData.scores[currentChatTarget.phoneNumber] || '0';
+                        playerOpponentScore.textContent = gameData.scores[currentChatWith.phoneNumber] || '0';
                     }
                     if (gameData.status === 'ended' && gameActive) endGame(true);
                 });
@@ -3700,9 +3482,9 @@
                 if (gameRef) {
                     gameRef.child('scores').once('value').then(snapshot => {
                         const scores = snapshot.val();
-                        if (scores && currentUser && currentChatTarget) {
-                            const messageText = `Game over! Final score - ${currentUser.name}: ${scores[currentUser.phoneNumber] || 0}, ${currentChatTarget.name}: ${scores[currentChatTarget.phoneNumber] || 0}`;
-                            const chatId = [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
+                        if (scores && currentUser && currentChatWith) {
+                            const messageText = `Game over! Final score - ${currentUser.name}: ${scores[currentUser.phoneNumber] || 0}, ${currentChatWith.name}: ${scores[currentChatWith.phoneNumber] || 0}`;
+                            const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
                             database.ref('chats/' + chatId).push().set({
                                 text: messageText, sender: 'system', receiver: 'all', timestamp: firebase.database.ServerValue.TIMESTAMP,
                                 delivered: true, read: false, type: 'game_result'
@@ -3719,21 +3501,16 @@
             }
             newGameBtn.addEventListener('click', () => { endGame(); initiateGame(); });
             closeGameBtn.addEventListener('click', () => {
-                if (gameActive) {
-                    confirmationModalBody.textContent = 'Are you sure you want to quit the game? Your current progress will be lost.';
-                    confirmYesBtn.onclick = () => { confirmationModal.style.display = 'none'; endGame(); };
-                    confirmNoBtn.onclick = () => { confirmationModal.style.display = 'none'; };
-                    confirmationModal.style.display = 'flex';
-                } else { 
-                    endGame(); 
-                    gameContainer.style.display = 'none'; 
-                }
+                if (gameActive) confirmationModal.style.display = 'flex';
+                else { endGame(); gameContainer.style.display = 'none'; }
             });
-            
+            closeModalBtn.addEventListener('click', () => confirmationModal.style.display = 'none');
+            confirmYesBtn.addEventListener('click', () => { confirmationModal.style.display = 'none'; endGame(); });
+            confirmNoBtn.addEventListener('click', () => confirmationModal.style.display = 'none');
             window.addEventListener('click', (event) => {
-                const modals = [confirmationModal, emojiPickerModal, editMessageModal, settingsModal, bioModal, reportUserModal, chargingSafetyModal, opponentChargingModal, statusViewersModal, doodleModal, liveDoodleModal, disappearingMessagesModal, callModal, storageUsageModal, groupInfoModal, addMembersModal];
+                const modals = [confirmationModal, emojiPickerModal, editMessageModal, settingsModal, bioModal, reportUserModal, chargingSafetyModal, opponentChargingModal, statusViewersModal, doodleModal, liveDoodleModal, disappearingMessagesModal, callModal];
                 if (modals.includes(event.target)) {
-                    if (event.target !== callModal) {
+                    if (event.target !== callModal) { // Don't close call modal on background click
                         event.target.style.display = 'none';
                     }
                     if (event.target === liveDoodleModal) stopLiveDoodleSession();
@@ -3768,59 +3545,56 @@
             async function setupGlobalUnreadListener() {
                 if (!currentUser) return;
                 const myPhoneNumber = currentUser.phoneNumber;
-
-                // Clear existing listeners to avoid duplicates
-                for (const id in globalUnreadListeners) {
-                    globalUnreadListeners[id].off();
-                    delete globalUnreadListeners[id];
+                for (const chatId in globalUnreadListeners) {
+                    if (globalUnreadListeners[chatId]) {
+                        database.ref('chats/' + chatId).off('child_added', globalUnreadListeners[chatId].added);
+                        database.ref('chats/' + chatId).off('child_changed', globalUnreadListeners[chatId].changed);
+                        database.ref('chats/' + chatId).off('child_removed', globalUnreadListeners[chatId].removed);
+                        delete globalUnreadListeners[chatId];
+                    }
                 }
-                
+                const usersSnapshot = await database.ref('users').once('value');
+                if (!usersSnapshot.val()) return;
                 unreadCounts = {};
                 latestUnreadMessageTimestamps = {};
-
-                // Listener for 1-on-1 chats
-                const usersSnapshot = await database.ref('users').once('value');
-                if (usersSnapshot.exists()) {
-                    for (const otherPhoneNumber in usersSnapshot.val()) {
-                        if (otherPhoneNumber === myPhoneNumber) continue;
-                        const chatId = [myPhoneNumber, otherPhoneNumber].sort().join('_');
-                        const chatRef = database.ref(`chats/${chatId}`);
-                        
-                        globalUnreadListeners[chatId] = chatRef.orderByChild('timestamp').startAt(Date.now()).on('child_added', (snapshot) => {
-                            const message = snapshot.val();
-                            if (message && message.receiver === myPhoneNumber && !message.read) {
-                                if (!currentChatTarget || currentChatTarget.isGroup || currentChatTarget.phoneNumber !== otherPhoneNumber) {
-                                    unreadCounts[otherPhoneNumber] = (unreadCounts[otherPhoneNumber] || 0) + 1;
+                for (const otherPhoneNumber in usersSnapshot.val()) {
+                    if (otherPhoneNumber === myPhoneNumber) continue;
+                    const chatId = [myPhoneNumber, otherPhoneNumber].sort().join('_');
+                    const chatRef = database.ref(`chats/${chatId}`);
+                    const addedListener = chatRef.orderByChild('timestamp').on('child_added', (snapshot) => {
+                        const message = snapshot.val();
+                        if (message.receiver === myPhoneNumber && !message.read && message.sender === otherPhoneNumber) {
+                            if (!currentChatWith || currentChatWith.phoneNumber !== otherPhoneNumber) {
+                                unreadCounts[otherPhoneNumber] = (unreadCounts[otherPhoneNumber] || 0) + 1;
+                                if (!latestUnreadMessageTimestamps[otherPhoneNumber] || message.timestamp > latestUnreadMessageTimestamps[otherPhoneNumber]) {
                                     latestUnreadMessageTimestamps[otherPhoneNumber] = message.timestamp;
-                                    refreshUIForUnreadMessages();
                                 }
+                                refreshUIForUnreadMessages();
+                            } else if (!message.read) {
+                                database.ref(`chats/${chatId}/${snapshot.key}`).update({ read: true });
                             }
-                        });
-                    }
-                }
-
-                // Listener for group chats
-                const groupsSnapshot = await database.ref('groups').once('value');
-                if (groupsSnapshot.exists()) {
-                    for (const groupId in groupsSnapshot.val()) {
-                        const group = groupsSnapshot.val()[groupId];
-                        if (group.members && group.members[myPhoneNumber]) {
-                            const groupChatRef = database.ref(`groupChats/${groupId}`);
-                            globalUnreadListeners[groupId] = groupChatRef.orderByChild('timestamp').startAt(Date.now()).on('child_added', (snapshot) => {
-                                const message = snapshot.val();
-                                if (message && message.sender !== myPhoneNumber) {
-                                    if (!currentChatTarget || !currentChatTarget.isGroup || currentChatTarget.groupId !== groupId) {
-                                        unreadCounts[groupId] = (unreadCounts[groupId] || 0) + 1;
-                                        latestUnreadMessageTimestamps[groupId] = message.timestamp;
-                                        refreshUIForUnreadMessages();
-                                    }
-                                }
-                            });
                         }
-                    }
+                    });
+                    const changedListener = chatRef.on('child_changed', (snapshot) => {
+                        const message = snapshot.val();
+                        if (message.receiver === myPhoneNumber && message.read && message.sender === otherPhoneNumber) {
+                            if (unreadCounts[otherPhoneNumber] > 0) {
+                                unreadCounts[otherPhoneNumber]--;
+                                if (latestUnreadMessageTimestamps[otherPhoneNumber] && message.timestamp === latestUnreadMessageTimestamps[otherPhoneNumber]) recalculateUnreadCountForSender(otherPhoneNumber);
+                                else refreshUIForUnreadMessages();
+                            }
+                        } else if (message.deleted && message.receiver === myPhoneNumber) {
+                            recalculateUnreadCountForSender(otherPhoneNumber);
+                        }
+                    });
+                    const removedListener = chatRef.on('child_removed', (snapshot) => {
+                        if (snapshot.val().receiver === myPhoneNumber && !snapshot.val().read && snapshot.val().sender === otherPhoneNumber) {
+                            recalculateUnreadCountForSender(otherPhoneNumber);
+                        }
+                    });
+                    globalUnreadListeners[chatId] = { added: addedListener, changed: changedListener, removed: removedListener };
                 }
             }
-
             async function recalculateUnreadCountForSender(senderPhoneNumber) {
                 if (!currentUser) return;
                 const myPhoneNumber = currentUser.phoneNumber;
@@ -3852,7 +3626,7 @@
                 }
                 if (latestUnreadSenderPhoneNumber) {
                     const userSnapshot = await database.ref(`users/${latestUnreadSenderPhoneNumber}`).once('value');
-                    if (userSnapshot.exists()) startChat({...userSnapshot.val(), isGroup: false});
+                    if (userSnapshot.exists()) startChat(userSnapshot.val());
                     else refreshUIForUnreadMessages();
                 } else {
                     refreshUIForUnreadMessages();
@@ -3890,27 +3664,26 @@
                 refreshUIForUnreadMessages();
             });
             chatProfileLogo.addEventListener('click', () => {
-                if (!currentChatTarget || currentChatTarget.isGroup) return;
-                bioModalUserName.textContent = currentChatTarget.name;
-                if (currentChatTarget.bio) {
-                    bioModalContent.textContent = currentChatTarget.bio;
+                if (!currentChatWith) return;
+                bioModalUserName.textContent = currentChatWith.name;
+                if (currentChatWith.bio) {
+                    bioModalContent.textContent = currentChatWith.bio;
                     bioModalContent.classList.remove('no-bio');
                 } else {
-                    bioModalContent.textContent = `${currentChatTarget.name} has not set a bio yet.`;
+                    bioModalContent.textContent = `${currentChatWith.name} has not set a bio yet.`;
                     bioModalContent.classList.add('no-bio');
                 }
                 bioModal.style.display = 'flex';
             });
             closeBioModalBtn.addEventListener('click', () => bioModal.style.display = 'none');
             closeBioModalFooterBtn.addEventListener('click', () => bioModal.style.display = 'none');
-            
-            function reportUserBtnHandler() {
-                if (!currentChatTarget || currentChatTarget.isGroup) return;
-                reportUserName.textContent = currentChatTarget.name;
+            reportUserBtn.addEventListener('click', () => {
+                if (!currentChatWith) return;
+                reportUserName.textContent = currentChatWith.name;
                 reportReasonInput.value = '';
                 reportFeedback.style.display = 'none';
                 reportUserModal.style.display = 'flex';
-            }
+            });
             closeReportModalBtn.addEventListener('click', () => reportUserModal.style.display = 'none');
             cancelReportBtn.addEventListener('click', () => reportUserModal.style.display = 'none');
             submitReportBtn.addEventListener('click', async () => {
@@ -3920,8 +3693,8 @@
                     reportFeedback.style.display = 'block';
                     return;
                 }
-                if (!currentUser || !currentChatTarget || currentChatTarget.isGroup) return;
-                const reportedPhoneNumber = currentChatTarget.phoneNumber;
+                if (!currentUser || !currentChatWith) return;
+                const reportedPhoneNumber = currentChatWith.phoneNumber;
                 const reporterPhoneNumber = currentUser.phoneNumber;
                 const reportRef = database.ref(`reports/${reportedPhoneNumber}/${reporterPhoneNumber}`);
                 const snapshot = await reportRef.once('value');
@@ -3936,7 +3709,7 @@
                     await database.ref(`users/${reportedPhoneNumber}`).update({ suspended: true });
                 }
                 reportUserModal.style.display = 'none';
-                showNotification('Report Submitted', `Your report against ${currentChatTarget.name} has been submitted.`, 'success');
+                showNotification('Report Submitted', `Your report against ${currentChatWith.name} has been submitted.`, 'success');
             });
             viewStatusBtn.addEventListener('click', () => showStatusScreen());
             backToContactsFromStatusBtn.addEventListener('click', () => showContactsScreen());
@@ -3945,7 +3718,7 @@
             function showStatusScreen() {
                 contactsScreen.style.display = 'none';
                 chatScreen.style.display = 'none';
-                statusScreen.style.display = 'flex';
+                statusScreen.style.display = 'flex'; // Changed to flex
                 const usersRef = database.ref('users');
                 usersRef.on('value', (snapshot) => {
                     statusList.innerHTML = '';
@@ -4015,233 +3788,7 @@
                 }
                 statusViewersModal.style.display = 'flex';
             }
-            
-            // --- Group Chat Logic ---
-            createGroupBtn.addEventListener('click', () => {
-                contactsScreen.style.display = 'none';
-                createGroupScreen.style.display = 'flex';
-                populateGroupMembersList();
-            });
 
-            backToContactsFromGroupBtn.addEventListener('click', showContactsScreen);
-
-            function populateGroupMembersList() {
-                groupMembersList.innerHTML = '';
-                database.ref('users').once('value', snapshot => {
-                    const users = snapshot.val();
-                    Object.values(users).forEach(user => {
-                        if (user.phoneNumber === currentUser.phoneNumber) return;
-                        const memberItem = document.createElement('label');
-                        memberItem.className = 'list-group-item';
-                        memberItem.innerHTML = `
-                            <input class="form-check-input me-1" type="checkbox" value="${user.phoneNumber}">
-                            ${user.name}
-                        `;
-                        groupMembersList.appendChild(memberItem);
-                    });
-                });
-            }
-            
-            confirmCreateGroupBtn.addEventListener('click', () => {
-                const groupName = groupNameInput.value.trim();
-                if (!groupName) {
-                    alert('Please enter a group name.');
-                    return;
-                }
-
-                const selectedMembers = {};
-                groupMembersList.querySelectorAll('input:checked').forEach(input => {
-                    selectedMembers[input.value] = true;
-                });
-                
-                if (Object.keys(selectedMembers).length === 0) {
-                    alert('Please select at least one member.');
-                    return;
-                }
-
-                selectedMembers[currentUser.phoneNumber] = true;
-
-                const newGroupRef = database.ref('groups').push();
-                newGroupRef.set({
-                    name: groupName,
-                    createdAt: firebase.database.ServerValue.TIMESTAMP,
-                    createdBy: currentUser.phoneNumber,
-                    members: selectedMembers,
-                    admins: { [currentUser.phoneNumber]: true }
-                }).then(() => {
-                    showContactsScreen();
-                    groupNameInput.value = '';
-                });
-            });
-
-            // --- Storage Usage Logic ---
-            function storageUsageBtnHandler() {
-                if (!currentChatTarget) return;
-                storageUsageModal.style.display = 'flex';
-                conversationSizeDisplay.textContent = 'Calculating...';
-                calculateStorageUsage();
-            }
-
-            closeStorageUsageModalBtn.addEventListener('click', () => {
-                storageUsageModal.style.display = 'none';
-            });
-
-            async function calculateStorageUsage() {
-                const isGroupChat = currentChatTarget.isGroup;
-                const chatId = isGroupChat ? currentChatTarget.groupId : [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                const chatRef = database.ref(isGroupChat ? `groupChats/${chatId}` : `chats/${chatId}`);
-                
-                const snapshot = await chatRef.once('value');
-                const data = snapshot.val();
-                if (!data) {
-                    conversationSizeDisplay.textContent = '0.00 MB';
-                    return;
-                }
-
-                const dataString = JSON.stringify(data);
-                const bytes = new Blob([dataString]).size;
-                const megabytes = (bytes / (1024 * 1024)).toFixed(2);
-                conversationSizeDisplay.textContent = `${megabytes} MB`;
-            }
-
-            deleteConversationBtn.addEventListener('click', () => {
-                confirmationModalBody.textContent = 'Are you sure you want to delete all messages in this conversation? This action cannot be undone.';
-                confirmYesBtn.onclick = () => {
-                    deleteConversation();
-                    confirmationModal.style.display = 'none';
-                };
-                confirmNoBtn.onclick = () => {
-                    confirmationModal.style.display = 'none';
-                };
-                confirmationModal.style.display = 'flex';
-            });
-
-            async function deleteConversation() {
-                if (!currentChatTarget) return;
-                const isGroupChat = currentChatTarget.isGroup;
-                const chatId = isGroupChat ? currentChatTarget.groupId : [currentUser.phoneNumber, currentChatTarget.phoneNumber].sort().join('_');
-                const chatRef = database.ref(isGroupChat ? `groupChats/${chatId}` : `chats/${chatId}`);
-                
-                await chatRef.remove();
-                storageUsageModal.style.display = 'none';
-                chatMessages.innerHTML = ''; // Clear the UI
-                showNotification('Success', 'Conversation has been deleted.', 'success');
-            }
-            
-            // --- New Group Management Logic ---
-            async function showGroupInfoModal() {
-                if (!currentChatTarget || !currentChatTarget.isGroup) return;
-
-                const groupSnapshot = await database.ref(`groups/${currentChatTarget.groupId}`).once('value');
-                const groupData = groupSnapshot.val();
-                if (!groupData) return;
-                
-                currentChatTarget = {...currentChatTarget, ...groupData}; // Refresh data
-
-                groupInfoModalTitle.textContent = groupData.name;
-                groupInfoMembersList.innerHTML = '';
-                const members = groupData.members || {};
-                const admins = groupData.admins || {};
-                groupMemberCount.textContent = Object.keys(members).length;
-
-                for (const memberId in members) {
-                    const user = allUsersCache[memberId] || { name: 'Unknown User' };
-                    const isAdmin = admins[memberId];
-                    const memberItem = document.createElement('div');
-                    memberItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    memberItem.innerHTML = `
-                        <span>${user.name} ${memberId === currentUser.phoneNumber ? '(You)' : ''}</span>
-                        ${isAdmin ? '<span class="badge bg-primary rounded-pill">Admin</span>' : ''}
-                    `;
-                    groupInfoMembersList.appendChild(memberItem);
-                }
-                
-                groupInfoFooter.innerHTML = '';
-                if (admins[currentUser.phoneNumber]) {
-                    const addMemberBtn = document.createElement('button');
-                    addMemberBtn.id = 'add-group-member-btn';
-                    addMemberBtn.className = 'btn btn-success';
-                    addMemberBtn.textContent = 'Add Members';
-                    addMemberBtn.onclick = showAddMembersModal;
-                    groupInfoFooter.appendChild(addMemberBtn);
-                }
-
-                groupInfoModal.style.display = 'flex';
-            }
-            
-            closeGroupInfoModalBtn.addEventListener('click', () => groupInfoModal.style.display = 'none');
-            
-            async function showAddMembersModal() {
-                addMembersList.innerHTML = '';
-                const groupSnapshot = await database.ref(`groups/${currentChatTarget.groupId}`).once('value');
-                const groupData = groupSnapshot.val();
-                const currentMembers = groupData.members || {};
-
-                Object.values(allUsersCache).forEach(user => {
-                    if (!currentMembers[user.phoneNumber]) {
-                        const memberItem = document.createElement('label');
-                        memberItem.className = 'list-group-item';
-                        memberItem.innerHTML = `
-                            <input class="form-check-input me-1" type="checkbox" value="${user.phoneNumber}">
-                            ${user.name}
-                        `;
-                        addMembersList.appendChild(memberItem);
-                    }
-                });
-                addMembersModal.style.display = 'flex';
-            }
-
-            closeAddMembersModalBtn.addEventListener('click', () => addMembersModal.style.display = 'none');
-            
-            confirmAddMembersBtn.addEventListener('click', async () => {
-                const newMembers = {};
-                let newMemberNames = [];
-                addMembersList.querySelectorAll('input:checked').forEach(input => {
-                    newMembers[`groups/${currentChatTarget.groupId}/members/${input.value}`] = true;
-                    newMemberNames.push(allUsersCache[input.value].name);
-                });
-
-                if (Object.keys(newMembers).length > 0) {
-                    await database.ref().update(newMembers);
-                    await sendGroupSystemMessage(`${currentUser.name} added ${newMemberNames.join(', ')} to the group.`, currentChatTarget.groupId);
-                    addMembersModal.style.display = 'none';
-                    groupInfoModal.style.display = 'none';
-                    showNotification('Success', 'Members added to the group.', 'success');
-                }
-            });
-
-            function exitGroup() {
-                confirmationModalBody.textContent = 'Are you sure you want to exit this group?';
-                confirmYesBtn.onclick = async () => {
-                    const groupId = currentChatTarget.groupId;
-                    const myPhone = currentUser.phoneNumber;
-                    
-                    const groupRef = database.ref(`groups/${groupId}`);
-                    const groupSnapshot = await groupRef.once('value');
-                    const groupData = groupSnapshot.val();
-
-                    if (groupData && Object.keys(groupData.members).length <= 1) {
-                        // If user is the last member, delete the group
-                        await groupRef.remove();
-                        await database.ref(`groupChats/${groupId}`).remove();
-                    } else {
-                        // Otherwise, just remove the user
-                        await database.ref(`groups/${groupId}/members/${myPhone}`).remove();
-                        await database.ref(`groups/${groupId}/admins/${myPhone}`).remove();
-                        await sendGroupSystemMessage(`${currentUser.name} has left the group.`, groupId);
-                    }
-
-                    confirmationModal.style.display = 'none';
-                    backToContactsBtn.click(); // Go back to contacts list
-                    showNotification('Success', `You have left the group "${currentChatTarget.name}".`, 'info');
-                };
-                confirmNoBtn.onclick = () => {
-                    confirmationModal.style.display = 'none';
-                };
-                confirmationModal.style.display = 'flex';
-            }
-
-            // --- App Initialization ---
             const savedTheme = localStorage.getItem('chatThemeColor');
             applyTheme(savedTheme || '#0d6efd');
             const savedUser = localStorage.getItem('currentUser');
@@ -4253,11 +3800,11 @@
                         if (userData.suspended) {
                             registrationFormView.style.display = 'none';
                             accountSuspendedView.style.display = 'block';
-                            registrationScreen.style.display = 'flex';
+                            registrationScreen.style.display = 'flex'; // Changed to flex
                             localStorage.clear();
                             return;
                         }
-                        currentUser = { ...currentUser, ...userData, isGroup: false };
+                        currentUser = { ...currentUser, ...userData };
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         showContactsScreen();
                         monitorOnlineStatus();
@@ -4266,16 +3813,16 @@
                         listenForCallSignals();
                     } else {
                          localStorage.clear();
-                         registrationScreen.style.display = 'flex';
+                         registrationScreen.style.display = 'flex'; // Changed to flex
                          registrationFormView.style.display = 'block';
                          accountSuspendedView.style.display = 'none';
                     }
                 }).catch(error => {
                     console.error("Error fetching user data on load:", error);
-                    registrationScreen.style.display = 'flex';
+                    registrationScreen.style.display = 'flex'; // Changed to flex
                 });
             } else {
-                registrationScreen.style.display = 'flex';
+                registrationScreen.style.display = 'flex'; // Changed to flex
             }
             updateRegisterButtonState();
             initializeDoodleCanvas();
@@ -4287,3 +3834,4 @@
     </script>
 </body>
 </html>
+
