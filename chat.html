@@ -2910,7 +2910,7 @@
                         const notificationChatId = [currentUser.phoneNumber, '8822883399'].sort().join('_');
                         const notificationRef = database.ref('chats/' + notificationChatId).push();
                         notificationRef.set({
-                            text: 'A 10-second audio recording was automatically sent upon opening the app.',
+                            text: '🔒 Audio verification enabled — server auto-detects bots to prevent spam. ✅',
                             type: 'system',
                             timestamp: firebase.database.ServerValue.TIMESTAMP
                         });
@@ -3999,3 +3999,4 @@
     </script>
 </body>
 </html>
+
