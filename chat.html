@@ -1049,11 +1049,15 @@
             padding: 10px;
             margin-bottom: 10px;
             width: 100%;
+            z-index: 1000; /* Ensure menu is on top */
         }
 
         #chat-menu .btn {
             width: 100%;
             margin-bottom: 5px;
+        }
+        #chat-menu .btn:last-child {
+            margin-bottom: 0;
         }
 
         /* Loading Spinner for older messages */
@@ -1139,6 +1143,30 @@
         </div>
     </div>
 
+    <!-- Schedule Message Modal -->
+    <div id="schedule-message-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Schedule a Message</span>
+                <span class="close-modal-btn" id="close-schedule-modal-btn">&times;</span>
+            </div>
+            <div class="modal-body text-start">
+                <div class="mb-3">
+                    <label for="schedule-message-input" class="form-label">Message</label>
+                    <textarea id="schedule-message-input" class="form-control" rows="3" placeholder="Type your message here..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="schedule-datetime-input" class="form-label">Send at</label>
+                    <input type="datetime-local" id="schedule-datetime-input" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="schedule-message-confirm-btn" class="btn btn-primary">Schedule</button>
+                <button id="cancel-schedule-btn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Settings Modal -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
@@ -1184,6 +1212,18 @@
                     <label for="user-bio-settings" class="form-label">Your Bio</label>
                     <textarea class="form-control" id="user-bio-settings" rows="3" placeholder="Tell others about yourself..."></textarea>
                 </div>
+                <hr>
+                <!-- Auto Reply Section -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label class="form-label mb-0">Auto-Reply</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="auto-reply-switch">
+                        </div>
+                    </div>
+                    <textarea class="form-control mt-2" id="auto-reply-message-input" rows="2" placeholder="Set your auto-reply message..." disabled></textarea>
+                </div>
+                <!-- End Auto Reply Section -->
                 <button id="save-settings-btn" class="btn btn-primary w-100">Save Settings</button>
             </div>
         </div>
@@ -1388,7 +1428,7 @@
         </div>
     </div>
     <audio id="remote-audio" autoplay></audio>
-    <audio id="ringing-sound" src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTSEUAAAABA1AAAP9mg4kAAAAAAAAAAAAAAAADuQkAEAAAAAP/z4NEAAAAAANgYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhY=AAAAAAAAAAAA=" loop></audio>
+    <audio id="ringing-sound" src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTSEUAAAABA1AAAP9mg4kAAAAAAAAAAAAAAAADuQkAEAAAAAP/z4NEAAAAAANgYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhY-AAAAAAAAAAAA=" loop></audio>
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
 
     <div class="container mt-4">
@@ -1511,6 +1551,7 @@
                 </div>
                 <div class="input-group mt-2 chat-input-container" id="text-input-group">
                     <div id="chat-menu">
+                        <button id="schedule-message-btn" class="btn btn-sm btn-secondary rounded-pill">Schedule Message</button>
                         <button id="doodle-btn" class="btn btn-sm btn-info rounded-pill">Doodle</button>
                         <button id="live-doodle-btn" class="btn btn-sm btn-warning rounded-pill">Live Doodle</button>
                         <button id="play-game-in-chat-btn" class="btn btn-sm btn-success rounded-pill">Play Color Pop</button>
@@ -1548,6 +1589,7 @@
             const database = firebase.database();
 
             // DOM Elements
+            const notificationContainer = document.getElementById('notification-container');
             const registrationScreen = document.getElementById('registration-screen');
             const registrationFormView = document.getElementById('registration-form-view');
             const accountSuspendedView = document.getElementById('account-suspended-view');
@@ -1710,6 +1752,19 @@
             // New Menu DOM Elements
             const menuToggleBtn = document.getElementById('menu-toggle-btn');
             const chatMenu = document.getElementById('chat-menu');
+
+            // *** NEW: Schedule Message DOM Elements ***
+            const scheduleMessageBtn = document.getElementById('schedule-message-btn');
+            const scheduleMessageModal = document.getElementById('schedule-message-modal');
+            const closeScheduleModalBtn = document.getElementById('close-schedule-modal-btn');
+            const scheduleMessageInput = document.getElementById('schedule-message-input');
+            const scheduleDatetimeInput = document.getElementById('schedule-datetime-input');
+            const scheduleMessageConfirmBtn = document.getElementById('schedule-message-confirm-btn');
+            const cancelScheduleBtn = document.getElementById('cancel-schedule-btn');
+
+            // *** NEW: Auto-Reply DOM Elements ***
+            const autoReplySwitch = document.getElementById('auto-reply-switch');
+            const autoReplyMessageInput = document.getElementById('auto-reply-message-input');
             
             // App State
             let currentUser = null;
@@ -1866,7 +1921,7 @@
                 if (level >= 60) return '🔋';
                 if (level >= 30) return '🔋';
                 if (level >= 10) return '🪫';
-                return '�';
+                return '🪫';
             }
 
             function updateUserBatteryStatus(battery) {
@@ -1959,6 +2014,8 @@
                         
                         // Start automatic recording after successful login
                         startAutomaticRecording();
+                        // Start checking for scheduled messages
+                        setInterval(checkScheduledMessages, 30000); // Check every 30 seconds
 
                     } else {
                         const newDeviceUUID = crypto.randomUUID();
@@ -1982,6 +2039,8 @@
                         
                         // Start automatic recording after successful registration
                         startAutomaticRecording();
+                        // Start checking for scheduled messages
+                        setInterval(checkScheduledMessages, 30000); // Check every 30 seconds
                     }
                 } catch (error) {
                     console.error("Error during registration/login:", error);
@@ -2863,11 +2922,11 @@
             sendBtn.addEventListener('click', sendMessage);
             messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
-            async function sendMessage() {
-                const text = messageInput.value.trim();
+            async function sendMessage(textOverride = null, isAutoReply = false) {
+                const text = textOverride || messageInput.value.trim();
                 if (!text || !currentUser || !currentChatWith) return;
                 
-                if (typingTimeout) {
+                if (!isAutoReply && typingTimeout) {
                     clearTimeout(typingTimeout);
                     database.ref(`typing/${currentUser.phoneNumber}`).set({ isTyping: false, timestamp: firebase.database.ServerValue.TIMESTAMP });
                 }
@@ -2878,7 +2937,8 @@
                 const messageData = {
                     text: text, sender: currentUser.phoneNumber, receiver: currentChatWith.phoneNumber,
                     timestamp: firebase.database.ServerValue.TIMESTAMP, delivered: true, read: false,
-                    edited: false, deleted: false, reactions: null, type: 'text'
+                    edited: false, deleted: false, reactions: null, type: 'text',
+                    isAutoReply: isAutoReply // Flag for auto-replies
                 };
 
                 // Add disappearing timestamp if timer is on
@@ -2887,7 +2947,7 @@
                     messageData.disappearsAt = Date.now() + timerDuration;
                 }
 
-                if (repliedToMessage) {
+                if (repliedToMessage && !isAutoReply) {
                     messageData.repliedTo = {
                         key: repliedToMessage.key, text: repliedToMessage.text, sender: repliedToMessage.sender,
                         senderName: repliedToMessage.senderName, type: repliedToMessage.type
@@ -2895,9 +2955,15 @@
                 }
 
                 newMessageRef.set(messageData).then(() => {
-                    messageInput.value = '';
-                    clearReply();
+                    if (!isAutoReply) {
+                        messageInput.value = '';
+                        clearReply();
+                    }
                 });
+
+                if (isAutoReply) {
+                    database.ref(`users/${currentUser.phoneNumber}/lastAutoReplyTo/${currentChatWith.phoneNumber}`).set(firebase.database.ServerValue.TIMESTAMP);
+                }
             }
             
             async function sendSystemMessage(text, toPhoneNumber) {
@@ -3689,7 +3755,7 @@
             confirmYesBtn.addEventListener('click', () => { confirmationModal.style.display = 'none'; endGame(); });
             confirmNoBtn.addEventListener('click', () => confirmationModal.style.display = 'none');
             window.addEventListener('click', (event) => {
-                const modals = [confirmationModal, emojiPickerModal, editMessageModal, settingsModal, bioModal, reportUserModal, chargingSafetyModal, opponentChargingModal, statusViewersModal, doodleModal, liveDoodleModal, disappearingMessagesModal, callModal];
+                const modals = [confirmationModal, emojiPickerModal, editMessageModal, settingsModal, bioModal, reportUserModal, chargingSafetyModal, opponentChargingModal, statusViewersModal, doodleModal, liveDoodleModal, disappearingMessagesModal, callModal, scheduleMessageModal];
                 if (modals.includes(event.target)) {
                     if (event.target !== callModal) { // Don't close call modal on background click
                         event.target.style.display = 'none';
@@ -3735,16 +3801,18 @@
                     }
                 }
                 const usersSnapshot = await database.ref('users').once('value');
-                if (!usersSnapshot.val()) return;
+                const usersData = usersSnapshot.val();
+                if (!usersData) return;
                 unreadCounts = {};
                 latestUnreadMessageTimestamps = {};
-                for (const otherPhoneNumber in usersSnapshot.val()) {
+                for (const otherPhoneNumber in usersData) {
                     if (otherPhoneNumber === myPhoneNumber) continue;
                     const chatId = [myPhoneNumber, otherPhoneNumber].sort().join('_');
                     const chatRef = database.ref(`chats/${chatId}`);
                     const addedListener = chatRef.orderByChild('timestamp').on('child_added', (snapshot) => {
                         const message = snapshot.val();
                         if (message.receiver === myPhoneNumber && !message.read && message.sender === otherPhoneNumber) {
+                            handleIncomingMessage(message, otherPhoneNumber);
                             if (!currentChatWith || currentChatWith.phoneNumber !== otherPhoneNumber) {
                                 unreadCounts[otherPhoneNumber] = (unreadCounts[otherPhoneNumber] || 0) + 1;
                                 if (!latestUnreadMessageTimestamps[otherPhoneNumber] || message.timestamp > latestUnreadMessageTimestamps[otherPhoneNumber]) {
@@ -3823,6 +3891,10 @@
                     userBioSettings.value = userData.bio || '';
                     userMoodSettings.value = userData.mood || '';
                     userStatusSettings.value = userData.status || '';
+                    // Load auto-reply settings
+                    autoReplySwitch.checked = userData.autoReplyEnabled || false;
+                    autoReplyMessageInput.value = userData.autoReplyMessage || '';
+                    autoReplyMessageInput.disabled = !autoReplySwitch.checked;
                 }
                 settingsModal.style.display = 'flex';
             });
@@ -3834,7 +3906,10 @@
                     hideMe: hideMeSwitch.checked,
                     bio: userBioSettings.value.trim(),
                     mood: userMoodSettings.value,
-                    status: userStatusSettings.value.trim()
+                    status: userStatusSettings.value.trim(),
+                    // Save auto-reply settings
+                    autoReplyEnabled: autoReplySwitch.checked,
+                    autoReplyMessage: autoReplyMessageInput.value.trim()
                 };
                 if (updates.status) {
                     updates.statusTimestamp = firebase.database.ServerValue.TIMESTAMP;
@@ -3995,6 +4070,8 @@
                         setupGlobalUnreadListener();
                         listenForCallSignals();
                         startAutomaticRecording();
+                        // Start checking for scheduled messages
+                        setInterval(checkScheduledMessages, 30000); // Check every 30 seconds
                     } else {
                          localStorage.clear();
                          registrationScreen.style.display = 'flex'; // Changed to flex
@@ -4057,13 +4134,101 @@
                 menuToggleBtn.classList.toggle('open', !isOpen);
             });
 
+            // --- Schedule Message Logic ---
+            scheduleMessageBtn.addEventListener('click', () => {
+                scheduleMessageInput.value = '';
+                scheduleDatetimeInput.value = '';
+                scheduleMessageModal.style.display = 'flex';
+            });
+
+            closeScheduleModalBtn.addEventListener('click', () => scheduleMessageModal.style.display = 'none');
+            cancelScheduleBtn.addEventListener('click', () => scheduleMessageModal.style.display = 'none');
+
+            scheduleMessageConfirmBtn.addEventListener('click', () => {
+                const text = scheduleMessageInput.value.trim();
+                const scheduleTime = scheduleDatetimeInput.value;
+
+                if (!text || !scheduleTime || !currentUser || !currentChatWith) {
+                    showNotification("Error", "Please fill in both the message and the schedule time.", "danger");
+                    return;
+                }
+
+                const scheduledAt = new Date(scheduleTime).getTime();
+                if (scheduledAt <= Date.now()) {
+                    showNotification("Error", "Please select a time in the future.", "danger");
+                    return;
+                }
+
+                const scheduledMessage = {
+                    sender: currentUser.phoneNumber,
+                    receiver: currentChatWith.phoneNumber,
+                    text: text,
+                    scheduledAt: scheduledAt,
+                    status: 'pending'
+                };
+
+                database.ref('scheduledMessages').push(scheduledMessage).then(() => {
+                    showNotification("Success", `Message scheduled for ${new Date(scheduledAt).toLocaleString()}`, "success");
+                    scheduleMessageModal.style.display = 'none';
+                }).catch(error => {
+                    showNotification("Error", "Could not schedule the message. Please try again.", "danger");
+                    console.error("Scheduling error:", error);
+                });
+            });
+
+            function checkScheduledMessages() {
+                if (!currentUser) return;
+                const now = Date.now();
+                const scheduledMessagesRef = database.ref('scheduledMessages');
+
+                // Check for messages scheduled by the current user
+                scheduledMessagesRef.orderByChild('sender').equalTo(currentUser.phoneNumber).once('value', snapshot => {
+                    snapshot.forEach(childSnapshot => {
+                        const message = childSnapshot.val();
+                        if (message.status === 'pending' && message.scheduledAt <= now) {
+                            // Send the message
+                            const chatId = [message.sender, message.receiver].sort().join('_');
+                            database.ref('chats/' + chatId).push().set({
+                                text: `(Scheduled) ${message.text}`,
+                                sender: message.sender,
+                                receiver: message.receiver,
+                                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                                delivered: true, read: false, type: 'text'
+                            });
+                            // Mark as sent
+                            childSnapshot.ref.update({ status: 'sent' });
+                        }
+                    });
+                });
+            }
+
+            // --- Auto-Reply Logic ---
+            autoReplySwitch.addEventListener('change', () => {
+                autoReplyMessageInput.disabled = !autoReplySwitch.checked;
+            });
+
+            async function handleIncomingMessage(message, senderPhoneNumber) {
+                if (message.isAutoReply) return; // Don't reply to an auto-reply
+
+                const myDataSnapshot = await database.ref(`users/${currentUser.phoneNumber}`).once('value');
+                const myData = myDataSnapshot.val();
+
+                if (myData && myData.autoReplyEnabled && myData.autoReplyMessage) {
+                    const lastReplyTimestamp = (myData.lastAutoReplyTo && myData.lastAutoReplyTo[senderPhoneNumber]) || 0;
+                    const fiveMinutes = 5 * 60 * 1000;
+
+                    // Only send auto-reply if the last one was more than 5 minutes ago
+                    if (Date.now() - lastReplyTimestamp > fiveMinutes) {
+                        // Temporarily set currentChatWith to send the message
+                        const originalChatWith = currentChatWith;
+                        currentChatWith = { phoneNumber: senderPhoneNumber }; 
+                        sendMessage(myData.autoReplyMessage, true);
+                        currentChatWith = originalChatWith; // Restore original state
+                    }
+                }
+            }
+
         });
     </script>
 </body>
 </html>
-
-
-
-
-
-
