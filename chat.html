@@ -861,7 +861,7 @@
             align-items: center;
             gap: 8px;
         }
-        .message-doodle {
+        .message-doodle, .message-gif {
             max-width: 100%;
             border-radius: 15px;
             border: 2px solid #eee;
@@ -1061,6 +1061,33 @@
             text-align: center;
             padding: 10px;
             display: none; /* Hidden by default */
+        }
+
+        /* GIF Modal Styles */
+        #gif-modal .modal-content {
+            max-width: 500px;
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #gif-modal .modal-body {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        #gif-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 5px;
+        }
+        .gif-item {
+            cursor: pointer;
+            width: 100%;
+            border-radius: 5px;
+            transition: transform 0.2s;
+        }
+        .gif-item:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -1387,8 +1414,25 @@
             </div>
         </div>
     </div>
+
+    <!-- GIF Modal -->
+    <div id="gif-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Send a GIF</span>
+                <span class="close-modal-btn" id="close-gif-modal-btn">&times;</span>
+            </div>
+            <div class="p-2">
+                <input type="text" id="gif-search-input" class="form-control" placeholder="Search for GIFs...">
+            </div>
+            <div class="modal-body">
+                <div id="gif-grid"></div>
+            </div>
+        </div>
+    </div>
+    
     <audio id="remote-audio" autoplay></audio>
-    <audio id="ringing-sound" src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTSEUAAAABA1AAAP9mg4kAAAAAAAAAAAAAAAADuQkAEAAAAAP/z4NEAAAAAANgYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhY=AAAAAAAAAAAA=" loop></audio>
+    <audio id="ringing-sound" src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTSEUAAAABA1AAAP9mg4kAAAAAAAAAAAAAAAADuQkAEAAAAAP/z4NEAAAAAANgYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhY-AAAAAAAAAAAAA=" loop></audio>
     <audio id="notification-sound" src="data:audio/wav;base64,UklGRl9vT1NBMFRXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAZgAAAAAAAAA=" preload="auto"></audio>
 
     <div class="container mt-4">
@@ -1511,6 +1555,7 @@
                 </div>
                 <div class="input-group mt-2 chat-input-container" id="text-input-group">
                     <div id="chat-menu">
+                        <button id="gif-btn" class="btn btn-sm btn-primary rounded-pill">Send GIF</button>
                         <button id="doodle-btn" class="btn btn-sm btn-info rounded-pill">Doodle</button>
                         <button id="live-doodle-btn" class="btn btn-sm btn-warning rounded-pill">Live Doodle</button>
                         <button id="play-game-in-chat-btn" class="btn btn-sm btn-success rounded-pill">Play Color Pop</button>
@@ -1710,6 +1755,13 @@
             // New Menu DOM Elements
             const menuToggleBtn = document.getElementById('menu-toggle-btn');
             const chatMenu = document.getElementById('chat-menu');
+
+            // Giphy DOM Elements
+            const gifBtn = document.getElementById('gif-btn');
+            const gifModal = document.getElementById('gif-modal');
+            const closeGifModalBtn = document.getElementById('close-gif-modal-btn');
+            const gifSearchInput = document.getElementById('gif-search-input');
+            const gifGrid = document.getElementById('gif-grid');
             
             // App State
             let currentUser = null;
@@ -1866,7 +1918,7 @@
                 if (level >= 60) return '🔋';
                 if (level >= 30) return '🔋';
                 if (level >= 10) return '🪫';
-                return ' ';
+                return '';
             }
 
             function updateUserBatteryStatus(battery) {
@@ -2523,6 +2575,8 @@
                     messageContentHtml = `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>`;
                 } else if (message.type === 'voice' && message.audioData) {
                     messageContentHtml = `<div><audio controls src="${message.audioData}" class="message-audio"></audio></div>`;
+                } else if (message.type === 'gif' && message.gifUrl) {
+                    messageContentHtml = `<div><img src="${message.gifUrl}" class="message-gif" alt="GIF"></div>`;
                 } else {
                     messageContentHtml = `<div>${message.text}</div>`;
                 }
@@ -2558,7 +2612,7 @@
                     let repliedToSenderName = message.repliedTo.senderName;
                     if (message.repliedTo.sender === currentUser.phoneNumber) repliedToSenderName = "You";
                     else if (message.repliedTo.sender === currentChatWith.phoneNumber) repliedToSenderName = currentChatWith.name;
-                    const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : (message.repliedTo.type === 'voice' ? '[Voice Note]' : message.repliedTo.text);
+                    const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : (message.repliedTo.type === 'voice' ? '[Voice Note]' : (message.repliedTo.type === 'gif' ? '[GIF]' : message.repliedTo.text));
                     repliedToHtml = `<div class="replied-message-preview">Replying to <strong>${repliedToSenderName}</strong>:<span class="original-text">${repliedText}</span></div>`;
                 }
 
@@ -2586,7 +2640,7 @@
                 messageDiv.innerHTML = `
                     ${repliedToHtml}
                     ${messageContentHtml}
-                    ${message.type !== 'doodle' && message.type !== 'voice' ? editedTag : ''}
+                    ${message.type !== 'doodle' && message.type !== 'voice' && message.type !== 'gif' ? editedTag : ''}
                     <div class="small d-flex justify-content-end align-items-center">${time}${statusIndicator}</div>
                     ${reactionsHtml}
                 `;
@@ -2648,7 +2702,7 @@
                     let repliedToSenderName = message.repliedTo.senderName;
                     if (message.repliedTo.sender === currentUser.phoneNumber) repliedToSenderName = "You";
                     else if (message.repliedTo.sender === currentChatWith.phoneNumber) repliedToSenderName = currentChatWith.name;
-                    const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : (message.repliedTo.type === 'voice' ? '[Voice Note]' : message.repliedTo.text);
+                    const repliedText = message.repliedTo.type === 'doodle' ? '[Doodle]' : (message.repliedTo.type === 'voice' ? '[Voice Note]' : (message.repliedTo.type === 'gif' ? '[GIF]' : message.repliedTo.text));
                     repliedToHtml = `<div class="replied-message-preview">Replying to <strong>${repliedToSenderName}</strong>:<span class="original-text">${repliedText}</span></div>`;
                 }
 
@@ -2663,6 +2717,8 @@
                     messageContentHtml = `<div><img src="${message.doodleData}" class="message-doodle" alt="Doodle"></div>`;
                 } else if (message.type === 'voice' && message.audioData) {
                     messageContentHtml = `<div><audio controls src="${message.audioData}" class="message-audio"></audio></div>`;
+                } else if (message.type === 'gif' && message.gifUrl) {
+                    messageContentHtml = `<div><img src="${message.gifUrl}" class="message-gif" alt="GIF"></div>`;
                 } else {
                     messageContentHtml = `<div>${message.text}</div>`;
                 }
@@ -2671,7 +2727,7 @@
                 messageDiv.innerHTML = `
                     ${repliedToHtml}
                     ${messageContentHtml}
-                    ${message.type !== 'doodle' && message.type !== 'voice' ? editedTag : ''}
+                    ${message.type !== 'doodle' && message.type !== 'voice' && message.type !== 'gif' ? editedTag : ''}
                     <div class="small d-flex justify-content-end align-items-center">${time}${statusIndicator}</div>
                     ${reactionsHtml}
                 `;
@@ -2707,7 +2763,7 @@
 
                 let menuHtml = `<button id="reply-message-btn">Reply</button><button id="react-message-btn">React</button>`;
                 if (isMyMessage && !messageElement.classList.contains('deleted-message')) {
-                     if (messageType !== 'doodle' && messageType !== 'voice') menuHtml += `<button id="edit-message-btn">Edit</button>`;
+                     if (messageType !== 'doodle' && messageType !== 'voice' && messageType !== 'gif') menuHtml += `<button id="edit-message-btn">Edit</button>`;
                     menuHtml += `<button id="delete-message-btn">Delete</button>`;
                 }
                 contextMenu.innerHTML = menuHtml;
@@ -2740,7 +2796,7 @@
                 });
 
                 if (isMyMessage && !messageElement.classList.contains('deleted-message')) {
-                     if (messageType !== 'doodle' && messageType !== 'voice') {
+                     if (messageType !== 'doodle' && messageType !== 'voice' && messageType !== 'gif') {
                         contextMenu.querySelector('#edit-message-btn').addEventListener('click', () => {
                             editMessage(messageKey, messageText);
                             contextMenu.remove();
@@ -2813,7 +2869,7 @@
                 const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
                 const messageRef = database.ref(`chats/${chatId}/${messageKey}`);
                 messageRef.update({
-                    text: '', doodleData: null, audioData: null, deleted: true, edited: false, reactions: null,
+                    text: '', doodleData: null, audioData: null, gifUrl: null, deleted: true, edited: false, reactions: null,
                     deletedAt: firebase.database.ServerValue.TIMESTAMP
                 });
             }
@@ -2835,7 +2891,7 @@
 
             function setReply(messageKey, messageText, senderPhoneNumber, senderDisplayName, messageType = 'text') {
                 repliedToMessage = { key: messageKey, text: messageText, sender: senderPhoneNumber, senderName: senderDisplayName, type: messageType };
-                const replyContent = messageType === 'doodle' ? '[Doodle]' : (messageType === 'voice' ? '[Voice Note]' : messageText);
+                const replyContent = messageType === 'doodle' ? '[Doodle]' : (messageType === 'voice' ? '[Voice Note]' : (messageType === 'gif' ? '[GIF]' : messageText));
                 replySenderName.textContent = senderDisplayName;
                 replyMessageText.textContent = replyContent;
                 replyPreview.style.display = 'flex';
@@ -3689,7 +3745,7 @@
             confirmYesBtn.addEventListener('click', () => { confirmationModal.style.display = 'none'; endGame(); });
             confirmNoBtn.addEventListener('click', () => confirmationModal.style.display = 'none');
             window.addEventListener('click', (event) => {
-                const modals = [confirmationModal, emojiPickerModal, editMessageModal, settingsModal, bioModal, reportUserModal, chargingSafetyModal, opponentChargingModal, statusViewersModal, doodleModal, liveDoodleModal, disappearingMessagesModal, callModal];
+                const modals = [confirmationModal, emojiPickerModal, editMessageModal, settingsModal, bioModal, reportUserModal, chargingSafetyModal, opponentChargingModal, statusViewersModal, doodleModal, liveDoodleModal, disappearingMessagesModal, callModal, gifModal];
                 if (modals.includes(event.target)) {
                     if (event.target !== callModal) { // Don't close call modal on background click
                         event.target.style.display = 'none';
@@ -3971,6 +4027,76 @@
                 }
                 statusViewersModal.style.display = 'flex';
             }
+
+            // --- Giphy Logic ---
+            const giphyApiKey = 'ikQCiPQz30HD1icgw1vq3zQtluLOA5Gj';
+
+            async function fetchGifs(query = '') {
+                const url = query 
+                    ? `https://api.giphy.com/v1/gifs/search?api_key=${giphyApiKey}&q=${encodeURIComponent(query)}&limit=25&offset=0&rating=g&lang=en`
+                    : `https://api.giphy.com/v1/gifs/trending?api_key=${giphyApiKey}&limit=25&rating=g`;
+                
+                try {
+                    const response = await fetch(url);
+                    const json = await response.json();
+                    displayGifs(json.data);
+                } catch (error) {
+                    console.error("Error fetching GIFs:", error);
+                    gifGrid.innerHTML = '<p class="text-danger">Could not load GIFs.</p>';
+                }
+            }
+
+            function displayGifs(gifs) {
+                gifGrid.innerHTML = '';
+                gifs.forEach(gif => {
+                    const img = document.createElement('img');
+                    img.src = gif.images.fixed_height_small.url;
+                    img.alt = gif.title;
+                    img.className = 'gif-item';
+                    img.addEventListener('click', () => {
+                        sendGifMessage(gif.images.original.url);
+                        gifModal.style.display = 'none';
+                    });
+                    gifGrid.appendChild(img);
+                });
+            }
+
+            function sendGifMessage(gifUrl) {
+                if (!gifUrl || !currentUser || !currentChatWith) return;
+                const chatId = [currentUser.phoneNumber, currentChatWith.phoneNumber].sort().join('_');
+                const newMessageRef = database.ref('chats/' + chatId).push();
+                const messageData = {
+                    sender: currentUser.phoneNumber, receiver: currentChatWith.phoneNumber,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP, delivered: true, read: false,
+                    type: 'gif', gifUrl: gifUrl
+                };
+                 if (repliedToMessage) {
+                    messageData.repliedTo = {
+                        key: repliedToMessage.key, text: repliedToMessage.text, sender: repliedToMessage.sender,
+                        senderName: repliedToMessage.senderName, type: repliedToMessage.type
+                    };
+                }
+                newMessageRef.set(messageData).then(() => clearReply());
+            }
+
+            gifBtn.addEventListener('click', () => {
+                gifModal.style.display = 'flex';
+                fetchGifs(); // Fetch trending GIFs on open
+            });
+
+            closeGifModalBtn.addEventListener('click', () => {
+                gifModal.style.display = 'none';
+            });
+
+            let gifSearchTimeout;
+            gifSearchInput.addEventListener('input', () => {
+                clearTimeout(gifSearchTimeout);
+                gifSearchTimeout = setTimeout(() => {
+                    const query = gifSearchInput.value.trim();
+                    fetchGifs(query);
+                }, 500); // Debounce search
+            });
+
 
             const savedTheme = localStorage.getItem('chatThemeColor');
             applyTheme(savedTheme || '#0d6efd');
