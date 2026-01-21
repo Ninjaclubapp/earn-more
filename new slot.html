@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Slots India - Pro Secure</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        :root {
+            --gold: #ffd700;
+            --neon-blue: #00f2ff;
+            --neon-pink: #ff007f;
+            --bg: #0a0a0f;
+            --panel: #161625;
+            --success: #2ed573;
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --modal-bg: rgba(0, 0, 0, 0.95);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #auth-screen, .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--modal-bg); z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: var(--panel);
+            padding: 25px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #333;
+            box-shadow: 0 0 30px rgba(0,242,255,0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .auth-input, .complaint-area {
+            width: 100%; padding: 12px; margin: 8px 0;
+            background: #000; border: 1px solid #444; color: white; border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .security-section {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 8px;
+            border: 1px dashed var(--gold);
+        }
+
+        .warning-note {
+            background: rgba(255, 71, 87, 0.1);
+            border-left: 3px solid var(--danger);
+            padding: 10px;
+            font-size: 0.75rem;
+            color: #ff9f9f;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .complaint-area { height: 80px; resize: none; font-family: inherit; }
+
+        .amt-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .preset-btn {
+            background: #222; border: 1px solid #444; color: white; 
+            padding: 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem;
+        }
+
+        .pay-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+
+        .pay-btn {
+            padding: 12px 5px; font-size: 0.75rem; border-radius: 5px; border: none;
+            cursor: pointer; font-weight: bold; color: white; text-align: center;
+        }
+
+        .btn-super { background: #6c5ce7; }
+        .btn-upi { background: #00b894; }
+        .btn-paytm { background: #0984e3; }
+        .btn-withdraw { background: var(--danger); width: 100%; margin-top: 10px; }
+
+        .status-popup {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 15px 25px; border-radius: 10px; font-weight: bold;
+            z-index: 3000; animation: slideDown 0.3s ease-out;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5); text-align: center; min-width: 280px;
+        }
+        @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+
+        .announcement-bar {
+            width: 100%; background: rgba(255, 0, 127, 0.1); color: white;
+            padding: 8px 0; font-size: 0.85rem; margin-bottom: 15px;
+            overflow: hidden; white-space: nowrap; border-top: 1px solid #333; border-bottom: 1px solid #333;
+        }
+        .marquee { display: inline-block; padding-left: 100%; animation: marquee 20s linear infinite; }
+        @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+
+        .container { width: 100%; max-width: 500px; padding: 15px; }
+
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .user-badge { font-size: 0.8rem; color: #888; border: 1px solid #444; padding: 4px 12px; border-radius: 20px; }
+
+        .bank-header {
+            background: var(--panel); padding: 20px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 3px solid var(--neon-blue); margin-bottom: 20px;
+        }
+
+        .bal-val { font-size: 1.5rem; font-weight: bold; color: var(--gold); }
+        
+        .slot-machine {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+            background: #000; padding: 12px; border-radius: 15px; border: 4px solid #333; margin-bottom: 20px;
+        }
+
+        .reel { display: flex; flex-direction: column; gap: 10px; }
+        .cell {
+            aspect-ratio: 1/1; background: #1e1e35; display: flex;
+            align-items: center; justify-content: center; font-size: 2.5rem; border-radius: 10px;
+        }
+        .spinning { animation: fastSlide 0.1s infinite linear; }
+        @keyframes fastSlide { 0% { transform: translateY(-5px); filter: blur(3px); } 100% { transform: translateY(5px); filter: blur(3px); } }
+        
+        .winner-cell { background: var(--gold) !important; box-shadow: 0 0 25px var(--gold); transform: scale(1.05); z-index: 2; }
+        
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .bet-container { grid-column: span 2; background: var(--panel); padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+
+        .btn { padding: 15px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-spin { background: var(--neon-blue); color: #000; }
+        .btn-auto { background: #333; color: white; }
+        .btn-auto.active { background: var(--danger); }
+
+        .history-box { background: var(--panel); border-radius: 12px; padding: 15px; margin-top: 10px;}
+        .history-list { height: 250px; overflow-y: auto; margin-top: 10px; font-size: 0.85rem; }
+        .history-item { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px solid #222; gap: 5px;}
+        
+        .status-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .tag-pending { background: var(--warning); color: black; }
+        .tag-processing { background: var(--neon-blue); color: black; }
+
+        .complaint-btn { font-size: 0.65rem; background: #333; color: var(--neon-blue); border: 1px solid var(--neon-blue); padding: 2px 8px; border-radius: 4px; cursor: pointer; width: fit-content; margin-top: 5px; }
+
+        #msg { height: 35px; color: var(--neon-blue); margin-bottom: 10px; font-weight: bold; text-align: center; font-size: 1.1rem; }
+        .hidden { display: none !important; }
+        
+        /* Firebase connection status */
+        .connection-status {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            z-index: 1000;
+        }
+        .connection-online { background: var(--success); color: black; }
+        .connection-offline { background: var(--danger); color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="status-container"></div>
+    
+    <!-- Firebase Connection Status -->
+    <div id="firebase-status" class="connection-status connection-offline">Offline</div>
+
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h2 id="auth-title" style="color: var(--neon-blue); margin-bottom: 20px; text-align: center;">Login</h2>
+            <input type="number" id="auth-phone" class="auth-input" placeholder="10 Digit Phone Number">
+            <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
+            <button class="btn btn-spin" style="width: 100%; margin-top: 10px;" onclick="handleAuth()">Submit</button>
+            <div style="margin-top: 15px; font-size: 0.85rem; color: var(--neon-blue); cursor: pointer; text-align: center;" onclick="toggleAuthMode()" id="auth-toggle-text">New user? Register here</div>
+        </div>
+    </div>
+
+    <div id="deposit-modal" class="modal hidden">
+        <div class="auth-card">
+            <h3 style="color: var(--gold); text-align: center; margin-bottom: 15px;">Add Funds</h3>
+            <label style="font-size: 0.8rem; color: #888;">Deposit Amount (₹)</label>
+            <input type="number" id="dep-amt-input" class="auth-input" value="500">
+            <div class="amt-presets">
+                <button class="preset-btn" onclick="setAmt('dep-amt-input', 500)">+₹500</button>
+                <button class="preset-btn" onclick="setAmt('dep-amt-input', 1000)">+₹1000</button>
+                <button class="preset-btn" onclick="setAmt('dep-amt-input', 2000)">+₹2000</button>
+            </div>
+            
+            <div class="security-section">
+                <p style="font-size: 0.7rem; color: var(--gold); margin-bottom: 5px; text-align: center;">VERIFY IDENTITY</p>
+                <input type="number" id="dep-sec-phone" class="auth-input" placeholder="Confirm Phone">
+                <input type="password" id="dep-sec-pass" class="auth-input" placeholder="Confirm Password">
+            </div>
+
+            <div class="pay-row">
+                <button class="pay-btn btn-super" onclick="triggerPayment('Superpay')">Superpay</button>
+                <button class="pay-btn btn-upi" onclick="triggerPayment('UPI')">UPI</button>
+                <button class="pay-btn btn-paytm" onclick="triggerPayment('Paytm')">Paytm</button>
+            </div>
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Go Back</button>
+        </div>
+    </div>
+
+    <div id="withdraw-modal" class="modal hidden">
+        <div class="auth-card">
+            <h3 style="color: var(--danger); text-align: center; margin-bottom: 10px;">Withdraw Funds</h3>
+            
+            <div class="warning-note">
+                <strong>NOTE:</strong> Please enter correct and genuine bank account details. Any fake, inactive, or wrong account number may cause automatic deduction and transfer of the amount, leading to loss of money.
+            </div>
+
+            <label style="font-size: 0.75rem; color: var(--gold);">BANK DETAILS</label>
+            <input type="text" id="wit-holder" class="auth-input" placeholder="Account Holder Name">
+            <input type="text" id="wit-bank" class="auth-input" placeholder="Bank Name">
+            <input type="number" id="wit-acc" class="auth-input" placeholder="Account Number">
+            <input type="text" id="wit-ifsc" class="auth-input" placeholder="IFSC Code">
+            
+            <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
+            
+            <label style="font-size: 0.75rem; color: #888;">Withdraw Amount (Min ₹110)</label>
+            <input type="number" id="wit-amt-input" class="auth-input" value="110">
+
+            <div class="security-section">
+                <p style="font-size: 0.7rem; color: var(--gold); margin-bottom: 5px; text-align: center;">VERIFY IDENTITY</p>
+                <input type="number" id="wit-sec-phone" class="auth-input" placeholder="Confirm Phone">
+                <input type="password" id="wit-sec-pass" class="auth-input" placeholder="Confirm Password">
+            </div>
+            
+            <button class="pay-btn btn-withdraw" onclick="triggerWithdraw()">PLACE WITHDRAWAL</button>
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="complaint-modal" class="modal hidden">
+        <div class="auth-card">
+            <h3 style="color: var(--neon-blue); text-align: center; margin-bottom: 10px;">File a Complaint</h3>
+            <p id="complaint-type-label" style="font-size: 0.8rem; color: #888; margin-bottom: 10px;"></p>
+            
+            <div id="utr-container">
+                <input type="text" id="complaint-ref" class="auth-input" placeholder="UTR / Reference Number">
+            </div>
+
+            <textarea id="complaint-text" class="complaint-area" placeholder="Describe your issue here..."></textarea>
+            <button class="btn btn-spin" style="width: 100%;" onclick="submitComplaint()">Submit Ticket</button>
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="top-nav">
+            <div class="user-badge">User: <span id="currentUser">Guest</span> <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; margin-left:5px;">Logout</button></div>
+            <div style="font-weight: bold; color: var(--neon-blue);">NEON SLOTS</div>
+        </div>
+
+        <div class="bank-header">
+            <div>
+                <div style="font-size: 0.7rem; color: #888;">WALLET BALANCE</div>
+                <div class="bal-val">₹<span id="balance">0</span></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <button class="btn" style="background: var(--success); padding: 6px 12px; font-size: 0.7rem;" onclick="openModal('deposit-modal')">DEPOSIT</button>
+                <button class="btn" style="background: var(--danger); padding: 6px 12px; font-size: 0.7rem;" onclick="openModal('withdraw-modal')">WITHDRAW</button>
+            </div>
+        </div>
+
+        <div class="announcement-bar"><div class="marquee">Triple 7s payout 50x • Secure Payments • Withdrawals processed in 1-2 hours</div></div>
+
+        <div id="msg">Ready to Spin?</div>
+
+        <div class="slot-machine" id="machine-body">
+            <div class="reel" id="r0">
+                <div class="cell" id="c0">🎰</div>
+                <div class="cell" id="c3">🔔</div>
+                <div class="cell" id="c6">🍒</div>
+            </div>
+            <div class="reel" id="r1">
+                <div class="cell" id="c1">7️⃣</div>
+                <div class="cell" id="c4">🎰</div>
+                <div class="cell" id="c7">💎</div>
+            </div>
+            <div class="reel" id="r2">
+                <div class="cell" id="c2">🍒</div>
+                <div class="cell" id="c5">🔔</div>
+                <div class="cell" id="c8">7️⃣</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="bet-container">
+                <span>BET:</span>
+                <div>
+                    <button onclick="adjustBet(-5)" style="background:#333; color:white; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">-</button>
+                    <input type="number" id="betAmt" value="10" readonly style="width: 50px; background:transparent; color:var(--gold); border:none; text-align:center; font-weight:bold; font-size:1.1rem;">
+                    <button onclick="adjustBet(5)" style="background:#333; color:white; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">+</button>
+                </div>
+            </div>
+            <button class="btn btn-spin" id="spinBtn" onclick="play()">SPIN</button>
+            <button class="btn btn-auto" id="autoBtn" onclick="toggleAuto()">AUTO</button>
+        </div>
+
+        <div class="history-box">
+            <h3 style="font-size: 0.9rem; color: #888;">ACTIVITY LOG</h3>
+            <div class="history-list" id="history"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== FIREBASE CONFIGURATION ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyClBohbm2-pReGrbNMsm7ttDvwM2wEIfEo",
+            authDomain: "miner-5939b.firebaseapp.com",
+            databaseURL: "https://miner-5939b-default-rtdb.firebaseio.com",
+            projectId: "miner-5939b",
+            storageBucket: "miner-5939b.firebasestorage.app",
+            messagingSenderId: "936240933139",
+            appId: "1:936240933139:web:fe877e387fc82951d552e6",
+            measurementId: "G-Z46V1K2XGN"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+        
+        // Firebase connection status
+        const firebaseStatus = document.getElementById('firebase-status');
+        database.ref('.info/connected').on('value', (snapshot) => {
+            if (snapshot.val() === true) {
+                firebaseStatus.textContent = 'Online';
+                firebaseStatus.className = 'connection-status connection-online';
+            } else {
+                firebaseStatus.textContent = 'Offline';
+                firebaseStatus.className = 'connection-status connection-offline';
+            }
+        });
+
+        // ========== GAME VARIABLES ==========
+        let isLoginMode = true;
+        let currentUserPhone = localStorage.getItem('active_session');
+        let userData = {};
+        let activeComplaintType = "";
+        
+        const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🎰'];
+        const payouts = {'🍒': 2, '🍋': 3, '🔔': 6, '💎': 12, '7️⃣': 50};
+        const paylines = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
+        
+        let isRunning = false;
+        let isAuto = false;
+
+        // ========== FIREBASE FUNCTIONS ==========
+        async function saveUserToFirebase(phone, data) {
+            try {
+                await database.ref('users/' + phone).set(data);
+                console.log('User saved to Firebase');
+                return true;
+            } catch (error) {
+                console.error('Firebase save error:', error);
+                return false;
+            }
+        }
+
+        async function loadUserFromFirebase(phone) {
+            try {
+                const snapshot = await database.ref('users/' + phone).once('value');
+                return snapshot.val();
+            } catch (error) {
+                console.error('Firebase load error:', error);
+                return null;
+            }
+        }
+
+        async function updateUserBalance(phone, newBalance) {
+            try {
+                await database.ref('users/' + phone + '/balance').set(newBalance);
+                return true;
+            } catch (error) {
+                console.error('Balance update error:', error);
+                return false;
+            }
+        }
+
+        async function addHistoryToFirebase(phone, historyItem) {
+            try {
+                const historyRef = database.ref('users/' + phone + '/history');
+                const newHistoryRef = historyRef.push();
+                await newHistoryRef.set({
+                    ...historyItem,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                // Keep only last 30 items
+                const snapshot = await historyRef.once('value');
+                const history = snapshot.val();
+                if (history) {
+                    const keys = Object.keys(history);
+                    if (keys.length > 30) {
+                        const toDelete = keys.slice(0, keys.length - 30);
+                        toDelete.forEach(key => {
+                            database.ref('users/' + phone + '/history/' + key).remove();
+                        });
+                    }
+                }
+                return true;
+            } catch (error) {
+                console.error('History add error:', error);
+                return false;
+            }
+        }
+
+        async function saveComplaintToFirebase(phone, complaintData) {
+            try {
+                const complaintsRef = database.ref('complaints').push();
+                await complaintsRef.set({
+                    ...complaintData,
+                    userPhone: phone,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    status: 'pending'
+                });
+                return complaintsRef.key;
+            } catch (error) {
+                console.error('Complaint save error:', error);
+                return null;
+            }
+        }
+
+        // ========== UI FUNCTIONS ==========
+        function showStatus(msg, type = 'success') {
+            const container = document.getElementById('status-container');
+            const div = document.createElement('div');
+            div.className = 'status-popup';
+            div.style.background = type === 'success' ? 'var(--success)' : 'var(--danger)';
+            div.innerText = msg;
+            container.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function openModal(id) { 
+            if(id === 'withdraw-modal') {
+                if(userData.bankDetails) {
+                    document.getElementById('wit-holder').value = userData.bankDetails.holder || "";
+                    document.getElementById('wit-bank').value = userData.bankDetails.bank || "";
+                    document.getElementById('wit-acc').value = userData.bankDetails.acc || "";
+                    document.getElementById('wit-ifsc').value = userData.bankDetails.ifsc || "";
+                }
+            }
+            document.getElementById(id).classList.remove('hidden'); 
+        }
+
+        function closeModals() { 
+            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+            ['dep-sec-phone', 'dep-sec-pass', 'wit-sec-phone', 'wit-sec-pass'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = "";
+            });
+        }
+
+        function setAmt(inputId, val) { document.getElementById(inputId).value = val; }
+
+        function adjustBet(val) {
+            const input = document.getElementById('betAmt');
+            let newVal = parseInt(input.value) + val;
+            if (newVal >= 5 && newVal <= 500) input.value = newVal;
+        }
+
+        function verifySecurity(phoneId, passId) {
+            const ph = document.getElementById(phoneId).value;
+            const ps = document.getElementById(passId).value;
+            if (ph !== currentUserPhone || ps !== userData.pass) {
+                showStatus("Security verification failed!", "err");
+                return false;
+            }
+            return true;
+        }
+
+        async function triggerPayment(method) {
+            if (!verifySecurity('dep-sec-phone', 'dep-sec-pass')) return;
+
+            const amt = parseInt(document.getElementById('dep-amt-input').value);
+            if (amt < 10) return showStatus("Min deposit ₹10", "err");
+            
+            userData.balance += amt;
+            
+            // Save to Firebase
+            const historyItem = {
+                text: `DEPOSIT: ₹${amt} via ${method}`,
+                type: 'success',
+                category: 'deposit',
+                time: new Date().toLocaleTimeString()
+            };
+            
+            await Promise.all([
+                updateUserBalance(currentUserPhone, userData.balance),
+                addHistoryToFirebase(currentUserPhone, historyItem)
+            ]);
+            
+            addLog(historyItem);
+            saveAndRefresh();
+            closeModals();
+            showStatus(`₹${amt} Added via ${method}`);
+        }
+
+        async function triggerWithdraw() {
+            if (!verifySecurity('wit-sec-phone', 'wit-sec-pass')) return;
+
+            const amt = parseInt(document.getElementById('wit-amt-input').value);
+            const holder = document.getElementById('wit-holder').value;
+            const bank = document.getElementById('wit-bank').value;
+            const acc = document.getElementById('wit-acc').value;
+            const ifsc = document.getElementById('wit-ifsc').value;
+
+            if (!holder || !bank || !acc || !ifsc) return showStatus("Fill all bank details", "err");
+            if (amt < 110) return showStatus("Min withdrawal ₹110", "err");
+            if (amt > userData.balance) return showStatus("Insufficient Balance", "err");
+
+            userData.bankDetails = { holder, bank, acc, ifsc };
+            userData.balance -= amt;
+
+            // Save to Firebase
+            const historyItem = {
+                text: `WITHDRAW: ₹${amt}`,
+                type: 'danger',
+                category: 'withdraw',
+                status: 'pending',
+                time: new Date().toLocaleTimeString()
+            };
+            
+            await Promise.all([
+                updateUserBalance(currentUserPhone, userData.balance),
+                saveUserToFirebase(currentUserPhone, userData),
+                addHistoryToFirebase(currentUserPhone, historyItem)
+            ]);
+            
+            addLog(historyItem);
+            saveAndRefresh();
+            closeModals();
+            showStatus("Withdrawal Submitted! Status: PENDING");
+        }
+
+        function openComplaint(type) {
+            activeComplaintType = type;
+            document.getElementById('complaint-type-label').innerText = `Reporting issue with: ${type.toUpperCase()}`;
+            
+            const utrField = document.getElementById('utr-container');
+            if(type === 'withdraw') {
+                utrField.classList.add('hidden');
+            } else {
+                utrField.classList.remove('hidden');
+            }
+
+            document.getElementById('complaint-ref').value = "";
+            document.getElementById('complaint-text').value = "";
+            openModal('complaint-modal');
+        }
+
+        async function submitComplaint() {
+            const ref = document.getElementById('complaint-ref').value;
+            const desc = document.getElementById('complaint-text').value;
+            
+            if(activeComplaintType !== 'withdraw' && !ref) return showStatus("Please provide UTR", "err");
+            if(!desc) return showStatus("Please describe the issue", "err");
+            
+            const complaintData = {
+                type: activeComplaintType,
+                reference: ref,
+                description: desc,
+                timestamp: new Date().toISOString()
+            };
+            
+            const complaintId = await saveComplaintToFirebase(currentUserPhone, complaintData);
+            
+            if (complaintId) {
+                const logText = activeComplaintType === 'withdraw' ? 
+                    `COMPLAINT: WITHDRAW ISSUE` : `COMPLAINT: ${activeComplaintType} (Ref: ${ref})`;
+                
+                const historyItem = {
+                    text: logText,
+                    type: 'warning',
+                    status: 'processing',
+                    time: new Date().toLocaleTimeString()
+                };
+                
+                await addHistoryToFirebase(currentUserPhone, historyItem);
+                addLog(historyItem);
+                
+                closeModals();
+                showStatus("Complaint Logged. Status: PROCESSING");
+            } else {
+                showStatus("Failed to submit complaint", "err");
+            }
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? 'Login' : 'Register';
+            document.getElementById('auth-toggle-text').innerText = isLoginMode ? 'New user? Register here' : 'Already have an account? Login';
+        }
+
+        async function handleAuth() {
+            const phone = document.getElementById('auth-phone').value;
+            const pass = document.getElementById('auth-pass').value;
+            if (phone.length !== 10) return showStatus("Enter 10-digit phone", "err");
+            
+            if (isLoginMode) {
+                // Login
+                const userData = await loadUserFromFirebase(phone);
+                if (userData && userData.pass === pass) {
+                    loginUser(phone, userData);
+                } else {
+                    showStatus("Invalid Credentials", "err");
+                }
+            } else {
+                // Register
+                const existingUser = await loadUserFromFirebase(phone);
+                if (existingUser) return showStatus("User already exists", "err");
+                
+                const newUser = {
+                    pass,
+                    balance: 500,
+                    history: [],
+                    bankDetails: null,
+                    createdAt: new Date().toISOString()
+                };
+                
+                const saved = await saveUserToFirebase(phone, newUser);
+                if (saved) {
+                    loginUser(phone, newUser);
+                } else {
+                    showStatus("Registration failed", "err");
+                }
+            }
+        }
+
+        function loginUser(phone, data) {
+            currentUserPhone = phone;
+            userData = data;
+            localStorage.setItem('active_session', phone);
+            document.getElementById('auth-screen').classList.add('hidden');
+            saveAndRefresh();
+        }
+
+        function logout() { 
+            localStorage.removeItem('active_session'); 
+            location.reload(); 
+        }
+
+        function saveAndRefresh() {
+            document.getElementById('balance').innerText = userData.balance?.toLocaleString('en-IN') || '0';
+            document.getElementById('currentUser').innerText = currentUserPhone;
+            loadLogs();
+        }
+
+        function addLog(item) {
+            if (!userData.history) userData.history = [];
+            userData.history.unshift(item);
+            if(userData.history.length > 30) userData.history.pop();
+            loadLogs();
+        }
+
+        function loadLogs() {
+            const h = document.getElementById('history');
+            if (!userData.history || userData.history.length === 0) {
+                h.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No activity yet</div>';
+                return;
+            }
+            
+            h.innerHTML = userData.history.map(item => `
+                <div class="history-item">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:var(--${item.type === 'success' ? 'success' : item.type === 'danger' ? 'danger' : (item.type === 'warning' ? 'warning' : 'neon-blue')})">
+                            ${item.text}
+                        </span>
+                        <span style="color:#555; font-size:0.7rem;">${item.time}</span>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        ${item.status ? `<span class="status-tag tag-${item.status}">${item.status}</span>` : ''}
+                        ${item.category ? `<button class="complaint-btn" onclick="openComplaint('${item.category}')">Help?</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function play() {
+            if(isRunning) return;
+            const bet = parseInt(document.getElementById('betAmt').value);
+            if(bet > userData.balance) return showStatus("Insufficient Balance", "err");
+            
+            isRunning = true;
+            userData.balance -= bet;
+            saveAndRefresh();
+            
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('msg').innerText = "Spinning...";
+            
+            // Generate final results
+            const results = [];
+            for(let i=0; i<9; i++) results.push(symbols[Math.floor(Math.random() * symbols.length)]);
+
+            // Clear previous winning highlights and start spinning animation for ALL reels
+            document.querySelectorAll('.cell').forEach(c => {
+                c.classList.remove('winner-cell');
+                c.classList.add('spinning');
+            });
+
+            // Column-wise Sequential Stop Logic
+            // Column 0 (Left)
+            setTimeout(() => {
+                [0, 3, 6].forEach(idx => {
+                    const cell = document.getElementById(`c${idx}`);
+                    cell.classList.remove('spinning');
+                    cell.innerText = results[idx];
+                });
+            }, 600);
+
+            // Column 1 (Middle)
+            setTimeout(() => {
+                [1, 4, 7].forEach(idx => {
+                    const cell = document.getElementById(`c${idx}`);
+                    cell.classList.remove('spinning');
+                    cell.innerText = results[idx];
+                });
+            }, 1000);
+
+            // Column 2 (Right)
+            setTimeout(async () => {
+                [2, 5, 8].forEach(idx => {
+                    const cell = document.getElementById(`c${idx}`);
+                    cell.classList.remove('spinning');
+                    cell.innerText = results[idx];
+                });
+
+                // Final check once all have stopped
+                const winData = checkWin(results, bet);
+                isRunning = false;
+                document.getElementById('spinBtn').disabled = false;
+                
+                // Save game result to Firebase
+                if (currentUserPhone) {
+                    await updateUserBalance(currentUserPhone, userData.balance);
+                    if (winData.winAmount > 0) {
+                        await addHistoryToFirebase(currentUserPhone, {
+                            text: `SLOT WIN: ₹${winData.winAmount}`,
+                            type: 'success',
+                            time: new Date().toLocaleTimeString()
+                        });
+                    }
+                }
+                
+                if(isAuto) setTimeout(play, 1000);
+            }, 1400);
+        }
+
+        function checkWin(grid, bet) {
+            let totalWin = 0;
+            paylines.forEach(line => {
+                const [a, b, c] = line;
+                if(grid[a] === grid[b] && grid[b] === grid[c]) {
+                    totalWin += bet * (payouts[grid[a]] || 1);
+                    [a, b, c].forEach(idx => document.getElementById(`c${idx}`).classList.add('winner-cell'));
+                }
+            });
+
+            if(totalWin > 0) {
+                userData.balance += totalWin;
+                document.getElementById('msg').innerText = `WIN: ₹${totalWin}!`;
+                addLog({
+                    text: `SLOT WIN: ₹${totalWin}`,
+                    type: 'success',
+                    time: new Date().toLocaleTimeString()
+                });
+            } else {
+                document.getElementById('msg').innerText = "Try Again!";
+            }
+            saveAndRefresh();
+            
+            return {
+                winAmount: totalWin,
+                balance: userData.balance
+            };
+        }
+
+        function toggleAuto() {
+            isAuto = !isAuto;
+            document.getElementById('autoBtn').classList.toggle('active', isAuto);
+            document.getElementById('autoBtn').innerText = isAuto ? "STOP" : "AUTO";
+            if(isAuto) play();
+        }
+
+        // Initialize on load
+        window.onload = async function() {
+            if (currentUserPhone) {
+                const userData = await loadUserFromFirebase(currentUserPhone);
+                if (userData) {
+                    loginUser(currentUserPhone, userData);
+                } else {
+                    localStorage.removeItem('active_session');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
