@@ -21,6 +21,7 @@
             --danger: #ff4757;
             --warning: #ffa502;
             --modal-bg: rgba(0, 0, 0, 0.95);
+            --free-spin: #9b59b6;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -111,6 +112,22 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.5); text-align: center; min-width: 280px;
         }
         @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+        
+        .free-spins-popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            padding: 30px 40px; border-radius: 15px; font-weight: bold;
+            z-index: 4000; animation: pulse 1.5s infinite;
+            box-shadow: 0 10px 40px rgba(155, 89, 182, 0.7); text-align: center;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            font-size: 1.5rem;
+            min-width: 300px;
+        }
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
 
         .announcement-bar {
             width: 100%; background: rgba(255, 0, 127, 0.1); color: white;
@@ -147,6 +164,8 @@
         @keyframes fastSlide { 0% { transform: translateY(-5px); filter: blur(3px); } 100% { transform: translateY(5px); filter: blur(3px); } }
         
         .winner-cell { background: var(--gold) !important; box-shadow: 0 0 25px var(--gold); transform: scale(1.05); z-index: 2; }
+        .scatter-cell { background: var(--free-spin) !important; box-shadow: 0 0 25px var(--free-spin); transform: scale(1.05); z-index: 2; animation: scatterGlow 1s infinite alternate; }
+        @keyframes scatterGlow { from { box-shadow: 0 0 15px var(--free-spin); } to { box-shadow: 0 0 30px var(--free-spin); } }
         
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
         .bet-container { grid-column: span 2; background: var(--panel); padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -155,6 +174,7 @@
         .btn-spin { background: var(--neon-blue); color: #000; }
         .btn-auto { background: #333; color: white; }
         .btn-auto.active { background: var(--danger); }
+        .btn-free { background: var(--free-spin); color: white; }
 
         .history-box { background: var(--panel); border-radius: 12px; padding: 15px; margin-top: 10px;}
         .history-list { height: 250px; overflow-y: auto; margin-top: 10px; font-size: 0.85rem; }
@@ -163,10 +183,37 @@
         .status-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
         .tag-pending { background: var(--warning); color: black; }
         .tag-processing { background: var(--neon-blue); color: black; }
+        .tag-freespin { background: var(--free-spin); color: white; }
 
         .complaint-btn { font-size: 0.65rem; background: #333; color: var(--neon-blue); border: 1px solid var(--neon-blue); padding: 2px 8px; border-radius: 4px; cursor: pointer; width: fit-content; margin-top: 5px; }
 
-        #msg { height: 35px; color: var(--neon-blue); margin-bottom: 10px; font-weight: bold; text-align: center; font-size: 1.1rem; }
+        #msg { 
+            height: 35px; 
+            color: var(--neon-blue); 
+            margin-bottom: 10px; 
+            font-weight: bold; 
+            text-align: center; 
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+        }
+        
+        .win-message {
+            background: linear-gradient(45deg, var(--gold), #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+            animation: winPulse 0.5s infinite alternate;
+        }
+        
+        @keyframes winPulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+        
         .hidden { display: none !important; }
         
         /* Firebase connection status */
@@ -181,14 +228,56 @@
         }
         .connection-online { background: var(--success); color: black; }
         .connection-offline { background: var(--danger); color: white; }
+        
+        .free-spins-counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--free-spin);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Improved winning text styles */
+        .win-amount {
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+        
+        .free-spin-text {
+            font-weight: bold;
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
     </style>
 </head>
 <body>
 
     <div id="status-container"></div>
     
+    <!-- Free Spins Popup -->
+    <div id="free-spins-popup" class="free-spins-popup hidden"></div>
+    
     <!-- Firebase Connection Status -->
     <div id="firebase-status" class="connection-status connection-offline">Offline</div>
+    
+    <!-- Free Spins Counter -->
+    <div id="free-spins-counter" class="free-spins-counter hidden">
+        <span>🎁</span> <span id="free-spins-count">0</span> FREE SPINS
+    </div>
 
     <div id="auth-screen">
         <div class="auth-card">
@@ -288,24 +377,24 @@
             </div>
         </div>
 
-        <div class="announcement-bar"><div class="marquee">Triple 7s payout 50x • Secure Payments • Withdrawals processed in 1-2 hours</div></div>
+        <div class="announcement-bar"><div class="marquee">Triple 7s payout 50x • 3+ Scatter Symbols (🎰) trigger 10 FREE SPINS! • Withdrawals processed in 1-2 hours</div></div>
 
         <div id="msg">Ready to Spin?</div>
 
         <div class="slot-machine" id="machine-body">
             <div class="reel" id="r0">
-                <div class="cell" id="c0">🎰</div>
+                <div class="cell" id="c0">🍒</div>
                 <div class="cell" id="c3">🔔</div>
-                <div class="cell" id="c6">🍒</div>
+                <div class="cell" id="c6">💎</div>
             </div>
             <div class="reel" id="r1">
                 <div class="cell" id="c1">7️⃣</div>
-                <div class="cell" id="c4">🎰</div>
-                <div class="cell" id="c7">💎</div>
+                <div class="cell" id="c4">🍋</div>
+                <div class="cell" id="c7">🔔</div>
             </div>
             <div class="reel" id="r2">
                 <div class="cell" id="c2">🍒</div>
-                <div class="cell" id="c5">🔔</div>
+                <div class="cell" id="c5">💎</div>
                 <div class="cell" id="c8">7️⃣</div>
             </div>
         </div>
@@ -317,6 +406,9 @@
                     <button onclick="adjustBet(-5)" style="background:#333; color:white; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">-</button>
                     <input type="number" id="betAmt" value="10" readonly style="width: 50px; background:transparent; color:var(--gold); border:none; text-align:center; font-weight:bold; font-size:1.1rem;">
                     <button onclick="adjustBet(5)" style="background:#333; color:white; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">+</button>
+                </div>
+                <div id="free-spins-indicator" class="hidden" style="color: var(--free-spin); font-weight: bold; font-size: 0.9rem;">
+                    FREE SPIN ACTIVE
                 </div>
             </div>
             <button class="btn btn-spin" id="spinBtn" onclick="play()">SPIN</button>
@@ -365,12 +457,19 @@
         let userData = {};
         let activeComplaintType = "";
         
+        // Game symbols - 🎰 is the scatter symbol
         const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🎰'];
-        const payouts = {'🍒': 2, '🍋': 3, '🔔': 6, '💎': 12, '7️⃣': 50};
+        const payouts = {'🍒': 2, '🍋': 3, '🔔': 6, '💎': 12, '7️⃣': 50, '🎰': 0}; // 🎰 has 0 payout (scatter only)
         const paylines = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
         
         let isRunning = false;
         let isAuto = false;
+        
+        // Free spins variables
+        let freeSpinsRemaining = 0;
+        let isFreeSpinActive = false;
+        let freeSpinWinMultiplier = 2; // Wins are doubled during free spins
+        let lastSpinWinAmount = 0; // Track last spin win to prevent duplicate logs
 
         // ========== FIREBASE FUNCTIONS ==========
         async function saveUserToFirebase(phone, data) {
@@ -458,6 +557,31 @@
             container.appendChild(div);
             setTimeout(() => div.remove(), 3000);
         }
+        
+        function showFreeSpinsPopup(message) {
+            const popup = document.getElementById('free-spins-popup');
+            popup.textContent = message;
+            popup.classList.remove('hidden');
+            
+            setTimeout(() => {
+                popup.classList.add('hidden');
+            }, 3000);
+        }
+        
+        function updateFreeSpinsCounter() {
+            const counter = document.getElementById('free-spins-counter');
+            const countElement = document.getElementById('free-spins-count');
+            const indicator = document.getElementById('free-spins-indicator');
+            
+            if (freeSpinsRemaining > 0) {
+                countElement.textContent = freeSpinsRemaining;
+                counter.classList.remove('hidden');
+                indicator.classList.remove('hidden');
+            } else {
+                counter.classList.add('hidden');
+                indicator.classList.add('hidden');
+            }
+        }
 
         function openModal(id) { 
             if(id === 'withdraw-modal') {
@@ -507,7 +631,7 @@
             
             // Save to Firebase
             const historyItem = {
-                text: `DEPOSIT: ₹${amt} via ${method}`,
+                text: `DEPOSIT: <span class="win-amount">₹${amt}</span> via ${method}`,
                 type: 'success',
                 category: 'deposit',
                 time: new Date().toLocaleTimeString()
@@ -542,7 +666,7 @@
 
             // Save to Firebase
             const historyItem = {
-                text: `WITHDRAW: ₹${amt}`,
+                text: `WITHDRAW: <span class="win-amount">₹${amt}</span>`,
                 type: 'danger',
                 category: 'withdraw',
                 status: 'pending',
@@ -660,6 +784,13 @@
             userData = data;
             localStorage.setItem('active_session', phone);
             document.getElementById('auth-screen').classList.add('hidden');
+            
+            // Load free spins from saved data if available
+            if (userData.freeSpinsRemaining) {
+                freeSpinsRemaining = userData.freeSpinsRemaining;
+                updateFreeSpinsCounter();
+            }
+            
             saveAndRefresh();
         }
 
@@ -672,6 +803,13 @@
             document.getElementById('balance').innerText = userData.balance?.toLocaleString('en-IN') || '0';
             document.getElementById('currentUser').innerText = currentUserPhone;
             loadLogs();
+            
+            // Save free spins to user data
+            if (currentUserPhone) {
+                userData.freeSpinsRemaining = freeSpinsRemaining;
+                // Update in Firebase in background
+                database.ref('users/' + currentUserPhone + '/freeSpinsRemaining').set(freeSpinsRemaining);
+            }
         }
 
         function addLog(item) {
@@ -691,7 +829,7 @@
             h.innerHTML = userData.history.map(item => `
                 <div class="history-item">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="color:var(--${item.type === 'success' ? 'success' : item.type === 'danger' ? 'danger' : (item.type === 'warning' ? 'warning' : 'neon-blue')})">
+                        <span style="color:var(--${item.type === 'success' ? 'success' : item.type === 'danger' ? 'danger' : (item.type === 'warning' ? 'warning' : (item.type === 'freespin' ? 'free-spin' : 'neon-blue'))})">
                             ${item.text}
                         </span>
                         <span style="color:#555; font-size:0.7rem;">${item.time}</span>
@@ -706,23 +844,44 @@
 
         async function play() {
             if(isRunning) return;
-            const bet = parseInt(document.getElementById('betAmt').value);
-            if(bet > userData.balance) return showStatus("Insufficient Balance", "err");
+            
+            // Check if we're in free spin mode
+            if (freeSpinsRemaining > 0) {
+                isFreeSpinActive = true;
+                freeSpinsRemaining--;
+                updateFreeSpinsCounter();
+            } else {
+                isFreeSpinActive = false;
+                const bet = parseInt(document.getElementById('betAmt').value);
+                if(bet > userData.balance) return showStatus("Insufficient Balance", "err");
+                userData.balance -= bet;
+            }
             
             isRunning = true;
-            userData.balance -= bet;
             saveAndRefresh();
             
             document.getElementById('spinBtn').disabled = true;
-            document.getElementById('msg').innerText = "Spinning...";
+            document.getElementById('msg').innerText = isFreeSpinActive ? `FREE SPIN! (${freeSpinsRemaining} left)` : "Spinning...";
             
             // Generate final results
             const results = [];
-            for(let i=0; i<9; i++) results.push(symbols[Math.floor(Math.random() * symbols.length)]);
+            for(let i=0; i<9; i++) {
+                // During free spins, use different symbol probabilities
+                if (isFreeSpinActive) {
+                    // During free spins: higher chance for winning symbols, NO scatter symbols
+                    const freeSpinSymbols = ['💎', '7️⃣', '🔔', '🍒', '🍋'];
+                    const weights = [0.25, 0.2, 0.2, 0.2, 0.15]; // Higher weights for better symbols
+                    results.push(getWeightedSymbol(freeSpinSymbols, weights));
+                } else {
+                    // Normal play: regular probabilities including scatter
+                    results.push(symbols[Math.floor(Math.random() * symbols.length)]);
+                }
+            }
 
             // Clear previous winning highlights and start spinning animation for ALL reels
             document.querySelectorAll('.cell').forEach(c => {
                 c.classList.remove('winner-cell');
+                c.classList.remove('scatter-cell');
                 c.classList.add('spinning');
             });
 
@@ -754,52 +913,159 @@
                 });
 
                 // Final check once all have stopped
-                const winData = checkWin(results, bet);
+                const winData = checkWin(results);
                 isRunning = false;
                 document.getElementById('spinBtn').disabled = false;
+                
+                // Reset last spin win amount
+                lastSpinWinAmount = 0;
                 
                 // Save game result to Firebase
                 if (currentUserPhone) {
                     await updateUserBalance(currentUserPhone, userData.balance);
-                    if (winData.winAmount > 0) {
-                        await addHistoryToFirebase(currentUserPhone, {
-                            text: `SLOT WIN: ₹${winData.winAmount}`,
-                            type: 'success',
+                    
+                    // Only add win history if there was a win AND we haven't already added it
+                    if (winData.winAmount > 0 && winData.winAmount !== lastSpinWinAmount) {
+                        lastSpinWinAmount = winData.winAmount;
+                        
+                        const historyItem = {
+                            text: `${isFreeSpinActive ? 'FREE SPIN WIN: <span class="win-amount">₹' + winData.winAmount + '</span>' : 'SLOT WIN: <span class="win-amount">₹' + winData.winAmount + '</span>'}`,
+                            type: isFreeSpinActive ? 'freespin' : 'success',
                             time: new Date().toLocaleTimeString()
-                        });
+                        };
+                        await addHistoryToFirebase(currentUserPhone, historyItem);
+                        addLog(historyItem);
+                    }
+                    
+                    // Check for scatter symbols and trigger free spins (only during normal play)
+                    if (winData.scatterTriggered && !isFreeSpinActive) {
+                        const bonusHistoryItem = {
+                            text: `🎰 SCATTER BONUS: <span class="free-spin-text">10 FREE SPINS!</span>`,
+                            type: 'freespin',
+                            time: new Date().toLocaleTimeString()
+                        };
+                        await addHistoryToFirebase(currentUserPhone, bonusHistoryItem);
+                        addLog(bonusHistoryItem);
                     }
                 }
                 
+                // Continue auto play if enabled
                 if(isAuto) setTimeout(play, 1000);
+                
+                // If free spins remain, automatically trigger next spin after a delay
+                if (freeSpinsRemaining > 0 && !isAuto) {
+                    setTimeout(() => {
+                        play();
+                    }, 2000);
+                }
             }, 1400);
         }
+        
+        // Helper function for weighted random selection
+        function getWeightedSymbol(symbols, weights) {
+            const totalWeight = weights.reduce((a, b) => a + b, 0);
+            let random = Math.random() * totalWeight;
+            
+            for (let i = 0; i < symbols.length; i++) {
+                random -= weights[i];
+                if (random <= 0) {
+                    return symbols[i];
+                }
+            }
+            return symbols[symbols.length - 1];
+        }
 
-        function checkWin(grid, bet) {
+        function checkWin(grid) {
             let totalWin = 0;
+            let scatterCount = 0;
+            
+            // Count scatter symbols first (🎰 is the scatter) - ONLY during normal play
+            if (!isFreeSpinActive) {
+                grid.forEach(symbol => {
+                    if (symbol === '🎰') {
+                        scatterCount++;
+                    }
+                });
+            }
+            
+            // Check for scatter bonus (3 or more scatter symbols) - ONLY during normal play
+            if (scatterCount >= 3 && !isFreeSpinActive) {
+                // Award 10 free spins
+                freeSpinsRemaining += 10;
+                updateFreeSpinsCounter();
+                
+                // Highlight all scatter cells
+                grid.forEach((symbol, idx) => {
+                    if (symbol === '🎰') {
+                        document.getElementById(`c${idx}`).classList.add('scatter-cell');
+                    }
+                });
+                
+                // Show free spins notification
+                showFreeSpinsPopup(`🎉 ${scatterCount} SCATTERS (🎰)! 🎉\n10 FREE SPINS AWARDED!`);
+                document.getElementById('msg').innerHTML = `<span class="free-spin-text">${scatterCount} SCATTERS! 10 FREE SPINS!</span>`;
+                
+                // Save to user data
+                saveAndRefresh();
+                
+                return {
+                    winAmount: 0,
+                    balance: userData.balance,
+                    scatterTriggered: true
+                };
+            }
+            
+            // Regular payline wins
+            let winningLines = [];
             paylines.forEach(line => {
                 const [a, b, c] = line;
                 if(grid[a] === grid[b] && grid[b] === grid[c]) {
-                    totalWin += bet * (payouts[grid[a]] || 1);
-                    [a, b, c].forEach(idx => document.getElementById(`c${idx}`).classList.add('winner-cell'));
+                    const winMultiplier = payouts[grid[a]] || 1;
+                    const betAmount = isFreeSpinActive ? parseInt(document.getElementById('betAmt').value) : parseInt(document.getElementById('betAmt').value);
+                    const winAmount = betAmount * winMultiplier * (isFreeSpinActive ? freeSpinWinMultiplier : 1);
+                    totalWin += winAmount;
+                    winningLines.push(line);
                 }
+            });
+            
+            // Highlight winning cells
+            winningLines.forEach(line => {
+                line.forEach(idx => document.getElementById(`c${idx}`).classList.add('winner-cell'));
             });
 
             if(totalWin > 0) {
                 userData.balance += totalWin;
-                document.getElementById('msg').innerText = `WIN: ₹${totalWin}!`;
-                addLog({
-                    text: `SLOT WIN: ₹${totalWin}`,
-                    type: 'success',
-                    time: new Date().toLocaleTimeString()
-                });
+                
+                // Create beautiful win message
+                const msgElement = document.getElementById('msg');
+                if (isFreeSpinActive) {
+                    msgElement.innerHTML = `<span class="win-message">FREE SPIN WIN: ₹${totalWin}!</span>`;
+                } else {
+                    msgElement.innerHTML = `<span class="win-message">WIN: ₹${totalWin}!</span>`;
+                }
+                
+                // Only log to history if this is not a free spin (free spin wins are logged separately)
+                if (!isFreeSpinActive) {
+                    const historyItem = {
+                        text: `SLOT WIN: <span class="win-amount">₹${totalWin}</span>`,
+                        type: 'success',
+                        time: new Date().toLocaleTimeString()
+                    };
+                    addLog(historyItem);
+                }
             } else {
-                document.getElementById('msg').innerText = "Try Again!";
+                if (isFreeSpinActive) {
+                    document.getElementById('msg').innerText = `FREE SPIN! (${freeSpinsRemaining} left)`;
+                } else {
+                    document.getElementById('msg').innerText = "Try Again!";
+                }
             }
             saveAndRefresh();
             
             return {
                 winAmount: totalWin,
-                balance: userData.balance
+                balance: userData.balance,
+                scatterTriggered: false
             };
         }
 
