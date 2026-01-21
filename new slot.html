@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Slots India - Pro Secure</title>
+    <title>Neon Slots India - VIP Access</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
@@ -36,7 +36,160 @@
             overflow-x: hidden;
         }
 
-        #auth-screen, .modal {
+        /* --- REDESIGNED GREEDY LOGIN STYLES --- */
+        #auth-screen {
+            background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+            /* Overlay pattern */
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffd700' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+
+        .greedy-card {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* FIXED: Added pointer-events: none so clicks go through the shine */
+        .greedy-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+            pointer-events: none; 
+            z-index: 1;
+        }
+
+        @keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
+
+        /* Ensure content sits ABOVE the shine */
+        .greedy-card > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .jackpot-banner {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .jackpot-label {
+            color: var(--neon-pink);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .jackpot-amount {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #ffd700, #ffed4e, #b8860b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            font-family: 'Courier New', monospace;
+        }
+
+        .bonus-badge {
+            background: linear-gradient(90deg, #ff007f, #ff4757);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin: -25px -25px 20px -25px;
+            box-shadow: 0 5px 15px rgba(255, 0, 127, 0.4);
+            animation: pulse-badge 1.5s infinite;
+            z-index: 5 !important;
+        }
+
+        @keyframes pulse-badge { 0% { opacity: 0.9; } 50% { opacity: 1; text-shadow: 0 0 10px white; } 100% { opacity: 0.9; } }
+
+        .auth-input {
+            background: rgba(0, 0, 0, 0.6) !important;
+            border: 1px solid #444 !important;
+            transition: 0.3s;
+            color: var(--gold) !important;
+            font-weight: bold;
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-input:focus {
+            border-color: var(--gold) !important;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+
+        .btn-greedy {
+            background: linear-gradient(to bottom, #ffd700, #b8860b);
+            color: black;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            animation: bounce-btn 2s infinite;
+            width: 100%;
+            margin-top: 15px;
+            position: relative;
+            z-index: 10; /* Ensures button is clickable */
+        }
+
+        @keyframes bounce-btn {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-5px);}
+            60% {transform: translateY(-3px);}
+        }
+
+        .trust-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+        
+        .trust-icon { font-size: 1.5rem; }
+
+        .live-users {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 242, 255, 0.1);
+            border: 1px solid var(--neon-blue);
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: var(--neon-blue);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 2001; /* Above everything */
+        }
+
+        .online-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 10px var(--success); }
+
+        /* --- END LOGIN STYLES --- */
+
+        /* Existing Modal & Game Styles */
+        .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--modal-bg); z-index: 2000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -182,8 +335,6 @@
         .status-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
         .tag-pending { background: var(--warning); color: black; }
         .tag-processing { background: var(--neon-blue); color: black; }
-        .tag-success { background: var(--success); color: black; }
-        .tag-rejected { background: var(--danger); color: white; }
         .tag-freespin { background: var(--free-spin); color: white; }
 
         .complaint-btn { font-size: 0.65rem; background: #333; color: var(--neon-blue); border: 1px solid var(--neon-blue); padding: 2px 8px; border-radius: 4px; cursor: pointer; width: fit-content; margin-top: 5px; }
@@ -217,6 +368,7 @@
         
         .hidden { display: none !important; }
         
+        /* Firebase connection status */
         .connection-status {
             position: fixed;
             bottom: 10px;
@@ -244,6 +396,7 @@
             gap: 5px;
         }
         
+        /* Improved winning text styles */
         .win-amount {
             font-weight: bold;
             background: linear-gradient(45deg, #ffd700, #ffed4e);
@@ -266,7 +419,9 @@
 <body>
 
     <div id="status-container"></div>
+    
     <div id="free-spins-popup" class="free-spins-popup hidden"></div>
+    
     <div id="firebase-status" class="connection-status connection-offline">Offline</div>
     
     <div id="free-spins-counter" class="free-spins-counter hidden">
@@ -274,12 +429,37 @@
     </div>
 
     <div id="auth-screen">
-        <div class="auth-card">
-            <h2 id="auth-title" style="color: var(--neon-blue); margin-bottom: 20px; text-align: center;">Login</h2>
-            <input type="number" id="auth-phone" class="auth-input" placeholder="10 Digit Phone Number">
-            <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
-            <button class="btn btn-spin" style="width: 100%; margin-top: 10px;" onclick="handleAuth()">Submit</button>
-            <div style="margin-top: 15px; font-size: 0.85rem; color: var(--neon-blue); cursor: pointer; text-align: center;" onclick="toggleAuthMode()" id="auth-toggle-text">New user? Register here</div>
+        <div class="live-users">
+            <div class="online-dot"></div> <span id="live-count">24,839</span> Players Online
+        </div>
+        
+        <div class="auth-card greedy-card">
+            <div class="bonus-badge">🔥 LIMITED OFFER: ₹25 FREE BONUS 🔥</div>
+            
+            <div class="jackpot-banner">
+                <div class="jackpot-label">PROGRESSIVE JACKPOT</div>
+                <div class="jackpot-amount">₹12,45,980</div>
+            </div>
+
+            <h2 id="auth-title" style="color: white; text-align: center; margin-bottom: 15px; font-weight:300;">VIP MEMBER ACCESS</h2>
+            
+            <input type="number" id="auth-phone" class="auth-input" placeholder="📱 Enter Mobile Number">
+            <input type="password" id="auth-pass" class="auth-input" placeholder="🔒 Enter Password">
+            
+            <button class="btn btn-greedy" onclick="handleAuth()">LOGIN & WIN BIG 🎰</button>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Don't have an account?</p>
+                <div style="font-size: 0.95rem; color: var(--neon-blue); cursor: pointer; text-decoration: underline; font-weight: bold;" onclick="toggleAuthMode()" id="auth-toggle-text">CLAIM REGISTRATION BONUS NOW</div>
+            </div>
+
+            <div class="trust-row">
+                <div class="trust-icon">🔒</div>
+                <div class="trust-icon">🛡️</div>
+                <div class="trust-icon">🏦</div>
+                <div class="trust-icon">⚡</div>
+            </div>
+            <div style="text-align: center; font-size: 0.65rem; color: #666; margin-top: 10px;">SSL SECURE CONNECTION • 24/7 PAYOUTS</div>
         </div>
     </div>
 
@@ -314,7 +494,7 @@
             <h3 style="color: var(--danger); text-align: center; margin-bottom: 10px;">Withdraw Funds</h3>
             
             <div class="warning-note">
-                <strong>NOTE:</strong> Please enter correct and genuine bank account details. Any fake, inactive, or wrong account number may cause automatic deduction.
+                <strong>NOTE:</strong> Please enter correct and genuine bank account details. Any fake, inactive, or wrong account number may cause automatic deduction and transfer of the amount, leading to loss of money.
             </div>
 
             <label style="font-size: 0.75rem; color: var(--gold);">BANK DETAILS</label>
@@ -428,10 +608,12 @@
             measurementId: "G-Z46V1K2XGN"
         };
 
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
         
+        // Firebase connection status
         const firebaseStatus = document.getElementById('firebase-status');
         database.ref('.info/connected').on('value', (snapshot) => {
             if (snapshot.val() === true) {
@@ -443,87 +625,119 @@
             }
         });
 
+        // ========== FAKE LIVE USER SIMULATION ==========
+        // This simulates a live connection to the database of users
+        // Starts with a base of ~24,000 and fluctuates
+        let onlineCount = 24839;
+        const countEl = document.getElementById('live-count');
+        
+        setInterval(() => {
+            // Fluctuate the count by random small amount (-15 to +25)
+            const change = Math.floor(Math.random() * 41) - 15;
+            onlineCount += change;
+            
+            // Keep reasonable bounds
+            if(onlineCount < 20000) onlineCount = 24000;
+            if(onlineCount > 35000) onlineCount = 24000;
+            
+            // Format number with commas
+            countEl.innerText = onlineCount.toLocaleString();
+        }, 3500);
+
         // ========== GAME VARIABLES ==========
         let isLoginMode = true;
         let currentUserPhone = localStorage.getItem('active_session');
         let userData = {};
         let activeComplaintType = "";
         
-        // Game symbols
+        // Game symbols - 🎰 is the scatter symbol
         const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🎰'];
-        const payouts = {'🍒': 2, '🍋': 3, '🔔': 6, '💎': 12, '7️⃣': 50, '🎰': 0};
+        const payouts = {'🍒': 2, '🍋': 3, '🔔': 6, '💎': 12, '7️⃣': 50, '🎰': 0}; // 🎰 has 0 payout (scatter only)
         const paylines = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
         
         let isRunning = false;
         let isAuto = false;
-        let forcedResult = null; // Admin forced result
         
+        // Free spins variables
         let freeSpinsRemaining = 0;
         let isFreeSpinActive = false;
-        let freeSpinWinMultiplier = 2;
-        let lastSpinWinAmount = 0;
+        let freeSpinWinMultiplier = 2; // Wins are doubled during free spins
+        let lastSpinWinAmount = 0; // Track last spin win to prevent duplicate logs
 
-        // ========== FIREBASE & ADMIN LISTENER ==========
-        function setupUserListeners(phone) {
-            // Listen for Balance Updates
-            database.ref('users/' + phone + '/balance').on('value', (snapshot) => {
-                if(snapshot.exists()) {
-                    userData.balance = snapshot.val();
-                    document.getElementById('balance').innerText = userData.balance.toLocaleString('en-IN');
-                }
-            });
-
-            // Listen for Forced Outcomes (Next Spin Result)
-            database.ref('users/' + phone + '/nextResult').on('value', (snapshot) => {
-                forcedResult = snapshot.val();
-            });
-
-            // Listen for History Updates (Status changes by Admin)
-            database.ref('users/' + phone + '/history').on('value', (snapshot) => {
-                if(snapshot.exists()) {
-                    // Convert object to array, sort by timestamp desc
-                    const histObj = snapshot.val();
-                    const histArr = Object.values(histObj).sort((a,b) => b.timestamp - a.timestamp);
-                    userData.history = histArr;
-                    loadLogs();
-                }
-            });
-        }
-
+        // ========== FIREBASE FUNCTIONS ==========
         async function saveUserToFirebase(phone, data) {
-            try { await database.ref('users/' + phone).set(data); return true; } 
-            catch (e) { console.error(e); return false; }
+            try {
+                await database.ref('users/' + phone).set(data);
+                console.log('User saved to Firebase');
+                return true;
+            } catch (error) {
+                console.error('Firebase save error:', error);
+                return false;
+            }
         }
 
         async function loadUserFromFirebase(phone) {
-            try { const s = await database.ref('users/' + phone).once('value'); return s.val(); } 
-            catch (e) { return null; }
+            try {
+                const snapshot = await database.ref('users/' + phone).once('value');
+                return snapshot.val();
+            } catch (error) {
+                console.error('Firebase load error:', error);
+                return null;
+            }
         }
 
         async function updateUserBalance(phone, newBalance) {
-            try { await database.ref('users/' + phone + '/balance').set(newBalance); return true; } 
-            catch (e) { return false; }
+            try {
+                await database.ref('users/' + phone + '/balance').set(newBalance);
+                return true;
+            } catch (error) {
+                console.error('Balance update error:', error);
+                return false;
+            }
         }
 
         async function addHistoryToFirebase(phone, historyItem) {
             try {
-                const item = { ...historyItem, timestamp: firebase.database.ServerValue.TIMESTAMP };
-                await database.ref('users/' + phone + '/history').push(item);
+                const historyRef = database.ref('users/' + phone + '/history');
+                const newHistoryRef = historyRef.push();
+                await newHistoryRef.set({
+                    ...historyItem,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                // Keep only last 30 items
+                const snapshot = await historyRef.once('value');
+                const history = snapshot.val();
+                if (history) {
+                    const keys = Object.keys(history);
+                    if (keys.length > 30) {
+                        const toDelete = keys.slice(0, keys.length - 30);
+                        toDelete.forEach(key => {
+                            database.ref('users/' + phone + '/history/' + key).remove();
+                        });
+                    }
+                }
                 return true;
-            } catch (e) { console.error(e); return false; }
+            } catch (error) {
+                console.error('History add error:', error);
+                return false;
+            }
         }
 
         async function saveComplaintToFirebase(phone, complaintData) {
             try {
-                const ref = database.ref('complaints').push();
-                await ref.set({
+                const complaintsRef = database.ref('complaints').push();
+                await complaintsRef.set({
                     ...complaintData,
                     userPhone: phone,
                     timestamp: firebase.database.ServerValue.TIMESTAMP,
                     status: 'pending'
                 });
-                return ref.key;
-            } catch (e) { return null; }
+                return complaintsRef.key;
+            } catch (error) {
+                console.error('Complaint save error:', error);
+                return null;
+            }
         }
 
         // ========== UI FUNCTIONS ==========
@@ -541,7 +755,10 @@
             const popup = document.getElementById('free-spins-popup');
             popup.textContent = message;
             popup.classList.remove('hidden');
-            setTimeout(() => popup.classList.add('hidden'), 3000);
+            
+            setTimeout(() => {
+                popup.classList.add('hidden');
+            }, 3000);
         }
         
         function updateFreeSpinsCounter() {
@@ -603,10 +820,9 @@
             const amt = parseInt(document.getElementById('dep-amt-input').value);
             if (amt < 10) return showStatus("Min deposit ₹10", "err");
             
-            // Note: In real app, balance updates only after admin approval usually, but here we add instantly for demo
-            // Or we create a pending deposit request. Let's do instant for now.
-            const newBal = (userData.balance || 0) + amt;
+            userData.balance += amt;
             
+            // Save to Firebase
             const historyItem = {
                 text: `DEPOSIT: <span class="win-amount">₹${amt}</span> via ${method}`,
                 type: 'success',
@@ -614,9 +830,13 @@
                 time: new Date().toLocaleTimeString()
             };
             
-            await updateUserBalance(currentUserPhone, newBal);
-            await addHistoryToFirebase(currentUserPhone, historyItem);
+            await Promise.all([
+                updateUserBalance(currentUserPhone, userData.balance),
+                addHistoryToFirebase(currentUserPhone, historyItem)
+            ]);
             
+            addLog(historyItem);
+            saveAndRefresh();
             closeModals();
             showStatus(`₹${amt} Added via ${method}`);
         }
@@ -634,39 +854,26 @@
             if (amt < 110) return showStatus("Min withdrawal ₹110", "err");
             if (amt > userData.balance) return showStatus("Insufficient Balance", "err");
 
-            // Deduct balance immediately
-            const newBal = userData.balance - amt;
             userData.bankDetails = { holder, bank, acc, ifsc };
-            
-            // Generate Withdrawal Request ID
-            const reqId = Date.now().toString().slice(-6);
+            userData.balance -= amt;
 
+            // Save to Firebase
             const historyItem = {
-                id: reqId,
                 text: `WITHDRAW: <span class="win-amount">₹${amt}</span>`,
                 type: 'danger',
                 category: 'withdraw',
-                status: 'pending', // This will be updated by admin
-                amount: amt,
-                bankDetails: userData.bankDetails,
+                status: 'pending',
                 time: new Date().toLocaleTimeString()
             };
             
-            await updateUserBalance(currentUserPhone, newBal);
-            await database.ref('users/' + currentUserPhone + '/bankDetails').set(userData.bankDetails);
+            await Promise.all([
+                updateUserBalance(currentUserPhone, userData.balance),
+                saveUserToFirebase(currentUserPhone, userData),
+                addHistoryToFirebase(currentUserPhone, historyItem)
+            ]);
             
-            // Add to User History
-            const histRef = database.ref('users/' + currentUserPhone + '/history').push();
-            await histRef.set({ ...historyItem, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            
-            // Add to Global Admin Withdrawal Queue
-            await database.ref('withdrawals').push({
-                ...historyItem,
-                userPhone: currentUserPhone,
-                historyKey: histRef.key, // Link back to user history to update status later
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-
+            addLog(historyItem);
+            saveAndRefresh();
             closeModals();
             showStatus("Withdrawal Submitted! Status: PENDING");
         }
@@ -674,9 +881,14 @@
         function openComplaint(type) {
             activeComplaintType = type;
             document.getElementById('complaint-type-label').innerText = `Reporting issue with: ${type.toUpperCase()}`;
+            
             const utrField = document.getElementById('utr-container');
-            if(type === 'withdraw') utrField.classList.add('hidden');
-            else utrField.classList.remove('hidden');
+            if(type === 'withdraw') {
+                utrField.classList.add('hidden');
+            } else {
+                utrField.classList.remove('hidden');
+            }
+
             document.getElementById('complaint-ref').value = "";
             document.getElementById('complaint-text').value = "";
             openModal('complaint-modal');
@@ -696,20 +908,33 @@
                 timestamp: new Date().toISOString()
             };
             
-            await saveComplaintToFirebase(currentUserPhone, complaintData);
+            const complaintId = await saveComplaintToFirebase(currentUserPhone, complaintData);
             
-            const logText = activeComplaintType === 'withdraw' ? `COMPLAINT: WITHDRAW ISSUE` : `COMPLAINT: ${activeComplaintType} (Ref: ${ref})`;
-            const historyItem = { text: logText, type: 'warning', status: 'processing', time: new Date().toLocaleTimeString() };
-            
-            await addHistoryToFirebase(currentUserPhone, historyItem);
-            closeModals();
-            showStatus("Complaint Logged. Status: PROCESSING");
+            if (complaintId) {
+                const logText = activeComplaintType === 'withdraw' ? 
+                    `COMPLAINT: WITHDRAW ISSUE` : `COMPLAINT: ${activeComplaintType} (Ref: ${ref})`;
+                
+                const historyItem = {
+                    text: logText,
+                    type: 'warning',
+                    status: 'processing',
+                    time: new Date().toLocaleTimeString()
+                };
+                
+                await addHistoryToFirebase(currentUserPhone, historyItem);
+                addLog(historyItem);
+                
+                closeModals();
+                showStatus("Complaint Logged. Status: PROCESSING");
+            } else {
+                showStatus("Failed to submit complaint", "err");
+            }
         }
 
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? 'Login' : 'Register';
-            document.getElementById('auth-toggle-text').innerText = isLoginMode ? 'New user? Register here' : 'Already have an account? Login';
+            document.getElementById('auth-title').innerText = isLoginMode ? 'VIP MEMBER ACCESS' : 'CLAIM NEW ACCOUNT';
+            document.getElementById('auth-toggle-text').innerText = isLoginMode ? 'CLAIM REGISTRATION BONUS NOW' : 'ALREADY A MEMBER? LOGIN';
         }
 
         async function handleAuth() {
@@ -718,24 +943,33 @@
             if (phone.length !== 10) return showStatus("Enter 10-digit phone", "err");
             
             if (isLoginMode) {
-                const data = await loadUserFromFirebase(phone);
-                if (data && data.pass === pass) loginUser(phone, data);
-                else showStatus("Invalid Credentials", "err");
+                // Login
+                const userData = await loadUserFromFirebase(phone);
+                if (userData && userData.pass === pass) {
+                    loginUser(phone, userData);
+                } else {
+                    showStatus("Invalid Credentials", "err");
+                }
             } else {
+                // Register
                 const existingUser = await loadUserFromFirebase(phone);
                 if (existingUser) return showStatus("User already exists", "err");
                 
+                // UPDATED: New User Balance is now 25 instead of 500
                 const newUser = {
                     pass,
-                    balance: 500,
-                    history: {},
+                    balance: 25, 
+                    history: [],
                     bankDetails: null,
-                    winRate: 30, // Default win rate percent
                     createdAt: new Date().toISOString()
                 };
                 
-                if (await saveUserToFirebase(phone, newUser)) loginUser(phone, newUser);
-                else showStatus("Registration failed", "err");
+                const saved = await saveUserToFirebase(phone, newUser);
+                if (saved) {
+                    loginUser(phone, newUser);
+                } else {
+                    showStatus("Registration failed", "err");
+                }
             }
         }
 
@@ -744,11 +978,13 @@
             userData = data;
             localStorage.setItem('active_session', phone);
             document.getElementById('auth-screen').classList.add('hidden');
+            
+            // Load free spins from saved data if available
             if (userData.freeSpinsRemaining) {
                 freeSpinsRemaining = userData.freeSpinsRemaining;
                 updateFreeSpinsCounter();
             }
-            setupUserListeners(phone);
+            
             saveAndRefresh();
         }
 
@@ -761,9 +997,20 @@
             document.getElementById('balance').innerText = userData.balance?.toLocaleString('en-IN') || '0';
             document.getElementById('currentUser').innerText = currentUserPhone;
             loadLogs();
+            
+            // Save free spins to user data
             if (currentUserPhone) {
+                userData.freeSpinsRemaining = freeSpinsRemaining;
+                // Update in Firebase in background
                 database.ref('users/' + currentUserPhone + '/freeSpinsRemaining').set(freeSpinsRemaining);
             }
+        }
+
+        function addLog(item) {
+            if (!userData.history) userData.history = [];
+            userData.history.unshift(item);
+            if(userData.history.length > 30) userData.history.pop();
+            loadLogs();
         }
 
         function loadLogs() {
@@ -772,7 +1019,7 @@
                 h.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No activity yet</div>';
                 return;
             }
-            // userData.history is kept updated by the listener
+            
             h.innerHTML = userData.history.map(item => `
                 <div class="history-item">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -782,9 +1029,8 @@
                         <span style="color:#555; font-size:0.7rem;">${item.time}</span>
                     </div>
                     <div style="display:flex; gap:10px; align-items:center;">
-                        ${item.status ? `<span class="status-tag tag-${item.status.toLowerCase()}">${item.status}</span>` : ''}
+                        ${item.status ? `<span class="status-tag tag-${item.status}">${item.status}</span>` : ''}
                         ${item.category ? `<button class="complaint-btn" onclick="openComplaint('${item.category}')">Help?</button>` : ''}
-                        ${item.failureReason ? `<div style="color:var(--danger); font-size:0.65rem;">Note: ${item.failureReason}</div>` : ''}
                     </div>
                 </div>
             `).join('');
@@ -793,6 +1039,7 @@
         async function play() {
             if(isRunning) return;
             
+            // Check if we're in free spin mode
             if (freeSpinsRemaining > 0) {
                 isFreeSpinActive = true;
                 freeSpinsRemaining--;
@@ -802,52 +1049,89 @@
                 const bet = parseInt(document.getElementById('betAmt').value);
                 if(bet > userData.balance) return showStatus("Insufficient Balance", "err");
                 userData.balance -= bet;
-                updateUserBalance(currentUserPhone, userData.balance);
             }
             
             isRunning = true;
+            saveAndRefresh();
+            
             document.getElementById('spinBtn').disabled = true;
             document.getElementById('msg').innerText = isFreeSpinActive ? `FREE SPIN! (${freeSpinsRemaining} left)` : "Spinning...";
             
-            // Generate results (Respecting Admin Force)
-            const results = generateResults();
+            // Generate final results
+            const results = [];
+            for(let i=0; i<9; i++) {
+                // During free spins, use different symbol probabilities
+                if (isFreeSpinActive) {
+                    // During free spins: higher chance for winning symbols, NO scatter symbols
+                    const freeSpinSymbols = ['💎', '7️⃣', '🔔', '🍒', '🍋'];
+                    const weights = [0.25, 0.2, 0.2, 0.2, 0.15]; // Higher weights for better symbols
+                    results.push(getWeightedSymbol(freeSpinSymbols, weights));
+                } else {
+                    // Normal play: regular probabilities including scatter
+                    results.push(symbols[Math.floor(Math.random() * symbols.length)]);
+                }
+            }
 
-            // Clear previous winning highlights
+            // Clear previous winning highlights and start spinning animation for ALL reels
             document.querySelectorAll('.cell').forEach(c => {
                 c.classList.remove('winner-cell');
                 c.classList.remove('scatter-cell');
                 c.classList.add('spinning');
             });
 
-            // Stop animations sequentially
-            setTimeout(() => stopReel(0, results), 600);
-            setTimeout(() => stopReel(1, results), 1000);
+            // Column-wise Sequential Stop Logic
+            // Column 0 (Left)
+            setTimeout(() => {
+                [0, 3, 6].forEach(idx => {
+                    const cell = document.getElementById(`c${idx}`);
+                    cell.classList.remove('spinning');
+                    cell.innerText = results[idx];
+                });
+            }, 600);
+
+            // Column 1 (Middle)
+            setTimeout(() => {
+                [1, 4, 7].forEach(idx => {
+                    const cell = document.getElementById(`c${idx}`);
+                    cell.classList.remove('spinning');
+                    cell.innerText = results[idx];
+                });
+            }, 1000);
+
+            // Column 2 (Right)
             setTimeout(async () => {
-                stopReel(2, results);
+                [2, 5, 8].forEach(idx => {
+                    const cell = document.getElementById(`c${idx}`);
+                    cell.classList.remove('spinning');
+                    cell.innerText = results[idx];
+                });
+
+                // Final check once all have stopped
                 const winData = checkWin(results);
                 isRunning = false;
                 document.getElementById('spinBtn').disabled = false;
+                
+                // Reset last spin win amount
                 lastSpinWinAmount = 0;
                 
-                // Clear forced result after use
-                if(forcedResult) {
-                    database.ref('users/' + currentUserPhone + '/nextResult').remove();
-                    forcedResult = null;
-                }
-
+                // Save game result to Firebase
                 if (currentUserPhone) {
                     await updateUserBalance(currentUserPhone, userData.balance);
                     
+                    // Only add win history if there was a win AND we haven't already added it
                     if (winData.winAmount > 0 && winData.winAmount !== lastSpinWinAmount) {
                         lastSpinWinAmount = winData.winAmount;
+                        
                         const historyItem = {
                             text: `${isFreeSpinActive ? 'FREE SPIN WIN: <span class="win-amount">₹' + winData.winAmount + '</span>' : 'SLOT WIN: <span class="win-amount">₹' + winData.winAmount + '</span>'}`,
                             type: isFreeSpinActive ? 'freespin' : 'success',
                             time: new Date().toLocaleTimeString()
                         };
                         await addHistoryToFirebase(currentUserPhone, historyItem);
+                        addLog(historyItem);
                     }
                     
+                    // Check for scatter symbols and trigger free spins (only during normal play)
                     if (winData.scatterTriggered && !isFreeSpinActive) {
                         const bonusHistoryItem = {
                             text: `🎰 SCATTER BONUS: <span class="free-spin-text">10 FREE SPINS!</span>`,
@@ -855,49 +1139,32 @@
                             time: new Date().toLocaleTimeString()
                         };
                         await addHistoryToFirebase(currentUserPhone, bonusHistoryItem);
+                        addLog(bonusHistoryItem);
                     }
                 }
                 
+                // Continue auto play if enabled
                 if(isAuto) setTimeout(play, 1000);
-                if (freeSpinsRemaining > 0 && !isAuto) setTimeout(play, 2000);
+                
+                // If free spins remain, automatically trigger next spin after a delay
+                if (freeSpinsRemaining > 0 && !isAuto) {
+                    setTimeout(() => {
+                        play();
+                    }, 2000);
+                }
             }, 1400);
         }
-
-        function stopReel(reelIdx, results) {
-            [0,1,2].forEach(row => {
-                const cellId = reelIdx + (row * 3); // Calculate cell ID based on grid layout
-                const cell = document.getElementById(`c${cellId}`);
-                cell.classList.remove('spinning');
-                cell.innerText = results[cellId];
-            });
-        }
-
-        function generateResults() {
-            // Priority 1: Admin Forced Result
-            if(forcedResult) {
-                // forcedResult should be array of 9 symbols
-                return forcedResult; 
-            }
-
-            // Priority 2: Free Spins (Boosted odds)
-            if(isFreeSpinActive) {
-                 const res = [];
-                 for(let i=0; i<9; i++) res.push(getWeightedSymbol(['💎', '7️⃣', '🔔', '🍒', '🍋'], [0.25, 0.2, 0.2, 0.2, 0.15]));
-                 return res;
-            }
-
-            // Priority 3: Random
-            const res = [];
-            for(let i=0; i<9; i++) res.push(symbols[Math.floor(Math.random() * symbols.length)]);
-            return res;
-        }
         
+        // Helper function for weighted random selection
         function getWeightedSymbol(symbols, weights) {
             const totalWeight = weights.reduce((a, b) => a + b, 0);
             let random = Math.random() * totalWeight;
+            
             for (let i = 0; i < symbols.length; i++) {
                 random -= weights[i];
-                if (random <= 0) return symbols[i];
+                if (random <= 0) {
+                    return symbols[i];
+                }
             }
             return symbols[symbols.length - 1];
         }
@@ -906,43 +1173,94 @@
             let totalWin = 0;
             let scatterCount = 0;
             
+            // Count scatter symbols first (🎰 is the scatter) - ONLY during normal play
             if (!isFreeSpinActive) {
-                grid.forEach(symbol => { if (symbol === '🎰') scatterCount++; });
+                grid.forEach(symbol => {
+                    if (symbol === '🎰') {
+                        scatterCount++;
+                    }
+                });
             }
             
+            // Check for scatter bonus (3 or more scatter symbols) - ONLY during normal play
             if (scatterCount >= 3 && !isFreeSpinActive) {
+                // Award 10 free spins
                 freeSpinsRemaining += 10;
                 updateFreeSpinsCounter();
-                grid.forEach((symbol, idx) => { if (symbol === '🎰') document.getElementById(`c${idx}`).classList.add('scatter-cell'); });
-                showFreeSpinsPopup(`🎉 ${scatterCount} SCATTERS! 10 FREE SPINS!`);
+                
+                // Highlight all scatter cells
+                grid.forEach((symbol, idx) => {
+                    if (symbol === '🎰') {
+                        document.getElementById(`c${idx}`).classList.add('scatter-cell');
+                    }
+                });
+                
+                // Show free spins notification
+                showFreeSpinsPopup(`🎉 ${scatterCount} SCATTERS (🎰)! 🎉\n10 FREE SPINS AWARDED!`);
                 document.getElementById('msg').innerHTML = `<span class="free-spin-text">${scatterCount} SCATTERS! 10 FREE SPINS!</span>`;
-                return { winAmount: 0, balance: userData.balance, scatterTriggered: true };
+                
+                // Save to user data
+                saveAndRefresh();
+                
+                return {
+                    winAmount: 0,
+                    balance: userData.balance,
+                    scatterTriggered: true
+                };
             }
             
+            // Regular payline wins
             let winningLines = [];
             paylines.forEach(line => {
                 const [a, b, c] = line;
                 if(grid[a] === grid[b] && grid[b] === grid[c]) {
                     const winMultiplier = payouts[grid[a]] || 1;
-                    const betAmount = parseInt(document.getElementById('betAmt').value);
+                    const betAmount = isFreeSpinActive ? parseInt(document.getElementById('betAmt').value) : parseInt(document.getElementById('betAmt').value);
                     const winAmount = betAmount * winMultiplier * (isFreeSpinActive ? freeSpinWinMultiplier : 1);
                     totalWin += winAmount;
                     winningLines.push(line);
                 }
             });
             
-            winningLines.forEach(line => { line.forEach(idx => document.getElementById(`c${idx}`).classList.add('winner-cell')); });
+            // Highlight winning cells
+            winningLines.forEach(line => {
+                line.forEach(idx => document.getElementById(`c${idx}`).classList.add('winner-cell'));
+            });
 
             if(totalWin > 0) {
                 userData.balance += totalWin;
-                document.getElementById('msg').innerHTML = isFreeSpinActive 
-                    ? `<span class="win-message">FREE SPIN WIN: ₹${totalWin}!</span>` 
-                    : `<span class="win-message">WIN: ₹${totalWin}!</span>`;
+                
+                // Create beautiful win message
+                const msgElement = document.getElementById('msg');
+                if (isFreeSpinActive) {
+                    msgElement.innerHTML = `<span class="win-message">FREE SPIN WIN: ₹${totalWin}!</span>`;
+                } else {
+                    msgElement.innerHTML = `<span class="win-message">WIN: ₹${totalWin}!</span>`;
+                }
+                
+                // Only log to history if this is not a free spin (free spin wins are logged separately)
+                if (!isFreeSpinActive) {
+                    const historyItem = {
+                        text: `SLOT WIN: <span class="win-amount">₹${totalWin}</span>`,
+                        type: 'success',
+                        time: new Date().toLocaleTimeString()
+                    };
+                    addLog(historyItem);
+                }
             } else {
-                document.getElementById('msg').innerText = isFreeSpinActive ? `FREE SPIN! (${freeSpinsRemaining} left)` : "Try Again!";
+                if (isFreeSpinActive) {
+                    document.getElementById('msg').innerText = `FREE SPIN! (${freeSpinsRemaining} left)`;
+                } else {
+                    document.getElementById('msg').innerText = "Try Again!";
+                }
             }
+            saveAndRefresh();
             
-            return { winAmount: totalWin, balance: userData.balance, scatterTriggered: false };
+            return {
+                winAmount: totalWin,
+                balance: userData.balance,
+                scatterTriggered: false
+            };
         }
 
         function toggleAuto() {
@@ -952,11 +1270,15 @@
             if(isAuto) play();
         }
 
+        // Initialize on load
         window.onload = async function() {
             if (currentUserPhone) {
-                const data = await loadUserFromFirebase(currentUserPhone);
-                if (data) loginUser(currentUserPhone, data);
-                else localStorage.removeItem('active_session');
+                const userData = await loadUserFromFirebase(currentUserPhone);
+                if (userData) {
+                    loginUser(currentUserPhone, userData);
+                } else {
+                    localStorage.removeItem('active_session');
+                }
             }
         };
     </script>
