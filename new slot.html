@@ -57,7 +57,6 @@
             overflow: hidden;
         }
 
-        /* FIXED: Added pointer-events: none so clicks go through the shine */
         .greedy-card::before {
             content: '';
             position: absolute;
@@ -74,176 +73,90 @@
 
         @keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
 
-        /* Ensure content sits ABOVE the shine */
-        .greedy-card > * {
-            position: relative;
-            z-index: 2;
-        }
+        .greedy-card > * { position: relative; z-index: 2; }
 
-        .jackpot-banner {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .jackpot-label {
-            color: var(--neon-pink);
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
+        .jackpot-banner { text-align: center; margin-bottom: 20px; }
+        .jackpot-label { color: var(--neon-pink); font-size: 0.8rem; letter-spacing: 2px; font-weight: bold; text-transform: uppercase; }
         .jackpot-amount {
-            font-size: 2.5rem;
-            font-weight: 900;
+            font-size: 2.5rem; font-weight: 900;
             background: linear-gradient(to bottom, #ffd700, #ffed4e, #b8860b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-            font-family: 'Courier New', monospace;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.4); font-family: 'Courier New', monospace;
         }
 
         .bonus-badge {
             background: linear-gradient(90deg, #ff007f, #ff4757);
-            color: white;
-            padding: 8px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin: -25px -25px 20px -25px;
-            box-shadow: 0 5px 15px rgba(255, 0, 127, 0.4);
-            animation: pulse-badge 1.5s infinite;
-            z-index: 5 !important;
+            color: white; padding: 8px; text-align: center; font-weight: bold; font-size: 0.9rem;
+            margin: -25px -25px 20px -25px; box-shadow: 0 5px 15px rgba(255, 0, 127, 0.4);
+            animation: pulse-badge 1.5s infinite; z-index: 5 !important;
         }
-
         @keyframes pulse-badge { 0% { opacity: 0.9; } 50% { opacity: 1; text-shadow: 0 0 10px white; } 100% { opacity: 0.9; } }
 
         .auth-input {
-            background: rgba(0, 0, 0, 0.6) !important;
-            border: 1px solid #444 !important;
-            transition: 0.3s;
-            color: var(--gold) !important;
-            font-weight: bold;
-            position: relative;
-            z-index: 10;
+            background: rgba(0, 0, 0, 0.6) !important; border: 1px solid #444 !important; transition: 0.3s;
+            color: var(--gold) !important; font-weight: bold; position: relative; z-index: 10;
         }
-
-        .auth-input:focus {
-            border-color: var(--gold) !important;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
-        }
+        .auth-input:focus { border-color: var(--gold) !important; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
 
         .btn-greedy {
-            background: linear-gradient(to bottom, #ffd700, #b8860b);
-            color: black;
-            font-weight: 900;
-            text-transform: uppercase;
-            font-size: 1.1rem;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-            animation: bounce-btn 2s infinite;
-            width: 100%;
-            margin-top: 15px;
-            position: relative;
-            z-index: 10; /* Ensures button is clickable */
+            background: linear-gradient(to bottom, #ffd700, #b8860b); color: black; font-weight: 900;
+            text-transform: uppercase; font-size: 1.1rem; padding: 15px; border: none; border-radius: 8px;
+            cursor: pointer; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); animation: bounce-btn 2s infinite;
+            width: 100%; margin-top: 15px; position: relative; z-index: 10;
         }
-
         @keyframes bounce-btn {
-            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-            40% {transform: translateY(-5px);}
-            60% {transform: translateY(-3px);}
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-5px);} 60% {transform: translateY(-3px);}
         }
 
-        .trust-row {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-            opacity: 0.7;
-        }
-        
+        .trust-row { display: flex; justify-content: center; gap: 15px; margin-top: 20px; opacity: 0.7; }
         .trust-icon { font-size: 1.5rem; }
 
         .live-users {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 242, 255, 0.1);
-            border: 1px solid var(--neon-blue);
-            padding: 5px 15px;
-            border-radius: 20px;
-            color: var(--neon-blue);
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 2001; /* Above everything */
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0, 242, 255, 0.1); border: 1px solid var(--neon-blue);
+            padding: 5px 15px; border-radius: 20px; color: var(--neon-blue); font-size: 0.8rem;
+            display: flex; align-items: center; gap: 8px; z-index: 2001;
         }
-
         .online-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 10px var(--success); }
 
         /* --- END LOGIN STYLES --- */
 
-        /* Existing Modal & Game Styles */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--modal-bg); z-index: 2000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: 20px;
         }
+        
+        .modal-suspension {
+             z-index: 9999; background: black; text-align: center;
+        }
 
         .auth-card {
-            background: var(--panel);
-            padding: 25px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid #333;
-            box-shadow: 0 0 30px rgba(0,242,255,0.1);
-            max-height: 90vh;
-            overflow-y: auto;
+            background: var(--panel); padding: 25px; border-radius: 15px;
+            width: 100%; max-width: 400px; border: 1px solid #333;
+            box-shadow: 0 0 30px rgba(0,242,255,0.1); max-height: 90vh; overflow-y: auto;
         }
 
         .auth-input, .complaint-area {
             width: 100%; padding: 12px; margin: 8px 0;
-            background: #000; border: 1px solid #444; color: white; border-radius: 8px;
-            font-size: 0.9rem;
+            background: #000; border: 1px solid #444; color: white; border-radius: 8px; font-size: 0.9rem;
         }
 
         .security-section {
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(255, 215, 0, 0.05);
-            border-radius: 8px;
-            border: 1px dashed var(--gold);
+            margin-top: 15px; padding: 10px; background: rgba(255, 215, 0, 0.05);
+            border-radius: 8px; border: 1px dashed var(--gold);
         }
 
         .warning-note {
-            background: rgba(255, 71, 87, 0.1);
-            border-left: 3px solid var(--danger);
-            padding: 10px;
-            font-size: 0.75rem;
-            color: #ff9f9f;
-            margin-bottom: 15px;
-            line-height: 1.4;
+            background: rgba(255, 71, 87, 0.1); border-left: 3px solid var(--danger);
+            padding: 10px; font-size: 0.75rem; color: #ff9f9f; margin-bottom: 15px; line-height: 1.4;
         }
 
         .complaint-area { height: 80px; resize: none; font-family: inherit; }
 
-        .amt-presets {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin: 10px 0;
-        }
-        .preset-btn {
-            background: #222; border: 1px solid #444; color: white; 
-            padding: 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem;
-        }
+        .amt-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+        .preset-btn { background: #222; border: 1px solid #444; color: white; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
 
         .pay-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
 
@@ -270,16 +183,9 @@
             padding: 30px 40px; border-radius: 15px; font-weight: bold;
             z-index: 4000; animation: pulse 1.5s infinite;
             box-shadow: 0 10px 40px rgba(155, 89, 182, 0.7); text-align: center;
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
-            color: white;
-            font-size: 1.5rem;
-            min-width: 300px;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; font-size: 1.5rem; min-width: 300px;
         }
-        @keyframes pulse {
-            0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.05); }
-            100% { transform: translate(-50%, -50%) scale(1); }
-        }
+        @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } 100% { transform: translate(-50%, -50%) scale(1); } }
 
         .announcement-bar {
             width: 100%; background: rgba(255, 0, 127, 0.1); color: white;
@@ -292,7 +198,7 @@
         .container { width: 100%; max-width: 500px; padding: 15px; }
 
         .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .user-badge { font-size: 0.8rem; color: #888; border: 1px solid #444; padding: 4px 12px; border-radius: 20px; }
+        .user-badge { display: flex; align-items: center; gap: 8px; }
 
         .bank-header {
             background: var(--panel); padding: 20px; border-radius: 12px;
@@ -335,84 +241,98 @@
         .status-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
         .tag-pending { background: var(--warning); color: black; }
         .tag-processing { background: var(--neon-blue); color: black; }
+        .tag-approved { background: var(--success); color: black; }
+        .tag-rejected { background: var(--danger); color: white; }
         .tag-freespin { background: var(--free-spin); color: white; }
 
         .complaint-btn { font-size: 0.65rem; background: #333; color: var(--neon-blue); border: 1px solid var(--neon-blue); padding: 2px 8px; border-radius: 4px; cursor: pointer; width: fit-content; margin-top: 5px; }
 
         #msg { 
-            height: 35px; 
-            color: var(--neon-blue); 
-            margin-bottom: 10px; 
-            font-weight: bold; 
-            text-align: center; 
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 5px;
+            height: 35px; color: var(--neon-blue); margin-bottom: 10px; font-weight: bold; 
+            text-align: center; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; padding: 5px;
         }
         
         .win-message {
-            background: linear-gradient(45deg, var(--gold), #ffed4e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-            animation: winPulse 0.5s infinite alternate;
+            background: linear-gradient(45deg, var(--gold), #ffed4e); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); animation: winPulse 0.5s infinite alternate;
         }
-        
-        @keyframes winPulse {
-            from { transform: scale(1); }
-            to { transform: scale(1.05); }
-        }
+        @keyframes winPulse { from { transform: scale(1); } to { transform: scale(1.05); } }
         
         .hidden { display: none !important; }
         
         /* Firebase connection status */
         .connection-status {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.7rem;
-            z-index: 1000;
+            position: fixed; bottom: 10px; right: 10px; padding: 5px 10px; border-radius: 15px; font-size: 0.7rem; z-index: 1000;
         }
         .connection-online { background: var(--success); color: black; }
         .connection-offline { background: var(--danger); color: white; }
         
         .free-spins-counter {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--free-spin);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            position: absolute; top: 10px; right: 10px; background: var(--free-spin);
+            color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;
+            display: flex; align-items: center; gap: 5px;
         }
         
-        /* Improved winning text styles */
         .win-amount {
-            font-weight: bold;
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            padding: 2px 5px;
-            border-radius: 4px;
+            font-weight: bold; background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            padding: 2px 5px; border-radius: 4px;
         }
         
         .free-spin-text {
-            font-weight: bold;
-            background: linear-gradient(45deg, #9b59b6, #8e44ad);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-weight: bold; background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        
+        .jackpot-text {
+            font-size: 1.5rem; color: #ff007f; animation: pulse 0.5s infinite; text-shadow: 0 0 10px #ff007f;
+        }
+        
+        .big-win-text {
+            font-size: 1.3rem; color: #ffd700; animation: bounce-btn 1s infinite; text-shadow: 0 0 10px #ffd700;
+        }
+
+        .mini-history {
+            max-height: 150px; overflow-y: auto; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 5px;
+        }
+        .mini-item {
+            font-size: 0.75rem; border-bottom: 1px solid #333; padding: 5px 0; color: #aaa;
+        }
+
+        /* --- BONUS & REFERRAL STYLES --- */
+        .bonus-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            margin-bottom: 20px;
+        }
+        .day-card {
+            background: #222; border: 1px solid #444; border-radius: 8px;
+            padding: 10px 5px; text-align: center; position: relative; opacity: 0.7;
+        }
+        .day-card.active { border-color: var(--neon-blue); opacity: 1; box-shadow: 0 0 10px rgba(0,242,255,0.3); }
+        .day-card.claimed { border-color: var(--success); opacity: 0.5; }
+        .day-num { font-size: 0.7rem; color: #aaa; margin-bottom: 5px; }
+        .day-rew { color: var(--gold); font-weight: bold; font-size: 0.9rem; }
+        .day-icon { font-size: 1.2rem; margin-bottom: 5px; }
+        .claimed-badge { 
+            position: absolute; top: -5px; right: -5px; background: var(--success);
+            color: black; font-size: 0.6rem; padding: 2px 4px; border-radius: 50%;
+        }
+        .bonus-btn-main {
+            background: linear-gradient(45deg, #ffd700, #ff9f00); color: black;
+            border: none; padding: 12px; width: 100%; border-radius: 8px;
+            font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+        .bonus-btn-main:disabled { background: #444; color: #888; cursor: not-allowed; }
+
+        .refer-code-display {
+            background: #111; border: 2px dashed var(--neon-blue); padding: 15px;
+            text-align: center; font-family: monospace; font-size: 1.5rem; letter-spacing: 2px;
+            color: var(--neon-blue); margin: 20px 0; border-radius: 8px; cursor: pointer;
+        }
+        .whatsapp-btn {
+            background: #25D366; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px;
+            font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; font-size: 0.9rem;
         }
     </style>
 </head>
@@ -428,6 +348,13 @@
         <span>🎁</span> <span id="free-spins-count">0</span> FREE SPINS
     </div>
 
+    <!-- Suspension Modal -->
+    <div id="suspend-modal" class="modal modal-suspension hidden">
+        <h2 style="color:var(--danger); margin-bottom:20px;">🚫 ACCOUNT SUSPENDED</h2>
+        <p id="suspend-msg" style="color:white; margin-bottom:20px;">Your account suspended for fraud activities.</p>
+        <p style="color:#888;">Contact: <span style="color:var(--neon-blue);">helloworld@gmail.com</span></p>
+    </div>
+
     <div id="auth-screen">
         <div class="live-users">
             <div class="online-dot"></div> <span id="live-count">24,839</span> Players Online
@@ -435,29 +362,25 @@
         
         <div class="auth-card greedy-card">
             <div class="bonus-badge">🔥 LIMITED OFFER: ₹25 FREE BONUS 🔥</div>
-            
             <div class="jackpot-banner">
                 <div class="jackpot-label">PROGRESSIVE JACKPOT</div>
                 <div class="jackpot-amount">₹12,45,980</div>
             </div>
 
             <h2 id="auth-title" style="color: white; text-align: center; margin-bottom: 15px; font-weight:300;">VIP MEMBER ACCESS</h2>
-            
             <input type="number" id="auth-phone" class="auth-input" placeholder="📱 Enter Mobile Number">
             <input type="password" id="auth-pass" class="auth-input" placeholder="🔒 Enter Password">
             
-            <button class="btn btn-greedy" onclick="handleAuth()">LOGIN & WIN BIG 🎰</button>
+            <!-- Optional Referral Code Field -->
+            <input type="text" id="auth-referral" class="auth-input hidden" placeholder="🎟️ Referral Code (Optional)">
             
+            <button class="btn btn-greedy" onclick="handleAuth()">LOGIN & WIN BIG 🎰</button>
             <div style="margin-top: 20px; text-align: center;">
                 <p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Don't have an account?</p>
                 <div style="font-size: 0.95rem; color: var(--neon-blue); cursor: pointer; text-decoration: underline; font-weight: bold;" onclick="toggleAuthMode()" id="auth-toggle-text">CLAIM REGISTRATION BONUS NOW</div>
             </div>
-
             <div class="trust-row">
-                <div class="trust-icon">🔒</div>
-                <div class="trust-icon">🛡️</div>
-                <div class="trust-icon">🏦</div>
-                <div class="trust-icon">⚡</div>
+                <div class="trust-icon">🔒</div><div class="trust-icon">🛡️</div><div class="trust-icon">🏦</div><div class="trust-icon">⚡</div>
             </div>
             <div style="text-align: center; font-size: 0.65rem; color: #666; margin-top: 10px;">SSL SECURE CONNECTION • 24/7 PAYOUTS</div>
         </div>
@@ -473,18 +396,24 @@
                 <button class="preset-btn" onclick="setAmt('dep-amt-input', 1000)">+₹1000</button>
                 <button class="preset-btn" onclick="setAmt('dep-amt-input', 2000)">+₹2000</button>
             </div>
-            
             <div class="security-section">
                 <p style="font-size: 0.7rem; color: var(--gold); margin-bottom: 5px; text-align: center;">VERIFY IDENTITY</p>
                 <input type="number" id="dep-sec-phone" class="auth-input" placeholder="Confirm Phone">
                 <input type="password" id="dep-sec-pass" class="auth-input" placeholder="Confirm Password">
             </div>
-
             <div class="pay-row">
                 <button class="pay-btn btn-super" onclick="triggerPayment('Superpay')">Superpay</button>
                 <button class="pay-btn btn-upi" onclick="triggerPayment('UPI')">UPI</button>
                 <button class="pay-btn btn-paytm" onclick="triggerPayment('Paytm')">Paytm</button>
             </div>
+            
+            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <h4 style="color: #aaa; font-size: 0.8rem;">Recent Deposits</h4>
+                <button onclick="openComplaint('deposit')" style="background:none; border:none; color:var(--warning); font-size:0.7rem; cursor:pointer; text-decoration:underline;">Report Issue</button>
+            </div>
+            <div id="deposit-history" class="mini-history"></div>
+
             <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Go Back</button>
         </div>
     </div>
@@ -492,29 +421,31 @@
     <div id="withdraw-modal" class="modal hidden">
         <div class="auth-card">
             <h3 style="color: var(--danger); text-align: center; margin-bottom: 10px;">Withdraw Funds</h3>
-            
             <div class="warning-note">
-                <strong>NOTE:</strong> Please enter correct and genuine bank account details. Any fake, inactive, or wrong account number may cause automatic deduction and transfer of the amount, leading to loss of money.
+                <strong>NOTE:</strong> Please enter correct and genuine bank account details. Any fake, inactive, or wrong account number may cause automatic deduction.
             </div>
-
             <label style="font-size: 0.75rem; color: var(--gold);">BANK DETAILS</label>
             <input type="text" id="wit-holder" class="auth-input" placeholder="Account Holder Name">
             <input type="text" id="wit-bank" class="auth-input" placeholder="Bank Name">
             <input type="number" id="wit-acc" class="auth-input" placeholder="Account Number">
             <input type="text" id="wit-ifsc" class="auth-input" placeholder="IFSC Code">
-            
             <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
-            
             <label style="font-size: 0.75rem; color: #888;">Withdraw Amount (Min ₹110)</label>
             <input type="number" id="wit-amt-input" class="auth-input" value="110">
-
             <div class="security-section">
                 <p style="font-size: 0.7rem; color: var(--gold); margin-bottom: 5px; text-align: center;">VERIFY IDENTITY</p>
                 <input type="number" id="wit-sec-phone" class="auth-input" placeholder="Confirm Phone">
                 <input type="password" id="wit-sec-pass" class="auth-input" placeholder="Confirm Password">
             </div>
-            
             <button class="pay-btn btn-withdraw" onclick="triggerWithdraw()">PLACE WITHDRAWAL</button>
+
+            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <h4 style="color: #aaa; font-size: 0.8rem;">Recent Withdrawals</h4>
+                <button onclick="openComplaint('withdraw')" style="background:none; border:none; color:var(--warning); font-size:0.7rem; cursor:pointer; text-decoration:underline;">Report Issue</button>
+            </div>
+            <div id="withdraw-history" class="mini-history"></div>
+
             <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Cancel</button>
         </div>
     </div>
@@ -523,21 +454,85 @@
         <div class="auth-card">
             <h3 style="color: var(--neon-blue); text-align: center; margin-bottom: 10px;">File a Complaint</h3>
             <p id="complaint-type-label" style="font-size: 0.8rem; color: #888; margin-bottom: 10px;"></p>
-            
             <div id="utr-container">
                 <input type="text" id="complaint-ref" class="auth-input" placeholder="UTR / Reference Number">
             </div>
-
             <textarea id="complaint-text" class="complaint-area" placeholder="Describe your issue here..."></textarea>
             <button class="btn btn-spin" style="width: 100%;" onclick="submitComplaint()">Submit Ticket</button>
             <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Cancel</button>
         </div>
     </div>
 
+    <!-- Daily Bonus Modal -->
+    <div id="bonus-modal" class="modal hidden">
+        <div class="auth-card">
+            <h3 style="color: var(--gold); text-align: center; margin-bottom: 5px;">Daily Rewards</h3>
+            <p style="color:#888; text-align:center; font-size:0.8rem; margin-bottom:20px;">Login every day to collect free cash!</p>
+            
+            <div class="bonus-grid" id="bonus-grid-container">
+                <!-- Populated by JS -->
+            </div>
+            
+            <button id="claim-bonus-btn" class="bonus-btn-main" onclick="claimDailyBonus()">CLAIM BONUS</button>
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:10px; cursor:pointer;">Close</button>
+        </div>
+    </div>
+
+    <!-- Referral Modal -->
+    <div id="refer-modal" class="modal hidden">
+        <div class="auth-card">
+            <h3 style="color: var(--success); text-align: center; margin-bottom: 5px;">Refer & Earn</h3>
+            <p style="color:#aaa; text-align:center; font-size:0.8rem; margin-bottom:20px;">Share your code. Both you and your friend get ₹25!</p>
+            
+            <div style="text-align:center;">
+                <label style="color:#888; font-size:0.7rem;">YOUR UNIQUE CODE</label>
+                <div class="refer-code-display" id="my-referral-code" onclick="copyReferral()">LOADING...</div>
+                <div style="color:var(--success); font-size:0.7rem; min-height:15px;" id="copy-msg">Tap code to copy</div>
+            </div>
+            
+            <div style="background:#222; padding:10px; border-radius:8px; margin-top:20px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span style="color:#aaa;">Referral Bonus</span>
+                    <span style="color:var(--gold);">₹25</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:#aaa;">Friend Gets</span>
+                    <span style="color:var(--gold);">₹25</span>
+                </div>
+            </div>
+
+            <button class="whatsapp-btn" onclick="shareToWhatsapp()">Share on WhatsApp</button>
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Close</button>
+        </div>
+    </div>
+
+    <div id="support-modal" class="modal hidden">
+        <div class="auth-card" style="height: 80vh; display: flex; flex-direction: column;">
+            <h3 style="color: var(--success); text-align: center; margin-bottom: 10px;">🎧 Live Support</h3>
+            <div id="support-chat-area" style="flex:1; background:#111; border:1px solid #333; border-radius:8px; padding:10px; overflow-y:auto; margin-bottom:10px; display:flex; flex-direction:column; gap:10px;">
+                <!-- Chat messages go here -->
+            </div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="support-input" class="auth-input" style="margin:0;" placeholder="Type a message...">
+                <button class="btn btn-blue" style="padding:0 15px;" onclick="sendSupportMessage()">➤</button>
+            </div>
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:10px; cursor:pointer;">Close</button>
+        </div>
+    </div>
+
     <div class="container">
+        <!-- Title moved to top as requested -->
+        <div style="text-align:center; font-weight: bold; color: var(--neon-blue); margin-bottom:15px; font-size:1.5rem; text-shadow: 0 0 10px var(--neon-blue);">NEON SLOTS</div>
+
         <div class="top-nav">
-            <div class="user-badge">User: <span id="currentUser">Guest</span> <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; margin-left:5px;">Logout</button></div>
-            <div style="font-weight: bold; color: var(--neon-blue);">NEON SLOTS</div>
+            <div class="user-badge">
+                <button onclick="logout()" style="background:none; border:1px solid var(--danger); color:var(--danger); padding:4px 12px; border-radius:4px; cursor:pointer;">Logout</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button onclick="openBonusModal()" style="background:linear-gradient(45deg, #ffd700, #ff9f00); border:none; color:black; font-weight:bold; padding:4px 12px; border-radius:15px; cursor:pointer; font-size:0.8rem;">🎁 Bonus</button>
+                <button onclick="openReferModal()" style="background:linear-gradient(45deg, #2ed573, #7bed9f); border:none; color:black; font-weight:bold; padding:4px 12px; border-radius:15px; cursor:pointer; font-size:0.8rem;">👥 Refer</button>
+                <button onclick="openModal('support-modal')" style="background:none; border:1px solid var(--success); color:var(--success); padding:3px 10px; border-radius:15px; cursor:pointer; font-size:0.8rem;">🎧 Support</button>
+            </div>
         </div>
 
         <div class="bank-header">
@@ -551,26 +546,14 @@
             </div>
         </div>
 
-        <div class="announcement-bar"><div class="marquee">Triple 7s payout 50x • 3+ Scatter Symbols (🎰) trigger 10 FREE SPINS! • Withdrawals processed in 1-2 hours</div></div>
+        <div class="announcement-bar"><div class="marquee" id="marquee-text">Triple 7s payout 50x • 3+ Scatter Symbols (🎰) trigger 10 FREE SPINS!</div></div>
 
         <div id="msg">Ready to Spin?</div>
 
         <div class="slot-machine" id="machine-body">
-            <div class="reel" id="r0">
-                <div class="cell" id="c0">🍒</div>
-                <div class="cell" id="c3">🔔</div>
-                <div class="cell" id="c6">💎</div>
-            </div>
-            <div class="reel" id="r1">
-                <div class="cell" id="c1">7️⃣</div>
-                <div class="cell" id="c4">🍋</div>
-                <div class="cell" id="c7">🔔</div>
-            </div>
-            <div class="reel" id="r2">
-                <div class="cell" id="c2">🍒</div>
-                <div class="cell" id="c5">💎</div>
-                <div class="cell" id="c8">7️⃣</div>
-            </div>
+            <div class="reel" id="r0"><div class="cell" id="c0">🍒</div><div class="cell" id="c3">🔔</div><div class="cell" id="c6">💎</div></div>
+            <div class="reel" id="r1"><div class="cell" id="c1">7️⃣</div><div class="cell" id="c4">🍋</div><div class="cell" id="c7">🔔</div></div>
+            <div class="reel" id="r2"><div class="cell" id="c2">🍒</div><div class="cell" id="c5">💎</div><div class="cell" id="c8">7️⃣</div></div>
         </div>
 
         <div class="controls">
@@ -581,9 +564,7 @@
                     <input type="number" id="betAmt" value="10" readonly style="width: 50px; background:transparent; color:var(--gold); border:none; text-align:center; font-weight:bold; font-size:1.1rem;">
                     <button onclick="adjustBet(5)" style="background:#333; color:white; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">+</button>
                 </div>
-                <div id="free-spins-indicator" class="hidden" style="color: var(--free-spin); font-weight: bold; font-size: 0.9rem;">
-                    FREE SPIN ACTIVE
-                </div>
+                <div id="free-spins-indicator" class="hidden" style="color: var(--free-spin); font-weight: bold; font-size: 0.9rem;">FREE SPIN ACTIVE</div>
             </div>
             <button class="btn btn-spin" id="spinBtn" onclick="play()">SPIN</button>
             <button class="btn btn-auto" id="autoBtn" onclick="toggleAuto()">AUTO</button>
@@ -596,7 +577,6 @@
     </div>
 
     <script>
-        // ========== FIREBASE CONFIGURATION ==========
         const firebaseConfig = {
             apiKey: "AIzaSyClBohbm2-pReGrbNMsm7ttDvwM2wEIfEo",
             authDomain: "miner-5939b.firebaseapp.com",
@@ -608,12 +588,9 @@
             measurementId: "G-Z46V1K2XGN"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const auth = firebase.auth();
         
-        // Firebase connection status
         const firebaseStatus = document.getElementById('firebase-status');
         database.ref('.info/connected').on('value', (snapshot) => {
             if (snapshot.val() === true) {
@@ -625,122 +602,113 @@
             }
         });
 
-        // ========== FAKE LIVE USER SIMULATION ==========
-        // This simulates a live connection to the database of users
-        // Starts with a base of ~24,000 and fluctuates
+        // Global Announcement Listener
+        database.ref('settings/announcement').on('value', snap => {
+            const txt = snap.val();
+            if(txt) document.getElementById('marquee-text').innerText = txt;
+        });
+
         let onlineCount = 24839;
         const countEl = document.getElementById('live-count');
-        
         setInterval(() => {
-            // Fluctuate the count by random small amount (-15 to +25)
             const change = Math.floor(Math.random() * 41) - 15;
             onlineCount += change;
-            
-            // Keep reasonable bounds
             if(onlineCount < 20000) onlineCount = 24000;
             if(onlineCount > 35000) onlineCount = 24000;
-            
-            // Format number with commas
             countEl.innerText = onlineCount.toLocaleString();
         }, 3500);
 
-        // ========== GAME VARIABLES ==========
         let isLoginMode = true;
         let currentUserPhone = localStorage.getItem('active_session');
         let userData = {};
         let activeComplaintType = "";
         
-        // Game symbols - 🎰 is the scatter symbol
         const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🎰'];
-        const payouts = {'🍒': 2, '🍋': 3, '🔔': 6, '💎': 12, '7️⃣': 50, '🎰': 0}; // 🎰 has 0 payout (scatter only)
+        const payouts = {'🍒': 2, '🍋': 3, '🔔': 6, '💎': 12, '7️⃣': 50, '🎰': 0}; 
         const paylines = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
         
         let isRunning = false;
         let isAuto = false;
-        
-        // Free spins variables
         let freeSpinsRemaining = 0;
         let isFreeSpinActive = false;
-        let freeSpinWinMultiplier = 2; // Wins are doubled during free spins
-        let lastSpinWinAmount = 0; // Track last spin win to prevent duplicate logs
+        let freeSpinWinMultiplier = 2; 
 
-        // ========== FIREBASE FUNCTIONS ==========
+        // Listener for User Data (Live Updates)
+        function listenToUser(phone) {
+            database.ref('users/' + phone).on('value', snapshot => {
+                const data = snapshot.val();
+                if(data) {
+                    userData = data;
+                    
+                    // Suspension Check
+                    if(userData.isSuspended) {
+                        document.getElementById('suspend-modal').classList.remove('hidden');
+                        document.getElementById('suspend-msg').innerText = userData.suspendMessage || "Account Suspended";
+                        isRunning = false; isAuto = false; // Stop game
+                    } else {
+                        document.getElementById('suspend-modal').classList.add('hidden');
+                    }
+
+                    // Balance & UI Update
+                    document.getElementById('balance').innerText = (userData.balance || 0).toLocaleString('en-IN');
+                    
+                    // History (Logs)
+                    if (userData.history) {
+                        const historyArray = Object.entries(userData.history).map(([key, val]) => val);
+                        historyArray.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+                        renderHistory(historyArray);
+                        renderSpecificHistory(historyArray, 'deposit', 'deposit-history');
+                        renderSpecificHistory(historyArray, 'withdraw', 'withdraw-history');
+                        renderSupportChat(historyArray); // Re-render chat
+                    } else {
+                         document.getElementById('history').innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No activity yet</div>';
+                    }
+                    
+                    // Free Spins sync
+                    if(userData.freeSpinsRemaining !== undefined) {
+                        freeSpinsRemaining = userData.freeSpinsRemaining;
+                        updateFreeSpinsCounter();
+                    }
+                }
+            });
+        }
+
         async function saveUserToFirebase(phone, data) {
-            try {
-                await database.ref('users/' + phone).set(data);
-                console.log('User saved to Firebase');
-                return true;
-            } catch (error) {
-                console.error('Firebase save error:', error);
-                return false;
-            }
+            await database.ref('users/' + phone).set(data);
+            return true;
         }
 
         async function loadUserFromFirebase(phone) {
-            try {
-                const snapshot = await database.ref('users/' + phone).once('value');
-                return snapshot.val();
-            } catch (error) {
-                console.error('Firebase load error:', error);
-                return null;
-            }
+            const snapshot = await database.ref('users/' + phone).once('value');
+            return snapshot.val();
         }
 
         async function updateUserBalance(phone, newBalance) {
-            try {
-                await database.ref('users/' + phone + '/balance').set(newBalance);
-                return true;
-            } catch (error) {
-                console.error('Balance update error:', error);
-                return false;
-            }
+            await database.ref('users/' + phone + '/balance').set(newBalance);
         }
 
         async function addHistoryToFirebase(phone, historyItem) {
-            try {
-                const historyRef = database.ref('users/' + phone + '/history');
-                const newHistoryRef = historyRef.push();
-                await newHistoryRef.set({
-                    ...historyItem,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-                
-                // Keep only last 30 items
-                const snapshot = await historyRef.once('value');
-                const history = snapshot.val();
-                if (history) {
-                    const keys = Object.keys(history);
-                    if (keys.length > 30) {
-                        const toDelete = keys.slice(0, keys.length - 30);
-                        toDelete.forEach(key => {
-                            database.ref('users/' + phone + '/history/' + key).remove();
-                        });
-                    }
-                }
-                return true;
-            } catch (error) {
-                console.error('History add error:', error);
-                return false;
-            }
+            const historyRef = database.ref('users/' + phone + '/history');
+            await historyRef.push({
+                ...historyItem,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
         }
 
         async function saveComplaintToFirebase(phone, complaintData) {
-            try {
-                const complaintsRef = database.ref('complaints').push();
-                await complaintsRef.set({
-                    ...complaintData,
-                    userPhone: phone,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP,
-                    status: 'pending'
-                });
-                return complaintsRef.key;
-            } catch (error) {
-                console.error('Complaint save error:', error);
-                return null;
-            }
+            const complaintsRef = database.ref('users/' + phone + '/history').push();
+            await complaintsRef.set({
+                ...complaintData,
+                text: `COMPLAINT (${complaintData.type}): ${complaintData.description}`,
+                category: complaintData.type,
+                userPhone: phone,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                status: 'pending',
+                time: new Date().toLocaleTimeString()
+            });
+            return true;
         }
 
-        // ========== UI FUNCTIONS ==========
         function showStatus(msg, type = 'success') {
             const container = document.getElementById('status-container');
             const div = document.createElement('div');
@@ -755,10 +723,7 @@
             const popup = document.getElementById('free-spins-popup');
             popup.textContent = message;
             popup.classList.remove('hidden');
-            
-            setTimeout(() => {
-                popup.classList.add('hidden');
-            }, 3000);
+            setTimeout(() => popup.classList.add('hidden'), 3000);
         }
         
         function updateFreeSpinsCounter() {
@@ -777,22 +742,18 @@
         }
 
         function openModal(id) { 
-            if(id === 'withdraw-modal') {
-                if(userData.bankDetails) {
-                    document.getElementById('wit-holder').value = userData.bankDetails.holder || "";
-                    document.getElementById('wit-bank').value = userData.bankDetails.bank || "";
-                    document.getElementById('wit-acc').value = userData.bankDetails.acc || "";
-                    document.getElementById('wit-ifsc').value = userData.bankDetails.ifsc || "";
-                }
+            if(id === 'withdraw-modal' && userData.bankDetails) {
+                document.getElementById('wit-holder').value = userData.bankDetails.holder || "";
+                document.getElementById('wit-bank').value = userData.bankDetails.bank || "";
+                document.getElementById('wit-acc').value = userData.bankDetails.acc || "";
+                document.getElementById('wit-ifsc').value = userData.bankDetails.ifsc || "";
             }
             document.getElementById(id).classList.remove('hidden'); 
         }
 
         function closeModals() { 
-            document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-            ['dep-sec-phone', 'dep-sec-pass', 'wit-sec-phone', 'wit-sec-pass'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.value = "";
+            document.querySelectorAll('.modal').forEach(m => {
+                if(!m.classList.contains('modal-suspension')) m.classList.add('hidden');
             });
         }
 
@@ -816,64 +777,91 @@
 
         async function triggerPayment(method) {
             if (!verifySecurity('dep-sec-phone', 'dep-sec-pass')) return;
-
             const amt = parseInt(document.getElementById('dep-amt-input').value);
             if (amt < 10) return showStatus("Min deposit ₹10", "err");
             
-            userData.balance += amt;
-            
-            // Save to Firebase
-            const historyItem = {
-                text: `DEPOSIT: <span class="win-amount">₹${amt}</span> via ${method}`,
-                type: 'success',
-                category: 'deposit',
-                time: new Date().toLocaleTimeString()
-            };
-            
-            await Promise.all([
-                updateUserBalance(currentUserPhone, userData.balance),
-                addHistoryToFirebase(currentUserPhone, historyItem)
-            ]);
-            
-            addLog(historyItem);
-            saveAndRefresh();
-            closeModals();
-            showStatus(`₹${amt} Added via ${method}`);
+            if (method === 'Superpay') {
+                return showStatus("Superpay is currently Under Maintenance", "err");
+            }
+
+            if (method === 'UPI' || method === 'Paytm') {
+                // Construct UPI Link with Note
+                const note = `Neon ${currentUserPhone}`;
+                const upiLink = `upi://pay?pa=darpangohain800@oksbi&pn=NeonSlots&am=${amt}&tn=${encodeURIComponent(note)}&cu=INR`;
+                
+                // Open payment link
+                window.location.href = upiLink;
+
+                // Log as processing
+                const pendingItem = {
+                    text: `DEPOSIT PROCESSING: <span class="win-amount">₹${amt}</span> via ${method}. Crediting in 90s...`,
+                    type: 'warning', 
+                    category: 'deposit', 
+                    status: 'processing',
+                    time: new Date().toLocaleTimeString()
+                };
+
+                await addHistoryToFirebase(currentUserPhone, pendingItem);
+                
+                closeModals();
+                showStatus(`Redirecting... Amount will be credited in 1.5 minutes automatically.`);
+
+                // AUTO CREDIT TIMEOUT (90 Seconds)
+                setTimeout(async () => {
+                    // Check if user is still logged in or session active (basic check)
+                    if(currentUserPhone) {
+                        // Re-fetch latest balance to ensure sync before adding
+                        const currentData = await loadUserFromFirebase(currentUserPhone);
+                        if(currentData) {
+                            const newBalance = (currentData.balance || 0) + amt;
+                            
+                            // Update Firebase
+                            await database.ref('users/' + currentUserPhone + '/balance').set(newBalance);
+                            
+                            // Log Success
+                            const successItem = {
+                                text: `DEPOSIT RECEIVED: <span class="win-amount">₹${amt}</span> via ${method}`,
+                                type: 'success',
+                                category: 'deposit',
+                                status: 'approved',
+                                time: new Date().toLocaleTimeString()
+                            };
+                            
+                            await addHistoryToFirebase(currentUserPhone, successItem);
+                            showStatus(`₹${amt} Credited Successfully!`);
+                        }
+                    }
+                }, 90000); // 1.5 Minutes
+            }
         }
 
         async function triggerWithdraw() {
             if (!verifySecurity('wit-sec-phone', 'wit-sec-pass')) return;
-
             const amt = parseInt(document.getElementById('wit-amt-input').value);
             const holder = document.getElementById('wit-holder').value;
             const bank = document.getElementById('wit-bank').value;
             const acc = document.getElementById('wit-acc').value;
             const ifsc = document.getElementById('wit-ifsc').value;
 
+            const minBal = userData.minBalance || 0;
+            const maxBal = userData.maxBalance || 1000000;
+
             if (!holder || !bank || !acc || !ifsc) return showStatus("Fill all bank details", "err");
             if (amt < 110) return showStatus("Min withdrawal ₹110", "err");
             if (amt > userData.balance) return showStatus("Insufficient Balance", "err");
 
-            userData.bankDetails = { holder, bank, acc, ifsc };
-            userData.balance -= amt;
+            if (userData.balance < minBal || userData.balance > maxBal) {
+                return showStatus("Turnover requirement not met. Please continue playing.", "err");
+            }
 
-            // Save to Firebase
-            const historyItem = {
-                text: `WITHDRAW: <span class="win-amount">₹${amt}</span>`,
-                type: 'danger',
-                category: 'withdraw',
-                status: 'pending',
-                time: new Date().toLocaleTimeString()
-            };
-            
-            await Promise.all([
-                updateUserBalance(currentUserPhone, userData.balance),
-                saveUserToFirebase(currentUserPhone, userData),
-                addHistoryToFirebase(currentUserPhone, historyItem)
-            ]);
-            
-            addLog(historyItem);
-            saveAndRefresh();
+            userData.balance -= amt;
+            database.ref('users/' + currentUserPhone + '/bankDetails').set({ holder, bank, acc, ifsc });
+            database.ref('users/' + currentUserPhone + '/balance').set(userData.balance);
+
+            await addHistoryToFirebase(currentUserPhone, {
+                text: `WITHDRAW REQUEST: <span class="win-amount">₹${amt}</span>`,
+                type: 'danger', category: 'withdraw', status: 'pending', time: new Date().toLocaleTimeString()
+            });
             closeModals();
             showStatus("Withdrawal Submitted! Status: PENDING");
         }
@@ -881,60 +869,178 @@
         function openComplaint(type) {
             activeComplaintType = type;
             document.getElementById('complaint-type-label').innerText = `Reporting issue with: ${type.toUpperCase()}`;
-            
-            const utrField = document.getElementById('utr-container');
-            if(type === 'withdraw') {
-                utrField.classList.add('hidden');
-            } else {
-                utrField.classList.remove('hidden');
-            }
-
-            document.getElementById('complaint-ref').value = "";
-            document.getElementById('complaint-text').value = "";
+            // Always show UTR for both as requested
+            document.getElementById('utr-container').classList.remove('hidden');
             openModal('complaint-modal');
         }
 
         async function submitComplaint() {
             const ref = document.getElementById('complaint-ref').value;
             const desc = document.getElementById('complaint-text').value;
-            
-            if(activeComplaintType !== 'withdraw' && !ref) return showStatus("Please provide UTR", "err");
+            if(!ref) return showStatus("Please provide UTR", "err");
             if(!desc) return showStatus("Please describe the issue", "err");
             
-            const complaintData = {
+            await saveComplaintToFirebase(currentUserPhone, {
                 type: activeComplaintType,
                 reference: ref,
-                description: desc,
-                timestamp: new Date().toISOString()
-            };
+                description: desc
+            });
+            closeModals();
+            showStatus("Complaint Logged. Status: PROCESSING");
+        }
+
+        async function sendSupportMessage() {
+            const inp = document.getElementById('support-input');
+            const msg = inp.value.trim();
+            if(!msg) return;
             
-            const complaintId = await saveComplaintToFirebase(currentUserPhone, complaintData);
+            await addHistoryToFirebase(currentUserPhone, {
+                text: `User: ${msg}`,
+                type: 'support_msg',
+                category: 'support', // Enables admin reply
+                time: new Date().toLocaleTimeString()
+            });
+            inp.value = '';
+        }
+
+        // --- DAILY BONUS LOGIC ---
+        function openBonusModal() {
+            const grid = document.getElementById('bonus-grid-container');
+            const btn = document.getElementById('claim-bonus-btn');
+            grid.innerHTML = '';
             
-            if (complaintId) {
-                const logText = activeComplaintType === 'withdraw' ? 
-                    `COMPLAINT: WITHDRAW ISSUE` : `COMPLAINT: ${activeComplaintType} (Ref: ${ref})`;
-                
-                const historyItem = {
-                    text: logText,
-                    type: 'warning',
-                    status: 'processing',
-                    time: new Date().toLocaleTimeString()
-                };
-                
-                await addHistoryToFirebase(currentUserPhone, historyItem);
-                addLog(historyItem);
-                
-                closeModals();
-                showStatus("Complaint Logged. Status: PROCESSING");
-            } else {
-                showStatus("Failed to submit complaint", "err");
+            const lastDate = userData.lastBonusDate || "";
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            
+            let streak = userData.bonusStreak || 0;
+            
+            // Check streak continuity
+            if (lastDate !== today && lastDate !== yesterday) {
+                streak = 0; // Reset streak if missed a day
             }
+            
+            const canClaim = (lastDate !== today);
+            
+            for(let i=1; i<=7; i++) {
+                let statusClass = "";
+                let badge = "";
+                
+                // Logic to display state of each day
+                if (i <= streak) {
+                    statusClass = "claimed";
+                    badge = `<div class="claimed-badge">✔</div>`;
+                } else if (i === streak + 1) {
+                    // Next claimable day
+                    statusClass = "active";
+                    if(!canClaim) statusClass = "locked"; // Already claimed today, so next day is locked
+                } else {
+                    statusClass = "locked";
+                }
+                
+                // Correction: If claimed today, show streak day as claimed
+                if(lastDate === today && i === streak) {
+                     statusClass = "claimed";
+                }
+                
+                grid.innerHTML += `
+                    <div class="day-card ${statusClass}">
+                        ${badge}
+                        <div class="day-num">Day ${i}</div>
+                        <div class="day-icon">💰</div>
+                        <div class="day-rew">₹10</div>
+                    </div>
+                `;
+            }
+            
+            if(canClaim) {
+                btn.innerText = "CLAIM BONUS";
+                btn.disabled = false;
+            } else {
+                btn.innerText = "COME BACK TOMORROW";
+                btn.disabled = true;
+            }
+            
+            openModal('bonus-modal');
+        }
+
+        async function claimDailyBonus() {
+            const today = new Date().toDateString();
+            const lastDate = userData.lastBonusDate || "";
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            
+            if(lastDate === today) return showStatus("Already claimed today!", "err");
+            
+            let streak = userData.bonusStreak || 0;
+            if(lastDate !== yesterday) streak = 0; // Reset
+            
+            if(streak >= 7) streak = 0; // Cycle reset
+            streak++;
+            
+            // Apply updates
+            userData.balance += 10;
+            await database.ref('users/' + currentUserPhone).update({
+                balance: userData.balance,
+                lastBonusDate: today,
+                bonusStreak: streak
+            });
+            
+            await addHistoryToFirebase(currentUserPhone, {
+                text: `DAILY BONUS: <span class="win-amount">₹10</span> (Day ${streak})`,
+                type: 'success', time: new Date().toLocaleTimeString()
+            });
+            
+            showStatus(`Day ${streak} Claimed! ₹10 Added.`);
+            closeModals();
+        }
+
+        // --- REFERRAL LOGIC ---
+        function generateReferralCode() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const nums = "0123456789";
+            let code = "";
+            for(let i=0; i<4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+            for(let i=0; i<4; i++) code += nums.charAt(Math.floor(Math.random() * nums.length));
+            for(let i=0; i<4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+            return code;
+        }
+
+        function openReferModal() {
+            // Ensure the user has a code (if existing old user doesnt)
+            if(!userData.referralCode) {
+                const newCode = generateReferralCode();
+                userData.referralCode = newCode;
+                database.ref('users/' + currentUserPhone + '/referralCode').set(newCode);
+                database.ref('referrals/' + newCode).set(currentUserPhone);
+            }
+            document.getElementById('my-referral-code').innerText = userData.referralCode;
+            openModal('refer-modal');
+        }
+
+        function copyReferral() {
+            const code = document.getElementById('my-referral-code').innerText;
+            navigator.clipboard.writeText(code);
+            document.getElementById('copy-msg').innerText = "COPIED!";
+            setTimeout(() => document.getElementById('copy-msg').innerText = "Tap code to copy", 2000);
+        }
+
+        function shareToWhatsapp() {
+            const code = userData.referralCode || "NEONWIN";
+            const link = "https://ninjaclubapp.github.io/earn-more/new%20slot.html";
+            const text = `🤑 *FREE ₹50 CASH BONUS!* 🤑\n\nSign up on Neon Slots now using my code *${code}* and get instant ₹25 + ₹25 Welcome Bonus! 🎰\n\n👇 Click here to win big:\n${link}`;
+            
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
         }
 
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
             document.getElementById('auth-title').innerText = isLoginMode ? 'VIP MEMBER ACCESS' : 'CLAIM NEW ACCOUNT';
             document.getElementById('auth-toggle-text').innerText = isLoginMode ? 'CLAIM REGISTRATION BONUS NOW' : 'ALREADY A MEMBER? LOGIN';
+            
+            const referInput = document.getElementById('auth-referral');
+            if(isLoginMode) referInput.classList.add('hidden');
+            else referInput.classList.remove('hidden');
         }
 
         async function handleAuth() {
@@ -943,29 +1049,64 @@
             if (phone.length !== 10) return showStatus("Enter 10-digit phone", "err");
             
             if (isLoginMode) {
-                // Login
-                const userData = await loadUserFromFirebase(phone);
-                if (userData && userData.pass === pass) {
-                    loginUser(phone, userData);
-                } else {
-                    showStatus("Invalid Credentials", "err");
-                }
+                const data = await loadUserFromFirebase(phone);
+                if (data && data.pass === pass) loginUser(phone, data);
+                else showStatus("Invalid Credentials", "err");
             } else {
-                // Register
-                const existingUser = await loadUserFromFirebase(phone);
-                if (existingUser) return showStatus("User already exists", "err");
+                const existing = await loadUserFromFirebase(phone);
+                if (existing) return showStatus("User already exists", "err");
                 
-                // UPDATED: New User Balance is now 25 instead of 500
+                // --- REGISTRATION LOGIC ---
+                let referCodeInput = document.getElementById('auth-referral').value.trim().toUpperCase(); // Normalize Uppercase
+                let startBal = 25;
+                let referrerPhone = null;
+                const newReferCode = generateReferralCode();
+                
+                // Handle Referral Bonus Check
+                if (referCodeInput.length === 12) {
+                    const referrerSnap = await database.ref('referrals/' + referCodeInput).once('value');
+                    referrerPhone = referrerSnap.val();
+                    
+                    if (referrerPhone) {
+                        startBal += 25; // New user bonus if referrer valid
+                    }
+                }
+
                 const newUser = {
-                    pass,
-                    balance: 25, 
-                    history: [],
-                    bankDetails: null,
+                    pass, balance: startBal, history: [], bankDetails: null,
+                    minBalance: 0, maxBalance: 1000000,
+                    bonusStreak: 0, lastBonusDate: "",
+                    referralCode: newReferCode,
                     createdAt: new Date().toISOString()
                 };
                 
-                const saved = await saveUserToFirebase(phone, newUser);
-                if (saved) {
+                // Log welcome bonus for new user
+                if(startBal > 25) {
+                     newUser.history.push({
+                        text: `WELCOME + REFERRAL BONUS: <span class="win-amount">₹${startBal}</span>`,
+                        type: 'success', timestamp: firebase.database.ServerValue.TIMESTAMP, time: new Date().toLocaleTimeString()
+                    });
+                }
+
+                // CREATE USER FIRST
+                if(await saveUserToFirebase(phone, newUser)) {
+                    // Save code mapping
+                    database.ref('referrals/' + newReferCode).set(phone);
+                    
+                    // CREDIT REFERRER NOW (Only after successful registration)
+                    if (referrerPhone) {
+                         const referrerRef = database.ref('users/' + referrerPhone);
+                         // Safe Transaction Update
+                         await referrerRef.child('balance').transaction((currentBal) => {
+                             return (currentBal || 0) + 25;
+                         });
+                         // Log history for referrer
+                         await addHistoryToFirebase(referrerPhone, {
+                            text: `REFERRAL REWARD: <span class="win-amount">₹25</span> (User ${phone.substr(0,4)}...)`,
+                            type: 'success', category: 'referral', time: new Date().toLocaleTimeString()
+                        });
+                    }
+
                     loginUser(phone, newUser);
                 } else {
                     showStatus("Registration failed", "err");
@@ -978,14 +1119,8 @@
             userData = data;
             localStorage.setItem('active_session', phone);
             document.getElementById('auth-screen').classList.add('hidden');
-            
-            // Load free spins from saved data if available
-            if (userData.freeSpinsRemaining) {
-                freeSpinsRemaining = userData.freeSpinsRemaining;
-                updateFreeSpinsCounter();
-            }
-            
-            saveAndRefresh();
+            // document.getElementById('currentUser').innerText = phone; // Removed phone display
+            listenToUser(phone);
         }
 
         function logout() { 
@@ -993,34 +1128,16 @@
             location.reload(); 
         }
 
-        function saveAndRefresh() {
-            document.getElementById('balance').innerText = userData.balance?.toLocaleString('en-IN') || '0';
-            document.getElementById('currentUser').innerText = currentUserPhone;
-            loadLogs();
-            
-            // Save free spins to user data
-            if (currentUserPhone) {
-                userData.freeSpinsRemaining = freeSpinsRemaining;
-                // Update in Firebase in background
-                database.ref('users/' + currentUserPhone + '/freeSpinsRemaining').set(freeSpinsRemaining);
-            }
-        }
-
-        function addLog(item) {
-            if (!userData.history) userData.history = [];
-            userData.history.unshift(item);
-            if(userData.history.length > 30) userData.history.pop();
-            loadLogs();
-        }
-
-        function loadLogs() {
+        function renderHistory(items) {
             const h = document.getElementById('history');
-            if (!userData.history || userData.history.length === 0) {
-                h.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No activity yet</div>';
-                return;
-            }
+            const displayItems = items.filter(i => i.type !== 'support_msg' && i.type !== 'info').slice(0, 50); 
             
-            h.innerHTML = userData.history.map(item => `
+            if (displayItems.length === 0) {
+                 h.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No activity yet</div>';
+                 return;
+            }
+
+            h.innerHTML = displayItems.map(item => `
                 <div class="history-item">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="color:var(--${item.type === 'success' ? 'success' : item.type === 'danger' ? 'danger' : (item.type === 'warning' ? 'warning' : (item.type === 'freespin' ? 'free-spin' : 'neon-blue'))})">
@@ -1030,255 +1147,323 @@
                     </div>
                     <div style="display:flex; gap:10px; align-items:center;">
                         ${item.status ? `<span class="status-tag tag-${item.status}">${item.status}</span>` : ''}
-                        ${item.category ? `<button class="complaint-btn" onclick="openComplaint('${item.category}')">Help?</button>` : ''}
                     </div>
                 </div>
             `).join('');
         }
 
-        async function play() {
-            if(isRunning) return;
+        function renderSpecificHistory(items, category, elementId) {
+            const el = document.getElementById(elementId);
+            const filtered = items.filter(i => i.category === category).slice(0, 10);
             
-            // Check if we're in free spin mode
-            if (freeSpinsRemaining > 0) {
-                isFreeSpinActive = true;
-                freeSpinsRemaining--;
-                updateFreeSpinsCounter();
-            } else {
-                isFreeSpinActive = false;
-                const bet = parseInt(document.getElementById('betAmt').value);
-                if(bet > userData.balance) return showStatus("Insufficient Balance", "err");
-                userData.balance -= bet;
-            }
-            
-            isRunning = true;
-            saveAndRefresh();
-            
-            document.getElementById('spinBtn').disabled = true;
-            document.getElementById('msg').innerText = isFreeSpinActive ? `FREE SPIN! (${freeSpinsRemaining} left)` : "Spinning...";
-            
-            // Generate final results
-            const results = [];
-            for(let i=0; i<9; i++) {
-                // During free spins, use different symbol probabilities
-                if (isFreeSpinActive) {
-                    // During free spins: higher chance for winning symbols, NO scatter symbols
-                    const freeSpinSymbols = ['💎', '7️⃣', '🔔', '🍒', '🍋'];
-                    const weights = [0.25, 0.2, 0.2, 0.2, 0.15]; // Higher weights for better symbols
-                    results.push(getWeightedSymbol(freeSpinSymbols, weights));
-                } else {
-                    // Normal play: regular probabilities including scatter
-                    results.push(symbols[Math.floor(Math.random() * symbols.length)]);
-                }
+            if(filtered.length === 0) {
+                el.innerHTML = '<div style="color:#666; text-align:center; font-size:0.7rem;">No records</div>';
+                return;
             }
 
-            // Clear previous winning highlights and start spinning animation for ALL reels
-            document.querySelectorAll('.cell').forEach(c => {
-                c.classList.remove('winner-cell');
-                c.classList.remove('scatter-cell');
-                c.classList.add('spinning');
-            });
-
-            // Column-wise Sequential Stop Logic
-            // Column 0 (Left)
-            setTimeout(() => {
-                [0, 3, 6].forEach(idx => {
-                    const cell = document.getElementById(`c${idx}`);
-                    cell.classList.remove('spinning');
-                    cell.innerText = results[idx];
-                });
-            }, 600);
-
-            // Column 1 (Middle)
-            setTimeout(() => {
-                [1, 4, 7].forEach(idx => {
-                    const cell = document.getElementById(`c${idx}`);
-                    cell.classList.remove('spinning');
-                    cell.innerText = results[idx];
-                });
-            }, 1000);
-
-            // Column 2 (Right)
-            setTimeout(async () => {
-                [2, 5, 8].forEach(idx => {
-                    const cell = document.getElementById(`c${idx}`);
-                    cell.classList.remove('spinning');
-                    cell.innerText = results[idx];
-                });
-
-                // Final check once all have stopped
-                const winData = checkWin(results);
-                isRunning = false;
-                document.getElementById('spinBtn').disabled = false;
-                
-                // Reset last spin win amount
-                lastSpinWinAmount = 0;
-                
-                // Save game result to Firebase
-                if (currentUserPhone) {
-                    await updateUserBalance(currentUserPhone, userData.balance);
-                    
-                    // Only add win history if there was a win AND we haven't already added it
-                    if (winData.winAmount > 0 && winData.winAmount !== lastSpinWinAmount) {
-                        lastSpinWinAmount = winData.winAmount;
-                        
-                        const historyItem = {
-                            text: `${isFreeSpinActive ? 'FREE SPIN WIN: <span class="win-amount">₹' + winData.winAmount + '</span>' : 'SLOT WIN: <span class="win-amount">₹' + winData.winAmount + '</span>'}`,
-                            type: isFreeSpinActive ? 'freespin' : 'success',
-                            time: new Date().toLocaleTimeString()
-                        };
-                        await addHistoryToFirebase(currentUserPhone, historyItem);
-                        addLog(historyItem);
-                    }
-                    
-                    // Check for scatter symbols and trigger free spins (only during normal play)
-                    if (winData.scatterTriggered && !isFreeSpinActive) {
-                        const bonusHistoryItem = {
-                            text: `🎰 SCATTER BONUS: <span class="free-spin-text">10 FREE SPINS!</span>`,
-                            type: 'freespin',
-                            time: new Date().toLocaleTimeString()
-                        };
-                        await addHistoryToFirebase(currentUserPhone, bonusHistoryItem);
-                        addLog(bonusHistoryItem);
-                    }
-                }
-                
-                // Continue auto play if enabled
-                if(isAuto) setTimeout(play, 1000);
-                
-                // If free spins remain, automatically trigger next spin after a delay
-                if (freeSpinsRemaining > 0 && !isAuto) {
-                    setTimeout(() => {
-                        play();
-                    }, 2000);
-                }
-            }, 1400);
-        }
-        
-        // Helper function for weighted random selection
-        function getWeightedSymbol(symbols, weights) {
-            const totalWeight = weights.reduce((a, b) => a + b, 0);
-            let random = Math.random() * totalWeight;
-            
-            for (let i = 0; i < symbols.length; i++) {
-                random -= weights[i];
-                if (random <= 0) {
-                    return symbols[i];
-                }
-            }
-            return symbols[symbols.length - 1];
+            el.innerHTML = filtered.map(item => `
+                <div class="mini-item">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>${item.time}</span>
+                        <span style="color:${item.status === 'approved' ? 'var(--success)' : 'var(--warning)'}">${(item.status || 'DONE').toUpperCase()}</span>
+                    </div>
+                    <div style="color:white;">${item.text}</div>
+                </div>
+            `).join('');
         }
 
-        function checkWin(grid) {
-            let totalWin = 0;
-            let scatterCount = 0;
+        function renderSupportChat(items) {
+            const el = document.getElementById('support-chat-area');
+            // Filter chat items AND reverse them so they display chronologically (Oldest -> Newest) at bottom
+            const chatItems = items.filter(i => i.category === 'support' || i.type === 'info' || i.type === 'support_msg').reverse();
             
-            // Count scatter symbols first (🎰 is the scatter) - ONLY during normal play
-            if (!isFreeSpinActive) {
-                grid.forEach(symbol => {
-                    if (symbol === '🎰') {
-                        scatterCount++;
-                    }
-                });
-            }
-            
-            // Check for scatter bonus (3 or more scatter symbols) - ONLY during normal play
-            if (scatterCount >= 3 && !isFreeSpinActive) {
-                // Award 10 free spins
-                freeSpinsRemaining += 10;
-                updateFreeSpinsCounter();
-                
-                // Highlight all scatter cells
-                grid.forEach((symbol, idx) => {
-                    if (symbol === '🎰') {
-                        document.getElementById(`c${idx}`).classList.add('scatter-cell');
-                    }
-                });
-                
-                // Show free spins notification
-                showFreeSpinsPopup(`🎉 ${scatterCount} SCATTERS (🎰)! 🎉\n10 FREE SPINS AWARDED!`);
-                document.getElementById('msg').innerHTML = `<span class="free-spin-text">${scatterCount} SCATTERS! 10 FREE SPINS!</span>`;
-                
-                // Save to user data
-                saveAndRefresh();
-                
-                return {
-                    winAmount: 0,
-                    balance: userData.balance,
-                    scatterTriggered: true
-                };
-            }
-            
-            // Regular payline wins
-            let winningLines = [];
-            paylines.forEach(line => {
-                const [a, b, c] = line;
-                if(grid[a] === grid[b] && grid[b] === grid[c]) {
-                    const winMultiplier = payouts[grid[a]] || 1;
-                    const betAmount = isFreeSpinActive ? parseInt(document.getElementById('betAmt').value) : parseInt(document.getElementById('betAmt').value);
-                    const winAmount = betAmount * winMultiplier * (isFreeSpinActive ? freeSpinWinMultiplier : 1);
-                    totalWin += winAmount;
-                    winningLines.push(line);
-                }
-            });
-            
-            // Highlight winning cells
-            winningLines.forEach(line => {
-                line.forEach(idx => document.getElementById(`c${idx}`).classList.add('winner-cell'));
-            });
-
-            if(totalWin > 0) {
-                userData.balance += totalWin;
-                
-                // Create beautiful win message
-                const msgElement = document.getElementById('msg');
-                if (isFreeSpinActive) {
-                    msgElement.innerHTML = `<span class="win-message">FREE SPIN WIN: ₹${totalWin}!</span>`;
-                } else {
-                    msgElement.innerHTML = `<span class="win-message">WIN: ₹${totalWin}!</span>`;
-                }
-                
-                // Only log to history if this is not a free spin (free spin wins are logged separately)
-                if (!isFreeSpinActive) {
-                    const historyItem = {
-                        text: `SLOT WIN: <span class="win-amount">₹${totalWin}</span>`,
-                        type: 'success',
-                        time: new Date().toLocaleTimeString()
-                    };
-                    addLog(historyItem);
-                }
-            } else {
-                if (isFreeSpinActive) {
-                    document.getElementById('msg').innerText = `FREE SPIN! (${freeSpinsRemaining} left)`;
-                } else {
-                    document.getElementById('msg').innerText = "Try Again!";
-                }
-            }
-            saveAndRefresh();
-            
-            return {
-                winAmount: totalWin,
-                balance: userData.balance,
-                scatterTriggered: false
-            };
+            el.innerHTML = chatItems.map(item => {
+                const isAdmin = item.text.startsWith('Neon');
+                return `
+                    <div style="align-self: ${isAdmin ? 'flex-start' : 'flex-end'}; max-width: 80%;">
+                        <div style="background: ${isAdmin ? '#222' : 'var(--neon-blue)'}; color: ${isAdmin ? '#fff' : '#000'}; padding: 8px; border-radius: 8px; font-size: 0.85rem;">
+                            ${item.text}
+                        </div>
+                        <div style="font-size: 0.6rem; color: #666; text-align: ${isAdmin ? 'left' : 'right'}; margin-top: 2px;">${item.time}</div>
+                    </div>
+                `;
+            }).join('');
+            el.scrollTop = el.scrollHeight; // Auto scroll to bottom
         }
 
         function toggleAuto() {
             isAuto = !isAuto;
-            document.getElementById('autoBtn').classList.toggle('active', isAuto);
-            document.getElementById('autoBtn').innerText = isAuto ? "STOP" : "AUTO";
-            if(isAuto) play();
+            const btn = document.getElementById('autoBtn');
+            btn.classList.toggle('active', isAuto);
+            btn.innerText = isAuto ? "STOP" : "AUTO";
+            if(isAuto && !isRunning) {
+                play();
+            }
         }
 
-        // Initialize on load
+        // --- CORE GAME ENGINE (THE TRAP) ---
+        async function play() {
+            if(isRunning) return;
+            if(userData.isSuspended) return;
+
+            const bet = parseInt(document.getElementById('betAmt').value);
+            
+            const minBal = userData.minBalance || 0;
+            const maxBal = userData.maxBalance || 1000000;
+            const buffer = 50; 
+
+            if (freeSpinsRemaining > 0) {
+                isFreeSpinActive = true;
+                freeSpinsRemaining--;
+                database.ref('users/' + currentUserPhone + '/freeSpinsRemaining').set(freeSpinsRemaining);
+                updateFreeSpinsCounter();
+            } else {
+                if(bet > userData.balance) {
+                    showStatus("Insufficient Balance", "err");
+                    if(isAuto) toggleAuto();
+                    return;
+                }
+                isFreeSpinActive = false;
+                userData.balance -= bet;
+                updateUserBalance(currentUserPhone, userData.balance);
+            }
+            
+            isRunning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('msg').innerText = isFreeSpinActive ? `FREE SPIN! (${freeSpinsRemaining} left)` : "Spinning...";
+
+            const adminMode = userData.mode || 'normal'; 
+            const adminNextOutcome = userData.nextOutcome; 
+            const adminNextAmt = userData.nextOutcomeAmount; 
+
+            let outcomeType = 'random'; 
+            let targetWin = 0;
+
+            if (adminNextAmt && adminNextAmt > 0) {
+                outcomeType = 'specific';
+                targetWin = adminNextAmt;
+                database.ref('users/' + currentUserPhone).update({ nextOutcomeAmount: null });
+            } else if (adminNextOutcome === 'win' || adminMode === 'force_win') {
+                outcomeType = 'force_win';
+                if(adminNextOutcome === 'win') database.ref('users/' + currentUserPhone + '/nextOutcome').set(null);
+            } else if (adminNextOutcome === 'scatter') {
+                outcomeType = 'scatter';
+                 database.ref('users/' + currentUserPhone + '/nextOutcome').set(null);
+            } else if (adminMode === 'force_loss') {
+                outcomeType = 'loss';
+            } else {
+                const currentBal = userData.balance; 
+
+                if (currentBal <= minBal + buffer) {
+                    if (Math.random() < 0.8) {
+                        outcomeType = Math.random() < 0.7 ? 'small' : 'medium';
+                    } else {
+                        outcomeType = 'loss'; 
+                    }
+                } else if (currentBal >= maxBal - buffer) {
+                    if (Math.random() < 0.9) {
+                        outcomeType = 'loss';
+                    } else {
+                        outcomeType = 'small'; 
+                    }
+                } else {
+                    const rand = Math.random();
+                    if (rand < 0.60) outcomeType = 'loss';
+                    else if (rand < 0.90) outcomeType = 'small';
+                    else if (rand < 0.98) outcomeType = 'medium';
+                    else outcomeType = 'big';
+                }
+            }
+
+            let finalGrid = [];
+            let forceWinAmount = -1;
+
+            if (outcomeType === 'specific') {
+                finalGrid = ['7️⃣', '7️⃣', '7️⃣', '🍒', '🍋', '🔔', '💎', '7️⃣', '🔔'];
+                forceWinAmount = targetWin;
+
+            } else if (outcomeType === 'scatter') {
+                finalGrid = ['🎰', '🍒', '🍋', '🎰', '7️⃣', '🔔', '💎', '🎰', '🍒'];
+
+            } else if (outcomeType === 'force_win' || outcomeType === 'small' || outcomeType === 'medium' || outcomeType === 'big') {
+                let attempts = 0;
+                let desiredMultMin = 0;
+                let desiredMultMax = 0;
+
+                if(outcomeType === 'small') { desiredMultMin = 1; desiredMultMax = 5; } 
+                if(outcomeType === 'medium') { desiredMultMin = 6; desiredMultMax = 20; } 
+                if(outcomeType === 'big' || outcomeType === 'force_win') { desiredMultMin = 20; desiredMultMax = 100; } 
+
+                while(attempts < 50) {
+                    const tempGrid = generateRandomGrid(isFreeSpinActive);
+                    const calc = calculateWin(tempGrid, bet, isFreeSpinActive);
+                    
+                    if (calc.winAmount > 0) {
+                        const mult = calc.winAmount / bet;
+                        
+                        if ((outcomeType === 'force_win' && mult > 0) || (mult >= desiredMultMin && mult <= desiredMultMax)) {
+                             if (userData.balance + calc.winAmount > maxBal + (buffer/2)) {
+                                 if (outcomeType === 'big') outcomeType = 'medium'; 
+                                 attempts++;
+                                 continue;
+                             }
+                             finalGrid = tempGrid;
+                             break;
+                        }
+                    }
+                    attempts++;
+                }
+                if (finalGrid.length === 0) finalGrid = ['🍒', '🍒', '🍒', '🍋', '🔔', '💎', '7️⃣', '7️⃣', '🔔']; 
+            
+            } else {
+                let attempts = 0;
+                while(attempts < 50) {
+                    const tempGrid = generateRandomGrid(isFreeSpinActive);
+                    const calc = calculateWin(tempGrid, bet, isFreeSpinActive);
+                    if (calc.winAmount === 0 && calc.scatters < 3) {
+                        finalGrid = tempGrid;
+                        break;
+                    }
+                    attempts++;
+                }
+                if (finalGrid.length === 0) finalGrid = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🍒', '🔔', '💎', '7️⃣']; 
+            }
+
+            animateSpin(finalGrid, forceWinAmount, bet);
+        }
+
+        function generateRandomGrid(isFree) {
+            const res = [];
+            for(let i=0; i<9; i++) {
+                if (isFree) {
+                    const freeSyms = ['💎', '7️⃣', '🔔', '🍒', '🍋'];
+                    res.push(getWeightedSymbol(freeSyms, [0.25, 0.2, 0.2, 0.2, 0.15]));
+                } else {
+                    res.push(symbols[Math.floor(Math.random() * symbols.length)]);
+                }
+            }
+            return res;
+        }
+
+        function getWeightedSymbol(symbols, weights) {
+            const total = weights.reduce((a, b) => a + b, 0);
+            let r = Math.random() * total;
+            for (let i = 0; i < symbols.length; i++) {
+                r -= weights[i];
+                if (r <= 0) return symbols[i];
+            }
+            return symbols[symbols.length - 1];
+        }
+
+        function animateSpin(finalGrid, forceWinAmount, bet) {
+            document.querySelectorAll('.cell').forEach(c => {
+                c.classList.remove('winner-cell', 'scatter-cell');
+                c.classList.add('spinning');
+            });
+
+            setTimeout(() => stopReel([0,3,6], finalGrid), 600);
+            setTimeout(() => stopReel([1,4,7], finalGrid), 1000);
+            setTimeout(() => {
+                stopReel([2,5,8], finalGrid);
+                finishSpin(finalGrid, forceWinAmount, bet);
+            }, 1400);
+        }
+
+        function stopReel(indices, grid) {
+            indices.forEach(i => {
+                const el = document.getElementById(`c${i}`);
+                el.classList.remove('spinning');
+                el.innerText = grid[i];
+            });
+        }
+
+        function calculateWin(grid, bet, isFree) {
+            let totalWin = 0;
+            let scatterCount = 0;
+            const winningLines = [];
+
+            grid.forEach(s => { if(s === '🎰') scatterCount++; });
+
+            paylines.forEach(line => {
+                const [a, b, c] = line;
+                if(grid[a] === grid[b] && grid[b] === grid[c] && grid[a] !== '🎰') {
+                    const mult = payouts[grid[a]] || 0;
+                    totalWin += bet * mult * (isFree ? 2 : 1);
+                    winningLines.push(line);
+                }
+            });
+
+            return { winAmount: totalWin, scatters: scatterCount, winningLines };
+        }
+
+        async function finishSpin(grid, forceWinAmount, bet) {
+            const calc = calculateWin(grid, bet, isFreeSpinActive);
+            let realWin = forceWinAmount > -1 ? forceWinAmount : calc.winAmount; 
+            
+            calc.winningLines.forEach(line => {
+                line.forEach(idx => document.getElementById(`c${idx}`).classList.add('winner-cell'));
+            });
+
+            if(calc.scatters >= 3 && !isFreeSpinActive) {
+                freeSpinsRemaining += 10;
+                database.ref('users/' + currentUserPhone + '/freeSpinsRemaining').set(freeSpinsRemaining);
+                grid.forEach((s, i) => { if(s === '🎰') document.getElementById(`c${i}`).classList.add('scatter-cell'); });
+                showFreeSpinsPopup(`🎉 ${calc.scatters} SCATTERS! 10 FREE SPINS!`);
+                await addHistoryToFirebase(currentUserPhone, {
+                    text: `🎰 SCATTER BONUS: <span class="free-spin-text">10 FREE SPINS!</span>`,
+                    type: 'freespin', time: new Date().toLocaleTimeString()
+                });
+            }
+
+            if(realWin > 0) {
+                userData.balance += realWin;
+                await updateUserBalance(currentUserPhone, userData.balance);
+                
+                const msgEl = document.getElementById('msg');
+                const winRatio = realWin / bet;
+
+                if (winRatio >= 20) {
+                    msgEl.innerHTML = `<span class="jackpot-text">JACKPOT!! ₹${realWin}</span>`;
+                } else if (winRatio >= 5) {
+                    msgEl.innerHTML = `<span class="big-win-text">BIG WIN! ₹${realWin}</span>`;
+                } else {
+                    msgEl.innerHTML = `<span class="win-message">WIN: ₹${realWin}!</span>`;
+                }
+
+                if (!isFreeSpinActive) {
+                    await addHistoryToFirebase(currentUserPhone, {
+                        text: `SLOT WIN: <span class="win-amount">₹${realWin}</span>`,
+                        type: 'success', time: new Date().toLocaleTimeString()
+                    });
+                } else {
+                     await addHistoryToFirebase(currentUserPhone, {
+                        text: `FREE SPIN WIN: <span class="win-amount">₹${realWin}</span>`,
+                        type: 'freespin', time: new Date().toLocaleTimeString()
+                    });
+                }
+            } else {
+                 if(!isFreeSpinActive && calc.scatters < 3) document.getElementById('msg').innerText = "Try Again!";
+            }
+
+            isRunning = false;
+            document.getElementById('spinBtn').disabled = false;
+            updateFreeSpinsCounter();
+            
+            if(isAuto && !userData.isSuspended) {
+                if(userData.balance >= parseInt(document.getElementById('betAmt').value)) {
+                    setTimeout(play, 1000);
+                } else {
+                    toggleAuto(); 
+                }
+            }
+            if(freeSpinsRemaining > 0 && !isAuto && !userData.isSuspended) setTimeout(play, 2000);
+        }
+
         window.onload = async function() {
             if (currentUserPhone) {
-                const userData = await loadUserFromFirebase(currentUserPhone);
-                if (userData) {
-                    loginUser(currentUserPhone, userData);
-                } else {
-                    localStorage.removeItem('active_session');
-                }
+                const data = await loadUserFromFirebase(currentUserPhone);
+                if (data) loginUser(currentUserPhone, data);
+                else localStorage.removeItem('active_session');
             }
         };
     </script>
