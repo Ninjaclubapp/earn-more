@@ -39,7 +39,6 @@
         /* --- REDESIGNED GREEDY LOGIN STYLES --- */
         #auth-screen {
             background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
-            /* Overlay pattern */
             background-image: 
                 linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
                 url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffd700' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
@@ -89,6 +88,7 @@
             color: white; padding: 8px; text-align: center; font-weight: bold; font-size: 0.9rem;
             margin: -25px -25px 20px -25px; box-shadow: 0 5px 15px rgba(255, 0, 127, 0.4);
             animation: pulse-badge 1.5s infinite; z-index: 5 !important;
+            white-space: pre-wrap;
         }
         @keyframes pulse-badge { 0% { opacity: 0.9; } 50% { opacity: 1; text-shadow: 0 0 10px white; } 100% { opacity: 0.9; } }
 
@@ -334,6 +334,45 @@
             background: #25D366; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px;
             font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; font-size: 0.9rem;
         }
+        
+        /* New Balance Display Styles */
+        .balance-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .balance-item {
+            text-align: center;
+            flex: 1;
+        }
+        .balance-label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        .balance-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .wallet-balance { color: var(--gold); }
+        .withdrawable-balance { color: var(--success); }
+        
+        /* Withdrawable balance indicator - REMOVED */
+        .withdrawable-indicator {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--success);
+            color: black;
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -361,7 +400,7 @@
         </div>
         
         <div class="auth-card greedy-card">
-            <div class="bonus-badge">🔥 LIMITED OFFER: ₹25 FREE BONUS 🔥</div>
+            <div class="bonus-badge" id="greedy-offer-text">🔥 Deposit 20 get extra 50 cash 🔥</div>
             <div class="jackpot-banner">
                 <div class="jackpot-label">PROGRESSIVE JACKPOT</div>
                 <div class="jackpot-amount">₹12,45,980</div>
@@ -386,6 +425,53 @@
         </div>
     </div>
 
+    <!-- Updated Withdraw Modal with Two Balances -->
+    <div id="withdraw-modal" class="modal hidden">
+        <div class="auth-card">
+            <h3 style="color: var(--danger); text-align: center; margin-bottom: 10px;">Withdraw Funds</h3>
+            
+            <!-- Two Balance Display -->
+            <div class="balance-display">
+                <div class="balance-item">
+                    <div class="balance-label">WALLET BALANCE</div>
+                    <div class="balance-value wallet-balance">₹<span id="withdraw-wallet-balance">0</span></div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">WITHDRAWABLE BALANCE</div>
+                    <div class="balance-value withdrawable-balance">₹<span id="withdraw-available-balance">0</span></div>
+                </div>
+            </div>
+            
+            <div class="warning-note">
+                <strong>NOTE:</strong> Please enter correct and genuine bank account details. Any fake, inactive, or wrong account number may cause automatic deduction.
+            </div>
+            <label style="font-size: 0.75rem; color: var(--gold);">BANK DETAILS</label>
+            <input type="text" id="wit-holder" class="auth-input" placeholder="Account Holder Name">
+            <input type="text" id="wit-bank" class="auth-input" placeholder="Bank Name">
+            <input type="number" id="wit-acc" class="auth-input" placeholder="Account Number">
+            <input type="text" id="wit-ifsc" class="auth-input" placeholder="IFSC Code">
+            <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
+            <label style="font-size: 0.75rem; color: #888;">Withdraw Amount (Min ₹110)</label>
+            <input type="number" id="wit-amt-input" class="auth-input" value="110">
+            <div class="security-section">
+                <p style="font-size: 0.7rem; color: var(--gold); margin-bottom: 5px; text-align: center;">VERIFY IDENTITY</p>
+                <input type="number" id="wit-sec-phone" class="auth-input" placeholder="Confirm Phone">
+                <input type="password" id="wit-sec-pass" class="auth-input" placeholder="Confirm Password">
+            </div>
+            <button class="pay-btn btn-withdraw" onclick="triggerWithdraw()">PLACE WITHDRAWAL</button>
+
+            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                <h4 style="color: #aaa; font-size: 0.8rem;">Recent Withdrawals</h4>
+                <button onclick="openComplaint('withdraw')" style="background:none; border:none; color:var(--warning); font-size:0.7rem; cursor:pointer; text-decoration:underline;">Report Issue</button>
+            </div>
+            <div id="withdraw-history" class="mini-history"></div>
+
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Deposit Modal -->
     <div id="deposit-modal" class="modal hidden">
         <div class="auth-card">
             <h3 style="color: var(--gold); text-align: center; margin-bottom: 15px;">Add Funds</h3>
@@ -418,38 +504,7 @@
         </div>
     </div>
 
-    <div id="withdraw-modal" class="modal hidden">
-        <div class="auth-card">
-            <h3 style="color: var(--danger); text-align: center; margin-bottom: 10px;">Withdraw Funds</h3>
-            <div class="warning-note">
-                <strong>NOTE:</strong> Please enter correct and genuine bank account details. Any fake, inactive, or wrong account number may cause automatic deduction.
-            </div>
-            <label style="font-size: 0.75rem; color: var(--gold);">BANK DETAILS</label>
-            <input type="text" id="wit-holder" class="auth-input" placeholder="Account Holder Name">
-            <input type="text" id="wit-bank" class="auth-input" placeholder="Bank Name">
-            <input type="number" id="wit-acc" class="auth-input" placeholder="Account Number">
-            <input type="text" id="wit-ifsc" class="auth-input" placeholder="IFSC Code">
-            <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
-            <label style="font-size: 0.75rem; color: #888;">Withdraw Amount (Min ₹310)</label>
-            <input type="number" id="wit-amt-input" class="auth-input" value="310">
-            <div class="security-section">
-                <p style="font-size: 0.7rem; color: var(--gold); margin-bottom: 5px; text-align: center;">VERIFY IDENTITY</p>
-                <input type="number" id="wit-sec-phone" class="auth-input" placeholder="Confirm Phone">
-                <input type="password" id="wit-sec-pass" class="auth-input" placeholder="Confirm Password">
-            </div>
-            <button class="pay-btn btn-withdraw" onclick="triggerWithdraw()">PLACE WITHDRAWAL</button>
-
-            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                <h4 style="color: #aaa; font-size: 0.8rem;">Recent Withdrawals</h4>
-                <button onclick="openComplaint('withdraw')" style="background:none; border:none; color:var(--warning); font-size:0.7rem; cursor:pointer; text-decoration:underline;">Report Issue</button>
-            </div>
-            <div id="withdraw-history" class="mini-history"></div>
-
-            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Cancel</button>
-        </div>
-    </div>
-
+    <!-- Other modals remain the same -->
     <div id="complaint-modal" class="modal hidden">
         <div class="auth-card">
             <h3 style="color: var(--neon-blue); text-align: center; margin-bottom: 10px;">File a Complaint</h3>
@@ -463,7 +518,6 @@
         </div>
     </div>
 
-    <!-- Daily Bonus Modal -->
     <div id="bonus-modal" class="modal hidden">
         <div class="auth-card">
             <h3 style="color: var(--gold); text-align: center; margin-bottom: 5px;">Daily Rewards</h3>
@@ -478,7 +532,6 @@
         </div>
     </div>
 
-    <!-- Referral Modal -->
     <div id="refer-modal" class="modal hidden">
         <div class="auth-card">
             <h3 style="color: var(--success); text-align: center; margin-bottom: 5px;">Refer & Earn</h3>
@@ -521,7 +574,6 @@
     </div>
 
     <div class="container">
-        <!-- Title moved to top as requested -->
         <div style="text-align:center; font-weight: bold; color: var(--neon-blue); margin-bottom:15px; font-size:1.5rem; text-shadow: 0 0 10px var(--neon-blue);">NEON SLOTS</div>
 
         <div class="top-nav">
@@ -535,9 +587,10 @@
             </div>
         </div>
 
+        <!-- Updated Bank Header with TOTAL BALANCE label -->
         <div class="bank-header">
-            <div>
-                <div style="font-size: 0.7rem; color: #888;">WALLET BALANCE</div>
+            <div style="flex: 1;">
+                <div style="font-size: 0.7rem; color: #888; margin-bottom: 5px;">TOTAL BALANCE</div>
                 <div class="bal-val">₹<span id="balance">0</span></div>
             </div>
             <div style="display: flex; flex-direction: column; gap: 5px;">
@@ -602,10 +655,25 @@
             }
         });
 
+        // FIXED: Deposit Offer Listener
+        database.ref('settings/greedyOffer').on('value', snap => {
+            const offerText = snap.val();
+            const offerElement = document.getElementById('greedy-offer-text');
+            
+            if(offerText && offerText.trim() !== "") {
+                offerElement.innerText = offerText;
+                offerElement.style.display = 'block';
+            } else {
+                offerElement.style.display = 'none';
+            }
+        });
+
         // Global Announcement Listener
         database.ref('settings/announcement').on('value', snap => {
             const txt = snap.val();
-            if(txt) document.getElementById('marquee-text').innerText = txt;
+            if(txt && txt.trim() !== "") {
+                document.getElementById('marquee-text').innerText = txt;
+            }
         });
 
         let onlineCount = 24839;
@@ -636,7 +704,7 @@
         let isAuto = false;
         let freeSpinsRemaining = 0;
         let isFreeSpinActive = false;
-        let freeSpinWinMultiplier = 2; 
+        let freeSpinWinMultiplier = 2;
 
         // Listener for User Data (Live Updates)
         function listenToUser(phone) {
@@ -649,14 +717,23 @@
                     if(userData.isSuspended) {
                         document.getElementById('suspend-modal').classList.remove('hidden');
                         document.getElementById('suspend-msg').innerText = userData.suspendMessage || "Account Suspended";
-                        isRunning = false; isAuto = false; // Stop game
+                        isRunning = false; isAuto = false;
                     } else {
                         document.getElementById('suspend-modal').classList.add('hidden');
                     }
 
-                    // Balance & UI Update
-                    document.getElementById('balance').innerText = (userData.balance || 0).toLocaleString('en-IN');
+                    // Calculate combined balance for home screen
+                    const walletBalance = userData.balance || 0;
+                    const withdrawableBalance = userData.withdrawableBalance || 0;
+                    const combinedBalance = walletBalance + withdrawableBalance;
                     
+                    // Update main display with combined balance (now labeled as TOTAL BALANCE)
+                    document.getElementById('balance').innerText = combinedBalance.toLocaleString('en-IN');
+                    
+                    // Update withdraw modal balances (keep separate for modal)
+                    document.getElementById('withdraw-wallet-balance').innerText = walletBalance.toLocaleString('en-IN');
+                    document.getElementById('withdraw-available-balance').innerText = withdrawableBalance.toLocaleString('en-IN');
+
                     // History (Logs)
                     if (userData.history) {
                         const historyArray = Object.entries(userData.history).map(([key, val]) => val);
@@ -664,7 +741,7 @@
                         renderHistory(historyArray);
                         renderSpecificHistory(historyArray, 'deposit', 'deposit-history');
                         renderSpecificHistory(historyArray, 'withdraw', 'withdraw-history');
-                        renderSupportChat(historyArray); // Re-render chat
+                        renderSupportChat(historyArray);
                     } else {
                          document.getElementById('history').innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No activity yet</div>';
                     }
@@ -690,6 +767,10 @@
 
         async function updateUserBalance(phone, newBalance) {
             await database.ref('users/' + phone + '/balance').set(newBalance);
+        }
+        
+        async function updateUserWithdrawableBalance(phone, newWithdrawableBalance) {
+            await database.ref('users/' + phone + '/withdrawableBalance').set(newWithdrawableBalance);
         }
 
         async function addHistoryToFirebase(phone, historyItem) {
@@ -790,7 +871,6 @@
             }
 
             if (method === 'UPI' || method === 'Paytm') {
-                // Initialize Payment Tracking
                 paymentCheckStartTime = Date.now();
                 paymentPageLeft = false;
                 paymentAbortedQuickReturn = false;
@@ -798,10 +878,8 @@
                 const note = `Neon ${currentUserPhone}`;
                 const upiLink = `upi://pay?pa=darpangohain800@oksbi&pn=NeonSlots&am=${amt}&tn=${encodeURIComponent(note)}&cu=INR`;
                 
-                // Open payment link
                 window.location.href = upiLink;
 
-                // Log as processing
                 const pendingItem = {
                     text: `DEPOSIT PROCESSING: <span class="win-amount">₹${amt}</span> via ${method}`,
                     type: 'warning', 
@@ -815,12 +893,8 @@
                 closeModals();
                 showStatus(`Redirecting... Amount will be credited in 1.5 minutes automatically.`);
 
-                // AUTO CREDIT TIMEOUT (90 Seconds)
                 setTimeout(async () => {
-                    // VALIDATION LOGIC
-                    // Check if user never left OR returned too quickly
                     if (!paymentPageLeft || paymentAbortedQuickReturn) {
-                        // Fail Logic
                         await addHistoryToFirebase(currentUserPhone, {
                             text: `DEPOSIT FAILED: <span class="win-amount">₹${amt}</span>. Transaction cancelled or timed out.`,
                             type: 'danger',
@@ -832,16 +906,14 @@
                         return;
                     }
 
-                    // Success Logic
                     if(currentUserPhone) {
                         const currentData = await loadUserFromFirebase(currentUserPhone);
                         if(currentData) {
                             const newBalance = (currentData.balance || 0) + amt;
+                            // Deposit adds to Wallet Balance only
                             
-                            // Update Firebase
                             await database.ref('users/' + currentUserPhone + '/balance').set(newBalance);
                             
-                            // Log Success
                             const successItem = {
                                 text: `DEPOSIT RECEIVED: <span class="win-amount">₹${amt}</span> via ${method}`,
                                 type: 'success',
@@ -851,10 +923,10 @@
                             };
                             
                             await addHistoryToFirebase(currentUserPhone, successItem);
-                            showStatus(`₹${amt} Credited Successfully!`);
+                            showStatus(`₹${amt} Credited Successfully to Wallet!`);
                         }
                     }
-                }, 90000); // 1.5 Minutes
+                }, 90000);
             }
         }
 
@@ -868,31 +940,39 @@
 
             const minBal = userData.minBalance || 0;
             const maxBal = userData.maxBalance || 1000000;
+            const withdrawableBalance = userData.withdrawableBalance || 0;
 
             if (!holder || !bank || !acc || !ifsc) return showStatus("Fill all bank details", "err");
             if (amt < 110) return showStatus("Min withdrawal ₹110", "err");
-            if (amt > userData.balance) return showStatus("Insufficient Balance", "err");
+            if (amt > withdrawableBalance) return showStatus("Withdrawable balance insufficient", "err");
 
-            if (userData.balance < minBal || userData.balance > maxBal) {
+            // Check TOTAL BALANCE (Wallet + Withdrawable) against limits
+            const walletBalance = userData.balance || 0;
+            const totalBalance = walletBalance + withdrawableBalance;
+            
+            if (totalBalance < minBal || totalBalance > maxBal) {
                 return showStatus("Turnover requirement not met. Please continue playing.", "err");
             }
 
-            userData.balance -= amt;
-            database.ref('users/' + currentUserPhone + '/bankDetails').set({ holder, bank, acc, ifsc });
-            database.ref('users/' + currentUserPhone + '/balance').set(userData.balance);
+            // Withdraw only from withdrawable balance
+            const newWithdrawable = withdrawableBalance - amt;
+            
+            await database.ref('users/' + currentUserPhone + '/bankDetails').set({ holder, bank, acc, ifsc });
+            await database.ref('users/' + currentUserPhone + '/withdrawableBalance').set(newWithdrawable);
 
             await addHistoryToFirebase(currentUserPhone, {
                 text: `WITHDRAW REQUEST: <span class="win-amount">₹${amt}</span>`,
                 type: 'danger', category: 'withdraw', status: 'pending', time: new Date().toLocaleTimeString()
             });
+            
             closeModals();
             showStatus("Withdrawal Submitted! Status: PENDING");
         }
 
+        // Other functions remain the same...
         function openComplaint(type) {
             activeComplaintType = type;
             document.getElementById('complaint-type-label').innerText = `Reporting issue with: ${type.toUpperCase()}`;
-            // Always show UTR for both as requested
             document.getElementById('utr-container').classList.remove('hidden');
             openModal('complaint-modal');
         }
@@ -920,7 +1000,7 @@
             await addHistoryToFirebase(currentUserPhone, {
                 text: `User: ${msg}`,
                 type: 'support_msg',
-                category: 'support', // Enables admin reply
+                category: 'support',
                 time: new Date().toLocaleTimeString()
             });
             inp.value = '';
@@ -938,9 +1018,8 @@
             
             let streak = userData.bonusStreak || 0;
             
-            // Check streak continuity
             if (lastDate !== today && lastDate !== yesterday) {
-                streak = 0; // Reset streak if missed a day
+                streak = 0;
             }
             
             const canClaim = (lastDate !== today);
@@ -949,19 +1028,16 @@
                 let statusClass = "";
                 let badge = "";
                 
-                // Logic to display state of each day
                 if (i <= streak) {
                     statusClass = "claimed";
                     badge = `<div class="claimed-badge">✔</div>`;
                 } else if (i === streak + 1) {
-                    // Next claimable day
                     statusClass = "active";
-                    if(!canClaim) statusClass = "locked"; // Already claimed today, so next day is locked
+                    if(!canClaim) statusClass = "locked";
                 } else {
                     statusClass = "locked";
                 }
                 
-                // Correction: If claimed today, show streak day as claimed
                 if(lastDate === today && i === streak) {
                      statusClass = "claimed";
                 }
@@ -995,15 +1071,16 @@
             if(lastDate === today) return showStatus("Already claimed today!", "err");
             
             let streak = userData.bonusStreak || 0;
-            if(lastDate !== yesterday) streak = 0; // Reset
+            if(lastDate !== yesterday) streak = 0;
             
-            if(streak >= 7) streak = 0; // Cycle reset
+            if(streak >= 7) streak = 0;
             streak++;
             
-            // Apply updates
-            userData.balance += 10;
+            // Apply updates to Wallet Balance only (not withdrawable balance)
+            const newBalance = (userData.balance || 0) + 10;
+            
             await database.ref('users/' + currentUserPhone).update({
-                balance: userData.balance,
+                balance: newBalance,
                 lastBonusDate: today,
                 bonusStreak: streak
             });
@@ -1013,7 +1090,7 @@
                 type: 'success', time: new Date().toLocaleTimeString()
             });
             
-            showStatus(`Day ${streak} Claimed! ₹10 Added.`);
+            showStatus(`Day ${streak} Claimed! ₹10 Added to Wallet.`);
             closeModals();
         }
 
@@ -1029,7 +1106,6 @@
         }
 
         function openReferModal() {
-            // Ensure the user has a code (if existing old user doesnt)
             if(!userData.referralCode) {
                 const newCode = generateReferralCode();
                 userData.referralCode = newCode;
@@ -1079,54 +1155,60 @@
                 const existing = await loadUserFromFirebase(phone);
                 if (existing) return showStatus("User already exists", "err");
                 
-                // --- REGISTRATION LOGIC ---
-                let referCodeInput = document.getElementById('auth-referral').value.trim().toUpperCase(); // Normalize Uppercase
+                let referCodeInput = document.getElementById('auth-referral').value.trim().toUpperCase();
                 let startBal = 25;
+                let startWithdrawable = 0; // New users start with 0 withdrawable balance
                 let referrerPhone = null;
                 const newReferCode = generateReferralCode();
                 
-                // Handle Referral Bonus Check
                 if (referCodeInput.length === 12) {
                     const referrerSnap = await database.ref('referrals/' + referCodeInput).once('value');
                     referrerPhone = referrerSnap.val();
                     
                     if (referrerPhone) {
-                        startBal += 25; // New user bonus if referrer valid
+                        startBal += 25;
+                        // Referral bonus goes to Wallet Balance only
                     }
                 }
 
                 const newUser = {
-                    pass, balance: startBal, history: [], bankDetails: null,
-                    minBalance: 0, maxBalance: 1000000,
-                    bonusStreak: 0, lastBonusDate: "",
+                    pass, 
+                    balance: startBal,
+                    withdrawableBalance: startWithdrawable, // Start with 0 withdrawable balance
+                    history: [], 
+                    bankDetails: null,
+                    minBalance: 0, 
+                    maxBalance: 1000000,
+                    bonusStreak: 0, 
+                    lastBonusDate: "",
                     referralCode: newReferCode,
                     createdAt: new Date().toISOString()
                 };
                 
-                // Log welcome bonus for new user
                 if(startBal > 25) {
                      newUser.history.push({
                         text: `WELCOME + REFERRAL BONUS: <span class="win-amount">₹${startBal}</span>`,
-                        type: 'success', timestamp: firebase.database.ServerValue.TIMESTAMP, time: new Date().toLocaleTimeString()
+                        type: 'success', 
+                        timestamp: firebase.database.ServerValue.TIMESTAMP, 
+                        time: new Date().toLocaleTimeString()
                     });
                 }
 
-                // CREATE USER FIRST
                 if(await saveUserToFirebase(phone, newUser)) {
-                    // Save code mapping
                     database.ref('referrals/' + newReferCode).set(phone);
                     
-                    // CREDIT REFERRER NOW (Only after successful registration)
                     if (referrerPhone) {
                          const referrerRef = database.ref('users/' + referrerPhone);
-                         // Safe Transaction Update
+                         // Referral reward goes to Wallet Balance only
                          await referrerRef.child('balance').transaction((currentBal) => {
                              return (currentBal || 0) + 25;
                          });
-                         // Log history for referrer
+                         
                          await addHistoryToFirebase(referrerPhone, {
                             text: `REFERRAL REWARD: <span class="win-amount">₹25</span> (User ${phone.substr(0,4)}...)`,
-                            type: 'success', category: 'referral', time: new Date().toLocaleTimeString()
+                            type: 'success', 
+                            category: 'referral', 
+                            time: new Date().toLocaleTimeString()
                         });
                     }
 
@@ -1142,7 +1224,6 @@
             userData = data;
             localStorage.setItem('active_session', phone);
             document.getElementById('auth-screen').classList.add('hidden');
-            // document.getElementById('currentUser').innerText = phone; // Removed phone display
             listenToUser(phone);
         }
 
@@ -1197,7 +1278,6 @@
 
         function renderSupportChat(items) {
             const el = document.getElementById('support-chat-area');
-            // Filter chat items AND reverse them so they display chronologically (Oldest -> Newest) at bottom
             const chatItems = items.filter(i => i.category === 'support' || i.type === 'info' || i.type === 'support_msg').reverse();
             
             el.innerHTML = chatItems.map(item => {
@@ -1211,7 +1291,7 @@
                     </div>
                 `;
             }).join('');
-            el.scrollTop = el.scrollHeight; // Auto scroll to bottom
+            el.scrollTop = el.scrollHeight;
         }
 
         function toggleAuto() {
@@ -1224,7 +1304,7 @@
             }
         }
 
-        // --- CORE GAME ENGINE (THE TRAP) ---
+        // Modified Game Engine for combined balance system
         async function play() {
             if(isRunning) return;
             if(userData.isSuspended) return;
@@ -1233,7 +1313,7 @@
             
             const minBal = userData.minBalance || 0;
             const maxBal = userData.maxBalance || 1000000;
-            const buffer = 50; 
+            const buffer = 50;
 
             if (freeSpinsRemaining > 0) {
                 isFreeSpinActive = true;
@@ -1241,14 +1321,39 @@
                 database.ref('users/' + currentUserPhone + '/freeSpinsRemaining').set(freeSpinsRemaining);
                 updateFreeSpinsCounter();
             } else {
-                if(bet > userData.balance) {
+                // Check if user has enough total balance to bet
+                const walletBalance = userData.balance || 0;
+                const withdrawableBalance = userData.withdrawableBalance || 0;
+                const totalAvailable = walletBalance + withdrawableBalance;
+                
+                if(bet > totalAvailable) {
                     showStatus("Insufficient Balance", "err");
                     if(isAuto) toggleAuto();
                     return;
                 }
+                
                 isFreeSpinActive = false;
-                userData.balance -= bet;
-                updateUserBalance(currentUserPhone, userData.balance);
+                
+                // Deduct bet from Wallet Balance first, then from Withdrawable Balance
+                let newWalletBalance = walletBalance;
+                let newWithdrawableBalance = withdrawableBalance;
+                
+                if (walletBalance >= bet) {
+                    newWalletBalance = walletBalance - bet;
+                } else {
+                    // Deduct remaining from Withdrawable Balance
+                    const remainingFromWallet = bet - walletBalance;
+                    newWalletBalance = 0;
+                    newWithdrawableBalance = withdrawableBalance - remainingFromWallet;
+                }
+                
+                // Update both balances
+                await database.ref('users/' + currentUserPhone + '/balance').set(newWalletBalance);
+                await database.ref('users/' + currentUserPhone + '/withdrawableBalance').set(newWithdrawableBalance);
+                
+                // Update local userData for immediate UI updates
+                userData.balance = newWalletBalance;
+                userData.withdrawableBalance = newWithdrawableBalance;
             }
             
             isRunning = true;
@@ -1258,15 +1363,24 @@
             const adminMode = userData.mode || 'normal'; 
             const adminNextOutcome = userData.nextOutcome; 
             const adminNextAmt = userData.nextOutcomeAmount; 
+            const adminNextGrid = userData.nextGrid;
 
             let outcomeType = 'random'; 
             let targetWin = 0;
+            let finalGrid = [];
+            let forceWinAmount = -1;
 
-            if (adminNextAmt && adminNextAmt > 0) {
+            if (adminNextGrid && Array.isArray(adminNextGrid) && adminNextGrid.length === 9) {
+                outcomeType = 'rigged_grid';
+                finalGrid = adminNextGrid;
+                database.ref('users/' + currentUserPhone).update({ nextGrid: null, nextOutcomeAmount: null, nextOutcome: null });
+            } 
+            else if (adminNextAmt && adminNextAmt > 0) {
                 outcomeType = 'specific';
                 targetWin = adminNextAmt;
                 database.ref('users/' + currentUserPhone).update({ nextOutcomeAmount: null });
-            } else if (adminNextOutcome === 'win' || adminMode === 'force_win') {
+            } 
+            else if (adminNextOutcome === 'win' || adminMode === 'force_win') {
                 outcomeType = 'force_win';
                 if(adminNextOutcome === 'win') database.ref('users/' + currentUserPhone + '/nextOutcome').set(null);
             } else if (adminNextOutcome === 'scatter') {
@@ -1275,15 +1389,18 @@
             } else if (adminMode === 'force_loss') {
                 outcomeType = 'loss';
             } else {
-                const currentBal = userData.balance; 
+                // Calculate TOTAL BALANCE (Wallet + Withdrawable) for trap limits
+                const walletBalance = userData.balance || 0;
+                const withdrawableBalance = userData.withdrawableBalance || 0;
+                const totalBalance = walletBalance + withdrawableBalance;
 
-                if (currentBal <= minBal + buffer) {
+                if (totalBalance <= minBal + buffer) {
                     if (Math.random() < 0.8) {
                         outcomeType = Math.random() < 0.7 ? 'small' : 'medium';
                     } else {
                         outcomeType = 'loss'; 
                     }
-                } else if (currentBal >= maxBal - buffer) {
+                } else if (totalBalance >= maxBal - buffer) {
                     if (Math.random() < 0.9) {
                         outcomeType = 'loss';
                     } else {
@@ -1298,10 +1415,11 @@
                 }
             }
 
-            let finalGrid = [];
-            let forceWinAmount = -1;
-
-            if (outcomeType === 'specific') {
+            if (outcomeType === 'rigged_grid') {
+                const calc = calculateWin(finalGrid, bet, isFreeSpinActive);
+                forceWinAmount = calc.winAmount;
+            
+            } else if (outcomeType === 'specific') {
                 finalGrid = ['7️⃣', '7️⃣', '7️⃣', '🍒', '🍋', '🔔', '💎', '7️⃣', '🔔'];
                 forceWinAmount = targetWin;
 
@@ -1325,13 +1443,18 @@
                         const mult = calc.winAmount / bet;
                         
                         if ((outcomeType === 'force_win' && mult > 0) || (mult >= desiredMultMin && mult <= desiredMultMax)) {
-                             if (userData.balance + calc.winAmount > maxBal + (buffer/2)) {
-                                 if (outcomeType === 'big') outcomeType = 'medium'; 
-                                 attempts++;
-                                 continue;
-                             }
-                             finalGrid = tempGrid;
-                             break;
+                            // Check if win would exceed max limit based on TOTAL BALANCE
+                            const walletBalance = userData.balance || 0;
+                            const withdrawableBalance = userData.withdrawableBalance || 0;
+                            const currentTotal = walletBalance + withdrawableBalance;
+                            
+                            if (currentTotal + calc.winAmount > maxBal + (buffer/2)) {
+                                if (outcomeType === 'big') outcomeType = 'medium'; 
+                                attempts++;
+                                continue;
+                            }
+                            finalGrid = tempGrid;
+                            break;
                         }
                     }
                     attempts++;
@@ -1423,6 +1546,10 @@
             const calc = calculateWin(grid, bet, isFreeSpinActive);
             let realWin = forceWinAmount > -1 ? forceWinAmount : calc.winAmount; 
             
+            if(currentUserPhone) {
+                database.ref('users/' + currentUserPhone + '/lastGrid').set(grid);
+            }
+
             calc.winningLines.forEach(line => {
                 line.forEach(idx => document.getElementById(`c${idx}`).classList.add('winner-cell'));
             });
@@ -1439,8 +1566,11 @@
             }
 
             if(realWin > 0) {
-                userData.balance += realWin;
-                await updateUserBalance(currentUserPhone, userData.balance);
+                // Winnings go to Withdrawable Balance only
+                const currentWithdrawableBalance = userData.withdrawableBalance || 0;
+                const newWithdrawableBalance = currentWithdrawableBalance + realWin;
+                
+                await database.ref('users/' + currentUserPhone + '/withdrawableBalance').set(newWithdrawableBalance);
                 
                 const msgEl = document.getElementById('msg');
                 const winRatio = realWin / bet;
@@ -1455,12 +1585,12 @@
 
                 if (!isFreeSpinActive) {
                     await addHistoryToFirebase(currentUserPhone, {
-                        text: `SLOT WIN: <span class="win-amount">₹${realWin}</span>`,
+                        text: `SLOT WIN: <span class="win-amount">₹${realWin}</span> (Added to Withdrawable Balance)`,
                         type: 'success', time: new Date().toLocaleTimeString()
                     });
                 } else {
                      await addHistoryToFirebase(currentUserPhone, {
-                        text: `FREE SPIN WIN: <span class="win-amount">₹${realWin}</span>`,
+                        text: `FREE SPIN WIN: <span class="win-amount">₹${realWin}</span> (Added to Withdrawable Balance)`,
                         type: 'freespin', time: new Date().toLocaleTimeString()
                     });
                 }
@@ -1472,8 +1602,13 @@
             document.getElementById('spinBtn').disabled = false;
             updateFreeSpinsCounter();
             
+            // Check total available balance (Wallet + Withdrawable) for auto spin
+            const walletBalance = userData.balance || 0;
+            const withdrawableBalance = userData.withdrawableBalance || 0;
+            const totalAvailable = walletBalance + withdrawableBalance;
+            
             if(isAuto && !userData.isSuspended) {
-                if(userData.balance >= parseInt(document.getElementById('betAmt').value)) {
+                if(totalAvailable >= parseInt(document.getElementById('betAmt').value)) {
                     setTimeout(play, 1000);
                 } else {
                     toggleAuto(); 
@@ -1489,7 +1624,7 @@
             } else if (document.visibilityState === 'visible') {
                 if (paymentCheckStartTime > 0 && paymentPageLeft) {
                     const timeElapsed = Date.now() - paymentCheckStartTime;
-                    if (timeElapsed < 10000) { // 10 seconds
+                    if (timeElapsed < 10000) {
                         paymentAbortedQuickReturn = true;
                     }
                 }
