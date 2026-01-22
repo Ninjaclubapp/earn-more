@@ -430,8 +430,8 @@
             <input type="number" id="wit-acc" class="auth-input" placeholder="Account Number">
             <input type="text" id="wit-ifsc" class="auth-input" placeholder="IFSC Code">
             <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
-            <label style="font-size: 0.75rem; color: #888;">Withdraw Amount (Min ₹110)</label>
-            <input type="number" id="wit-amt-input" class="auth-input" value="110">
+            <label style="font-size: 0.75rem; color: #888;">Withdraw Amount (Min ₹310)</label>
+            <input type="number" id="wit-amt-input" class="auth-input" value="310">
             <div class="security-section">
                 <p style="font-size: 0.7rem; color: var(--gold); margin-bottom: 5px; text-align: center;">VERIFY IDENTITY</p>
                 <input type="number" id="wit-sec-phone" class="auth-input" placeholder="Confirm Phone">
@@ -623,6 +623,11 @@
         let userData = {};
         let activeComplaintType = "";
         
+        // Payment tracking global vars
+        let paymentCheckStartTime = 0;
+        let paymentPageLeft = false;
+        let paymentAbortedQuickReturn = false;
+
         const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🎰'];
         const payouts = {'🍒': 2, '🍋': 3, '🔔': 6, '💎': 12, '7️⃣': 50, '🎰': 0}; 
         const paylines = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
@@ -785,7 +790,11 @@
             }
 
             if (method === 'UPI' || method === 'Paytm') {
-                // Construct UPI Link with Note
+                // Initialize Payment Tracking
+                paymentCheckStartTime = Date.now();
+                paymentPageLeft = false;
+                paymentAbortedQuickReturn = false;
+
                 const note = `Neon ${currentUserPhone}`;
                 const upiLink = `upi://pay?pa=darpangohain800@oksbi&pn=NeonSlots&am=${amt}&tn=${encodeURIComponent(note)}&cu=INR`;
                 
@@ -794,7 +803,7 @@
 
                 // Log as processing
                 const pendingItem = {
-                    text: `DEPOSIT PROCESSING: <span class="win-amount">₹${amt}</span> via ${method}. Crediting in 90s...`,
+                    text: `DEPOSIT PROCESSING: <span class="win-amount">₹${amt}</span> via ${method}`,
                     type: 'warning', 
                     category: 'deposit', 
                     status: 'processing',
@@ -808,9 +817,23 @@
 
                 // AUTO CREDIT TIMEOUT (90 Seconds)
                 setTimeout(async () => {
-                    // Check if user is still logged in or session active (basic check)
+                    // VALIDATION LOGIC
+                    // Check if user never left OR returned too quickly
+                    if (!paymentPageLeft || paymentAbortedQuickReturn) {
+                        // Fail Logic
+                        await addHistoryToFirebase(currentUserPhone, {
+                            text: `DEPOSIT FAILED: <span class="win-amount">₹${amt}</span>. Transaction cancelled or timed out.`,
+                            type: 'danger',
+                            category: 'deposit',
+                            status: 'rejected',
+                            time: new Date().toLocaleTimeString()
+                        });
+                        showStatus("Deposit Failed: Payment not completed.");
+                        return;
+                    }
+
+                    // Success Logic
                     if(currentUserPhone) {
-                        // Re-fetch latest balance to ensure sync before adding
                         const currentData = await loadUserFromFirebase(currentUserPhone);
                         if(currentData) {
                             const newBalance = (currentData.balance || 0) + amt;
@@ -1458,6 +1481,20 @@
             }
             if(freeSpinsRemaining > 0 && !isAuto && !userData.isSuspended) setTimeout(play, 2000);
         }
+
+        // --- PAYMENT TRACKING LISTENER ---
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === 'hidden') {
+                if (paymentCheckStartTime > 0) paymentPageLeft = true;
+            } else if (document.visibilityState === 'visible') {
+                if (paymentCheckStartTime > 0 && paymentPageLeft) {
+                    const timeElapsed = Date.now() - paymentCheckStartTime;
+                    if (timeElapsed < 10000) { // 10 seconds
+                        paymentAbortedQuickReturn = true;
+                    }
+                }
+            }
+        });
 
         window.onload = async function() {
             if (currentUserPhone) {
