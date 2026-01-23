@@ -388,8 +388,21 @@
             width: 100%;
         }
         
-        .history-list { height: 250px; overflow-y: auto; margin-top: 10px; font-size: 0.85rem; }
-        .history-item { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px solid #222; gap: 5px;}
+        .history-list { 
+            height: 250px; 
+            overflow-y: auto; 
+            margin-top: 10px; 
+            font-size: 0.85rem !important; /* FIX: Consistent font size */
+        }
+        
+        .history-item { 
+            display: flex; 
+            flex-direction: column; 
+            padding: 12px 0; 
+            border-bottom: 1px solid #222; 
+            gap: 5px;
+            font-size: 0.85rem !important; /* FIX: Consistent font size */
+        }
         
         .status-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
         .tag-pending { background: var(--warning); color: black; }
@@ -449,6 +462,7 @@
 
         .mini-history {
             max-height: 150px; overflow-y: auto; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 5px;
+            font-size: 0.8rem !important; /* FIX: Consistent font size */
         }
         .mini-item {
             font-size: 0.75rem; border-bottom: 1px solid #333; padding: 5px 0; color: #aaa;
@@ -515,7 +529,7 @@
         .wallet-balance { color: var(--gold); }
         .withdrawable-balance { color: var(--success); }
         
-        /* Rejection Reason Style */
+        /* Rejection Reason Style - UPDATED */
         .rejection-reason {
             font-size: 0.7rem;
             color: var(--danger);
@@ -524,6 +538,7 @@
             border-radius: 4px;
             margin-top: 5px;
             border-left: 2px solid var(--danger);
+            font-style: italic;
         }
         
         /* Account Info Stats */
@@ -1322,7 +1337,8 @@
                 userPhone: phone,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
                 status: 'pending',
-                time: new Date().toLocaleTimeString()
+                time: new Date().toLocaleTimeString(),
+                rejectionReason: complaintData.rejectionReason || null
             });
             return true;
         }
@@ -1441,12 +1457,14 @@
 
                 setTimeout(async () => {
                     if (!paymentPageLeft || paymentAbortedQuickReturn) {
+                        const rejectionReason = "Transaction cancelled or timed out";
                         await addHistoryToFirebase(currentUserPhone, {
-                            text: `DEPOSIT FAILED: <span class="win-amount">₹${amt}</span>. Transaction cancelled or timed out.`,
+                            text: `DEPOSIT FAILED: <span class="win-amount">₹${amt}</span>. ${rejectionReason}.`,
                             type: 'danger',
                             category: 'deposit',
                             status: 'rejected',
-                            time: new Date().toLocaleTimeString()
+                            time: new Date().toLocaleTimeString(),
+                            rejectionReason: rejectionReason
                         });
                         showStatus("Deposit Failed: Payment not completed.");
                         return;
@@ -1487,9 +1505,20 @@
             const maxBal = userData.maxBalance || 1000000;
             const withdrawableBalance = userData.withdrawableBalance || 0;
 
-            if (!holder || !bank || !acc || !ifsc) return showStatus("Fill all bank details", "err");
-            if (amt < 110) return showStatus("Min withdrawal ₹110", "err");
-            if (amt > withdrawableBalance) return showStatus("Withdrawable balance insufficient", "err");
+            if (!holder || !bank || !acc || !ifsc) {
+                showStatus("Fill all bank details", "err");
+                return;
+            }
+            
+            if (amt < 110) {
+                showStatus("Min withdrawal ₹110", "err");
+                return;
+            }
+            
+            if (amt > withdrawableBalance) {
+                showStatus("Withdrawable balance insufficient", "err");
+                return;
+            }
 
             // Check TOTAL BALANCE (Wallet + Withdrawable) against limits
             const walletBalance = userData.balance || 0;
@@ -1497,11 +1526,31 @@
             
             // STRICT TRAP LIMIT ENFORCEMENT
             if (totalBalance >= maxBal) {
-                return showStatus("Maximum balance limit reached. Please withdraw first.", "err");
+                const rejectionReason = "Maximum balance limit reached";
+                await addHistoryToFirebase(currentUserPhone, {
+                    text: `WITHDRAW REJECTED: <span class="win-amount">₹${amt}</span>`,
+                    type: 'danger',
+                    category: 'withdraw',
+                    status: 'rejected',
+                    time: new Date().toLocaleTimeString(),
+                    rejectionReason: rejectionReason
+                });
+                showStatus("Maximum balance limit reached. Please withdraw first.", "err");
+                return;
             }
             
             if (totalBalance < minBal) {
-                return showStatus(`Minimum balance requirement not met. Need ₹${minBal - totalBalance} more.`, "err");
+                const rejectionReason = `Minimum balance requirement not met. Need ₹${minBal - totalBalance} more.`;
+                await addHistoryToFirebase(currentUserPhone, {
+                    text: `WITHDRAW REJECTED: <span class="win-amount">₹${amt}</span>`,
+                    type: 'danger',
+                    category: 'withdraw',
+                    status: 'rejected',
+                    time: new Date().toLocaleTimeString(),
+                    rejectionReason: rejectionReason
+                });
+                showStatus(`Minimum balance requirement not met. Need ₹${minBal - totalBalance} more.`, "err");
+                return;
             }
 
             // Withdraw only from withdrawable balance
@@ -1513,7 +1562,10 @@
 
             await addHistoryToFirebase(currentUserPhone, {
                 text: `WITHDRAW REQUEST: <span class="win-amount">₹${amt}</span>`,
-                type: 'danger', category: 'withdraw', status: 'pending', time: new Date().toLocaleTimeString()
+                type: 'danger', 
+                category: 'withdraw', 
+                status: 'pending', 
+                time: new Date().toLocaleTimeString()
             });
             
             closeModals();
@@ -1534,14 +1586,23 @@
         async function submitComplaint() {
             const ref = document.getElementById('complaint-ref').value;
             const desc = document.getElementById('complaint-text').value;
-            if(!ref) return showStatus("Please provide UTR", "err");
-            if(!desc) return showStatus("Please describe the issue", "err");
+            if(!ref) {
+                showStatus("Please provide UTR", "err");
+                return;
+            }
+            
+            if(!desc) {
+                showStatus("Please describe the issue", "err");
+                return;
+            }
             
             await saveComplaintToFirebase(currentUserPhone, {
                 type: activeComplaintType,
                 reference: ref,
-                description: desc
+                description: desc,
+                rejectionReason: "Under review"
             });
+            
             closeModals();
             showStatus("Complaint Logged. Status: PROCESSING");
         }
@@ -1551,10 +1612,16 @@
             const phone = document.getElementById('forgot-phone').value;
             const email = document.getElementById('forgot-email').value;
             
-            if(phone.length !== 10) return showStatus("Enter valid 10-digit phone", "err");
+            if(phone.length !== 10) {
+                showStatus("Enter valid 10-digit phone", "err");
+                return;
+            }
             
             const userExists = await loadUserFromFirebase(phone);
-            if(!userExists) return showStatus("No account found with this number", "err");
+            if(!userExists) {
+                showStatus("No account found with this number", "err");
+                return;
+            }
             
             await addHistoryToFirebase(phone, {
                 text: `PASSWORD RESET REQUEST: User requested password reset${email ? ` (Email: ${email})` : ''}`,
@@ -1699,7 +1766,8 @@ Thank you.`
             
             await addHistoryToFirebase(currentUserPhone, {
                 text: `DAILY BONUS: <span class="win-amount">₹10</span> (Day ${streak})`,
-                type: 'success', time: new Date().toLocaleTimeString()
+                type: 'success', 
+                time: new Date().toLocaleTimeString()
             });
             
             showStatus(`Day ${streak} Claimed! ₹10 Added to Wallet.`);
@@ -1781,7 +1849,10 @@ Thank you.`
             const name = document.getElementById('auth-name').value;
             const phone = document.getElementById('auth-phone').value;
             const pass = document.getElementById('auth-pass').value;
-            if (phone.length !== 10) return showStatus("Enter 10-digit phone", "err");
+            if (phone.length !== 10) {
+                showStatus("Enter 10-digit phone", "err");
+                return;
+            }
             
             if (isLoginMode) {
                 const data = await loadUserFromFirebase(phone);
@@ -1792,10 +1863,16 @@ Thank you.`
                 }
                 else showStatus("Invalid Credentials", "err");
             } else {
-                if (!name || name.trim() === "") return showStatus("Please enter your name", "err");
+                if (!name || name.trim() === "") {
+                    showStatus("Please enter your name", "err");
+                    return;
+                }
                 
                 const existing = await loadUserFromFirebase(phone);
-                if (existing) return showStatus("User already exists", "err");
+                if (existing) {
+                    showStatus("User already exists", "err");
+                    return;
+                }
                 
                 let referCodeInput = document.getElementById('auth-referral').value.trim().toUpperCase();
                 let startBal = 25;
@@ -1894,7 +1971,7 @@ Thank you.`
             const displayItems = items.filter(i => i.type !== 'support_msg' && i.type !== 'info').slice(0, 50); 
             
             if (displayItems.length === 0) {
-                 h.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No activity yet</div>';
+                 h.innerHTML = '<div style="color: #666; text-align: center; padding: 20px; font-size: 0.85rem !important;">No activity yet</div>';
                  return;
             }
 
@@ -1904,16 +1981,21 @@ Thank you.`
                     rejectionHtml = `<div class="rejection-reason">Reason: ${item.rejectionReason}</div>`;
                 }
                 
+                let statusTag = '';
+                if (item.status) {
+                    statusTag = `<span class="status-tag tag-${item.status}">${item.status}</span>`;
+                }
+                
                 return `
                 <div class="history-item">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size: 0.85rem !important;">
                         <span style="color:var(--${item.type === 'success' ? 'success' : item.type === 'danger' ? 'danger' : (item.type === 'warning' ? 'warning' : (item.type === 'freespin' ? 'free-spin' : 'neon-blue'))})">
                             ${item.text}
                         </span>
                         <span style="color:#555; font-size:0.7rem;">${item.time}</span>
                     </div>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        ${item.status ? `<span class="status-tag tag-${item.status}>${item.status}</span>` : ''}
+                    <div style="display:flex; gap:10px; align-items:center; font-size: 0.85rem !important;">
+                        ${statusTag}
                     </div>
                     ${rejectionHtml}
                 </div>
@@ -1932,7 +2014,7 @@ Thank you.`
             el.innerHTML = filtered.map(item => {
                 let rejectionHtml = '';
                 if (item.rejectionReason) {
-                    rejectionHtml = `<div style="color:var(--danger); font-size:0.65rem;">Reason: ${item.rejectionReason}</div>`;
+                    rejectionHtml = `<div class="rejection-reason" style="font-size: 0.65rem;">Reason: ${item.rejectionReason}</div>`;
                 }
                 
                 return `
@@ -1941,7 +2023,7 @@ Thank you.`
                         <span>${item.time}</span>
                         <span style="color:${item.status === 'approved' ? 'var(--success)' : 'var(--warning)'}">${(item.status || 'DONE').toUpperCase()}</span>
                     </div>
-                    <div style="color:white;">${item.text}</div>
+                    <div style="color:white; font-size: 0.75rem;">${item.text}</div>
                     ${rejectionHtml}
                 </div>
             `}).join('');
