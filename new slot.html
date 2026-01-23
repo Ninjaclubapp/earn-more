@@ -955,6 +955,120 @@
     </div>
 
     <script>
+        // SOUND SYSTEM - Integrated from new slot.html
+        const sfx = {
+            ctx: null,
+            init: function() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            
+            // 1. NOTIFICATION - for popup messages, deposits, new support messages
+            notification: function() {
+                this.init();
+                const t = this.ctx.currentTime;
+                this.playTone(880, 'sine', t, 0.1, 0.1); 
+                this.playTone(659, 'sine', t + 0.15, 0.4, 0.1);
+            },
+
+            // 2. CLICK - for all button taps except spin button
+            click: function() {
+                this.init();
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(1200, t);
+                osc.frequency.exponentialRampToValueAtTime(100, t + 0.05);
+                gain.gain.setValueAtTime(0.05, t); 
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(t);
+                osc.stop(t + 0.05);
+            },
+
+            // 3. SPIN - for spin button
+            spin: function() {
+                this.init();
+                const t = this.ctx.currentTime;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sawtooth';
+                
+                osc.frequency.setValueAtTime(200, t);
+                osc.frequency.exponentialRampToValueAtTime(600, t + 0.1);
+                
+                gain.gain.setValueAtTime(0.1, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.start(t);
+                osc.stop(t + 0.15);
+            },
+
+            // 4. SCATTER - when scatter symbols appear
+            scatter: function() {
+                this.init();
+                const t = this.ctx.currentTime;
+                const freqs = [523, 659, 783, 1046, 1318, 1567]; 
+                freqs.forEach((f, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    const startTime = t + (i * 0.08); 
+                    osc.frequency.setValueAtTime(f, startTime);
+                    gain.gain.setValueAtTime(0.1, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(startTime);
+                    osc.stop(startTime + 0.3);
+                });
+            },
+
+            // 5. WIN - for winning sounds
+            win: function() {
+                this.init();
+                const t = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((f, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = i === 3 ? 'square' : 'triangle'; 
+                    const time = t + (i * 0.1);
+                    osc.frequency.setValueAtTime(f, time);
+                    const duration = i === 3 ? 0.6 : 0.2;
+                    gain.gain.setValueAtTime(0.15, time);
+                    gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(time);
+                    osc.stop(time + duration);
+                });
+            },
+
+            // Helper function
+            playTone: function(freq, type, startTime, duration, vol) {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, startTime);
+                gain.gain.setValueAtTime(vol || 0.1, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(startTime);
+                osc.stop(startTime + duration);
+            }
+        };
+
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyClBohbm2-pReGrbNMsm7ttDvwM2wEIfEo",
             authDomain: "miner-5939b.firebaseapp.com",
@@ -1055,12 +1169,18 @@
             
             // Update the spin button text to show bet amount
             document.getElementById('spinBtn').innerHTML = `SPIN (₹${newBet})`;
+            
+            // Play click sound for bet adjustment
+            sfx.click();
         }
 
         // Account menu toggle function
         function toggleAccountMenu() {
             const dropdown = document.getElementById('account-dropdown');
             dropdown.classList.toggle('show');
+            
+            // Play click sound
+            sfx.click();
             
             // Close dropdown when clicking outside
             if (dropdown.classList.contains('show')) {
@@ -1215,12 +1335,19 @@
             div.innerText = msg;
             container.appendChild(div);
             setTimeout(() => div.remove(), 3000);
+            
+            // Play notification sound for status messages
+            sfx.notification();
         }
         
         function showFreeSpinsPopup(message) {
             const popup = document.getElementById('free-spins-popup');
             popup.textContent = message;
             popup.classList.remove('hidden');
+            
+            // Play notification sound for free spins popup
+            sfx.notification();
+            
             setTimeout(() => popup.classList.add('hidden'), 3000);
         }
         
@@ -1243,6 +1370,9 @@
             // Close account dropdown when opening any modal
             document.getElementById('account-dropdown').classList.remove('show');
             
+            // Play click sound
+            sfx.click();
+            
             if(id === 'withdraw-modal' && userData.bankDetails) {
                 document.getElementById('wit-holder').value = userData.bankDetails.holder || "";
                 document.getElementById('wit-bank').value = userData.bankDetails.bank || "";
@@ -1253,12 +1383,18 @@
         }
 
         function closeModals() { 
+            // Play click sound
+            sfx.click();
+            
             document.querySelectorAll('.modal').forEach(m => {
                 if(!m.classList.contains('modal-suspension')) m.classList.add('hidden');
             });
         }
 
-        function setAmt(inputId, val) { document.getElementById(inputId).value = val; }
+        function setAmt(inputId, val) { 
+            document.getElementById(inputId).value = val; 
+            sfx.click(); // Play click sound for amount preset
+        }
 
         function verifySecurity(phoneId, passId) {
             const ph = document.getElementById(phoneId).value;
@@ -1388,6 +1524,10 @@
             activeComplaintType = type;
             document.getElementById('complaint-type-label').innerText = `Reporting issue with: ${type.toUpperCase()}`;
             document.getElementById('utr-container').classList.remove('hidden');
+            
+            // Play click sound
+            sfx.click();
+            
             openModal('complaint-modal');
         }
 
@@ -1450,6 +1590,9 @@ Thank you.`
             
             const mailtoLink = `mailto:helloworld@gmail.com?subject=${subject}&body=${body}`;
             window.open(mailtoLink, '_blank');
+            
+            // Play click sound
+            sfx.click();
         }
 
         async function sendSupportMessage() {
@@ -1464,10 +1607,16 @@ Thank you.`
                 time: new Date().toLocaleTimeString()
             });
             inp.value = '';
+            
+            // Play notification sound for new support message
+            sfx.notification();
         }
 
         // --- DAILY BONUS LOGIC ---
         function openBonusModal() {
+            // Play click sound
+            sfx.click();
+            
             const grid = document.getElementById('bonus-grid-container');
             const btn = document.getElementById('claim-bonus-btn');
             grid.innerHTML = '';
@@ -1524,6 +1673,9 @@ Thank you.`
         }
 
         async function claimDailyBonus() {
+            // Play click sound
+            sfx.click();
+            
             const today = new Date().toDateString();
             const lastDate = userData.lastBonusDate || "";
             const yesterday = new Date(Date.now() - 86400000).toDateString();
@@ -1566,6 +1718,9 @@ Thank you.`
         }
 
         function openReferModal() {
+            // Play click sound
+            sfx.click();
+            
             if(!userData.referralCode) {
                 const newCode = generateReferralCode();
                 userData.referralCode = newCode;
@@ -1580,10 +1735,17 @@ Thank you.`
             const code = document.getElementById('my-referral-code').innerText;
             navigator.clipboard.writeText(code);
             document.getElementById('copy-msg').innerText = "COPIED!";
+            
+            // Play notification sound for copy action
+            sfx.notification();
+            
             setTimeout(() => document.getElementById('copy-msg').innerText = "Tap code to copy", 2000);
         }
 
         function shareToWhatsapp() {
+            // Play click sound
+            sfx.click();
+            
             const code = userData.referralCode || "NEONWIN";
             const link = "https://ninjaclubapp.github.io/earn-more/new%20slot.html";
             const text = `🤑 *FREE ₹50 CASH BONUS!* 🤑\n\nSign up on Neon Slots now using my code *${code}* and get instant ₹25 + ₹25 Welcome Bonus! 🎰\n\n👇 Click here to win big:\n${link}`;
@@ -1593,6 +1755,9 @@ Thank you.`
         }
 
         function toggleAuthMode() {
+            // Play click sound
+            sfx.click();
+            
             isLoginMode = !isLoginMode;
             document.getElementById('auth-title').innerText = isLoginMode ? 'VIP MEMBER ACCESS' : 'CLAIM NEW ACCOUNT';
             document.getElementById('auth-toggle-text').innerText = isLoginMode ? 'CLAIM REGISTRATION BONUS NOW' : 'ALREADY A MEMBER? LOGIN';
@@ -1610,6 +1775,9 @@ Thank you.`
         }
 
         async function handleAuth() {
+            // Play click sound
+            sfx.click();
+            
             const name = document.getElementById('auth-name').value;
             const phone = document.getElementById('auth-phone').value;
             const pass = document.getElementById('auth-pass').value;
@@ -1708,9 +1876,15 @@ Thank you.`
             // Initialize bet display on login
             document.getElementById('spinBtn').innerHTML = `SPIN (₹${currentBet})`;
             listenToUser(phone);
+            
+            // Play notification sound for successful login
+            sfx.notification();
         }
 
         function logout() { 
+            // Play click sound
+            sfx.click();
+            
             localStorage.removeItem('active_session'); 
             location.reload(); 
         }
@@ -1792,6 +1966,9 @@ Thank you.`
         }
 
         function toggleAuto() {
+            // Play click sound
+            sfx.click();
+            
             isAuto = !isAuto;
             const btn = document.getElementById('autoBtn');
             btn.classList.toggle('active', isAuto);
@@ -1860,6 +2037,9 @@ Thank you.`
             }
             
             document.getElementById('msg').innerText = isFreeSpinActive ? `FREE SPIN! (${freeSpinsRemaining} left)` : "Spinning...";
+
+            // Play spin sound
+            sfx.spin();
 
             const adminMode = userData.mode || 'normal'; 
             const adminNextOutcome = userData.nextOutcome; 
@@ -2095,6 +2275,10 @@ Thank you.`
                 database.ref('users/' + currentUserPhone + '/freeSpinsRemaining').set(freeSpinsRemaining);
                 grid.forEach((s, i) => { if(s === '🎰') document.getElementById(`c${i}`).classList.add('scatter-cell'); });
                 showFreeSpinsPopup(`🎉 ${calc.scatters} SCATTERS! 10 FREE SPINS!`);
+                
+                // Play scatter sound
+                sfx.scatter();
+                
                 await addHistoryToFirebase(currentUserPhone, {
                     text: `🎰 SCATTER BONUS: <span class="free-spin-text">10 FREE SPINS!</span>`,
                     type: 'freespin', time: new Date().toLocaleTimeString()
@@ -2121,6 +2305,9 @@ Thank you.`
                 } else {
                     msgEl.innerHTML = `<span class="win-message">WIN: ₹${realWin}!</span>`;
                 }
+
+                // Play win sound
+                sfx.win();
 
                 if (!isFreeSpinActive) {
                     await addHistoryToFirebase(currentUserPhone, {
@@ -2183,6 +2370,13 @@ Thank you.`
                 }
                 else localStorage.removeItem('active_session');
             }
+            
+            // Add click sounds to all buttons (except spin button which has its own sound)
+            document.querySelectorAll('button:not(#spinBtn):not(.btn-spin)').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    sfx.click();
+                });
+            });
         };
 
         // Initialize spin button onclick event
