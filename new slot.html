@@ -119,6 +119,16 @@
         }
         .online-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 10px var(--success); }
 
+        /* Forgot Password Link - Updated */
+        .forgot-password {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: var(--neon-blue);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         /* --- END LOGIN STYLES --- */
 
         .modal {
@@ -197,13 +207,122 @@
 
         .container { width: 100%; max-width: 500px; padding: 15px; }
 
-        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .user-badge { display: flex; align-items: center; gap: 8px; }
+        /* UPDATED UNIFIED ACTION BUTTONS STYLES */
+        .top-nav { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px;
+            gap: 8px;
+            width: 100%;
+        }
+        
+        /* Unified button style for all action buttons */
+        .action-btn {
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            min-width: 60px;
+            text-align: center;
+            white-space: nowrap;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .action-btn:active {
+            transform: translateY(0);
+        }
+        
+        .action-btn.account {
+            background: linear-gradient(45deg, #8e44ad, #9b59b6);
+        }
+        
+        .action-btn.bonus {
+            background: linear-gradient(45deg, #ffd700, #ff9f00);
+            color: black;
+        }
+        
+        .action-btn.refer {
+            background: linear-gradient(45deg, #2ed573, #7bed9f);
+            color: black;
+        }
+        
+        .action-btn.support {
+            background: linear-gradient(45deg, var(--neon-blue), #0984e3);
+        }
+        
+        /* Account menu styles */
+        .account-menu {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .account-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--panel);
+            min-width: 140px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            z-index: 1000;
+            border-radius: 8px;
+            border: 1px solid #333;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .account-dropdown.show {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 10px 15px;
+            text-align: left;
+            background: none;
+            border: none;
+            color: white;
+            width: 100%;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .dropdown-item.logout {
+            color: var(--danger);
+            border-top: 1px solid #333;
+        }
+        
+        .app-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
         .bank-header {
             background: var(--panel); padding: 20px; border-radius: 12px;
             display: flex; align-items: center; justify-content: space-between;
             border-bottom: 3px solid var(--neon-blue); margin-bottom: 20px;
+            width: 100%;
         }
 
         .bal-val { font-size: 1.5rem; font-weight: bold; color: var(--gold); }
@@ -211,6 +330,7 @@
         .slot-machine {
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
             background: #000; padding: 12px; border-radius: 15px; border: 4px solid #333; margin-bottom: 20px;
+            width: 100%;
         }
 
         .reel { display: flex; flex-direction: column; gap: 10px; }
@@ -225,16 +345,49 @@
         .scatter-cell { background: var(--free-spin) !important; box-shadow: 0 0 25px var(--free-spin); transform: scale(1.05); z-index: 2; animation: scatterGlow 1s infinite alternate; }
         @keyframes scatterGlow { from { box-shadow: 0 0 15px var(--free-spin); } to { box-shadow: 0 0 30px var(--free-spin); } }
         
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .bet-container { grid-column: span 2; background: var(--panel); padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .controls { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .bet-container { 
+            grid-column: span 2; 
+            background: var(--panel); 
+            padding: 12px; 
+            border-radius: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            width: 100%;
+        }
 
-        .btn { padding: 15px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn { 
+            padding: 15px; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase;
+            width: 100%;
+        }
+        
         .btn-spin { background: var(--neon-blue); color: #000; }
         .btn-auto { background: #333; color: white; }
         .btn-auto.active { background: var(--danger); }
         .btn-free { background: var(--free-spin); color: white; }
 
-        .history-box { background: var(--panel); border-radius: 12px; padding: 15px; margin-top: 10px;}
+        .history-box { 
+            background: var(--panel); 
+            border-radius: 12px; 
+            padding: 15px; 
+            margin-top: 10px;
+            width: 100%;
+        }
+        
         .history-list { height: 250px; overflow-y: auto; margin-top: 10px; font-size: 0.85rem; }
         .history-item { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px solid #222; gap: 5px;}
         
@@ -250,6 +403,7 @@
         #msg { 
             height: 35px; color: var(--neon-blue); margin-bottom: 10px; font-weight: bold; 
             text-align: center; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; padding: 5px;
+            width: 100%;
         }
         
         .win-message {
@@ -361,17 +515,83 @@
         .wallet-balance { color: var(--gold); }
         .withdrawable-balance { color: var(--success); }
         
-        /* Withdrawable balance indicator - REMOVED */
-        .withdrawable-indicator {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--success);
-            color: black;
-            font-size: 0.6rem;
-            padding: 2px 6px;
-            border-radius: 10px;
+        /* Rejection Reason Style */
+        .rejection-reason {
+            font-size: 0.7rem;
+            color: var(--danger);
+            background: rgba(255, 71, 87, 0.1);
+            padding: 5px;
+            border-radius: 4px;
+            margin-top: 5px;
+            border-left: 2px solid var(--danger);
+        }
+        
+        /* Account Info Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 1rem;
             font-weight: bold;
+            color: var(--gold);
+        }
+        
+        /* Bet Display Style */
+        .bet-display {
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        /* Account Info Modal */
+        .user-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+        }
+        .user-info-label {
+            color: #888;
+            font-size: 0.8rem;
+        }
+        .user-info-value {
+            color: var(--neon-blue);
+            font-weight: bold;
+        }
+        
+        /* Email Support Button */
+        .email-support-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .email-icon {
+            font-size: 1.2rem;
         }
     </style>
 </head>
@@ -394,6 +614,79 @@
         <p style="color:#888;">Contact: <span style="color:var(--neon-blue);">helloworld@gmail.com</span></p>
     </div>
 
+    <!-- Account Info Modal -->
+    <div id="account-modal" class="modal hidden">
+        <div class="auth-card">
+            <h3 style="color: var(--gold); text-align: center; margin-bottom: 15px;">Account Information</h3>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 1.2rem; color: var(--neon-blue); font-weight: bold;" id="account-name">Loading...</div>
+                <div style="font-size: 0.8rem; color: #888;" id="account-phone">+91-XXXXXXXXXX</div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">Total Deposit</div>
+                    <div class="stat-value">₹<span id="total-deposit">0</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total Withdraw</div>
+                    <div class="stat-value">₹<span id="total-withdraw">0</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total Winnings</div>
+                    <div class="stat-value">₹<span id="total-winning">0</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Total Bet</div>
+                    <div class="stat-value">₹<span id="total-bet">0</span></div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <div class="user-info-row">
+                    <span class="user-info-label">Account Created:</span>
+                    <span class="user-info-value" id="account-created">-</span>
+                </div>
+                <div class="user-info-row">
+                    <span class="user-info-label">Last Login:</span>
+                    <span class="user-info-value" id="last-login">-</span>
+                </div>
+                <div class="user-info-row">
+                    <span class="user-info-label">Referral Code:</span>
+                    <span class="user-info-value" id="account-referral">-</span>
+                </div>
+            </div>
+            
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:20px; cursor:pointer;">Close</button>
+        </div>
+    </div>
+
+    <!-- Updated Forgot Password Modal with Email Support -->
+    <div id="forgot-modal" class="modal hidden">
+        <div class="auth-card">
+            <h3 style="color: var(--neon-blue); text-align: center; margin-bottom: 15px;">Forgot Password</h3>
+            <p style="color:#888; text-align:center; font-size:0.8rem; margin-bottom:20px;">We'll send your password reset details to our support team.</p>
+            
+            <input type="number" id="forgot-phone" class="auth-input" placeholder="📱 Enter Registered Mobile Number">
+            <input type="text" id="forgot-email" class="auth-input" placeholder="📧 Your Email Address (Optional)">
+            
+            <div style="margin: 15px 0; padding: 10px; background: rgba(0, 242, 255, 0.05); border-radius: 8px; border: 1px dashed var(--neon-blue);">
+                <p style="color: var(--neon-blue); font-size: 0.75rem; margin-bottom: 5px; text-align: center;">Support Email</p>
+                <p style="color: white; font-size: 0.9rem; font-weight: bold; text-align: center;">helloworld@gmail.com</p>
+            </div>
+            
+            <button class="btn btn-spin" style="width: 100%; margin-top: 10px;" onclick="submitForgotPassword()">SEND RESET REQUEST</button>
+            
+            <!-- Email Support Button -->
+            <button class="email-support-btn" onclick="sendEmailToSupport()">
+                <span class="email-icon">📧</span> EMAIL SUPPORT DIRECTLY
+            </button>
+            
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
     <div id="auth-screen">
         <div class="live-users">
             <div class="online-dot"></div> <span id="live-count">24,839</span> Players Online
@@ -407,6 +700,10 @@
             </div>
 
             <h2 id="auth-title" style="color: white; text-align: center; margin-bottom: 15px; font-weight:300;">VIP MEMBER ACCESS</h2>
+            
+            <!-- Registration Name Field -->
+            <input type="text" id="auth-name" class="auth-input hidden" placeholder="👤 Full Name">
+            
             <input type="number" id="auth-phone" class="auth-input" placeholder="📱 Enter Mobile Number">
             <input type="password" id="auth-pass" class="auth-input" placeholder="🔒 Enter Password">
             
@@ -414,6 +711,12 @@
             <input type="text" id="auth-referral" class="auth-input hidden" placeholder="🎟️ Referral Code (Optional)">
             
             <button class="btn btn-greedy" onclick="handleAuth()">LOGIN & WIN BIG 🎰</button>
+            
+            <!-- Updated Forgot Password Link -->
+            <div class="forgot-password" onclick="openModal('forgot-modal')">
+                Forgot Password? Contact Support
+            </div>
+            
             <div style="margin-top: 20px; text-align: center;">
                 <p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">Don't have an account?</p>
                 <div style="font-size: 0.95rem; color: var(--neon-blue); cursor: pointer; text-decoration: underline; font-weight: bold;" onclick="toggleAuthMode()" id="auth-toggle-text">CLAIM REGISTRATION BONUS NOW</div>
@@ -451,8 +754,8 @@
             <input type="number" id="wit-acc" class="auth-input" placeholder="Account Number">
             <input type="text" id="wit-ifsc" class="auth-input" placeholder="IFSC Code">
             <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
-            <label style="font-size: 0.75rem; color: #888;">Withdraw Amount (Min ₹310)</label>
-            <input type="number" id="wit-amt-input" class="auth-input" value="310">
+            <label style="font-size: 0.75rem; color: #888;">Withdraw Amount (Min ₹110)</label>
+            <input type="number" id="wit-amt-input" class="auth-input" value="110">
             <div class="security-section">
                 <p style="font-size: 0.7rem; color: var(--gold); margin-bottom: 5px; text-align: center;">VERIFY IDENTITY</p>
                 <input type="number" id="wit-sec-phone" class="auth-input" placeholder="Confirm Phone">
@@ -504,7 +807,7 @@
         </div>
     </div>
 
-    <!-- Other modals remain the same -->
+    <!-- Complaint Modal -->
     <div id="complaint-modal" class="modal hidden">
         <div class="auth-card">
             <h3 style="color: var(--neon-blue); text-align: center; margin-bottom: 10px;">File a Complaint</h3>
@@ -518,6 +821,7 @@
         </div>
     </div>
 
+    <!-- Other modals remain -->
     <div id="bonus-modal" class="modal hidden">
         <div class="auth-card">
             <h3 style="color: var(--gold); text-align: center; margin-bottom: 5px;">Daily Rewards</h3>
@@ -576,14 +880,32 @@
     <div class="container">
         <div style="text-align:center; font-weight: bold; color: var(--neon-blue); margin-bottom:15px; font-size:1.5rem; text-shadow: 0 0 10px var(--neon-blue);">NEON SLOTS</div>
 
+        <!-- UPDATED TOP NAVIGATION -->
         <div class="top-nav">
-            <div class="user-badge">
-                <button onclick="logout()" style="background:none; border:1px solid var(--danger); color:var(--danger); padding:4px 12px; border-radius:4px; cursor:pointer;">Logout</button>
+            <!-- Left side: Account dropdown menu -->
+            <div class="account-menu">
+                <button class="action-btn account" onclick="toggleAccountMenu()">👤 Account</button>
+                <div class="account-dropdown" id="account-dropdown">
+                    <button class="dropdown-item" onclick="openModal('account-modal')">
+                        <span>👤</span> Account Info
+                    </button>
+                    <button class="dropdown-item" onclick="openModal('deposit-modal')">
+                        <span>💰</span> Deposit
+                    </button>
+                    <button class="dropdown-item" onclick="openModal('withdraw-modal')">
+                        <span>💸</span> Withdraw
+                    </button>
+                    <button class="dropdown-item logout" onclick="logout()">
+                        <span>🚪</span> Logout
+                    </button>
+                </div>
             </div>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <button onclick="openBonusModal()" style="background:linear-gradient(45deg, #ffd700, #ff9f00); border:none; color:black; font-weight:bold; padding:4px 12px; border-radius:15px; cursor:pointer; font-size:0.8rem;">🎁 Bonus</button>
-                <button onclick="openReferModal()" style="background:linear-gradient(45deg, #2ed573, #7bed9f); border:none; color:black; font-weight:bold; padding:4px 12px; border-radius:15px; cursor:pointer; font-size:0.8rem;">👥 Refer</button>
-                <button onclick="openModal('support-modal')" style="background:none; border:1px solid var(--success); color:var(--success); padding:3px 10px; border-radius:15px; cursor:pointer; font-size:0.8rem;">🎧 Support</button>
+            
+            <!-- Right side: Bonus, Refer, Support -->
+            <div class="app-actions">
+                <button class="action-btn bonus" onclick="openBonusModal()">🎁 Bonus</button>
+                <button class="action-btn refer" onclick="openReferModal()">👥 Refer</button>
+                <button class="action-btn support" onclick="openModal('support-modal')">🎧 Support</button>
             </div>
         </div>
 
@@ -611,15 +933,18 @@
 
         <div class="controls">
             <div class="bet-container">
-                <span>BET:</span>
-                <div>
-                    <button onclick="adjustBet(-5)" style="background:#333; color:white; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">-</button>
-                    <input type="number" id="betAmt" value="10" readonly style="width: 50px; background:transparent; color:var(--gold); border:none; text-align:center; font-weight:bold; font-size:1.1rem;">
-                    <button onclick="adjustBet(5)" style="background:#333; color:white; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">+</button>
+                <span style="color: var(--gold);">BET:</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button onclick="adjustBet(-5)" style="background:#333; color:white; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">−</button>
+                    <div class="bet-display" style="display: flex; align-items: center;">
+                        <span style="color: var(--gold); font-size: 1.2rem; margin-right: 2px;">₹</span>
+                        <div style="font-size: 1.3rem; font-weight: bold; color: var(--gold); min-width: 40px; text-align: center;" id="bet-display">10</div>
+                    </div>
+                    <button onclick="adjustBet(5)" style="background:#333; color:white; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">+</button>
                 </div>
                 <div id="free-spins-indicator" class="hidden" style="color: var(--free-spin); font-weight: bold; font-size: 0.9rem;">FREE SPIN ACTIVE</div>
             </div>
-            <button class="btn btn-spin" id="spinBtn" onclick="play()">SPIN</button>
+            <button class="btn btn-spin" id="spinBtn">SPIN</button>
             <button class="btn btn-auto" id="autoBtn" onclick="toggleAuto()">AUTO</button>
         </div>
 
@@ -695,6 +1020,15 @@
         let paymentCheckStartTime = 0;
         let paymentPageLeft = false;
         let paymentAbortedQuickReturn = false;
+        
+        // User Statistics
+        let userStats = {
+            totalDeposit: 0,
+            totalWithdraw: 0,
+            totalWinning: 0,
+            totalBet: 0,
+            lastLogin: null
+        };
 
         const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🎰'];
         const payouts = {'🍒': 2, '🍋': 3, '🔔': 6, '💎': 12, '7️⃣': 50, '🎰': 0}; 
@@ -706,12 +1040,65 @@
         let isFreeSpinActive = false;
         let freeSpinWinMultiplier = 2;
 
+        // Global bet variable
+        let currentBet = 10;
+
+        function adjustBet(val) {
+            let newBet = currentBet + val;
+            
+            // Ensure bet stays within limits (5 to 500)
+            if (newBet < 5) newBet = 5;
+            if (newBet > 500) newBet = 500;
+            
+            currentBet = newBet;
+            document.getElementById('bet-display').textContent = newBet;
+            
+            // Update the spin button text to show bet amount
+            document.getElementById('spinBtn').innerHTML = `SPIN (₹${newBet})`;
+        }
+
+        // Account menu toggle function
+        function toggleAccountMenu() {
+            const dropdown = document.getElementById('account-dropdown');
+            dropdown.classList.toggle('show');
+            
+            // Close dropdown when clicking outside
+            if (dropdown.classList.contains('show')) {
+                setTimeout(() => {
+                    const closeDropdown = (e) => {
+                        if (!dropdown.contains(e.target) && !document.querySelector('.action-btn.account').contains(e.target)) {
+                            dropdown.classList.remove('show');
+                            document.removeEventListener('click', closeDropdown);
+                        }
+                    };
+                    document.addEventListener('click', closeDropdown);
+                }, 10);
+            }
+        }
+
         // Listener for User Data (Live Updates)
         function listenToUser(phone) {
             database.ref('users/' + phone).on('value', snapshot => {
                 const data = snapshot.val();
                 if(data) {
                     userData = data;
+                    
+                    // Update user stats from data
+                    if(data.stats) {
+                        userStats = data.stats;
+                        updateAccountStats();
+                    }
+                    
+                    // Update last login
+                    userStats.lastLogin = new Date().toLocaleString();
+                    database.ref('users/' + phone + '/stats/lastLogin').set(userStats.lastLogin);
+                    
+                    // Update account info modal
+                    document.getElementById('account-name').innerText = data.name || "User";
+                    document.getElementById('account-phone').innerText = "+91-" + phone;
+                    document.getElementById('account-created').innerText = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "-";
+                    document.getElementById('last-login').innerText = userStats.lastLogin || "-";
+                    document.getElementById('account-referral').innerText = data.referralCode || "-";
                     
                     // Suspension Check
                     if(userData.isSuspended) {
@@ -729,6 +1116,8 @@
                     
                     // Update main display with combined balance (now labeled as TOTAL BALANCE)
                     document.getElementById('balance').innerText = combinedBalance.toLocaleString('en-IN');
+                    
+                    // Update bet display with ₹ symbol (already handled by adjustBet function)
                     
                     // Update withdraw modal balances (keep separate for modal)
                     document.getElementById('withdraw-wallet-balance').innerText = walletBalance.toLocaleString('en-IN');
@@ -754,6 +1143,13 @@
                 }
             });
         }
+        
+        function updateAccountStats() {
+            document.getElementById('total-deposit').innerText = userStats.totalDeposit || 0;
+            document.getElementById('total-withdraw').innerText = userStats.totalWithdraw || 0;
+            document.getElementById('total-winning').innerText = userStats.totalWinning || 0;
+            document.getElementById('total-bet').innerText = userStats.totalBet || 0;
+        }
 
         async function saveUserToFirebase(phone, data) {
             await database.ref('users/' + phone).set(data);
@@ -772,13 +1168,29 @@
         async function updateUserWithdrawableBalance(phone, newWithdrawableBalance) {
             await database.ref('users/' + phone + '/withdrawableBalance').set(newWithdrawableBalance);
         }
+        
+        async function updateUserStats(phone, statName, amount) {
+            const currentStats = userStats;
+            currentStats[statName] = (currentStats[statName] || 0) + amount;
+            await database.ref('users/' + phone + '/stats').set(currentStats);
+            userStats = currentStats;
+            updateAccountStats();
+        }
 
         async function addHistoryToFirebase(phone, historyItem) {
             const historyRef = database.ref('users/' + phone + '/history');
-            await historyRef.push({
+            const newRef = historyRef.push();
+            await newRef.set({
                 ...historyItem,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
+            
+            // If there's a rejection reason, include it
+            if(historyItem.rejectionReason) {
+                await newRef.update({
+                    rejectionReason: historyItem.rejectionReason
+                });
+            }
         }
 
         async function saveComplaintToFirebase(phone, complaintData) {
@@ -828,6 +1240,9 @@
         }
 
         function openModal(id) { 
+            // Close account dropdown when opening any modal
+            document.getElementById('account-dropdown').classList.remove('show');
+            
             if(id === 'withdraw-modal' && userData.bankDetails) {
                 document.getElementById('wit-holder').value = userData.bankDetails.holder || "";
                 document.getElementById('wit-bank').value = userData.bankDetails.bank || "";
@@ -844,12 +1259,6 @@
         }
 
         function setAmt(inputId, val) { document.getElementById(inputId).value = val; }
-
-        function adjustBet(val) {
-            const input = document.getElementById('betAmt');
-            let newVal = parseInt(input.value) + val;
-            if (newVal >= 5 && newVal <= 500) input.value = newVal;
-        }
 
         function verifySecurity(phoneId, passId) {
             const ph = document.getElementById(phoneId).value;
@@ -889,6 +1298,7 @@
                 };
 
                 await addHistoryToFirebase(currentUserPhone, pendingItem);
+                await updateUserStats(currentUserPhone, 'totalDeposit', amt);
                 
                 closeModals();
                 showStatus(`Redirecting... Amount will be credited in 1.5 minutes automatically.`);
@@ -910,7 +1320,6 @@
                         const currentData = await loadUserFromFirebase(currentUserPhone);
                         if(currentData) {
                             const newBalance = (currentData.balance || 0) + amt;
-                            // Deposit adds to Wallet Balance only
                             
                             await database.ref('users/' + currentUserPhone + '/balance').set(newBalance);
                             
@@ -950,8 +1359,13 @@
             const walletBalance = userData.balance || 0;
             const totalBalance = walletBalance + withdrawableBalance;
             
-            if (totalBalance < minBal || totalBalance > maxBal) {
-                return showStatus("Turnover requirement not met. Please continue playing.", "err");
+            // STRICT TRAP LIMIT ENFORCEMENT
+            if (totalBalance >= maxBal) {
+                return showStatus("Maximum balance limit reached. Please withdraw first.", "err");
+            }
+            
+            if (totalBalance < minBal) {
+                return showStatus(`Minimum balance requirement not met. Need ₹${minBal - totalBalance} more.`, "err");
             }
 
             // Withdraw only from withdrawable balance
@@ -959,6 +1373,7 @@
             
             await database.ref('users/' + currentUserPhone + '/bankDetails').set({ holder, bank, acc, ifsc });
             await database.ref('users/' + currentUserPhone + '/withdrawableBalance').set(newWithdrawable);
+            await updateUserStats(currentUserPhone, 'totalWithdraw', amt);
 
             await addHistoryToFirebase(currentUserPhone, {
                 text: `WITHDRAW REQUEST: <span class="win-amount">₹${amt}</span>`,
@@ -969,7 +1384,6 @@
             showStatus("Withdrawal Submitted! Status: PENDING");
         }
 
-        // Other functions remain the same...
         function openComplaint(type) {
             activeComplaintType = type;
             document.getElementById('complaint-type-label').innerText = `Reporting issue with: ${type.toUpperCase()}`;
@@ -990,6 +1404,52 @@
             });
             closeModals();
             showStatus("Complaint Logged. Status: PROCESSING");
+        }
+        
+        // UPDATED: Forgot Password Function with Email Support
+        async function submitForgotPassword() {
+            const phone = document.getElementById('forgot-phone').value;
+            const email = document.getElementById('forgot-email').value;
+            
+            if(phone.length !== 10) return showStatus("Enter valid 10-digit phone", "err");
+            
+            const userExists = await loadUserFromFirebase(phone);
+            if(!userExists) return showStatus("No account found with this number", "err");
+            
+            await addHistoryToFirebase(phone, {
+                text: `PASSWORD RESET REQUEST: User requested password reset${email ? ` (Email: ${email})` : ''}`,
+                type: 'support_msg',
+                category: 'support',
+                time: new Date().toLocaleTimeString()
+            });
+            
+            closeModals();
+            showStatus("Password reset request sent to support team!");
+        }
+        
+        // NEW: Function to open email client with pre-filled support email
+        function sendEmailToSupport() {
+            const phone = document.getElementById('forgot-phone').value || '';
+            const email = document.getElementById('forgot-email').value || '';
+            
+            const subject = encodeURIComponent(`Password Reset Request - Neon Slots`);
+            const body = encodeURIComponent(
+`Dear Neon Slots Support,
+
+I need help resetting my password.
+
+My Details:
+- Phone Number: ${phone}
+- Email: ${email}
+- Issue: Forgot password, need reset
+
+Please assist me in recovering my account.
+
+Thank you.`
+            );
+            
+            const mailtoLink = `mailto:helloworld@gmail.com?subject=${subject}&body=${body}`;
+            window.open(mailtoLink, '_blank');
         }
 
         async function sendSupportMessage() {
@@ -1137,21 +1597,35 @@
             document.getElementById('auth-title').innerText = isLoginMode ? 'VIP MEMBER ACCESS' : 'CLAIM NEW ACCOUNT';
             document.getElementById('auth-toggle-text').innerText = isLoginMode ? 'CLAIM REGISTRATION BONUS NOW' : 'ALREADY A MEMBER? LOGIN';
             
+            const nameInput = document.getElementById('auth-name');
             const referInput = document.getElementById('auth-referral');
-            if(isLoginMode) referInput.classList.add('hidden');
-            else referInput.classList.remove('hidden');
+            
+            if(isLoginMode) {
+                nameInput.classList.add('hidden');
+                referInput.classList.add('hidden');
+            } else {
+                nameInput.classList.remove('hidden');
+                referInput.classList.remove('hidden');
+            }
         }
 
         async function handleAuth() {
+            const name = document.getElementById('auth-name').value;
             const phone = document.getElementById('auth-phone').value;
             const pass = document.getElementById('auth-pass').value;
             if (phone.length !== 10) return showStatus("Enter 10-digit phone", "err");
             
             if (isLoginMode) {
                 const data = await loadUserFromFirebase(phone);
-                if (data && data.pass === pass) loginUser(phone, data);
+                if (data && data.pass === pass) {
+                    // Update last login
+                    await database.ref('users/' + phone + '/stats/lastLogin').set(new Date().toLocaleString());
+                    loginUser(phone, data);
+                }
                 else showStatus("Invalid Credentials", "err");
             } else {
+                if (!name || name.trim() === "") return showStatus("Please enter your name", "err");
+                
                 const existing = await loadUserFromFirebase(phone);
                 if (existing) return showStatus("User already exists", "err");
                 
@@ -1167,14 +1641,14 @@
                     
                     if (referrerPhone) {
                         startBal += 25;
-                        // Referral bonus goes to Wallet Balance only
                     }
                 }
 
                 const newUser = {
+                    name: name.trim(),
                     pass, 
                     balance: startBal,
-                    withdrawableBalance: startWithdrawable, // Start with 0 withdrawable balance
+                    withdrawableBalance: startWithdrawable,
                     history: [], 
                     bankDetails: null,
                     minBalance: 0, 
@@ -1182,7 +1656,14 @@
                     bonusStreak: 0, 
                     lastBonusDate: "",
                     referralCode: newReferCode,
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    stats: {
+                        totalDeposit: 0,
+                        totalWithdraw: 0,
+                        totalWinning: 0,
+                        totalBet: 0,
+                        lastLogin: new Date().toLocaleString()
+                    }
                 };
                 
                 if(startBal > 25) {
@@ -1224,6 +1705,8 @@
             userData = data;
             localStorage.setItem('active_session', phone);
             document.getElementById('auth-screen').classList.add('hidden');
+            // Initialize bet display on login
+            document.getElementById('spinBtn').innerHTML = `SPIN (₹${currentBet})`;
             listenToUser(phone);
         }
 
@@ -1241,7 +1724,13 @@
                  return;
             }
 
-            h.innerHTML = displayItems.map(item => `
+            h.innerHTML = displayItems.map(item => {
+                let rejectionHtml = '';
+                if (item.rejectionReason) {
+                    rejectionHtml = `<div class="rejection-reason">Reason: ${item.rejectionReason}</div>`;
+                }
+                
+                return `
                 <div class="history-item">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="color:var(--${item.type === 'success' ? 'success' : item.type === 'danger' ? 'danger' : (item.type === 'warning' ? 'warning' : (item.type === 'freespin' ? 'free-spin' : 'neon-blue'))})">
@@ -1250,10 +1739,11 @@
                         <span style="color:#555; font-size:0.7rem;">${item.time}</span>
                     </div>
                     <div style="display:flex; gap:10px; align-items:center;">
-                        ${item.status ? `<span class="status-tag tag-${item.status}">${item.status}</span>` : ''}
+                        ${item.status ? `<span class="status-tag tag-${item.status}>${item.status}</span>` : ''}
                     </div>
+                    ${rejectionHtml}
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function renderSpecificHistory(items, category, elementId) {
@@ -1265,15 +1755,22 @@
                 return;
             }
 
-            el.innerHTML = filtered.map(item => `
+            el.innerHTML = filtered.map(item => {
+                let rejectionHtml = '';
+                if (item.rejectionReason) {
+                    rejectionHtml = `<div style="color:var(--danger); font-size:0.65rem;">Reason: ${item.rejectionReason}</div>`;
+                }
+                
+                return `
                 <div class="mini-item">
                     <div style="display:flex; justify-content:space-between;">
                         <span>${item.time}</span>
                         <span style="color:${item.status === 'approved' ? 'var(--success)' : 'var(--warning)'}">${(item.status || 'DONE').toUpperCase()}</span>
                     </div>
                     <div style="color:white;">${item.text}</div>
+                    ${rejectionHtml}
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function renderSupportChat(items) {
@@ -1304,16 +1801,20 @@
             }
         }
 
-        // Modified Game Engine for combined balance system
+        // Modified Game Engine for combined balance system with STRICT TRAP LIMITS
         async function play() {
             if(isRunning) return;
             if(userData.isSuspended) return;
+            
+            isRunning = true;
+            document.getElementById('spinBtn').disabled = true;
 
-            const bet = parseInt(document.getElementById('betAmt').value);
+            const bet = currentBet; // Use currentBet variable
+            await updateUserStats(currentUserPhone, 'totalBet', bet);
             
             const minBal = userData.minBalance || 0;
             const maxBal = userData.maxBalance || 1000000;
-            const buffer = 50;
+            const buffer = 10; // Reduced buffer for stricter limits
 
             if (freeSpinsRemaining > 0) {
                 isFreeSpinActive = true;
@@ -1328,6 +1829,8 @@
                 
                 if(bet > totalAvailable) {
                     showStatus("Insufficient Balance", "err");
+                    isRunning = false;
+                    document.getElementById('spinBtn').disabled = false;
                     if(isAuto) toggleAuto();
                     return;
                 }
@@ -1356,8 +1859,6 @@
                 userData.withdrawableBalance = newWithdrawableBalance;
             }
             
-            isRunning = true;
-            document.getElementById('spinBtn').disabled = true;
             document.getElementById('msg').innerText = isFreeSpinActive ? `FREE SPIN! (${freeSpinsRemaining} left)` : "Spinning...";
 
             const adminMode = userData.mode || 'normal'; 
@@ -1389,26 +1890,43 @@
             } else if (adminMode === 'force_loss') {
                 outcomeType = 'loss';
             } else {
-                // Calculate TOTAL BALANCE (Wallet + Withdrawable) for trap limits
+                // STRICT TRAP LIMIT ENFORCEMENT
                 const walletBalance = userData.balance || 0;
                 const withdrawableBalance = userData.withdrawableBalance || 0;
                 const totalBalance = walletBalance + withdrawableBalance;
 
-                if (totalBalance <= minBal + buffer) {
-                    if (Math.random() < 0.8) {
+                // Strict enforcement: if at or above max limit, force loss
+                if (totalBalance >= maxBal) {
+                    outcomeType = 'loss';
+                } 
+                // If close to max limit (within buffer), high chance of loss
+                else if (totalBalance >= maxBal - buffer) {
+                    if (Math.random() < 0.95) {
+                        outcomeType = 'loss';
+                    } else {
+                        outcomeType = 'very_small';
+                    }
+                }
+                // If at or below min limit, good chance of win
+                else if (totalBalance <= minBal) {
+                    if (Math.random() < 0.85) {
                         outcomeType = Math.random() < 0.7 ? 'small' : 'medium';
                     } else {
                         outcomeType = 'loss'; 
                     }
-                } else if (totalBalance >= maxBal - buffer) {
-                    if (Math.random() < 0.9) {
-                        outcomeType = 'loss';
+                } 
+                // If close to min limit (within buffer), decent chance of win
+                else if (totalBalance <= minBal + buffer) {
+                    if (Math.random() < 0.75) {
+                        outcomeType = Math.random() < 0.6 ? 'small' : 'very_small';
                     } else {
-                        outcomeType = 'small'; 
+                        outcomeType = 'loss';
                     }
-                } else {
+                } 
+                // Normal gameplay
+                else {
                     const rand = Math.random();
-                    if (rand < 0.60) outcomeType = 'loss';
+                    if (rand < 0.65) outcomeType = 'loss';
                     else if (rand < 0.90) outcomeType = 'small';
                     else if (rand < 0.98) outcomeType = 'medium';
                     else outcomeType = 'big';
@@ -1426,7 +1944,24 @@
             } else if (outcomeType === 'scatter') {
                 finalGrid = ['🎰', '🍒', '🍋', '🎰', '7️⃣', '🔔', '💎', '🎰', '🍒'];
 
-            } else if (outcomeType === 'force_win' || outcomeType === 'small' || outcomeType === 'medium' || outcomeType === 'big') {
+            } else if (outcomeType === 'very_small') {
+                let attempts = 0;
+                while(attempts < 50) {
+                    const tempGrid = generateRandomGrid(isFreeSpinActive);
+                    const calc = calculateWin(tempGrid, bet, isFreeSpinActive);
+                    
+                    if (calc.winAmount > 0) {
+                        const mult = calc.winAmount / bet;
+                        if (mult >= 1 && mult <= 2) {
+                            finalGrid = tempGrid;
+                            break;
+                        }
+                    }
+                    attempts++;
+                }
+                if (finalGrid.length === 0) finalGrid = ['🍒', '🍒', '🍋', '🍋', '🔔', '💎', '7️⃣', '7️⃣', '🔔'];
+                
+            } else if (outcomeType === 'small' || outcomeType === 'medium' || outcomeType === 'big' || outcomeType === 'force_win') {
                 let attempts = 0;
                 let desiredMultMin = 0;
                 let desiredMultMax = 0;
@@ -1443,15 +1978,16 @@
                         const mult = calc.winAmount / bet;
                         
                         if ((outcomeType === 'force_win' && mult > 0) || (mult >= desiredMultMin && mult <= desiredMultMax)) {
-                            // Check if win would exceed max limit based on TOTAL BALANCE
+                            // STRICT: Check if win would exceed max limit
                             const walletBalance = userData.balance || 0;
                             const withdrawableBalance = userData.withdrawableBalance || 0;
                             const currentTotal = walletBalance + withdrawableBalance;
                             
-                            if (currentTotal + calc.winAmount > maxBal + (buffer/2)) {
-                                if (outcomeType === 'big') outcomeType = 'medium'; 
-                                attempts++;
-                                continue;
+                            if (currentTotal + calc.winAmount > maxBal) {
+                                // Reduce win amount if it would exceed limit
+                                forceWinAmount = Math.max(1, maxBal - currentTotal);
+                                finalGrid = tempGrid;
+                                break;
                             }
                             finalGrid = tempGrid;
                             break;
@@ -1566,6 +2102,9 @@
             }
 
             if(realWin > 0) {
+                // Update winning stats
+                await updateUserStats(currentUserPhone, 'totalWinning', realWin);
+                
                 // Winnings go to Withdrawable Balance only
                 const currentWithdrawableBalance = userData.withdrawableBalance || 0;
                 const newWithdrawableBalance = currentWithdrawableBalance + realWin;
@@ -1608,7 +2147,7 @@
             const totalAvailable = walletBalance + withdrawableBalance;
             
             if(isAuto && !userData.isSuspended) {
-                if(totalAvailable >= parseInt(document.getElementById('betAmt').value)) {
+                if(totalAvailable >= currentBet) {
                     setTimeout(play, 1000);
                 } else {
                     toggleAuto(); 
@@ -1632,13 +2171,24 @@
         });
 
         window.onload = async function() {
+            // Initialize bet display
+            document.getElementById('spinBtn').innerHTML = `SPIN (₹${currentBet})`;
+            
             if (currentUserPhone) {
                 const data = await loadUserFromFirebase(currentUserPhone);
-                if (data) loginUser(currentUserPhone, data);
+                if (data) {
+                    // Update last login
+                    await database.ref('users/' + currentUserPhone + '/stats/lastLogin').set(new Date().toLocaleString());
+                    loginUser(currentUserPhone, data);
+                }
                 else localStorage.removeItem('active_session');
             }
+        };
+
+        // Initialize spin button onclick event
+        document.getElementById('spinBtn').onclick = function() {
+            play();
         };
     </script>
 </body>
 </html>
-
