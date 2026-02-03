@@ -235,6 +235,19 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            position: relative;
+        }
+        
+        /* Notification dot for support button */
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            animation: pulse 1s infinite;
         }
         
         .action-btn:hover {
@@ -369,7 +382,6 @@
             padding: 15px; 
             border: none; 
             border-radius: 8px; 
-
             font-size: 1rem; 
             font-weight: bold; 
             cursor: pointer; 
@@ -706,6 +718,74 @@
             margin-bottom: 5px;
             display: block;
         }
+        
+        /* Referred Friends List */
+        .referred-friends-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .friend-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .friend-phone {
+            color: var(--neon-blue);
+            font-weight: bold;
+        }
+        
+        .friend-date {
+            color: #888;
+            font-size: 0.7rem;
+        }
+        
+        /* Support Chat Notification */
+        .support-notification {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.6rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        /* Fraud Warning */
+        .fraud-warning {
+            background: rgba(255, 71, 87, 0.2);
+            border: 1px solid var(--danger);
+            padding: 8px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.7rem;
+            color: #ff9f9f;
+            text-align: center;
+        }
+        
+        /* Active Sessions */
+        .session-warning {
+            background: rgba(255, 165, 2, 0.2);
+            border: 1px solid var(--warning);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+            color: #ffd700;
+        }
     </style>
 </head>
 <body>
@@ -788,6 +868,11 @@
                 <p style="color: white; font-size: 0.9rem; font-weight: bold; text-align: center;">helloworld@gmail.com</p>
             </div>
             
+            <!-- Password Reset via Email -->
+            <button class="email-support-btn" onclick="sendPasswordResetEmail()">
+                <span class="email-icon">🔐</span> RESET PASSWORD VIA EMAIL
+            </button>
+            
             <!-- Quick Support Chat Button -->
             <button class="quick-support-btn" onclick="openQuickSupportChat()">
                 <span class="email-icon">💬</span> CHAT WITH SUPPORT
@@ -824,6 +909,11 @@
     </div>
 
     <div id="auth-screen">
+        <!-- Session Warning -->
+        <div id="session-warning" class="session-warning hidden">
+            ⚠️ Your account is already logged in on another device. You have been logged out for security.
+        </div>
+        
         <div class="live-users">
             <div class="online-dot"></div> <span id="live-count">24,839</span> Players Online
         </div>
@@ -845,6 +935,11 @@
             
             <!-- Optional Referral Code Field -->
             <input type="text" id="auth-referral" class="auth-input hidden" placeholder="🎟️ Referral Code (Optional)">
+            
+            <!-- Fraud Warning -->
+            <div class="fraud-warning hidden" id="fraud-warning">
+                ⚠️ Don't try to fraud! Invalid mobile number detected.
+            </div>
             
             <button class="btn btn-greedy" onclick="handleAuth()">LOGIN & WIN BIG 🎰</button>
             
@@ -900,7 +995,7 @@
             <button class="pay-btn btn-withdraw" onclick="triggerWithdraw()">PLACE WITHDRAWAL</button>
 
             <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
                 <h4 style="color: #aaa; font-size: 0.8rem;">Recent Withdrawals</h4>
                 <button onclick="openComplaint('withdraw')" style="background:none; border:none; color:var(--warning); font-size:0.7rem; cursor:pointer; text-decoration:underline;">Report Issue</button>
             </div>
@@ -953,11 +1048,17 @@
         </div>
     </div>
 
-    <!-- Complaint Modal -->
+    <!-- Updated Complaint Modal with Amount Field -->
     <div id="complaint-modal" class="modal hidden">
         <div class="auth-card">
             <h3 style="color: var(--neon-blue); text-align: center; margin-bottom: 10px;">File a Complaint</h3>
             <p id="complaint-type-label" style="font-size: 0.8rem; color: #888; margin-bottom: 10px;"></p>
+            
+            <!-- Amount Input for Deposit/Withdrawal complaints -->
+            <div id="complaint-amount-container" class="hidden">
+                <input type="number" id="complaint-amount" class="auth-input" placeholder="Enter Amount (₹)">
+            </div>
+            
             <div id="utr-container">
                 <input type="text" id="complaint-ref" class="auth-input" placeholder="UTR / Reference Number">
             </div>
@@ -989,6 +1090,7 @@
         </div>
     </div>
 
+    <!-- Updated Refer Modal with Referred Friends List -->
     <div id="refer-modal" class="modal hidden">
         <div class="auth-card">
             <h3 style="color: var(--success); text-align: center; margin-bottom: 5px;">Refer & Earn</h3>
@@ -1011,22 +1113,47 @@
                 </div>
             </div>
 
+            <!-- Referred Friends List -->
+            <div style="margin-top: 20px;">
+                <h4 style="color: #aaa; font-size: 0.8rem; margin-bottom: 10px;">Your Referred Friends</h4>
+                <div id="referred-friends-list" class="referred-friends-list">
+                    <!-- Friends will be populated here -->
+                </div>
+            </div>
+
             <button class="whatsapp-btn" onclick="shareToWhatsapp()">Share on WhatsApp</button>
             <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Close</button>
         </div>
     </div>
 
+    <!-- Updated Support Modal with Live Chat Look -->
     <div id="support-modal" class="modal hidden">
         <div class="auth-card" style="height: 80vh; display: flex; flex-direction: column;">
-            <h3 style="color: var(--success); text-align: center; margin-bottom: 10px;">🎧 Live Support</h3>
+            <h3 style="color: var(--success); text-align: center; margin-bottom: 10px;">
+                🎧 Live Support 
+                <span id="support-notification" class="support-notification hidden">1</span>
+            </h3>
+            <p style="color:#888; text-align:center; font-size:0.8rem; margin-bottom:10px;">Our all customers are live, you can ask anything related issues</p>
+            
+            <!-- Support Marquee -->
+            <div class="announcement-bar" style="margin-bottom: 15px; font-size: 0.75rem;">
+                <div class="marquee">💬 Live Support Available 24/7 • Instant Response • All Issues Resolved Quickly • Contact: helloworld@gmail.com</div>
+            </div>
+            
             <div id="support-chat-area" style="flex:1; background:#111; border:1px solid #333; border-radius:8px; padding:10px; overflow-y:auto; margin-bottom:10px; display:flex; flex-direction:column; gap:10px;">
                 <!-- Chat messages go here -->
+                <div style="align-self: flex-start; max-width: 80%;">
+                    <div style="background: #222; color: #fff; padding: 8px; border-radius: 8px; font-size: 0.85rem;">
+                        Welcome to Neon Slots Support! How can we help you today?
+                    </div>
+                    <div style="font-size: 0.6rem; color: #666; text-align: left; margin-top: 2px;">Just now</div>
+                </div>
             </div>
             <div style="display:flex; gap:5px;">
-                <input type="text" id="support-input" class="auth-input" style="margin:0;" placeholder="Type a message...">
-                <button class="btn btn-blue" style="padding:0 15px;" onclick="sendSupportMessage()">➤</button>
+                <input type="text" id="support-input" class="auth-input" style="margin:0;" placeholder="Type your message...">
+                <button class="btn btn-blue" style="padding:0 15px; background: var(--neon-blue);" onclick="sendSupportMessage()">➤</button>
             </div>
-            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:10px; cursor:pointer;">Close</button>
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:10px; cursor:pointer;">Close Chat</button>
         </div>
     </div>
 
@@ -1057,7 +1184,7 @@
     <div class="container">
         <div style="text-align:center; font-weight: bold; color: var(--neon-blue); margin-bottom:15px; font-size:1.5rem; text-shadow: 0 0 10px var(--neon-blue);">NEON SLOTS</div>
 
-        <!-- UPDATED TOP NAVIGATION -->
+        <!-- UPDATED TOP NAVIGATION with Support Notification -->
         <div class="top-nav">
             <!-- Left side: Account dropdown menu -->
             <div class="account-menu">
@@ -1078,11 +1205,14 @@
                 </div>
             </div>
             
-            <!-- Right side: Bonus, Refer, Support -->
+            <!-- Right side: Bonus, Refer, Support with Notification -->
             <div class="app-actions">
                 <button class="action-btn bonus" onclick="openBonusModal()">🎁 Bonus</button>
                 <button class="action-btn refer" onclick="openReferModal()">👥 Refer</button>
-                <button class="action-btn support" onclick="openModal('support-modal')">🎧 Support</button>
+                <button class="action-btn support" onclick="openModal('support-modal')">
+                    🎧 Support
+                    <span id="support-badge" class="notification-dot hidden"></span>
+                </button>
             </div>
         </div>
 
@@ -1327,6 +1457,10 @@
             totalBet: 0,
             lastLogin: null
         };
+        
+        // Support Notification
+        let hasNewSupportMessage = false;
+        let lastSupportCheck = 0;
 
         const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🎰'];
         const payouts = {'🍒': 2, '🍋': 3, '🔔': 6, '💎': 12, '7️⃣': 50, '🎰': 0}; 
@@ -1427,7 +1561,7 @@
                     document.getElementById('withdraw-wallet-balance').innerText = walletBalance.toLocaleString('en-IN');
                     document.getElementById('withdraw-available-balance').innerText = withdrawableBalance.toLocaleString('en-IN');
 
-                    // History (Logs)
+                    // History (Logs) - Only show successful deposits/withdrawals in account info
                     if (userData.history) {
                         const historyArray = Object.entries(userData.history).map(([key, val]) => val);
                         historyArray.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
@@ -1435,6 +1569,9 @@
                         renderSpecificHistory(historyArray, 'deposit', 'deposit-history');
                         renderSpecificHistory(historyArray, 'withdraw', 'withdraw-history');
                         renderSupportChat(historyArray);
+                        
+                        // Check for new support messages
+                        checkForNewSupportMessages(historyArray);
                     } else {
                          document.getElementById('history').innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No activity yet</div>';
                     }
@@ -1449,18 +1586,126 @@
                     if(data.usedPromoCodes) {
                         // Do nothing, just store it
                     }
+                    
+                    // Load referred friends
+                    if(userData.referralCode) {
+                        loadReferredFriends(userData.referralCode);
+                    }
                 }
             });
         }
         
+        // NEW: Check for new support messages
+        function checkForNewSupportMessages(historyArray) {
+            const supportMessages = historyArray.filter(item => 
+                (item.category === 'support' || item.type === 'info' || item.type === 'support_msg') && 
+                item.timestamp > lastSupportCheck
+            );
+            
+            if(supportMessages.length > 0 && !hasNewSupportMessage) {
+                hasNewSupportMessage = true;
+                updateSupportNotification();
+                lastSupportCheck = Date.now();
+            }
+        }
+        
+        // NEW: Update support notification badge
+        function updateSupportNotification() {
+            const badge = document.getElementById('support-badge');
+            const modalBadge = document.getElementById('support-notification');
+            
+            if(hasNewSupportMessage) {
+                badge.classList.remove('hidden');
+                modalBadge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+                modalBadge.classList.add('hidden');
+            }
+        }
+        
+        // NEW: Load referred friends
+        async function loadReferredFriends(referralCode) {
+            try {
+                // Get all users who used this referral code
+                const snapshot = await database.ref('users').once('value');
+                const users = snapshot.val();
+                const referredFriends = [];
+                
+                for(const phone in users) {
+                    if(users[phone].referredBy === referralCode) {
+                        referredFriends.push({
+                            phone: phone,
+                            date: users[phone].createdAt || new Date().toISOString()
+                        });
+                    }
+                }
+                
+                // Also check if userData has referredFriends array
+                if(userData.referredFriends && Array.isArray(userData.referredFriends)) {
+                    referredFriends.push(...userData.referredFriends);
+                }
+                
+                renderReferredFriends(referredFriends);
+            } catch(error) {
+                console.error("Error loading referred friends:", error);
+            }
+        }
+        
+        // NEW: Render referred friends list
+        function renderReferredFriends(friends) {
+            const container = document.getElementById('referred-friends-list');
+            
+            if(friends.length === 0) {
+                container.innerHTML = '<div style="color:#666; text-align:center; padding:20px; font-size:0.8rem;">No friends referred yet</div>';
+                return;
+            }
+            
+            container.innerHTML = friends.map(friend => {
+                const date = new Date(friend.date);
+                return `
+                    <div class="friend-item">
+                        <div>
+                            <div class="friend-phone">+91-${friend.phone.substring(0, 4)}XXXXXX</div>
+                            <div class="friend-date">Joined: ${date.toLocaleDateString()}</div>
+                        </div>
+                        <div style="color:var(--success); font-weight:bold;">₹25</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
         function updateAccountStats() {
-            document.getElementById('total-deposit').innerText = userStats.totalDeposit || 0;
-            document.getElementById('total-withdraw').innerText = userStats.totalWithdraw || 0;
+            // Calculate only successful deposits and withdrawals
+            let successfulDeposits = 0;
+            let successfulWithdrawals = 0;
+            
+            if(userData.history) {
+                const historyArray = Object.entries(userData.history).map(([key, val]) => val);
+                
+                successfulDeposits = historyArray
+                    .filter(item => item.category === 'deposit' && item.status === 'approved')
+                    .reduce((sum, item) => {
+                        const amountMatch = item.text.match(/₹(\d+)/);
+                        return sum + (amountMatch ? parseInt(amountMatch[1]) : 0);
+                    }, 0);
+                    
+                successfulWithdrawals = historyArray
+                    .filter(item => item.category === 'withdraw' && item.status === 'approved')
+                    .reduce((sum, item) => {
+                        const amountMatch = item.text.match(/₹(\d+)/);
+                        return sum + (amountMatch ? parseInt(amountMatch[1]) : 0);
+                    }, 0);
+            }
+            
+            document.getElementById('total-deposit').innerText = successfulDeposits;
+            document.getElementById('total-withdraw').innerText = successfulWithdrawals;
             document.getElementById('total-winning').innerText = userStats.totalWinning || 0;
             document.getElementById('total-bet').innerText = userStats.totalBet || 0;
         }
 
         async function saveUserToFirebase(phone, data) {
+            // Set active session for single device login
+            data.activeSession = Date.now();
             await database.ref('users/' + phone).set(data);
             return true;
         }
@@ -1506,7 +1751,7 @@
             const complaintsRef = database.ref('users/' + phone + '/history').push();
             await complaintsRef.set({
                 ...complaintData,
-                text: `COMPLAINT (${complaintData.type}): ${complaintData.description}`,
+                text: `COMPLAINT (${complaintData.type}): Amount: ₹${complaintData.amount || 'N/A'} - ${complaintData.description}`,
                 category: complaintData.type,
                 userPhone: phone,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
@@ -1569,6 +1814,13 @@
                 document.getElementById('wit-acc').value = userData.bankDetails.acc || "";
                 document.getElementById('wit-ifsc').value = userData.bankDetails.ifsc || "";
             }
+            
+            // Reset support notification when opening support modal
+            if(id === 'support-modal') {
+                hasNewSupportMessage = false;
+                updateSupportNotification();
+            }
+            
             document.getElementById(id).classList.remove('hidden'); 
         }
 
@@ -1768,10 +2020,19 @@
             showStatus("Withdrawal Submitted! Status: PENDING");
         }
 
+        // UPDATED: Complaint function with amount field
         function openComplaint(type) {
             activeComplaintType = type;
             document.getElementById('complaint-type-label').innerText = `Reporting issue with: ${type.toUpperCase()}`;
             document.getElementById('utr-container').classList.remove('hidden');
+            
+            // Show amount field for deposit/withdrawal complaints
+            const amountContainer = document.getElementById('complaint-amount-container');
+            if(type === 'deposit' || type === 'withdraw') {
+                amountContainer.classList.remove('hidden');
+            } else {
+                amountContainer.classList.add('hidden');
+            }
             
             // Play click sound
             sfx.click();
@@ -1779,9 +2040,20 @@
             openModal('complaint-modal');
         }
 
+        // UPDATED: Submit complaint with amount
         async function submitComplaint() {
             const ref = document.getElementById('complaint-ref').value;
             const desc = document.getElementById('complaint-text').value;
+            let amount = '';
+            
+            if(activeComplaintType === 'deposit' || activeComplaintType === 'withdraw') {
+                amount = document.getElementById('complaint-amount').value;
+                if(!amount || parseInt(amount) <= 0) {
+                    showStatus("Please enter valid amount", "err");
+                    return;
+                }
+            }
+            
             if(!ref) {
                 showStatus("Please provide UTR", "err");
                 return;
@@ -1794,6 +2066,7 @@
             
             await saveComplaintToFirebase(currentUserPhone, {
                 type: activeComplaintType,
+                amount: amount,
                 reference: ref,
                 description: desc,
                 rejectionReason: "Under review"
@@ -1801,6 +2074,44 @@
             
             closeModals();
             showStatus("Complaint Logged. Status: PROCESSING");
+        }
+        
+        // NEW: Send password reset email with template
+        function sendPasswordResetEmail() {
+            const phone = document.getElementById('forgot-phone').value;
+            
+            if(phone.length !== 10) {
+                showStatus("Enter valid 10-digit phone", "err");
+                return;
+            }
+            
+            const subject = encodeURIComponent(`Password Reset Request - Neon Slots`);
+            const body = encodeURIComponent(
+`Dear Neon Slots Support Team,
+
+I am requesting a password reset for my account.
+
+My Details:
+- Mobile Number: ${phone}
+- Account Name: Neon Slots User
+
+Please reset my password and send the new credentials to my registered email address or phone number.
+
+I confirm that I am the legitimate owner of this account.
+
+Thank you for your assistance.
+
+Best regards,
+Neon Slots User`
+            );
+            
+            const mailtoLink = `mailto:helloworld@gmail.com?subject=${subject}&body=${body}`;
+            window.open(mailtoLink, '_blank');
+            
+            // Play click sound
+            sfx.click();
+            
+            showStatus("Email template opened. Please send to support.");
         }
         
         // UPDATED: Forgot Password Function with Email Support
@@ -1938,6 +2249,20 @@ Thank you.`
             
             // Play notification sound for new support message
             sfx.notification();
+            
+            // Simulate admin reply after 2 seconds
+            setTimeout(async () => {
+                await addHistoryToFirebase(currentUserPhone, {
+                    text: `Neon Support: Thank you for your message. Our team will get back to you shortly.`,
+                    type: 'info',
+                    category: 'support',
+                    time: new Date().toLocaleTimeString()
+                });
+                
+                // Show notification for new reply
+                hasNewSupportMessage = true;
+                updateSupportNotification();
+            }, 2000);
         }
 
         // --- PROMO CODE FUNCTIONALITY ---
@@ -2166,6 +2491,37 @@ Thank you.`
             window.open(url, '_blank');
         }
 
+        // NEW: Validate mobile number for symmetry and fraud
+        function validateMobileNumber(phone) {
+            // Check length
+            if(phone.length !== 10) return false;
+            
+            // Check if starts with invalid digits (0-5)
+            const firstDigit = parseInt(phone[0]);
+            if(firstDigit >= 0 && firstDigit <= 5) return false;
+            
+            // Check for symmetry (all same digits)
+            const allSame = /^(\d)\1{9}$/.test(phone);
+            if(allSame) return false;
+            
+            // Check for common fraud patterns
+            const fraudPatterns = [
+                /^1234567890$/,
+                /^9876543210$/,
+                /^1111111111$/,
+                /^9999999999$/,
+                /^0000000000$/,
+                /^6666666666$/,
+                /^8888888888$/
+            ];
+            
+            for(const pattern of fraudPatterns) {
+                if(pattern.test(phone)) return false;
+            }
+            
+            return true;
+        }
+
         function toggleAuthMode() {
             // Play click sound
             sfx.click();
@@ -2193,16 +2549,47 @@ Thank you.`
             const name = document.getElementById('auth-name').value;
             const phone = document.getElementById('auth-phone').value;
             const pass = document.getElementById('auth-pass').value;
+            
+            // Validate mobile number
+            if (!validateMobileNumber(phone)) {
+                document.getElementById('fraud-warning').classList.remove('hidden');
+                showStatus("Invalid mobile number. Please enter a valid 10-digit number.", "err");
+                return;
+            } else {
+                document.getElementById('fraud-warning').classList.add('hidden');
+            }
+            
             if (phone.length !== 10) {
                 showStatus("Enter 10-digit phone", "err");
                 return;
             }
             
+            // Check for active session on another device
+            if (isLoginMode) {
+                const data = await loadUserFromFirebase(phone);
+                if (data) {
+                    // Check if already logged in on another device
+                    const currentTime = Date.now();
+                    const lastActive = data.activeSession || 0;
+                    
+                    // If session was active less than 30 seconds ago, show warning
+                    if (currentTime - lastActive < 30000 && currentUserPhone !== phone) {
+                        document.getElementById('session-warning').classList.remove('hidden');
+                        // Log out the other session
+                        await database.ref('users/' + phone + '/activeSession').set(0);
+                        showStatus("Logged out from other device for security", "warning");
+                    }
+                }
+            }
+            
             if (isLoginMode) {
                 const data = await loadUserFromFirebase(phone);
                 if (data && data.pass === pass) {
-                    // Update last login
-                    await database.ref('users/' + phone + '/stats/lastLogin').set(new Date().toLocaleString());
+                    // Update active session and last login
+                    await database.ref('users/' + phone).update({
+                        activeSession: Date.now(),
+                        'stats/lastLogin': new Date().toLocaleString()
+                    });
                     loginUser(phone, data);
                 }
                 else showStatus("Invalid Credentials", "err");
@@ -2230,6 +2617,11 @@ Thank you.`
                     
                     if (referrerPhone) {
                         startBal += 25;
+                        // Track referral
+                        await database.ref('users/' + referrerPhone + '/referredFriends').push({
+                            phone: phone,
+                            date: new Date().toISOString()
+                        });
                     }
                 }
 
@@ -2247,6 +2639,7 @@ Thank you.`
                     referralCode: newReferCode,
                     usedPromoCodes: [],
                     createdAt: new Date().toISOString(),
+                    activeSession: Date.now(),
                     stats: {
                         totalDeposit: 0,
                         totalWithdraw: 0,
@@ -2256,13 +2649,18 @@ Thank you.`
                     }
                 };
                 
+                // Track who referred this user
+                if (referrerPhone) {
+                    newUser.referredBy = referCodeInput;
+                }
+                
                 if(startBal > 25) {
-                     newUser.history.push({
+                     newUser.history = [{
                         text: `WELCOME + REFERRAL BONUS: <span class="win-amount">₹${startBal}</span>`,
                         type: 'success', 
                         timestamp: firebase.database.ServerValue.TIMESTAMP, 
                         time: new Date().toLocaleTimeString()
-                    });
+                    }];
                 }
 
                 if(await saveUserToFirebase(phone, newUser)) {
@@ -2307,6 +2705,11 @@ Thank you.`
             // Play click sound
             sfx.click();
             
+            // Clear active session
+            if(currentUserPhone) {
+                database.ref('users/' + currentUserPhone + '/activeSession').set(0);
+            }
+            
             localStorage.removeItem('active_session'); 
             location.reload(); 
         }
@@ -2350,7 +2753,8 @@ Thank you.`
 
         function renderSpecificHistory(items, category, elementId) {
             const el = document.getElementById(elementId);
-            const filtered = items.filter(i => i.category === category).slice(0, 10);
+            // Show only approved transactions for deposit/withdrawal history
+            const filtered = items.filter(i => i.category === category && i.status === 'approved').slice(0, 10);
             
             if(filtered.length === 0) {
                 el.innerHTML = '<div style="color:#666; text-align:center; font-size:0.7rem;">No records</div>';
@@ -2796,6 +3200,16 @@ Thank you.`
             if (currentUserPhone) {
                 const data = await loadUserFromFirebase(currentUserPhone);
                 if (data) {
+                    // Check for active session on another device
+                    const currentTime = Date.now();
+                    const lastActive = data.activeSession || 0;
+                    
+                    // If session was active less than 30 seconds ago, show warning
+                    if (currentTime - lastActive < 30000) {
+                        document.getElementById('session-warning').classList.remove('hidden');
+                        showStatus("Logged in from another device recently", "warning");
+                    }
+                    
                     // Update last login
                     await database.ref('users/' + currentUserPhone + '/stats/lastLogin').set(new Date().toLocaleString());
                     loginUser(currentUserPhone, data);
@@ -2809,6 +3223,14 @@ Thank you.`
                     sfx.click();
                 });
             });
+            
+            // Initialize support notification check
+            setInterval(() => {
+                if(currentUserPhone && userData.history) {
+                    const historyArray = Object.entries(userData.history).map(([key, val]) => val);
+                    checkForNewSupportMessages(historyArray);
+                }
+            }, 10000);
         };
 
         // Initialize spin button onclick event
