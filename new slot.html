@@ -167,6 +167,7 @@
 
         .amt-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
         .preset-btn { background: #222; border: 1px solid #444; color: white; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+        .preset-btn.active { background: var(--gold); color: black; border-color: var(--gold); }
 
         .pay-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
 
@@ -368,6 +369,7 @@
             padding: 15px; 
             border: none; 
             border-radius: 8px; 
+
             font-size: 1rem; 
             font-weight: bold; 
             cursor: pointer; 
@@ -529,7 +531,7 @@
         .wallet-balance { color: var(--gold); }
         .withdrawable-balance { color: var(--success); }
         
-        /* Rejection Reason Style - UPDATED */
+        /* Rejection Reason Style - REMOVED "Under review" style */
         .rejection-reason {
             font-size: 0.7rem;
             color: var(--danger);
@@ -608,6 +610,102 @@
         .email-icon {
             font-size: 1.2rem;
         }
+        
+        /* Promo Code Input */
+        .promo-input-container {
+            margin: 15px 0;
+        }
+        
+        .promo-input {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            border: 1px solid var(--gold);
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+        
+        .promo-btn {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+        
+        .promo-btn:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+        }
+        
+        /* Quick Support Chat */
+        .quick-support-btn {
+            background: linear-gradient(45deg, var(--neon-blue), #0984e3);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        /* Deposit Amount Presets */
+        .deposit-amount-presets {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .deposit-preset-btn {
+            background: #222;
+            border: 1px solid #444;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .deposit-preset-btn.active {
+            background: var(--gold);
+            color: black;
+            border-color: var(--gold);
+        }
+        
+        .deposit-preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.2);
+        }
+        
+        .manual-amount-container {
+            margin: 15px 0;
+        }
+        
+        .manual-amount-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 5px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -680,23 +778,46 @@
     <!-- Updated Forgot Password Modal with Email Support -->
     <div id="forgot-modal" class="modal hidden">
         <div class="auth-card">
-            <h3 style="color: var(--neon-blue); text-align: center; margin-bottom: 15px;">Forgot Password</h3>
-            <p style="color:#888; text-align:center; font-size:0.8rem; margin-bottom:20px;">We'll send your password reset details to our support team.</p>
+            <h3 style="color: var(--neon-blue); text-align: center; margin-bottom: 15px;">Forgot Password / Need Help?</h3>
+            <p style="color:#888; text-align:center; font-size:0.8rem; margin-bottom:20px;">Enter your phone number to contact support for password reset or other issues.</p>
             
-            <input type="number" id="forgot-phone" class="auth-input" placeholder="📱 Enter Registered Mobile Number">
-            <input type="text" id="forgot-email" class="auth-input" placeholder="📧 Your Email Address (Optional)">
+            <input type="number" id="forgot-phone" class="auth-input" placeholder="📱 Enter Your Mobile Number" required>
             
             <div style="margin: 15px 0; padding: 10px; background: rgba(0, 242, 255, 0.05); border-radius: 8px; border: 1px dashed var(--neon-blue);">
                 <p style="color: var(--neon-blue); font-size: 0.75rem; margin-bottom: 5px; text-align: center;">Support Email</p>
                 <p style="color: white; font-size: 0.9rem; font-weight: bold; text-align: center;">helloworld@gmail.com</p>
             </div>
             
-            <button class="btn btn-spin" style="width: 100%; margin-top: 10px;" onclick="submitForgotPassword()">SEND RESET REQUEST</button>
+            <!-- Quick Support Chat Button -->
+            <button class="quick-support-btn" onclick="openQuickSupportChat()">
+                <span class="email-icon">💬</span> CHAT WITH SUPPORT
+            </button>
             
             <!-- Email Support Button -->
-            <button class="email-support-btn" onclick="sendEmailToSupport()">
+            <button class="email-support-btn" onclick="sendEmailToSupportFromForgot()">
                 <span class="email-icon">📧</span> EMAIL SUPPORT DIRECTLY
             </button>
+            
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Promo Code Modal -->
+    <div id="promo-modal" class="modal hidden">
+        <div class="auth-card">
+            <h3 style="color: var(--gold); text-align: center; margin-bottom: 15px;">🎁 Enter Promo Code</h3>
+            <p style="color:#888; text-align:center; font-size:0.8rem; margin-bottom:20px;">Enter a promo code to claim bonus amount</p>
+            
+            <div class="promo-input-container">
+                <input type="text" id="promo-code-input" class="promo-input" placeholder="ENTER PROMO CODE" maxlength="12">
+            </div>
+            
+            <button id="claim-promo-btn" class="promo-btn" onclick="claimPromoCode()">CLAIM PROMO CODE</button>
+            
+            <div style="margin-top: 20px; padding: 10px; background: rgba(255, 215, 0, 0.05); border-radius: 8px; border: 1px dashed var(--gold);">
+                <p style="color: var(--gold); font-size: 0.75rem; margin-bottom: 5px; text-align: center;">How it works</p>
+                <p style="color: white; font-size: 0.7rem; text-align: center;">Admin creates promo codes with specific amounts. Enter valid code to claim bonus to your wallet balance.</p>
+            </div>
             
             <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Cancel</button>
         </div>
@@ -789,17 +910,27 @@
         </div>
     </div>
 
-    <!-- Deposit Modal -->
+    <!-- Updated Deposit Modal with Preset Amounts -->
     <div id="deposit-modal" class="modal hidden">
         <div class="auth-card">
             <h3 style="color: var(--gold); text-align: center; margin-bottom: 15px;">Add Funds</h3>
-            <label style="font-size: 0.8rem; color: #888;">Deposit Amount (₹)</label>
-            <input type="number" id="dep-amt-input" class="auth-input" value="500">
-            <div class="amt-presets">
-                <button class="preset-btn" onclick="setAmt('dep-amt-input', 500)">+₹500</button>
-                <button class="preset-btn" onclick="setAmt('dep-amt-input', 1000)">+₹1000</button>
-                <button class="preset-btn" onclick="setAmt('dep-amt-input', 2000)">+₹2000</button>
+            
+            <!-- Deposit Amount Presets -->
+            <div class="deposit-amount-presets">
+                <button class="deposit-preset-btn" onclick="selectDepositAmount(20)">₹20</button>
+                <button class="deposit-preset-btn" onclick="selectDepositAmount(50)">₹50</button>
+                <button class="deposit-preset-btn" onclick="selectDepositAmount(100)">₹100</button>
+                <button class="deposit-preset-btn" onclick="selectDepositAmount(500)">₹500</button>
+                <button class="deposit-preset-btn" onclick="selectDepositAmount(1000)">₹1000</button>
+                <button class="deposit-preset-btn" onclick="selectDepositAmount(2000)">₹2000</button>
             </div>
+            
+            <!-- Manual Amount Input -->
+            <div class="manual-amount-container">
+                <label class="manual-amount-label">OR ENTER MANUAL AMOUNT</label>
+                <input type="number" id="dep-amt-input" class="auth-input" placeholder="Enter Amount (₹)" min="10" value="20">
+            </div>
+            
             <div class="security-section">
                 <p style="font-size: 0.7rem; color: var(--gold); margin-bottom: 5px; text-align: center;">VERIFY IDENTITY</p>
                 <input type="number" id="dep-sec-phone" class="auth-input" placeholder="Confirm Phone">
@@ -836,17 +967,24 @@
         </div>
     </div>
 
-    <!-- Other modals remain -->
+    <!-- Bonus Modal with Promo Code Option -->
     <div id="bonus-modal" class="modal hidden">
         <div class="auth-card">
-            <h3 style="color: var(--gold); text-align: center; margin-bottom: 5px;">Daily Rewards</h3>
-            <p style="color:#888; text-align:center; font-size:0.8rem; margin-bottom:20px;">Login every day to collect free cash!</p>
+            <h3 style="color: var(--gold); text-align: center; margin-bottom: 5px;">Daily Rewards & Promo Codes</h3>
+            <p style="color:#888; text-align:center; font-size:0.8rem; margin-bottom:20px;">Login every day to collect free cash or enter promo codes!</p>
             
             <div class="bonus-grid" id="bonus-grid-container">
                 <!-- Populated by JS -->
             </div>
             
-            <button id="claim-bonus-btn" class="bonus-btn-main" onclick="claimDailyBonus()">CLAIM BONUS</button>
+            <button id="claim-bonus-btn" class="bonus-btn-main" onclick="claimDailyBonus()">CLAIM DAILY BONUS</button>
+            
+            <!-- Promo Code Option -->
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
+                <p style="color: var(--neon-blue); text-align: center; font-size: 0.8rem; margin-bottom: 10px;">Have a promo code?</p>
+                <button class="promo-btn" onclick="openPromoModal()">ENTER PROMO CODE</button>
+            </div>
+            
             <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:10px; cursor:pointer;">Close</button>
         </div>
     </div>
@@ -889,6 +1027,30 @@
                 <button class="btn btn-blue" style="padding:0 15px;" onclick="sendSupportMessage()">➤</button>
             </div>
             <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:10px; cursor:pointer;">Close</button>
+        </div>
+    </div>
+
+    <!-- Quick Support Chat Modal -->
+    <div id="quick-support-modal" class="modal hidden">
+        <div class="auth-card">
+            <h3 style="color: var(--neon-blue); text-align: center; margin-bottom: 15px;">💬 Quick Support</h3>
+            <p style="color:#888; text-align:center; font-size:0.8rem; margin-bottom:20px;">Enter your phone number to contact support</p>
+            
+            <input type="number" id="quick-support-phone" class="auth-input" placeholder="📱 Enter Your Mobile Number" required>
+            <textarea id="quick-support-message" class="complaint-area" placeholder="Describe your issue here..." style="height: 100px; margin-top: 10px;"></textarea>
+            
+            <button class="btn btn-spin" style="width: 100%; margin-top: 15px;" onclick="submitQuickSupport()">SEND TO SUPPORT</button>
+            
+            <div style="margin: 15px 0; padding: 10px; background: rgba(0, 242, 255, 0.05); border-radius: 8px; border: 1px dashed var(--neon-blue);">
+                <p style="color: var(--neon-blue); font-size: 0.75rem; margin-bottom: 5px; text-align: center;">Support Email</p>
+                <p style="color: white; font-size: 0.9rem; font-weight: bold; text-align: center;">helloworld@gmail.com</p>
+            </div>
+            
+            <button class="email-support-btn" onclick="sendEmailToSupportFromQuick()">
+                <span class="email-icon">📧</span> EMAIL SUPPORT DIRECTLY
+            </button>
+            
+            <button onclick="closeModals()" style="background:none; border:none; color:#666; width:100%; margin-top:15px; cursor:pointer;">Cancel</button>
         </div>
     </div>
 
@@ -1130,6 +1292,12 @@
             }
         });
 
+        // Promo Codes Listener
+        let promoCodes = {};
+        database.ref('promoCodes').on('value', snap => {
+            promoCodes = snap.val() || {};
+        });
+
         let onlineCount = 24839;
         const countEl = document.getElementById('live-count');
         setInterval(() => {
@@ -1144,6 +1312,7 @@
         let currentUserPhone = localStorage.getItem('active_session');
         let userData = {};
         let activeComplaintType = "";
+        let selectedDepositAmount = 20;
         
         // Payment tracking global vars
         let paymentCheckStartTime = 0;
@@ -1275,6 +1444,11 @@
                         freeSpinsRemaining = userData.freeSpinsRemaining;
                         updateFreeSpinsCounter();
                     }
+                    
+                    // Check for used promo codes
+                    if(data.usedPromoCodes) {
+                        // Do nothing, just store it
+                    }
                 }
             });
         }
@@ -1320,8 +1494,8 @@
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
             
-            // If there's a rejection reason, include it
-            if(historyItem.rejectionReason) {
+            // If there's a rejection reason, include it (removed "Under review" style)
+            if(historyItem.rejectionReason && historyItem.rejectionReason !== "Under review") {
                 await newRef.update({
                     rejectionReason: historyItem.rejectionReason
                 });
@@ -1410,6 +1584,28 @@
         function setAmt(inputId, val) { 
             document.getElementById(inputId).value = val; 
             sfx.click(); // Play click sound for amount preset
+        }
+
+        // Select Deposit Amount function
+        function selectDepositAmount(amount) {
+            selectedDepositAmount = amount;
+            document.getElementById('dep-amt-input').value = amount;
+            
+            // Update active state for buttons
+            document.querySelectorAll('.deposit-preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Find and activate the clicked button
+            const buttons = document.querySelectorAll('.deposit-preset-btn');
+            buttons.forEach(btn => {
+                if (parseInt(btn.textContent.replace('₹', '')) === amount) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Play click sound
+            sfx.click();
         }
 
         function verifySecurity(phoneId, passId) {
@@ -1635,22 +1831,87 @@
         }
         
         // NEW: Function to open email client with pre-filled support email
-        function sendEmailToSupport() {
+        function sendEmailToSupportFromForgot() {
             const phone = document.getElementById('forgot-phone').value || '';
-            const email = document.getElementById('forgot-email').value || '';
             
-            const subject = encodeURIComponent(`Password Reset Request - Neon Slots`);
+            const subject = encodeURIComponent(`Support Request - Neon Slots`);
             const body = encodeURIComponent(
 `Dear Neon Slots Support,
 
-I need help resetting my password.
+I need help with my account.
 
 My Details:
 - Phone Number: ${phone}
-- Email: ${email}
-- Issue: Forgot password, need reset
+- Issue: Forgot password, need reset or other assistance
 
 Please assist me in recovering my account.
+
+Thank you.`
+            );
+            
+            const mailtoLink = `mailto:helloworld@gmail.com?subject=${subject}&body=${body}`;
+            window.open(mailtoLink, '_blank');
+            
+            // Play click sound
+            sfx.click();
+        }
+        
+        // Quick Support Chat Function
+        function openQuickSupportChat() {
+            const phone = document.getElementById('forgot-phone').value;
+            
+            if(phone.length !== 10) {
+                showStatus("Enter valid 10-digit phone", "err");
+                return;
+            }
+            
+            document.getElementById('quick-support-phone').value = phone;
+            closeModals();
+            openModal('quick-support-modal');
+        }
+        
+        // Submit Quick Support
+        async function submitQuickSupport() {
+            const phone = document.getElementById('quick-support-phone').value;
+            const message = document.getElementById('quick-support-message').value;
+            
+            if(phone.length !== 10) {
+                showStatus("Enter valid 10-digit phone", "err");
+                return;
+            }
+            
+            if(!message.trim()) {
+                showStatus("Please enter your message", "err");
+                return;
+            }
+            
+            await addHistoryToFirebase(phone, {
+                text: `SUPPORT REQUEST: ${message}`,
+                type: 'support_msg',
+                category: 'support',
+                time: new Date().toLocaleTimeString()
+            });
+            
+            closeModals();
+            showStatus("Support request sent! We'll contact you soon.");
+        }
+        
+        // Send Email from Quick Support
+        function sendEmailToSupportFromQuick() {
+            const phone = document.getElementById('quick-support-phone').value || '';
+            const message = document.getElementById('quick-support-message').value || '';
+            
+            const subject = encodeURIComponent(`Support Request - Neon Slots`);
+            const body = encodeURIComponent(
+`Dear Neon Slots Support,
+
+I need help with my account.
+
+My Details:
+- Phone Number: ${phone}
+- Issue: ${message}
+
+Please assist me.
 
 Thank you.`
             );
@@ -1677,6 +1938,89 @@ Thank you.`
             
             // Play notification sound for new support message
             sfx.notification();
+        }
+
+        // --- PROMO CODE FUNCTIONALITY ---
+        function openPromoModal() {
+            closeModals();
+            document.getElementById('promo-code-input').value = '';
+            openModal('promo-modal');
+        }
+        
+        async function claimPromoCode() {
+            const promoCode = document.getElementById('promo-code-input').value.trim().toUpperCase();
+            
+            if(!promoCode) {
+                showStatus("Please enter a promo code", "err");
+                return;
+            }
+            
+            // Check if promo code exists
+            if(!promoCodes[promoCode]) {
+                showStatus("Invalid or expired promo code", "err");
+                return;
+            }
+            
+            const promoData = promoCodes[promoCode];
+            
+            // Check if promo code is active
+            if(!promoData.active) {
+                showStatus("This promo code is no longer active", "err");
+                return;
+            }
+            
+            // Check if user has already used this promo code
+            const usedPromoCodes = userData.usedPromoCodes || [];
+            if(usedPromoCodes.includes(promoCode)) {
+                showStatus("You have already claimed this promo code", "err");
+                return;
+            }
+            
+            // Check if promo code has usage limit
+            if(promoData.usageLimit && promoData.usageCount >= promoData.usageLimit) {
+                showStatus("This promo code has reached its usage limit", "err");
+                return;
+            }
+            
+            // Check if promo code has expired
+            if(promoData.expiryDate && new Date(promoData.expiryDate) < new Date()) {
+                showStatus("This promo code has expired", "err");
+                return;
+            }
+            
+            // All checks passed - claim the promo
+            const bonusAmount = promoData.amount || 0;
+            
+            if(bonusAmount <= 0) {
+                showStatus("Invalid bonus amount", "err");
+                return;
+            }
+            
+            // Add to wallet balance
+            const newBalance = (userData.balance || 0) + bonusAmount;
+            await database.ref('users/' + currentUserPhone + '/balance').set(newBalance);
+            
+            // Mark promo code as used by this user
+            usedPromoCodes.push(promoCode);
+            await database.ref('users/' + currentUserPhone + '/usedPromoCodes').set(usedPromoCodes);
+            
+            // Update promo code usage count
+            const newUsageCount = (promoData.usageCount || 0) + 1;
+            await database.ref('promoCodes/' + promoCode + '/usageCount').set(newUsageCount);
+            
+            // Add to history
+            await addHistoryToFirebase(currentUserPhone, {
+                text: `PROMO CODE CLAIMED: <span class="win-amount">₹${bonusAmount}</span> (Code: ${promoCode})`,
+                type: 'success', 
+                category: 'promo',
+                time: new Date().toLocaleTimeString()
+            });
+            
+            closeModals();
+            showStatus(`🎉 Promo code claimed! ₹${bonusAmount} added to your wallet!`);
+            
+            // Play win sound
+            sfx.win();
         }
 
         // --- DAILY BONUS LOGIC ---
@@ -1729,7 +2073,7 @@ Thank you.`
             }
             
             if(canClaim) {
-                btn.innerText = "CLAIM BONUS";
+                btn.innerText = "CLAIM DAILY BONUS";
                 btn.disabled = false;
             } else {
                 btn.innerText = "COME BACK TOMORROW";
@@ -1901,6 +2245,7 @@ Thank you.`
                     bonusStreak: 0, 
                     lastBonusDate: "",
                     referralCode: newReferCode,
+                    usedPromoCodes: [],
                     createdAt: new Date().toISOString(),
                     stats: {
                         totalDeposit: 0,
@@ -1976,8 +2321,9 @@ Thank you.`
             }
 
             h.innerHTML = displayItems.map(item => {
+                // REMOVED: Don't show "Under review" rejection reasons
                 let rejectionHtml = '';
-                if (item.rejectionReason) {
+                if (item.rejectionReason && item.rejectionReason !== "Under review") {
                     rejectionHtml = `<div class="rejection-reason">Reason: ${item.rejectionReason}</div>`;
                 }
                 
@@ -2012,8 +2358,9 @@ Thank you.`
             }
 
             el.innerHTML = filtered.map(item => {
+                // REMOVED: Don't show "Under review" rejection reasons
                 let rejectionHtml = '';
-                if (item.rejectionReason) {
+                if (item.rejectionReason && item.rejectionReason !== "Under review") {
                     rejectionHtml = `<div class="rejection-reason" style="font-size: 0.65rem;">Reason: ${item.rejectionReason}</div>`;
                 }
                 
@@ -2443,6 +2790,9 @@ Thank you.`
             // Initialize bet display
             document.getElementById('spinBtn').innerHTML = `SPIN (₹${currentBet})`;
             
+            // Initialize deposit amount presets
+            selectDepositAmount(20);
+            
             if (currentUserPhone) {
                 const data = await loadUserFromFirebase(currentUserPhone);
                 if (data) {
@@ -2468,4 +2818,3 @@ Thank you.`
     </script>
 </body>
 </html>
-
