@@ -21,6 +21,12 @@
             --warning: #ffa502;
             --modal-bg: rgba(0, 0, 0, 0.95);
             --free-spin: #9b59b6;
+            --vip-0: #666666;
+            --vip-1: #3498db;
+            --vip-2: #2ecc71;
+            --vip-3: #9b59b6;
+            --vip-4: #e74c3c;
+            --vip-5: #f1c40f;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -579,6 +585,91 @@
             color: var(--gold);
         }
         
+        /* VIP Level Badge */
+        .vip-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 10px;
+        }
+        
+        .vip-0 { background: var(--vip-0); color: white; }
+        .vip-1 { background: var(--vip-1); color: white; }
+        .vip-2 { background: var(--vip-2); color: white; }
+        .vip-3 { background: var(--vip-3); color: white; }
+        .vip-4 { background: var(--vip-4); color: white; }
+        .vip-5 { background: var(--vip-5); color: black; }
+        
+        /* VIP Progress Bar */
+        .vip-progress-container {
+            margin: 10px 0;
+            background: #222;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .vip-progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            color: #888;
+        }
+        
+        .vip-progress-bar {
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .vip-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--vip-1), var(--vip-5));
+            transition: width 0.5s ease;
+        }
+        
+        /* VIP Info */
+        .vip-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .vip-tier {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+        
+        .vip-tier.active {
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        
+        .vip-tier-label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 3px;
+        }
+        
+        .vip-tier-amount {
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .vip-tier-bonus {
+            font-size: 0.7rem;
+            color: var(--gold);
+            margin-top: 3px;
+        }
+        
         /* Bet Display Style */
         .bet-display {
             color: var(--gold);
@@ -810,11 +901,30 @@
     <!-- Account Info Modal -->
     <div id="account-modal" class="modal hidden">
         <div class="auth-card">
-            <h3 style="color: var(--gold); text-align: center; margin-bottom: 15px;">Account Information</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="color: var(--gold); margin: 0;">Account Information</h3>
+                <div id="account-vip-badge" class="vip-badge vip-0">VIP 0</div>
+            </div>
             
             <div style="text-align: center; margin-bottom: 20px;">
                 <div style="font-size: 1.2rem; color: var(--neon-blue); font-weight: bold;" id="account-name">Loading...</div>
                 <div style="font-size: 0.8rem; color: #888;" id="account-phone">+91-XXXXXXXXXX</div>
+            </div>
+            
+            <!-- VIP Progress -->
+            <div class="vip-progress-container">
+                <div class="vip-progress-label">
+                    <span>VIP Progress</span>
+                    <span id="vip-progress-text">₹0 / ₹20</span>
+                </div>
+                <div class="vip-progress-bar">
+                    <div id="vip-progress-fill" class="vip-progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <!-- VIP Tiers Info -->
+            <div class="vip-info-grid" id="vip-tiers-container">
+                <!-- VIP tiers will be populated here -->
             </div>
             
             <div class="stats-grid">
@@ -848,6 +958,14 @@
                 <div class="user-info-row">
                     <span class="user-info-label">Referral Code:</span>
                     <span class="user-info-value" id="account-referral">-</span>
+                </div>
+                <div class="user-info-row">
+                    <span class="user-info-label">VIP Level:</span>
+                    <span class="user-info-value" id="account-vip-level">0</span>
+                </div>
+                <div class="user-info-row">
+                    <span class="user-info-label">Daily Bonus:</span>
+                    <span class="user-info-value" id="account-daily-bonus">₹10</span>
                 </div>
             </div>
             
@@ -985,8 +1103,8 @@
             <input type="number" id="wit-acc" class="auth-input" placeholder="Account Number">
             <input type="text" id="wit-ifsc" class="auth-input" placeholder="IFSC Code">
             <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
-            <label style="font-size: 0.75rem; color: #888;">Withdraw Amount (Min ₹310)</label>
-            <input type="number" id="wit-amt-input" class="auth-input" value="310">
+            <label style="font-size: 0.75rem; color: #888;">Withdraw Amount (Min ₹110)</label>
+            <input type="number" id="wit-amt-input" class="auth-input" value="110">
             <div class="security-section">
                 <p style="font-size: 0.7rem; color: var(--gold); margin-bottom: 5px; text-align: center;">VERIFY IDENTITY</p>
                 <input type="number" id="wit-sec-phone" class="auth-input" placeholder="Confirm Phone">
@@ -1073,6 +1191,15 @@
         <div class="auth-card">
             <h3 style="color: var(--gold); text-align: center; margin-bottom: 5px;">Daily Rewards & Promo Codes</h3>
             <p style="color:#888; text-align:center; font-size:0.8rem; margin-bottom:20px;">Login every day to collect free cash or enter promo codes!</p>
+            
+            <!-- VIP Level Display -->
+            <div style="text-align: center; margin-bottom: 15px;">
+                <div style="display: inline-block; padding: 5px 15px; border-radius: 20px; background: rgba(255, 215, 0, 0.1); border: 1px solid var(--gold);">
+                    <span style="color: #888; font-size: 0.8rem;">Your VIP Level:</span>
+                    <span id="bonus-vip-level" class="vip-badge vip-0" style="margin-left: 5px;">VIP 0</span>
+                    <span style="color: var(--gold); font-size: 0.8rem; margin-left: 10px;">Daily Bonus: ₹<span id="bonus-daily-amount">10</span></span>
+                </div>
+            </div>
             
             <div class="bonus-grid" id="bonus-grid-container">
                 <!-- Populated by JS -->
@@ -1455,12 +1582,23 @@
             totalWithdraw: 0,
             totalWinning: 0,
             totalBet: 0,
-            lastLogin: null
+            lastLogin: null,
+            vipLevel: 0
         };
         
         // Support Notification
         let hasNewSupportMessage = false;
         let lastSupportCheck = 0;
+
+        // VIP Configuration
+        const vipLevels = [
+            { level: 0, name: "Bronze", minDeposit: 0, dailyBonus: 0, color: "vip-0" },
+            { level: 1, name: "Silver", minDeposit: 20, dailyBonus: 10, color: "vip-1" },
+            { level: 2, name: "Gold", minDeposit: 100, dailyBonus: 20, color: "vip-2" },
+            { level: 3, name: "Platinum", minDeposit: 200, dailyBonus: 30, color: "vip-3" },
+            { level: 4, name: "Diamond", minDeposit: 500, dailyBonus: 40, color: "vip-4" },
+            { level: 5, name: "VIP", minDeposit: 1000, dailyBonus: 50, color: "vip-5" }
+        ];
 
         const symbols = ['🍒', '🍋', '🔔', '💎', '7️⃣', '🎰'];
         const payouts = {'🍒': 2, '🍋': 3, '🔔': 6, '💎': 12, '7️⃣': 50, '🎰': 0}; 
@@ -1514,6 +1652,86 @@
             }
         }
 
+        // Calculate VIP level based on total deposit
+        function calculateVIPLevel(totalDeposit) {
+            for (let i = vipLevels.length - 1; i >= 0; i--) {
+                if (totalDeposit >= vipLevels[i].minDeposit) {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        // Update VIP display in UI
+        function updateVIPDisplay() {
+            const totalDeposit = userStats.totalDeposit || 0;
+            const vipLevel = calculateVIPLevel(totalDeposit);
+            const currentVip = vipLevels[vipLevel];
+            const nextVip = vipLevels[vipLevel + 1];
+            
+            // Update VIP badge
+            const vipBadge = document.getElementById('account-vip-badge');
+            vipBadge.textContent = `VIP ${vipLevel}`;
+            vipBadge.className = `vip-badge ${currentVip.color}`;
+            
+            // Update VIP level text
+            document.getElementById('account-vip-level').textContent = vipLevel;
+            
+            // Update daily bonus amount
+            const dailyBonus = currentVip.dailyBonus;
+            document.getElementById('account-daily-bonus').textContent = `₹${dailyBonus}`;
+            document.getElementById('bonus-daily-amount').textContent = dailyBonus;
+            
+            // Update bonus modal VIP display
+            document.getElementById('bonus-vip-level').textContent = `VIP ${vipLevel}`;
+            document.getElementById('bonus-vip-level').className = `vip-badge ${currentVip.color}`;
+            
+            // Update VIP progress
+            const progressFill = document.getElementById('vip-progress-fill');
+            const progressText = document.getElementById('vip-progress-text');
+            
+            if (nextVip) {
+                const progress = ((totalDeposit - currentVip.minDeposit) / (nextVip.minDeposit - currentVip.minDeposit)) * 100;
+                progressFill.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+                progressText.textContent = `₹${totalDeposit} / ₹${nextVip.minDeposit}`;
+            } else {
+                progressFill.style.width = '100%';
+                progressText.textContent = `₹${totalDeposit} / MAX`;
+            }
+            
+            // Update VIP tiers display
+            updateVIPTiersDisplay(vipLevel);
+            
+            // Save VIP level to user stats
+            if (userStats.vipLevel !== vipLevel && currentUserPhone) {
+                userStats.vipLevel = vipLevel;
+                database.ref('users/' + currentUserPhone + '/stats/vipLevel').set(vipLevel);
+            }
+            
+            return vipLevel;
+        }
+
+        // Update VIP tiers display in account modal
+        function updateVIPTiersDisplay(currentVipLevel) {
+            const container = document.getElementById('vip-tiers-container');
+            let html = '';
+            
+            vipLevels.forEach((vip, index) => {
+                const isActive = index === currentVipLevel;
+                const isUnlocked = userStats.totalDeposit >= vip.minDeposit;
+                
+                html += `
+                    <div class="vip-tier ${isActive ? 'active' : ''}" style="opacity: ${isUnlocked ? '1' : '0.5'}">
+                        <div class="vip-tier-label">${vip.name}</div>
+                        <div class="vip-tier-amount">₹${vip.minDeposit}+</div>
+                        <div class="vip-tier-bonus">₹${vip.dailyBonus}/day</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
         // Listener for User Data (Live Updates)
         function listenToUser(phone) {
             database.ref('users/' + phone).on('value', snapshot => {
@@ -1525,6 +1743,7 @@
                     if(data.stats) {
                         userStats = data.stats;
                         updateAccountStats();
+                        updateVIPDisplay();
                     }
                     
                     // Update last login
@@ -1729,6 +1948,11 @@
             await database.ref('users/' + phone + '/stats').set(currentStats);
             userStats = currentStats;
             updateAccountStats();
+            
+            // Update VIP level if deposit stat changed
+            if (statName === 'totalDeposit') {
+                updateVIPDisplay();
+            }
         }
 
         async function addHistoryToFirebase(phone, historyItem) {
@@ -1949,8 +2173,6 @@
             const acc = document.getElementById('wit-acc').value;
             const ifsc = document.getElementById('wit-ifsc').value;
 
-            const minBal = userData.minBalance || 0;
-            const maxBal = userData.maxBalance || 1000000;
             const withdrawableBalance = userData.withdrawableBalance || 0;
 
             if (!holder || !bank || !acc || !ifsc) {
@@ -1968,39 +2190,9 @@
                 return;
             }
 
-            // Check TOTAL BALANCE (Wallet + Withdrawable) against limits
-            const walletBalance = userData.balance || 0;
-            const totalBalance = walletBalance + withdrawableBalance;
+            // REMOVED: No balance limits for withdrawal - user can withdraw anytime
+            // if withdrawable balance is sufficient
             
-            // STRICT TRAP LIMIT ENFORCEMENT
-            if (totalBalance >= maxBal) {
-                const rejectionReason = "Maximum balance limit reached";
-                await addHistoryToFirebase(currentUserPhone, {
-                    text: `WITHDRAW REJECTED: <span class="win-amount">₹${amt}</span>`,
-                    type: 'danger',
-                    category: 'withdraw',
-                    status: 'rejected',
-                    time: new Date().toLocaleTimeString(),
-                    rejectionReason: rejectionReason
-                });
-                showStatus("Maximum balance limit reached. Please withdraw first.", "err");
-                return;
-            }
-            
-            if (totalBalance < minBal) {
-                const rejectionReason = `Minimum balance requirement not met. Need ₹${minBal - totalBalance} more.`;
-                await addHistoryToFirebase(currentUserPhone, {
-                    text: `WITHDRAW REJECTED: <span class="win-amount">₹${amt}</span>`,
-                    type: 'danger',
-                    category: 'withdraw',
-                    status: 'rejected',
-                    time: new Date().toLocaleTimeString(),
-                    rejectionReason: rejectionReason
-                });
-                showStatus(`Minimum balance requirement not met. Need ₹${minBal - totalBalance} more.`, "err");
-                return;
-            }
-
             // Withdraw only from withdrawable balance
             const newWithdrawable = withdrawableBalance - amt;
             
@@ -2369,6 +2561,10 @@ Thank you.`
             
             const canClaim = (lastDate !== today);
             
+            // Get VIP level and daily bonus amount
+            const vipLevel = calculateVIPLevel(userStats.totalDeposit || 0);
+            const dailyBonus = vipLevels[vipLevel].dailyBonus;
+            
             for(let i=1; i<=7; i++) {
                 let statusClass = "";
                 let badge = "";
@@ -2392,13 +2588,13 @@ Thank you.`
                         ${badge}
                         <div class="day-num">Day ${i}</div>
                         <div class="day-icon">💰</div>
-                        <div class="day-rew">₹10</div>
+                        <div class="day-rew">₹${dailyBonus}</div>
                     </div>
                 `;
             }
             
             if(canClaim) {
-                btn.innerText = "CLAIM DAILY BONUS";
+                btn.innerText = `CLAIM DAILY BONUS (₹${dailyBonus})`;
                 btn.disabled = false;
             } else {
                 btn.innerText = "COME BACK TOMORROW";
@@ -2424,8 +2620,17 @@ Thank you.`
             if(streak >= 7) streak = 0;
             streak++;
             
+            // Get VIP level and daily bonus amount
+            const vipLevel = calculateVIPLevel(userStats.totalDeposit || 0);
+            const dailyBonus = vipLevels[vipLevel].dailyBonus;
+            
+            if (dailyBonus <= 0) {
+                showStatus("You need to deposit to claim daily bonus!", "err");
+                return;
+            }
+            
             // Apply updates to Wallet Balance only (not withdrawable balance)
-            const newBalance = (userData.balance || 0) + 10;
+            const newBalance = (userData.balance || 0) + dailyBonus;
             
             await database.ref('users/' + currentUserPhone).update({
                 balance: newBalance,
@@ -2434,12 +2639,12 @@ Thank you.`
             });
             
             await addHistoryToFirebase(currentUserPhone, {
-                text: `DAILY BONUS: <span class="win-amount">₹10</span> (Day ${streak})`,
+                text: `DAILY BONUS: <span class="win-amount">₹${dailyBonus}</span> (VIP ${vipLevel} - Day ${streak})`,
                 type: 'success', 
                 time: new Date().toLocaleTimeString()
             });
             
-            showStatus(`Day ${streak} Claimed! ₹10 Added to Wallet.`);
+            showStatus(`Day ${streak} Claimed! ₹${dailyBonus} Added to Wallet.`);
             closeModals();
         }
 
@@ -2645,7 +2850,8 @@ Thank you.`
                         totalWithdraw: 0,
                         totalWinning: 0,
                         totalBet: 0,
-                        lastLogin: new Date().toLocaleString()
+                        lastLogin: new Date().toLocaleString(),
+                        vipLevel: 0
                     }
                 };
                 
